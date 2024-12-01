@@ -1,49 +1,35 @@
 package main
 
 import (
-	"github.com/gorilla/mux"
-	"github.com/joho/godotenv"
-	"github.com/rs/cors"
+	"github.com/Zapharaos/fihub-backend/internal/app"
+	"github.com/Zapharaos/fihub-backend/pkg/env"
 	"log"
 	"net/http"
-	"os"
+	"time"
 )
+import "github.com/Zapharaos/fihub-backend/internal/router"
 
 func main() {
 
-	// Load the .env file in the current directory
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal(err)
-		return
+	// Init application
+	app.Init()
+	defer app.Stop()
+
+	// TODO : Configure
+
+	// Router
+	r := router.New()
+
+	// Server
+	srv := &http.Server{
+		Addr:         ":" + env.GetString("GO_PORT", "8080"),
+		Handler:      r,
+		WriteTimeout: 30 * time.Second,
+		ReadTimeout:  10 * time.Second,
+		IdleTimeout:  time.Minute,
 	}
 
-	// Create a new router
-	r := mux.NewRouter()
+	log.Println("Listening on " + srv.Addr)
 
-	// Blackjack game endpoints
-	//r.HandleFunc("/api/games/blackjack", games.BlackjackCreate).Methods("POST")
-
-	// Get the allowed origins
-	allowedOrigins := os.Getenv("ALLOWED_ORIGINS")
-
-	// Middleware
-	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{allowedOrigins},
-		AllowedMethods:   []string{"GET", "POST"},
-		AllowedHeaders:   []string{"Content-Type", "Authorization"},
-		AllowCredentials: true,
-	})
-
-	// Create handler
-	handler := c.Handler(r)
-
-	// Get the port
-	httpPort := os.Getenv("GO_PORT")
-	if httpPort == "" {
-		httpPort = "8080"
-	}
-
-	// Start the HTTP server
-	log.Fatal(http.ListenAndServe(":"+httpPort, handler))
+	log.Fatal(srv.ListenAndServe())
 }
