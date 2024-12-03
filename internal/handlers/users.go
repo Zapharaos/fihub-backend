@@ -2,27 +2,44 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/Zapharaos/fihub-backend/internal/auth/users"
+	"github.com/Zapharaos/fihub-backend/internal/handlers/render"
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"net/http"
 )
 
+// CreateUser godoc
+//
+//	@Id				CreateUser
+//
+//	@Summary		Create a new user
+//	@Description	Create a new user.
+//	@Tags			Users
+//	@Accept			json
+//	@Produce		json
+//	@Param			user	body	users.UserWithPassword	true	"user (json)"
+//	@Security		Bearer
+//	@Success		200	{object}	users.User				"user"
+//	@Failure		400	{object}	render.ErrorResponse	"Bad Request"
+//	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
+//	@Router			/api/v1/users [post]
 func CreateUser(w http.ResponseWriter, r *http.Request) {
 	// Parse request body
 	var userWithPassword users.UserWithPassword
 	err := json.NewDecoder(r.Body).Decode(&userWithPassword)
 	if err != nil {
 		zap.L().Warn("User json decode", zap.Error(err))
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	// Validate user
 	if ok, err := userWithPassword.IsValid(); !ok {
 		zap.L().Warn("User is not valid", zap.Error(err))
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		render.BadRequest(w, r, err)
 		return
 	}
 
@@ -34,8 +51,8 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if exists {
-		zap.L().Warn("User already exists", zap.String("login", userWithPassword.Email))
-		http.Error(w, "User already exists", http.StatusBadRequest)
+		zap.L().Warn("User already exists", zap.String("email", userWithPassword.Email))
+		render.BadRequest(w, r, fmt.Errorf("user already exists"))
 		return
 	}
 
@@ -43,7 +60,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	userID, err := users.R().Create(&userWithPassword)
 	if err != nil {
 		zap.L().Error("PostUser.Create", zap.Error(err))
-		http.Error(w, "Failed to create user", http.StatusInternalServerError)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
@@ -60,10 +77,24 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Marshal user to JSON
-	json.NewEncoder(w).Encode(user)
+	render.JSON(w, r, user)
 }
 
+// GetUser godoc
+//
+//	@Id				GetUser
+//
+//	@Summary		Get a user
+//	@Description	Get a user by id.
+//	@Tags			Users
+//	@Produce		json
+//	@Param			id	path	string	true	"user id"
+//	@Security		Bearer
+//	@Success		200	{object}	users.User				"user"
+//	@Failure		400	{object}	render.ErrorResponse	"Bad Request"
+//	@Failure		404	{string}	string					"Not Found"
+//	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
+//	@Router			/api/v1/users/{id} [get]
 func GetUser(w http.ResponseWriter, r *http.Request) {
 
 	// Retrieve userID from URL
@@ -71,7 +102,7 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 	userID, err := uuid.Parse(id)
 	if err != nil {
 		zap.L().Warn("Parse user id", zap.Error(err))
-		http.Error(w, "Invalid user ID", http.StatusBadRequest)
+		render.BadRequest(w, r, fmt.Errorf("invalid user id"))
 		return
 	}
 
@@ -79,11 +110,11 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 	user, err := users.R().Get(userID)
 	if err != nil {
 		zap.L().Error("Cannot load user", zap.String("uuid", userID.String()), zap.Error(err))
-		http.Error(w, "Failed to get user", http.StatusInternalServerError)
+		render.Error(w, r, nil, "")
 		return
 	} else if user == nil {
 		zap.L().Debug("User not found", zap.String("uuid", userID.String()))
-		http.Error(w, "User not found", http.StatusNotFound)
+		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 

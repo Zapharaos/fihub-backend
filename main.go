@@ -14,6 +14,19 @@ import (
 )
 import "github.com/Zapharaos/fihub-backend/internal/router"
 
+//	@version		1.0
+//	@title			Fihub API Swagger
+//	@description	Fihub API Swagger
+//	@termsOfService	http://swagger.io/terms/
+
+//	@contact.name	Zapharaos
+//	@contact.url	https://matthieu-freitag.com/
+//	@contact.email	contact@matthieu-freitag.com
+
+//	@host	localhost:8000
+
+// @in							header
+// @name
 func main() {
 
 	// Setup application
