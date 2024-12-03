@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/Zapharaos/fihub-backend/internal/database"
+	"github.com/Zapharaos/fihub-backend/internal/app"
 	"github.com/Zapharaos/fihub-backend/pkg/env"
 	"log"
 	"net/http"
@@ -11,24 +11,12 @@ import "github.com/Zapharaos/fihub-backend/internal/router"
 
 func main() {
 
-	// Load the .env file
-	err := env.Load()
-	if err != nil {
-		log.Fatal(err)
-		return
-	}
-
-	// Connect to database
-	db, err := database.New()
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer database.Stop(db)
+	app.Init()
 
 	// Create router
 	r := router.New()
 
-	// Prepare server
+	// Create server
 	srv := &http.Server{
 		Addr:         ":" + env.GetString("GO_PORT", "8080"),
 		Handler:      r,

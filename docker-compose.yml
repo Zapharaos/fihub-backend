@@ -5,12 +5,12 @@ services:
     ports:
       - "${GO_PORT}:${GO_PORT}"
     depends_on:
-      - db
+      - postgres
     volumes:
-      - .:/app
+      - ./:/app
     networks: # Networks to join (Services on the same network can communicate with each other using their name)
       - backend
-  db:
+  postgres:
     image: postgres:latest
     restart: unless-stopped
     ports:

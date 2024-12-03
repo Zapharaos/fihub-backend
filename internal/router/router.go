@@ -34,7 +34,15 @@ func New() *chi.Mux {
 
 	// Declare routes
 	r.Route("/v1", func(r chi.Router) {
+
+		// Health
 		r.Get("/health", handlers.HealthCheckHandler)
+
+		// Users
+		r.Route("/users", func(r chi.Router) {
+			r.Post("/", handlers.CreateUser)
+			r.Get("/{userID}", handlers.GetUser)
+		})
 	})
 
 	// Return router
