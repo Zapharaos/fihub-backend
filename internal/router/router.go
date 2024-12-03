@@ -7,6 +7,7 @@ import (
 	"time"
 )
 
+// New Sets up the server's router
 func New() *chi.Mux {
 	// Create router
 	r := chi.NewRouter()
@@ -41,7 +42,7 @@ func New() *chi.Mux {
 		// Users
 		r.Route("/users", func(r chi.Router) {
 			r.Post("/", handlers.CreateUser)
-			r.Get("/{userID}", handlers.GetUser)
+			r.Get("/{id}", handlers.GetUser)
 		})
 	})
 

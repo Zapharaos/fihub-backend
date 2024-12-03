@@ -10,7 +10,7 @@ var (
 	_globalDB *sqlx.DB
 )
 
-// DB is the main accesor to the global postgresql client singleton
+// DB is the main accessor to the global postgresql client singleton
 func DB() *sqlx.DB {
 	_globalMu.RLock()
 	db := _globalDB

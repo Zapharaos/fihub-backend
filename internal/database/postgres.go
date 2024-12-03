@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
-	"log"
+	"go.uber.org/zap"
 )
 
 // Credentials : Give All DB Information.
@@ -18,6 +18,7 @@ type Credentials struct {
 
 // DbConnection : init DB access.
 func DbConnection(credentials Credentials) (*sqlx.DB, error) {
+
 	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s "+
 		"password=%s dbname=%s sslmode=disable",
 		credentials.Host,
@@ -25,15 +26,19 @@ func DbConnection(credentials Credentials) (*sqlx.DB, error) {
 		credentials.User,
 		credentials.Password,
 		credentials.DbName)
-	log.Println(psqlInfo)
+
+	// Connect
 	db, err := sqlx.Open("postgres", psqlInfo)
 	if err != nil {
-		log.Fatal("DbConnection.Open:", err)
+		zap.L().Error("DbConnection.Open:", zap.Error(err))
 		return nil, err
 	}
+
+	// Ping for verification
 	if err = db.Ping(); err != nil {
-		log.Fatal("DbConnection.Ping:", err)
+		zap.L().Error("DbConnection.Ping:", zap.Error(err))
 		return nil, err
 	}
+
 	return db, nil
 }

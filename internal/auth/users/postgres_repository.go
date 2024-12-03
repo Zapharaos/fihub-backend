@@ -92,6 +92,26 @@ func (r *PostgresRepository) Get(userID uuid.UUID) (*User, error) {
 	return user, nil
 }
 
+// Exists checks if a User exists in the repository
+func (r *PostgresRepository) Exists(email string) (bool, error) {
+	// Prepare query
+	query := `SELECT *
+			  FROM users as u
+			  WHERE u.email = :email`
+	params := map[string]interface{}{
+		"email": email,
+	}
+
+	// Execute query
+	rows, err := r.conn.NamedQuery(query, params)
+	if err != nil {
+		return false, err
+	}
+	defer rows.Close()
+
+	return rows.Next(), nil
+}
+
 func scanUser(rows *sqlx.Rows) (*User, error) {
 	var userWithPassword UserWithPassword
 	err := rows.Scan(
