@@ -24,4 +24,11 @@ go.work.sum
 # env file
 .env
 
+# Jetbrains
 .idea
+
+# Swagger doc
+/docs
+
+# Go Air
+/tmp
