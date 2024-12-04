@@ -23,7 +23,7 @@ import "github.com/Zapharaos/fihub-backend/internal/router"
 //	@contact.url	https://matthieu-freitag.com/
 //	@contact.email	contact@matthieu-freitag.com
 
-//	@host	localhost:8000
+// @host      localhost:8080
 
 // @in							header
 // @name
