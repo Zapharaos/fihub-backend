@@ -1,6 +1,7 @@
 package users
 
 import (
+	"errors"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	"golang.org/x/crypto/bcrypt"
@@ -112,7 +113,51 @@ func (r *PostgresRepository) Exists(email string) (bool, error) {
 	return rows.Next(), nil
 }
 
+// Authenticate returns a User from the repository by its login and password
+func (r *PostgresRepository) Authenticate(email string, password string) (*User, error) {
+	// Prepare query
+	query := `SELECT *
+			  FROM users as u
+			  WHERE u.email = :email`
+	params := map[string]interface{}{
+		"email": email,
+	}
+
+	// Execute query
+	rows, err := r.conn.NamedQuery(query, params)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	// Retrieve user
+	var userWithPassword *UserWithPassword
+	if rows.Next() {
+		userWithPassword, err = scanUserWithPassword(rows)
+		if err != nil {
+			return nil, err
+		}
+
+		err = bcrypt.CompareHashAndPassword([]byte(userWithPassword.Password), []byte(password))
+		if err == nil {
+			return userWithPassword.ToUser(), nil
+		}
+	}
+
+	return nil, errors.New("no user found, invalid credentials")
+}
+
 func scanUser(rows *sqlx.Rows) (*User, error) {
+
+	userWithPassword, err := scanUserWithPassword(rows)
+	if err != nil {
+		return nil, err
+	}
+
+	return userWithPassword.ToUser(), nil
+}
+
+func scanUserWithPassword(rows *sqlx.Rows) (*UserWithPassword, error) {
 	var userWithPassword UserWithPassword
 	err := rows.Scan(
 		&userWithPassword.ID,
@@ -127,15 +172,5 @@ func scanUser(rows *sqlx.Rows) (*User, error) {
 		return nil, err
 	}
 
-	// Create a new User struct without the password hash
-	user := User{
-		ID:        userWithPassword.ID,
-		Email:     userWithPassword.Email,
-		FirstName: userWithPassword.FirstName,
-		LastName:  userWithPassword.LastName,
-		CreatedAt: userWithPassword.CreatedAt,
-		UpdatedAt: userWithPassword.UpdatedAt,
-	}
-
-	return &user, nil
+	return &userWithPassword, nil
 }

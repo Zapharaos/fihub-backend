@@ -23,6 +23,18 @@ type User struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
+// ToUser Returns a User struct without the password hash
+func (u *UserWithPassword) ToUser() *User {
+	return &User{
+		ID:        u.ID,
+		Email:     u.Email,
+		FirstName: u.FirstName,
+		LastName:  u.LastName,
+		CreatedAt: u.CreatedAt,
+		UpdatedAt: u.UpdatedAt,
+	}
+}
+
 // FullName returns the full name of the user.
 func (u *User) FullName() string {
 	return u.LastName + " " + u.FirstName

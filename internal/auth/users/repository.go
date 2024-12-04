@@ -12,6 +12,7 @@ type Repository interface {
 	Create(user *UserWithPassword) (uuid.UUID, error)
 	Get(userID uuid.UUID) (*User, error)
 	Exists(email string) (bool, error)
+	Authenticate(email string, password string) (*User, error)
 }
 
 var (
