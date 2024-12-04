@@ -40,13 +40,11 @@ func (r *PostgresRepository) Create(user *UserWithPassword) (uuid.UUID, error) {
 	updateTS := creationTS
 
 	// Prepare query
-	query := `INSERT INTO users (id, email, first_name, last_name, password, created_at, updated_at)
-				VALUES (:id, :email, :first_name, :last_name, :password, :created_at, :updated_at)`
+	query := `INSERT INTO users (id, email, password, created_at, updated_at)
+				VALUES (:id, :email, :password, :created_at, :updated_at)`
 	params := map[string]interface{}{
 		"id":         userID,
 		"email":      user.Email,
-		"first_name": user.FirstName,
-		"last_name":  user.LastName,
 		"password":   hashedPassword,
 		"created_at": creationTS,
 		"updated_at": updateTS,
@@ -163,8 +161,6 @@ func scanUserWithPassword(rows *sqlx.Rows) (*UserWithPassword, error) {
 		&userWithPassword.ID,
 		&userWithPassword.Email,
 		&userWithPassword.Password,
-		&userWithPassword.FirstName,
-		&userWithPassword.LastName,
 		&userWithPassword.CreatedAt,
 		&userWithPassword.UpdatedAt,
 	)

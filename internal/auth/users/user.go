@@ -17,8 +17,6 @@ type UserWithPassword struct {
 type User struct {
 	ID        uuid.UUID `json:"id"`
 	Email     string    `json:"email"`
-	FirstName string    `json:"first_name"`
-	LastName  string    `json:"last_name"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
@@ -28,34 +26,20 @@ func (u *UserWithPassword) ToUser() *User {
 	return &User{
 		ID:        u.ID,
 		Email:     u.Email,
-		FirstName: u.FirstName,
-		LastName:  u.LastName,
 		CreatedAt: u.CreatedAt,
 		UpdatedAt: u.UpdatedAt,
 	}
 }
 
-// FullName returns the full name of the user.
-func (u *User) FullName() string {
-	return u.LastName + " " + u.FirstName
-}
-
 // IsValid checks if a user is valid and has no missing mandatory PGFields
 // * Login must not be empty
 // * Login must not be shorter than 4 characters
-// * LastName must not be empty
 func (u *User) IsValid() (bool, error) {
 	if u.Email == "" {
 		return false, errors.New("missing Email")
 	}
 	if !email.IsValid(u.Email) {
 		return false, errors.New("email is not valid")
-	}
-	if u.FirstName == "" {
-		return false, errors.New("missing Firstname")
-	}
-	if u.LastName == "" {
-		return false, errors.New("missing Lastname")
 	}
 	return true, nil
 }
