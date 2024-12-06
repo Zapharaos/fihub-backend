@@ -3,6 +3,7 @@ package auth
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/Zapharaos/fihub-backend/internal/app"
 	"github.com/Zapharaos/fihub-backend/internal/auth/users"
 	"github.com/Zapharaos/fihub-backend/internal/handlers/render"
@@ -65,21 +66,21 @@ func (a *Auth) GetToken(w http.ResponseWriter, r *http.Request) {
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		zap.L().Error("GetToken.ReadAll:", zap.Error(err))
-		w.WriteHeader(http.StatusBadRequest)
+		render.BadRequest(w, r, fmt.Errorf("login-invalid"))
 		return
 	}
 
 	err = json.Unmarshal(body, &userCredentials)
 	if err != nil {
 		zap.L().Error("GetToken.Decode:", zap.Error(err))
-		w.WriteHeader(http.StatusBadRequest)
+		render.BadRequest(w, r, fmt.Errorf("login-invalid"))
 		return
 	}
 
 	user, err := users.R().Authenticate(userCredentials.Email, userCredentials.Password)
 	if err != nil {
 		zap.L().Warn("GetToken.Authenticate", zap.Error(err))
-		w.WriteHeader(http.StatusBadRequest)
+		render.BadRequest(w, r, fmt.Errorf("login-invalid"))
 		return
 	}
 
