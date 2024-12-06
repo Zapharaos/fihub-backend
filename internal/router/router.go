@@ -1,6 +1,7 @@
 package router
 
 import (
+	"github.com/Zapharaos/fihub-backend/internal/auth"
 	"github.com/Zapharaos/fihub-backend/internal/handlers"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -12,6 +13,9 @@ import (
 func New() *chi.Mux {
 	// Create router
 	r := chi.NewRouter()
+
+	// Create auth
+	a := auth.New(auth.CheckHeader)
 
 	// Setup router
 	r.Use(middleware.RequestID)
@@ -40,10 +44,19 @@ func New() *chi.Mux {
 		// Health
 		r.Get("/health", handlers.HealthCheckHandler)
 
-		// Users
-		r.Route("/users", func(r chi.Router) {
-			r.Post("/", handlers.CreateUser)
-			r.Get("/{id}", handlers.GetUser)
+		// Authentication
+		r.Post("/auth/token", a.GetToken)
+
+		// Protected routes
+		r.Group(func(r chi.Router) {
+
+			// TODO : use auth middleware
+
+			// Users
+			r.Route("/users", func(r chi.Router) {
+				r.Post("/", handlers.CreateUser)
+				r.Get("/{id}", handlers.GetUser)
+			})
 		})
 	})
 
