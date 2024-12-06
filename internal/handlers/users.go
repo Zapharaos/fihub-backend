@@ -52,7 +52,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 	if exists {
 		zap.L().Warn("User already exists", zap.String("email", userWithPassword.Email))
-		render.BadRequest(w, r, fmt.Errorf("user already exists"))
+		render.BadRequest(w, r, fmt.Errorf("email-used"))
 		return
 	}
 

@@ -36,10 +36,10 @@ func (u *UserWithPassword) ToUser() *User {
 // * Login must not be shorter than 4 characters
 func (u *User) IsValid() (bool, error) {
 	if u.Email == "" {
-		return false, errors.New("missing Email")
+		return false, errors.New("email-required")
 	}
 	if !email.IsValid(u.Email) {
-		return false, errors.New("email is not valid")
+		return false, errors.New("email-invalid")
 	}
 	return true, nil
 }
@@ -53,13 +53,13 @@ func (u *UserWithPassword) IsValid() (bool, error) {
 		return false, err
 	}
 	if u.Password == "" {
-		return false, errors.New("missing Password")
+		return false, errors.New("password-required")
 	}
 	if len(u.Password) < 8 {
-		return false, errors.New("password is too short (less than 6 characters)")
+		return false, errors.New("password-invalid")
 	}
 	if len(u.Password) > 64 {
-		return false, errors.New("password is too long (more than 64 characters)")
+		return false, errors.New("password-invalid")
 	}
 	return true, nil
 }
