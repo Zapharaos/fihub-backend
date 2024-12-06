@@ -1,11 +1,14 @@
 package auth
 
 import (
+	"context"
 	"encoding/json"
+	"github.com/Zapharaos/fihub-backend/internal/app"
 	"github.com/Zapharaos/fihub-backend/internal/auth/users"
 	"github.com/Zapharaos/fihub-backend/internal/handlers/render"
 	"github.com/Zapharaos/fihub-backend/internal/utils"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"io"
 	"net/http"
@@ -110,4 +113,72 @@ func (a *Auth) GenerateToken(user *users.User) (JwtToken, error) {
 	return JwtToken{Token: tokenString}, nil
 }
 
-// TODO : Middleware
+// ValidateToken validate a JWT token
+func (a *Auth) ValidateToken(tokenString string) (jwt.MapClaims, error) {
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		return a.signingKey, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok || !token.Valid {
+		return nil, jwt.ErrInvalidKey
+	}
+
+	return claims, nil
+}
+
+// Middleware is a middleware to authenticate and validate JWT tokens
+func (a *Auth) Middleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// first check header if enabled
+		var tokenString string
+		if a.checks&CheckHeader != 0 {
+			tokenString = r.Header.Get("Authorization")
+		} else if a.checks&CheckQuery != 0 {
+			tokenString = r.URL.Query().Get("token")
+		}
+
+		if tokenString == "" {
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+
+		claims, err := a.ValidateToken(tokenString)
+		if err != nil {
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+
+		// get the id from the claims
+		rawUserID, ok := claims["id"]
+		if !ok {
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+
+		// parse uuid
+		userId, err := uuid.Parse(rawUserID.(string))
+		if err != nil {
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+
+		// get the user from the repository
+		user, err := users.R().Get(userId)
+		if err != nil {
+			zap.L().Error("Cannot load full user", zap.Error(err))
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+		if user == nil {
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+
+		ctx := context.WithValue(r.Context(), app.ContextKeyUser, *user)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
+}

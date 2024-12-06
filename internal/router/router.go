@@ -50,11 +50,12 @@ func New() *chi.Mux {
 		// Protected routes
 		r.Group(func(r chi.Router) {
 
-			// TODO : use auth middleware
+			r.Use(a.Middleware)
 
 			// Users
 			r.Route("/users", func(r chi.Router) {
 				r.Post("/", handlers.CreateUser)
+				r.Get("/me", handlers.GetUserSelf)
 				r.Get("/{id}", handlers.GetUser)
 			})
 		})

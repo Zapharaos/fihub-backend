@@ -121,3 +121,28 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 	// Marshal user to JSON
 	json.NewEncoder(w).Encode(user)
 }
+
+// GetUserSelf godoc
+//
+//	@Id				GetUserSelf
+//
+//	@Summary		Get the currently authenticated user
+//	@Description	Retrieves the currently authenticated user.
+//	@Tags			Users
+//	@Produce		json
+//	@Security		Bearer
+//	@Success		200	{object}	users.User				"user"
+//	@Failure		400	{string}	string					"Bad Request"
+//	@Failure		401	{string}	string					"Permission denied"
+//	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
+//	@Router			/api/v1/users/me [get]
+func GetUserSelf(w http.ResponseWriter, r *http.Request) {
+	userCtx, found := GetUserFromContext(r)
+	if !found {
+		zap.L().Debug("No context user provided")
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	render.JSON(w, r, userCtx)
+}

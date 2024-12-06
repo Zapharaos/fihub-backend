@@ -25,8 +25,9 @@ import "github.com/Zapharaos/fihub-backend/internal/router"
 
 // @host      localhost:8080
 
+// @securityDefinitions.apikey	Bearer
 // @in							header
-// @name
+// @name						Authorization
 func main() {
 
 	// Setup application
