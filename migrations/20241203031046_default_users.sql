@@ -18,3 +18,5 @@ CREATE TABLE "users"
 -- +goose StatementBegin
 SELECT 'down SQL query';
 -- +goose StatementEnd
+
+DROP TABLE users;

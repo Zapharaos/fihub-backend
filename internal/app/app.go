@@ -2,6 +2,7 @@ package app
 
 import (
 	"github.com/Zapharaos/fihub-backend/internal/auth/users"
+	"github.com/Zapharaos/fihub-backend/internal/brokers"
 	"github.com/Zapharaos/fihub-backend/internal/database"
 	"github.com/Zapharaos/fihub-backend/pkg/env"
 	"go.uber.org/zap"
@@ -116,5 +117,11 @@ func initPostgres() {
 func initRepositories() {
 	// Setup for postgres
 	dbClient := postgres.DB()
+
+	// Auth
 	users.ReplaceGlobals(users.NewPostgresRepository(dbClient))
+
+	// Brokers
+	brokerRepository := brokers.NewPostgresRepository(dbClient)
+	brokers.ReplaceGlobals(brokers.NewRepository(brokerRepository))
 }

@@ -57,6 +57,19 @@ func New() *chi.Mux {
 				r.Post("/", handlers.CreateUser)
 				r.Get("/me", handlers.GetUserSelf)
 				r.Get("/{id}", handlers.GetUser)
+
+				// User's Brokers
+				/*r.Route("/{id}/brokers", func(ur chi.Router) {
+					r.Post("/", handlers.CreateUserBroker)
+					r.Get("/", handlers.GetUserBrokers)
+					r.Put("/{id}", handlers.UpdateUserBroker)
+					r.Delete("/{id}", handlers.DeleteUserBroker)
+				})*/
+			})
+
+			// Brokers
+			r.Route("/brokers", func(r chi.Router) {
+				r.Get("/", handlers.GetBrokers)
 			})
 		})
 	})
