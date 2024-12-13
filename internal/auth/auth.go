@@ -134,6 +134,12 @@ func (a *Auth) ValidateToken(tokenString string) (jwt.MapClaims, error) {
 // Middleware is a middleware to authenticate and validate JWT tokens
 func (a *Auth) Middleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/api/v1/users" && r.Method == "POST" {
+			// No need for middleware for user creation
+			next.ServeHTTP(w, r)
+			return
+		}
+
 		// first check header if enabled
 		var tokenString string
 		if a.checks&CheckHeader != 0 {

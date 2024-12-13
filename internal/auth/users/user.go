@@ -32,8 +32,8 @@ func (u *UserWithPassword) ToUser() *User {
 }
 
 // IsValid checks if a user is valid and has no missing mandatory PGFields
-// * Login must not be empty
-// * Login must not be shorter than 4 characters
+// * Email must not be empty
+// * Email must not be valid
 func (u *User) IsValid() (bool, error) {
 	if u.Email == "" {
 		return false, errors.New("email-required")
