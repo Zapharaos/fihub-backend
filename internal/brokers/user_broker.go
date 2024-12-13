@@ -17,19 +17,22 @@ type UserBrokerInput struct {
 	BrokerID string `json:"broker_id"`
 }
 
-// ToUserBroker checks if a UserBrokerInput is valid and converts it into UserBroker type
-// * BrokerID must not be of uuid.UUID type
-func (ubi *UserBrokerInput) ToUserBroker() (UserBroker, bool, error) {
-
-	// BrokerID : Validate
-	brokerID, err := uuid.Parse(ubi.BrokerID)
-	if err != nil {
-		return UserBroker{}, false, errors.New("broker-required")
+// IsValid checks if a UserBrokerInput is valid and has no missing mandatory PGFields
+// * BrokerID must be valid
+func (u *UserBrokerInput) IsValid() (bool, error) {
+	if _, err := uuid.Parse(u.BrokerID); err != nil {
+		return false, errors.New("broker-required")
 	}
+	return true, nil
+}
 
-	// Valid
-	userBroker := UserBroker{
+// ToUserBroker Returns a UserBroker struct
+func (u *UserBrokerInput) ToUserBroker() UserBroker {
+
+	// BrokerID
+	brokerID, _ := uuid.Parse(u.BrokerID)
+
+	return UserBroker{
 		BrokerID: brokerID,
 	}
-	return userBroker, true, nil
 }

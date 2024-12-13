@@ -7,6 +7,13 @@ import (
 	"time"
 )
 
+// UserInput extends UserWithPassword with a password-confirmation and checkbox
+type UserInput struct {
+	UserWithPassword
+	Confirmation string `json:"confirmation"`
+	Checkbox     bool   `json:"checkbox"`
+}
+
 // UserWithPassword extends User with a password field for authentication purposes
 type UserWithPassword struct {
 	User
@@ -28,6 +35,24 @@ func (u *UserWithPassword) ToUser() *User {
 		Email:     u.Email,
 		CreatedAt: u.CreatedAt,
 		UpdatedAt: u.UpdatedAt,
+	}
+}
+
+// ToUser Returns a User struct
+func (u *UserInput) ToUser() User {
+	return User{
+		ID:        u.ID,
+		Email:     u.Email,
+		CreatedAt: u.CreatedAt,
+		UpdatedAt: u.UpdatedAt,
+	}
+}
+
+// ToUserWithPassword Returns a UserWithPassword struct
+func (u *UserInput) ToUserWithPassword() *UserWithPassword {
+	return &UserWithPassword{
+		User:     u.ToUser(),
+		Password: u.Password,
 	}
 }
 
@@ -60,6 +85,27 @@ func (u *UserWithPassword) IsValid() (bool, error) {
 	}
 	if len(u.Password) > 64 {
 		return false, errors.New("password-invalid")
+	}
+	return true, nil
+}
+
+// IsValid checks if a user input is valid and has no missing mandatory PGFields
+// * UserWithPassword must be valid (see UserWithPassword struct)
+// * Confirmation must not be empty
+// * Confirmation must be equal to UserWithPassword.Password
+// * Checkbox must be true
+func (u *UserInput) IsValid() (bool, error) {
+	if ok, err := u.UserWithPassword.IsValid(); !ok {
+		return false, err
+	}
+	if u.Confirmation == "" {
+		return false, errors.New("confirmation-required")
+	}
+	if u.Confirmation != u.Password {
+		return false, errors.New("confirmation-invalid")
+	}
+	if u.Checkbox != true {
+		return false, errors.New("checkbox-invalid")
 	}
 	return true, nil
 }

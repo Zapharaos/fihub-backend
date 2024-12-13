@@ -18,7 +18,7 @@ import (
 //	@Tags			Users
 //	@Accept			json
 //	@Produce		json
-//	@Param			user	body	users.UserWithPassword	true	"user (json)"
+//	@Param			user	body	users.UserInput	true	"user (json)"
 //	@Security		Bearer
 //	@Success		200	{object}	users.User				"user"
 //	@Failure		400	{object}	render.ErrorResponse	"Bad Request"
@@ -26,8 +26,8 @@ import (
 //	@Router			/api/v1/users [post]
 func CreateUser(w http.ResponseWriter, r *http.Request) {
 	// Parse request body
-	var userWithPassword users.UserWithPassword
-	err := json.NewDecoder(r.Body).Decode(&userWithPassword)
+	var userInput users.UserInput
+	err := json.NewDecoder(r.Body).Decode(&userInput)
 	if err != nil {
 		zap.L().Warn("User json decode", zap.Error(err))
 		w.WriteHeader(http.StatusBadRequest)
@@ -35,11 +35,14 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Validate user
-	if ok, err := userWithPassword.IsValid(); !ok {
+	if ok, err := userInput.IsValid(); !ok {
 		zap.L().Warn("User is not valid", zap.Error(err))
 		render.BadRequest(w, r, err)
 		return
 	}
+
+	// Convert to UserWithPassword
+	userWithPassword := userInput.ToUserWithPassword()
 
 	// Verify user existence
 	exists, err := users.R().Exists(userWithPassword.Email)
@@ -55,7 +58,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Create user
-	userID, err := users.R().Create(&userWithPassword)
+	userID, err := users.R().Create(userWithPassword)
 	if err != nil {
 		zap.L().Error("PostUser.Create", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)

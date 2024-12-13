@@ -18,7 +18,7 @@ import (
 //	@Tags			UserBroker
 //	@Accept			json
 //	@Produce		json
-//	@Param			userBroker	body	brokers.UserBroker	true	"userBroker (json)"
+//	@Param			userBroker	body	brokers.UserBrokerInput	true	"userBroker (json)"
 //	@Security		Bearer
 //	@Success		200	{array}		brokers.Broker			"Updated list of brokers"
 //	@Failure		400	{object}	render.ErrorResponse	"Bad Request"
@@ -44,14 +44,14 @@ func CreateUserBroker(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Validate user
-	userBroker, valid, err := userBrokerInput.ToUserBroker()
-	if !valid {
+	if ok, err := userBrokerInput.IsValid(); !ok {
 		zap.L().Warn("UserBroker is not valid", zap.Error(err))
 		render.BadRequest(w, r, err)
 		return
 	}
 
-	// Put user.ID into userBroker
+	// Convert to UserBroker
+	userBroker := userBrokerInput.ToUserBroker()
 	userBroker.UserID = user.ID
 
 	// Verify broker existence
