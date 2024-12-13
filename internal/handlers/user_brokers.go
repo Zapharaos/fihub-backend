@@ -35,11 +35,19 @@ func CreateUserBroker(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Parse request body
-	var userBroker brokers.UserBroker
-	err := json.NewDecoder(r.Body).Decode(&userBroker)
+	var userBrokerInput brokers.UserBrokerInput
+	err := json.NewDecoder(r.Body).Decode(&userBrokerInput)
 	if err != nil {
 		zap.L().Warn("UserBroker json decode", zap.Error(err))
-		w.WriteHeader(http.StatusBadRequest)
+		render.BadRequest(w, r, err)
+		return
+	}
+
+	// Validate user
+	userBroker, valid, err := userBrokerInput.ToUserBroker()
+	if !valid {
+		zap.L().Warn("UserBroker is not valid", zap.Error(err))
+		render.BadRequest(w, r, err)
 		return
 	}
 
