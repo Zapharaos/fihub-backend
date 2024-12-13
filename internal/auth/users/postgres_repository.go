@@ -91,7 +91,7 @@ func (r *PostgresRepository) Get(userID uuid.UUID) (*User, error) {
 	return user, nil
 }
 
-// Exists checks if a User exists in the repository
+// Exists checks if a User with requested email exists in the repository
 func (r *PostgresRepository) Exists(email string) (bool, error) {
 	// Prepare query
 	query := `SELECT *

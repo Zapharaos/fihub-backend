@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"github.com/Zapharaos/fihub-backend/internal/auth/users"
 	"github.com/Zapharaos/fihub-backend/internal/handlers/render"
-	"github.com/go-chi/chi/v5"
-	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"net/http"
 )
@@ -80,48 +78,6 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	render.JSON(w, r, user)
 }
 
-// GetUser godoc
-//
-//	@Id				GetUser
-//
-//	@Summary		Get a user
-//	@Description	Get a user by id.
-//	@Tags			Users
-//	@Produce		json
-//	@Param			id	path	string	true	"user id"
-//	@Security		Bearer
-//	@Success		200	{object}	users.User				"user"
-//	@Failure		400	{object}	render.ErrorResponse	"Bad Request"
-//	@Failure		404	{string}	string					"Not Found"
-//	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
-//	@Router			/api/v1/users/{id} [get]
-func GetUser(w http.ResponseWriter, r *http.Request) {
-
-	// Retrieve userID from URL
-	id := chi.URLParam(r, "id")
-	userID, err := uuid.Parse(id)
-	if err != nil {
-		zap.L().Warn("Parse user id", zap.Error(err))
-		render.BadRequest(w, r, fmt.Errorf("invalid user id"))
-		return
-	}
-
-	// Retrieve user from database
-	user, err := users.R().Get(userID)
-	if err != nil {
-		zap.L().Error("Cannot load user", zap.String("uuid", userID.String()), zap.Error(err))
-		render.Error(w, r, nil, "")
-		return
-	} else if user == nil {
-		zap.L().Debug("User not found", zap.String("uuid", userID.String()))
-		w.WriteHeader(http.StatusNotFound)
-		return
-	}
-
-	// Marshal user to JSON
-	json.NewEncoder(w).Encode(user)
-}
-
 // GetUserSelf godoc
 //
 //	@Id				GetUserSelf
@@ -137,7 +93,7 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/users/me [get]
 func GetUserSelf(w http.ResponseWriter, r *http.Request) {
-	userCtx, found := GetUserFromContext(r)
+	userCtx, found := getUserFromContext(r)
 	if !found {
 		zap.L().Debug("No context user provided")
 		w.WriteHeader(http.StatusBadRequest)
