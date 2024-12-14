@@ -4,6 +4,7 @@ import (
 	"github.com/Zapharaos/fihub-backend/internal/auth/users"
 	"github.com/Zapharaos/fihub-backend/internal/brokers"
 	"github.com/Zapharaos/fihub-backend/internal/database"
+	"github.com/Zapharaos/fihub-backend/internal/transactions"
 	"github.com/Zapharaos/fihub-backend/pkg/env"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -125,4 +126,7 @@ func initRepositories() {
 	brokerRepository := brokers.NewPostgresRepository(dbClient)
 	userBrokerRepository := brokers.NewUserBrokerPostgresRepository(dbClient)
 	brokers.ReplaceGlobals(brokers.NewRepository(brokerRepository, userBrokerRepository))
+
+	// Transactions
+	transactions.ReplaceGlobals(transactions.NewPostgresRepository(dbClient))
 }
