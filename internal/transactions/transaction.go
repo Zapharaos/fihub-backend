@@ -3,6 +3,7 @@ package transactions
 import (
 	"errors"
 	"github.com/google/uuid"
+	"strings"
 	"time"
 )
 
@@ -31,7 +32,8 @@ type Transaction struct {
 // IsValid checks if a TransactionType is valid and
 func (t TransactionType) IsValid() (bool, error) {
 
-	switch t {
+	// Check if the TransactionType is valid (through uppercase string comparison)
+	switch TransactionType(strings.ToUpper(string(t))) {
 	case BUY:
 	case SELL:
 		return true, nil

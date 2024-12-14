@@ -116,7 +116,7 @@ func CreateUserBroker(w http.ResponseWriter, r *http.Request) {
 //	@Produce		json
 //	@Param			id	path	string	true	"broker ID"
 //	@Security		Bearer
-//	@Success		200	{array}		brokers.Broker			"Updated list of brokers"
+//	@Success		200	{array}		string					"Status OK"
 //	@Failure		400	{object}	render.ErrorResponse	"Bad Request"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
@@ -143,15 +143,7 @@ func DeleteUserBroker(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Get updated userBrockers from database
-	userBrockers, err := brokers.R().U().GetAll(user.ID)
-	if err != nil {
-		zap.L().Error("Cannot get user brockers", zap.String("uuid", user.ID.String()), zap.Error(err))
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	render.JSON(w, r, userBrockers)
+	render.OK(w, r)
 }
 
 // GetUserBrokers godoc
