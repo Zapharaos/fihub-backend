@@ -6,6 +6,10 @@ import "github.com/google/uuid"
 // (in-memory map, sql database, in-memory cache, file system, ...)
 // It allows standard CRUD operation on Users
 type BrokerRepository interface {
+	Get(id uuid.UUID) (Broker, bool, error)
+	Create(broker Broker) (uuid.UUID, error)
+	Update(broker Broker) error
+	Delete(id uuid.UUID) error
 	Exists(id uuid.UUID) (bool, error)
 	GetAll() ([]Broker, error)
 }

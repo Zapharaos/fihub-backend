@@ -10,9 +10,6 @@ import (
 	"net/http"
 )
 
-// TODO : brokers table icon + default values
-// TODO : scan utils
-
 // CreateTransaction 	godoc
 //
 // @Id 					CreateTransaction
@@ -43,7 +40,7 @@ func CreateTransaction(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&transaction)
 	if err != nil {
 		zap.L().Warn("Transaction json decode", zap.Error(err))
-		render.BadRequest(w, r, err)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
@@ -171,9 +168,9 @@ func DeleteTransaction(w http.ResponseWriter, r *http.Request) {
 	render.OK(w, r)
 }
 
-// GetAll godoc
+// GetTransactions godoc
 //
-// @Id 				GetAll
+// @Id 				GetTransactions
 //
 // @Summary 		Get all transactions
 // @Description 	Gets a list of all transactions.
@@ -184,7 +181,7 @@ func DeleteTransaction(w http.ResponseWriter, r *http.Request) {
 // @Failure 		401 {string} 	string 						"Permission denied"
 // @Failure 		500 {object} 	render.ErrorResponse 		"Internal Server Error"
 // @Router /api/v1/transactions [get]
-func GetAll(w http.ResponseWriter, r *http.Request) {
+func GetTransactions(w http.ResponseWriter, r *http.Request) {
 
 	// Get the authenticated user from the context
 	user, ok := getUserFromContext(r)

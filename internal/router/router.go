@@ -87,15 +87,24 @@ func buildProtectedRoutes(a *auth.Auth) func(r chi.Router) {
 			})
 		})
 
+		// TODO : scan utils
+
 		// Brokers
 		r.Route("/brokers", func(r chi.Router) {
+			r.Post("/", handlers.CreateBroker)
 			r.Get("/", handlers.GetBrokers)
+
+			r.Route("/{id}", func(r chi.Router) {
+				r.Get("/", handlers.GetBroker)
+				r.Put("/", handlers.UpdateBroker)
+				r.Delete("/", handlers.DeleteBroker)
+			})
 		})
 
 		// Transactions : retrieving userID through context
 		r.Route("/transactions", func(r chi.Router) {
 			r.Post("/", handlers.CreateTransaction)
-			r.Get("/", handlers.GetAll)
+			r.Get("/", handlers.GetTransactions)
 
 			r.Route("/{id}", func(r chi.Router) {
 				r.Get("/", handlers.GetTransaction)

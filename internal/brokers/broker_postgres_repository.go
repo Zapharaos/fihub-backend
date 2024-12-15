@@ -20,6 +20,100 @@ func NewPostgresRepository(dbClient *sqlx.DB) BrokerRepository {
 	return repo
 }
 
+// Create use to create a broker
+func (r *BrokerPostgresRepository) Create(broker Broker) (uuid.UUID, error) {
+
+	// UUID
+	broker.ID = uuid.New()
+
+	// Prepare query
+	query := `INSERT INTO brokers (id, name)
+			  VALUES (:id, :name)`
+	params := map[string]interface{}{
+		"id":   broker.ID,
+		"name": broker.Name,
+	}
+
+	// Execute query
+	_, err := r.conn.NamedQuery(query, params)
+	if err != nil {
+		return uuid.Nil, err
+	}
+
+	return broker.ID, nil
+}
+
+// Get use to retrieve a broker
+func (r *BrokerPostgresRepository) Get(id uuid.UUID) (Broker, bool, error) {
+
+	// Prepare query
+	query := `SELECT *
+			  FROM brokers as b
+			  WHERE b.id = :id`
+	params := map[string]interface{}{
+		"id": id,
+	}
+
+	// Execute query
+	rows, err := r.conn.NamedQuery(query, params)
+	if err != nil {
+		return Broker{}, false, err
+	}
+	defer rows.Close()
+
+	// Retrieve broker
+	if rows.Next() {
+		broker, err := scanBroker(rows)
+		if err != nil {
+			return Broker{}, false, err
+		}
+		return broker, true, nil
+	}
+
+	return Broker{}, false, nil
+}
+
+// Update use to update a broker
+func (r *BrokerPostgresRepository) Update(broker Broker) error {
+
+	// Prepare query
+	query := `UPDATE brokers
+			  SET name = :name
+			  WHERE id = :id`
+	params := map[string]interface{}{
+		"id":   broker.ID,
+		"name": broker.Name,
+	}
+
+	// Execute query
+	_, err := r.conn.NamedQuery(query, params)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Delete use to delete a broker
+func (r *BrokerPostgresRepository) Delete(id uuid.UUID) error {
+
+	// Prepare query
+	query := `DELETE FROM brokers
+			  WHERE id = :id`
+	params := map[string]interface{}{
+		"id": id,
+	}
+
+	// Execute query
+	_, err := r.conn.NamedQuery(query, params)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Exists use to check if a broker exists
 func (r *BrokerPostgresRepository) Exists(id uuid.UUID) (bool, error) {
 	// Prepare query
 	query := `SELECT *

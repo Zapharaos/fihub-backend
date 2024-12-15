@@ -9,3 +9,11 @@ type Broker struct {
 	ID   uuid.UUID `json:"id"`
 	Name string    `json:"name"`
 }
+
+// IsValid checks if the broker is valid
+func (b Broker) IsValid() (bool, error) {
+	if b.Name == "" {
+		return false, nil
+	}
+	return true, nil
+}
