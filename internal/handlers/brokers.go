@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"errors"
 	"github.com/Zapharaos/fihub-backend/internal/brokers"
 	"github.com/Zapharaos/fihub-backend/internal/handlers/render"
 	"go.uber.org/zap"
@@ -40,6 +41,19 @@ func CreateBroker(w http.ResponseWriter, r *http.Request) {
 	if valid, err := broker.IsValid(); !valid {
 		zap.L().Warn("Broker is not valid", zap.Error(err))
 		render.BadRequest(w, r, err)
+		return
+	}
+
+	// Verify that the broker does not already exist
+	exists, err := brokers.R().B().ExistsByName(broker.Name)
+	if err != nil {
+		zap.L().Error("Check broker exists", zap.Error(err))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	if exists {
+		zap.L().Warn("Broker already exists", zap.String("Name", broker.Name))
+		render.BadRequest(w, r, errors.New("name-used"))
 		return
 	}
 
@@ -120,6 +134,7 @@ func GetBroker(w http.ResponseWriter, r *http.Request) {
 //	@Security		Bearer
 //	@Success		200	{object}	brokers.Broker			"broker"
 //	@Failure		400	{object}	render.ErrorResponse	"Bad Request"
+//	@Failure		404	{object}	render.ErrorResponse	"Not Found"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/brokers/{id} [put]
 func UpdateBroker(w http.ResponseWriter, r *http.Request) {
@@ -147,6 +162,19 @@ func UpdateBroker(w http.ResponseWriter, r *http.Request) {
 	if valid, err := broker.IsValid(); !valid {
 		zap.L().Warn("Broker is not valid", zap.Error(err))
 		render.BadRequest(w, r, err)
+		return
+	}
+
+	// Verify that the broker exists
+	exists, err := brokers.R().B().Exists(brokerID)
+	if err != nil {
+		zap.L().Error("Check broker exists", zap.Error(err))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	if !exists {
+		zap.L().Warn("Broker not found", zap.String("BrokerID", brokerID.String()))
+		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 
@@ -185,6 +213,8 @@ func UpdateBroker(w http.ResponseWriter, r *http.Request) {
 //	@Param			id	path	string	true	"broker ID"
 //	@Security		Bearer
 //	@Success		200	{object}	string					"Status OK"
+//	@Failure		400	{object}	render.ErrorResponse	"Bad Request"
+//	@Failure		404	{object}	render.ErrorResponse	"Not Found"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/brokers/{id} [delete]
 func DeleteBroker(w http.ResponseWriter, r *http.Request) {
@@ -197,8 +227,21 @@ func DeleteBroker(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Verify that the broker exists
+	exists, err := brokers.R().B().Exists(brokerID)
+	if err != nil {
+		zap.L().Error("Check broker exists", zap.Error(err))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	if !exists {
+		zap.L().Warn("Broker not found", zap.String("BrokerID", brokerID.String()))
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
 	// Delete the broker
-	err := brokers.R().B().Delete(brokerID)
+	err = brokers.R().B().Delete(brokerID)
 	if err != nil {
 		zap.L().Warn("Delete broker", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)

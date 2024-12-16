@@ -19,7 +19,7 @@ import (
 // @Tags 				Transactions
 // @Accept 				json
 // @Produce 			json
-// @Param 				transaction body 	transactions.Transaction true 	"transaction (json)"
+// @Param 				transaction body 	transactions.TransactionInput true 	"transaction (json)"
 // @Security 			Bearer
 // @Success 			200 {object} 		transactions.Transaction 		"transaction"
 // @Failure 			400 {object} 		render.ErrorResponse 			"Bad Request"
@@ -36,8 +36,8 @@ func CreateTransaction(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Parse request body
-	var transaction transactions.Transaction
-	err := json.NewDecoder(r.Body).Decode(&transaction)
+	var transactionInput transactions.TransactionInput
+	err := json.NewDecoder(r.Body).Decode(&transactionInput)
 	if err != nil {
 		zap.L().Warn("Transaction json decode", zap.Error(err))
 		w.WriteHeader(http.StatusBadRequest)
@@ -45,17 +45,17 @@ func CreateTransaction(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Validate the transaction
-	if valid, err := transaction.IsValid(); !valid {
+	if valid, err := transactionInput.IsValid(); !valid {
 		zap.L().Warn("Transaction is not valid", zap.Error(err))
 		render.BadRequest(w, r, err)
 		return
 	}
 
 	// Set the user ID
-	transaction.UserID = user.ID
+	transactionInput.UserID = user.ID
 
 	// check if userBroker exists
-	exists, err := brokers.R().U().Exists(brokers.UserBroker{UserID: user.ID, BrokerID: transaction.BrokerID})
+	exists, err := brokers.R().U().Exists(brokers.UserBroker{UserID: user.ID, BrokerID: transactionInput.BrokerID})
 	if err != nil {
 		zap.L().Error("Check userBroker exists", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
@@ -68,7 +68,7 @@ func CreateTransaction(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Create the transaction using the transactions.r() repository
-	transactionID, err := transactions.R().Create(transaction)
+	transactionID, err := transactions.R().Create(transactionInput)
 	if err != nil {
 		zap.L().Error("Create transaction", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
@@ -76,7 +76,7 @@ func CreateTransaction(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get transaction back from database
-	transaction, ok, err = transactions.R().Get(transactionID)
+	transaction, ok, err := transactions.R().Get(transactionID)
 	if err != nil {
 		zap.L().Error("Cannot get transaction", zap.String("uuid", transactionID.String()), zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
@@ -126,6 +126,113 @@ func GetTransaction(w http.ResponseWriter, r *http.Request) {
 	render.JSON(w, r, transaction)
 }
 
+// UpdateTransaction godoc
+//
+// @Id 				UpdateTransaction
+//
+// @Summary 		Update a transaction
+// @Description 	Update a transaction.
+// @Tags 			Transactions
+// @Accept 			json
+// @Produce 		json
+// @Param 			id path 		string true 				"transaction ID"
+// @Param 			transaction body transactions.Transaction true "transaction (json)"
+// @Security 		Bearer
+// @Success 		200 {object} 	transactions.Transaction 	"transaction"
+// @Failure 		400 {object} 	render.ErrorResponse 		"Bad Request"
+// @Failure 		401 {string} 	string 						"Permission denied"
+// @Failure			404	{object}	render.ErrorResponse		"Not Found"
+// @Failure 		500 {object} 	render.ErrorResponse 		"Internal Server Error"
+// @Router /api/v1/transactions/{id} [put]
+func UpdateTransaction(w http.ResponseWriter, r *http.Request) {
+
+	// Retrieve transactionID
+	transactionID, ok := ParseParamUUID(w, r, "id")
+	if !ok {
+		return
+	}
+
+	// Get the authenticated user from the context
+	user, ok := getUserFromContext(r)
+	if !ok {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	// Parse request body
+	var transactionInput transactions.TransactionInput
+	err := json.NewDecoder(r.Body).Decode(&transactionInput)
+	if err != nil {
+		zap.L().Warn("Transaction json decode", zap.Error(err))
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	// Validate the transaction
+	if valid, err := transactionInput.IsValid(); !valid {
+		zap.L().Warn("Transaction is not valid", zap.Error(err))
+		render.BadRequest(w, r, err)
+		return
+	}
+
+	// Set the transaction ID
+	transactionInput.ID = transactionID
+
+	// Verify that the transaction belongs to the user
+	oldTransaction, ok, err := transactions.R().Get(transactionID)
+	if err != nil {
+		zap.L().Error("Cannot get transaction", zap.String("uuid", transactionID.String()), zap.Error(err))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	if !ok {
+		zap.L().Warn("Transaction not found", zap.String("uuid", transactionID.String()))
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	if oldTransaction.UserID != user.ID {
+		zap.L().Warn("Transaction does not belong to user", zap.String("uuid", transactionID.String()))
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	// Verify that the userBroker exists
+	exists, err := brokers.R().U().Exists(brokers.UserBroker{UserID: user.ID, BrokerID: transactionInput.BrokerID})
+	if err != nil {
+		zap.L().Error("Check userBroker exists", zap.Error(err))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	if !exists {
+		zap.L().Warn("UserBroker not found")
+		render.BadRequest(w, r, fmt.Errorf("broker-invalid"))
+		return
+	}
+
+	// Update the transaction using the transactions.r() repository
+	err = transactions.R().Update(transactionInput)
+	if err != nil {
+		zap.L().Error("Update transaction", zap.Error(err))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	// Get transaction back from database
+	transaction, ok, err := transactions.R().Get(transactionID)
+	if err != nil {
+		zap.L().Error("Cannot get transaction", zap.String("uuid", transactionID.String()), zap.Error(err))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	if !ok {
+		zap.L().Error("Transaction not found after update", zap.String("uuid", transactionID.String()))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	render.JSON(w, r, transaction)
+}
+
 // DeleteTransaction godoc
 //
 // @Id 				DeleteTransaction
@@ -140,6 +247,7 @@ func GetTransaction(w http.ResponseWriter, r *http.Request) {
 // @Success 		200 {array} 	string 					"Status OK"
 // @Failure 		400 {object} 	render.ErrorResponse 	"Bad Request"
 // @Failure 		401 {string} 	string 					"Permission denied"
+// @Failure			404	{object}	render.ErrorResponse	"Not Found"
 // @Failure 		500 {object} 	render.ErrorResponse 	"Internal Server Error"
 // @Router /api/v1/transactions/{id} [delete]
 func DeleteTransaction(w http.ResponseWriter, r *http.Request) {
@@ -157,8 +265,26 @@ func DeleteTransaction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Verify that the transaction belongs to the user
+	transaction, ok, err := transactions.R().Get(transactionID)
+	if err != nil {
+		zap.L().Error("Cannot get transaction", zap.String("uuid", transactionID.String()), zap.Error(err))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	if !ok {
+		zap.L().Warn("Transaction not found", zap.String("uuid", transactionID.String()))
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	if transaction.UserID != user.ID {
+		zap.L().Warn("Transaction does not belong to user", zap.String("uuid", transactionID.String()))
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
 	// Remove transaction
-	err := transactions.R().Delete(transactions.Transaction{ID: transactionID, UserID: user.ID})
+	err = transactions.R().Delete(transactions.Transaction{ID: transactionID, UserID: user.ID})
 	if err != nil {
 		zap.L().Error("Cannot remove transaction", zap.String("uuid", transactionID.String()), zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)

@@ -1,6 +1,7 @@
 package brokers
 
 import (
+	"github.com/Zapharaos/fihub-backend/internal/utils"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 )
@@ -85,12 +86,12 @@ func (r *ImageBrokerPostgresRepository) Update(brokerImage BrokerImage) error {
 	}
 
 	// Execute query
-	_, err := r.conn.NamedQuery(query, params)
+	result, err := r.conn.NamedExec(query, params)
 	if err != nil {
 		return err
 	}
 
-	return nil
+	return utils.CheckRowAffected(result, 1)
 }
 
 // Delete deletes an Image from the repository
@@ -103,12 +104,12 @@ func (r *ImageBrokerPostgresRepository) Delete(brokerImageID uuid.UUID) error {
 	}
 
 	// Execute query
-	_, err := r.conn.NamedExec(query, params)
+	result, err := r.conn.NamedExec(query, params)
 	if err != nil {
 		return err
 	}
 
-	return nil
+	return utils.CheckRowAffected(result, 1)
 }
 
 // Exists checks if an Image exists in the repository

@@ -9,10 +9,11 @@ import (
 // (in-memory map, sql database, in-memory cache, file system, ...)
 // It allows standard CRUD operation on Users
 type Repository interface {
-	Create(transaction Transaction) (uuid.UUID, error)
+	Create(transactionInput TransactionInput) (uuid.UUID, error)
 	Get(transactionID uuid.UUID) (Transaction, bool, error)
+	Update(transactionInput TransactionInput) error
 	Delete(transaction Transaction) error
-	Exists(transactionID uuid.UUID) (bool, error)
+	Exists(transactionID uuid.UUID, userID uuid.UUID) (bool, error)
 	GetAll(userID uuid.UUID) ([]Transaction, error)
 }
 

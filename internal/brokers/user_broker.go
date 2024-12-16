@@ -9,6 +9,7 @@ import (
 type UserBroker struct {
 	UserID   uuid.UUID `json:"user_id"`
 	BrokerID uuid.UUID `json:"broker_id"`
+	ImageID  uuid.UUID `json:"image_id"`
 }
 
 // UserBrokerInput represents a user broker entity received by the system

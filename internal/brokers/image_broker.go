@@ -1,6 +1,7 @@
 package brokers
 
 import (
+	"errors"
 	"github.com/google/uuid"
 )
 
@@ -15,16 +16,16 @@ type BrokerImage struct {
 // IsValid checks if the image is valid
 func (i BrokerImage) IsValid() (bool, error) {
 	if i.BrokerID == uuid.Nil {
-		return false, nil
+		return false, errors.New("broker-required")
 	}
 	if len(i.Name) < 3 {
-		return false, nil
+		return false, errors.New("name-invalid")
 	}
 	if len(i.Name) > 100 {
-		return false, nil
+		return false, errors.New("name-invalid")
 	}
 	if len(i.Data) == 0 {
-		return false, nil
+		return false, errors.New("data-required")
 	}
 	return true, nil
 }

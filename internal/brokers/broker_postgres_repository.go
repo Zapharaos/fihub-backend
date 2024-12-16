@@ -1,6 +1,7 @@
 package brokers
 
 import (
+	"github.com/Zapharaos/fihub-backend/internal/utils"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 )
@@ -86,12 +87,12 @@ func (r *BrokerPostgresRepository) Update(broker Broker) error {
 	}
 
 	// Execute query
-	_, err := r.conn.NamedQuery(query, params)
+	result, err := r.conn.NamedExec(query, params)
 	if err != nil {
 		return err
 	}
 
-	return nil
+	return utils.CheckRowAffected(result, 1)
 }
 
 // Delete use to delete a broker
@@ -105,12 +106,12 @@ func (r *BrokerPostgresRepository) Delete(id uuid.UUID) error {
 	}
 
 	// Execute query
-	_, err := r.conn.NamedQuery(query, params)
+	result, err := r.conn.NamedExec(query, params)
 	if err != nil {
 		return err
 	}
 
-	return nil
+	return utils.CheckRowAffected(result, 1)
 }
 
 // Exists use to check if a broker exists
@@ -121,6 +122,26 @@ func (r *BrokerPostgresRepository) Exists(id uuid.UUID) (bool, error) {
 			  WHERE b.id = :id`
 	params := map[string]interface{}{
 		"id": id,
+	}
+
+	// Execute query
+	rows, err := r.conn.NamedQuery(query, params)
+	if err != nil {
+		return false, err
+	}
+	defer rows.Close()
+
+	return rows.Next(), nil
+}
+
+// ExistsByName use to check if a broker exists with a given name
+func (r *BrokerPostgresRepository) ExistsByName(name string) (bool, error) {
+	// Prepare query
+	query := `SELECT *
+			  FROM brokers as b
+			  WHERE b.name = :name`
+	params := map[string]interface{}{
+		"name": name,
 	}
 
 	// Execute query
@@ -177,12 +198,12 @@ func (r *BrokerPostgresRepository) SetImage(id uuid.UUID, imageID uuid.UUID) err
 	}
 
 	// Execute query
-	_, err := r.conn.NamedQuery(query, params)
+	result, err := r.conn.NamedExec(query, params)
 	if err != nil {
 		return err
 	}
 
-	return nil
+	return utils.CheckRowAffected(result, 1)
 }
 
 // HasImage use to check if a broker has an image
@@ -216,12 +237,12 @@ func (r *BrokerPostgresRepository) DeleteImage(id uuid.UUID) error {
 	}
 
 	// Execute query
-	_, err := r.conn.NamedQuery(query, params)
+	result, err := r.conn.NamedExec(query, params)
 	if err != nil {
 		return err
 	}
 
-	return nil
+	return utils.CheckRowAffected(result, 1)
 }
 
 func scanBroker(rows *sqlx.Rows) (Broker, error) {

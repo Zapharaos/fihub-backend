@@ -1,6 +1,7 @@
 package brokers
 
 import (
+	"github.com/Zapharaos/fihub-backend/internal/utils"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 )
@@ -48,12 +49,12 @@ func (r *UserBrokerPostgresRepository) Delete(userBroker UserBroker) error {
 	}
 
 	// Execute query
-	_, err := r.conn.NamedExec(query, params)
+	result, err := r.conn.NamedExec(query, params)
 	if err != nil {
 		return err
 	}
 
-	return nil
+	return utils.CheckRowAffected(result, 1)
 }
 
 func (r *UserBrokerPostgresRepository) Exists(userBroker UserBroker) (bool, error) {
@@ -78,7 +79,7 @@ func (r *UserBrokerPostgresRepository) Exists(userBroker UserBroker) (bool, erro
 
 func (r *UserBrokerPostgresRepository) GetAll(userID uuid.UUID) ([]Broker, error) {
 	// Prepare query
-	query := `SELECT b.id, b.name
+	query := `SELECT b.id, b.name, b.image_id
 			  FROM user_brokers as ub
 			  JOIN brokers AS b ON ub.broker_id = b.id
 			  WHERE ub.user_id = :user_id`

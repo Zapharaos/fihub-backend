@@ -1,6 +1,7 @@
 package transactions
 
 import (
+	"github.com/Zapharaos/fihub-backend/internal/utils"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 )
@@ -20,25 +21,25 @@ func NewPostgresRepository(dbClient *sqlx.DB) Repository {
 	return repo
 }
 
-func (r PostgresRepository) Create(transaction Transaction) (uuid.UUID, error) {
+func (r PostgresRepository) Create(transactionInput TransactionInput) (uuid.UUID, error) {
 
 	// UUID
-	transaction.ID = uuid.New()
+	transactionInput.ID = uuid.New()
 
 	// Prepare query
 	query := `INSERT INTO transactions (id, user_id, broker_id, date, transaction_type, asset, quantity, price, price_unit, fee)
 			  VALUES (:id, :user_id, :broker_id, :date, :transaction_type, :asset, :quantity, :price, :price_unit, :fee)`
 	params := map[string]interface{}{
-		"id":               transaction.ID,
-		"user_id":          transaction.UserID,
-		"broker_id":        transaction.BrokerID,
-		"date":             transaction.Date,
-		"transaction_type": transaction.Type,
-		"asset":            transaction.Asset,
-		"quantity":         transaction.Quantity,
-		"price":            transaction.Price,
-		"price_unit":       transaction.PriceUnit,
-		"fee":              transaction.Fee,
+		"id":               transactionInput.ID,
+		"user_id":          transactionInput.UserID,
+		"broker_id":        transactionInput.BrokerID,
+		"date":             transactionInput.Date,
+		"transaction_type": transactionInput.Type,
+		"asset":            transactionInput.Asset,
+		"quantity":         transactionInput.Quantity,
+		"price":            transactionInput.Price,
+		"price_unit":       transactionInput.PriceUnit,
+		"fee":              transactionInput.Fee,
 	}
 
 	// Execute query
@@ -47,14 +48,15 @@ func (r PostgresRepository) Create(transaction Transaction) (uuid.UUID, error) {
 		return uuid.UUID{}, err
 	}
 
-	return transaction.ID, nil
+	return transactionInput.ID, nil
 }
 
 func (r PostgresRepository) Get(transactionID uuid.UUID) (Transaction, bool, error) {
 
 	// Prepare query
-	query := `SELECT *
+	query := `SELECT t.id, t.user_id, b.id, b.name, b.image_id, t.date, t.transaction_type, t.asset, t.quantity, t.price, t.price_unit, t.fee
 			  FROM transactions as t
+			  JOIN brokers as b ON t.broker_id = b.id
 			  WHERE t.id = :id`
 	params := map[string]interface{}{
 		"id": transactionID,
@@ -81,23 +83,64 @@ func (r PostgresRepository) Get(transactionID uuid.UUID) (Transaction, bool, err
 	return transaction, true, nil
 }
 
-func (r PostgresRepository) Delete(transaction Transaction) error {
+func (r PostgresRepository) Update(transactionInput TransactionInput) error {
 	// Prepare query
-	query := `DELETE FROM transactions as t WHERE t.id = $1`
+	query := `UPDATE transactions
+			  SET date = :date,
+				  transaction_type = :transaction_type,
+				  asset = :asset,
+				  quantity = :quantity,
+				  price = :price,
+				  price_unit = :price_unit,
+				  fee = :fee
+			  WHERE id = :id`
+	params := map[string]interface{}{
+		"id":               transactionInput.ID,
+		"date":             transactionInput.Date,
+		"transaction_type": transactionInput.Type,
+		"asset":            transactionInput.Asset,
+		"quantity":         transactionInput.Quantity,
+		"price":            transactionInput.Price,
+		"price_unit":       transactionInput.PriceUnit,
+		"fee":              transactionInput.Fee,
+	}
 
 	// Execute query
-	_, err := r.conn.Exec(query, transaction.ID)
+	result, err := r.conn.NamedExec(query, params)
 	if err != nil {
 		return err
 	}
-	return nil
+
+	return utils.CheckRowAffected(result, 1)
 }
 
-func (r PostgresRepository) Exists(transactionID uuid.UUID) (bool, error) {
-	query := `SELECT COUNT(1) FROM transactions WHERE id = $1`
+func (r PostgresRepository) Delete(transaction Transaction) error {
+	// Prepare query
+	query := `DELETE FROM transactions as t WHERE t.id = :id`
+	params := map[string]interface{}{
+		"id": transaction.ID,
+	}
+
+	// Execute query
+	result, err := r.conn.NamedExec(query, params)
+	if err != nil {
+		return err
+	}
+
+	return utils.CheckRowAffected(result, 1)
+}
+
+func (r PostgresRepository) Exists(transactionID uuid.UUID, userID uuid.UUID) (bool, error) {
+	query := `SELECT COUNT(1)
+			  FROM transactions
+			  WHERE id = :id AND user_id = :user_id`
+	params := map[string]interface{}{
+		"id":      transactionID,
+		"user_id": userID,
+	}
 
 	var count int
-	err := r.conn.Get(&count, query, transactionID)
+	err := r.conn.Get(&count, query, params)
 	if err != nil {
 		return false, err
 	}
@@ -105,9 +148,12 @@ func (r PostgresRepository) Exists(transactionID uuid.UUID) (bool, error) {
 }
 
 func (r PostgresRepository) GetAll(userID uuid.UUID) ([]Transaction, error) {
-	query := `SELECT *
-			  FROM transactions
-			  WHERE user_id = :user_id`
+
+	// Prepare query
+	query := `SELECT t.id, t.user_id, b.id, b.name, b.image_id, t.date, t.transaction_type, t.asset, t.quantity, t.price, t.price_unit, t.fee
+			  FROM transactions as t
+			  JOIN brokers as b ON t.broker_id = b.id
+			  WHERE t.user_id = :user_id`
 	params := map[string]interface{}{
 		"user_id": userID,
 	}
@@ -142,7 +188,9 @@ func scanTransaction(rows *sqlx.Rows) (Transaction, error) {
 	err := rows.Scan(
 		&transaction.ID,
 		&transaction.UserID,
-		&transaction.BrokerID,
+		&transaction.Broker.ID,
+		&transaction.Broker.Name,
+		&transaction.Broker.ImageID,
 		&transaction.Date,
 		&transaction.Type,
 		&transaction.Asset,

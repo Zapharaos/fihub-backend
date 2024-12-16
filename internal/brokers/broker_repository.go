@@ -11,6 +11,7 @@ type BrokerRepository interface {
 	Update(broker Broker) error
 	Delete(id uuid.UUID) error
 	Exists(id uuid.UUID) (bool, error)
+	ExistsByName(name string) (bool, error)
 	GetAll() ([]Broker, error)
 
 	SetImage(id uuid.UUID, imageId uuid.UUID) error

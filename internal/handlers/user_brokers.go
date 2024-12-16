@@ -135,8 +135,29 @@ func DeleteUserBroker(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Build userBroker
+	userBroker := brokers.UserBroker{
+		UserID:   user.ID,
+		BrokerID: brokerID,
+	}
+
+	// Verify userBroker existence
+	exists, err := brokers.R().U().Exists(userBroker)
+	if err != nil {
+		zap.L().Error("Check userBroker exists", zap.Error(err))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	if !exists {
+		zap.L().Warn("UserBroker not found",
+			zap.String("UserID", user.ID.String()),
+			zap.String("BrokerID", brokerID.String()))
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
 	// Remove broker
-	err := brokers.R().U().Delete(brokers.UserBroker{UserID: user.ID, BrokerID: brokerID})
+	err = brokers.R().U().Delete(userBroker)
 	if err != nil {
 		zap.L().Error("Cannot remove user brocker", zap.String("uuid", user.ID.String()), zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)

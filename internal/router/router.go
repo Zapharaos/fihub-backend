@@ -87,10 +87,6 @@ func buildProtectedRoutes(a *auth.Auth) func(r chi.Router) {
 			})
 		})
 
-		// TODO : scan utils
-		// TODO : improve isValid with uuid's check + errors
-		// TODO : status not found on Exists
-
 		// Brokers
 		r.Route("/brokers", func(r chi.Router) {
 			r.Post("/", handlers.CreateBroker)
@@ -122,6 +118,7 @@ func buildProtectedRoutes(a *auth.Auth) func(r chi.Router) {
 
 			r.Route("/{id}", func(r chi.Router) {
 				r.Get("/", handlers.GetTransaction)
+				r.Put("/", handlers.UpdateTransaction)
 				r.Delete("/", handlers.DeleteTransaction)
 			})
 		})
