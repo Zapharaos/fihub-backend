@@ -77,8 +77,13 @@ func (a *Auth) GetToken(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := users.R().Authenticate(userCredentials.Email, userCredentials.Password)
+	user, found, err := users.R().Authenticate(userCredentials.Email, userCredentials.Password)
 	if err != nil {
+		zap.L().Warn("GetToken.Authenticate", zap.Error(err))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	if !found {
 		zap.L().Warn("GetToken.Authenticate", zap.Error(err))
 		render.BadRequest(w, r, fmt.Errorf("login-invalid"))
 		return
@@ -95,7 +100,7 @@ func (a *Auth) GetToken(w http.ResponseWriter, r *http.Request) {
 }
 
 // GenerateToken generate a JWT token for a specific user
-func (a *Auth) GenerateToken(user *users.User) (JwtToken, error) {
+func (a *Auth) GenerateToken(user users.User) (JwtToken, error) {
 	claims := &jwt.MapClaims{
 		"exp": jwt.NewNumericDate(time.Now().Add(time.Hour * 12)),
 		"iat": jwt.NewNumericDate(time.Now()),
@@ -174,18 +179,18 @@ func (a *Auth) Middleware(next http.Handler) http.Handler {
 		}
 
 		// get the user from the repository
-		user, err := users.R().Get(userId)
+		user, found, err := users.R().Get(userId)
 		if err != nil {
 			zap.L().Error("Cannot load full user", zap.Error(err))
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
-		if user == nil {
+		if !found {
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
 
-		ctx := context.WithValue(r.Context(), app.ContextKeyUser, *user)
+		ctx := context.WithValue(r.Context(), app.ContextKeyUser, user)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }

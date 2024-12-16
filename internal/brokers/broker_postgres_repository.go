@@ -62,16 +62,7 @@ func (r *BrokerPostgresRepository) Get(id uuid.UUID) (Broker, bool, error) {
 	}
 	defer rows.Close()
 
-	// Retrieve broker
-	if rows.Next() {
-		broker, err := scanBroker(rows)
-		if err != nil {
-			return Broker{}, false, err
-		}
-		return broker, true, nil
-	}
-
-	return Broker{}, false, nil
+	return utils.ScanFirst(rows, scanBroker)
 }
 
 // Update use to update a broker
@@ -168,22 +159,7 @@ func (r *BrokerPostgresRepository) GetAll() ([]Broker, error) {
 	}
 	defer rows.Close()
 
-	// Retrieve all brokers
-	var brokers []Broker
-	for rows.Next() {
-		broker, err := scanBroker(rows)
-		if err != nil {
-			return nil, err
-		}
-		brokers = append(brokers, broker)
-	}
-
-	// Handle error
-	if err = rows.Err(); err != nil {
-		return nil, err
-	}
-
-	return brokers, nil
+	return utils.ScanAll(rows, scanBroker)
 }
 
 // SetImage use to set an image to a broker

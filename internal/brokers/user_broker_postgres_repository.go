@@ -94,20 +94,5 @@ func (r *UserBrokerPostgresRepository) GetAll(userID uuid.UUID) ([]Broker, error
 	}
 	defer rows.Close()
 
-	// Retrieve all brokers
-	var brokers []Broker
-	for rows.Next() {
-		broker, err := scanBroker(rows)
-		if err != nil {
-			return nil, err
-		}
-		brokers = append(brokers, broker)
-	}
-
-	// Handle error
-	if err = rows.Err(); err != nil {
-		return nil, err
-	}
-
-	return brokers, nil
+	return utils.ScanAll(rows, scanBroker)
 }

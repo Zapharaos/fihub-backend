@@ -9,10 +9,10 @@ import (
 // (in-memory map, sql database, in-memory cache, file system, ...)
 // It allows standard CRUD operation on Users
 type Repository interface {
-	Create(user *UserWithPassword) (uuid.UUID, error)
-	Get(userID uuid.UUID) (*User, error)
+	Create(user UserWithPassword) (uuid.UUID, error)
+	Get(userID uuid.UUID) (User, bool, error)
 	Exists(email string) (bool, error)
-	Authenticate(email string, password string) (*User, error)
+	Authenticate(email string, password string) (User, bool, error)
 }
 
 var (

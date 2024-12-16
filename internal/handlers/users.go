@@ -66,13 +66,13 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get user back from database
-	user, err := users.R().Get(userID)
+	user, found, err := users.R().Get(userID)
 	if err != nil {
 		zap.L().Error("Cannot get user", zap.String("uuid", userID.String()), zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	if user == nil {
+	if !found {
 		zap.L().Error("User not found after creation", zap.String("uuid", userID.String()))
 		w.WriteHeader(http.StatusInternalServerError)
 		return

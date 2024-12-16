@@ -60,16 +60,7 @@ func (r *ImageBrokerPostgresRepository) Get(brokerImageID uuid.UUID) (BrokerImag
 	}
 	defer rows.Close()
 
-	// Scan result
-	if rows.Next() {
-		brokerImage, err := scanBrokerImage(rows)
-		if err != nil {
-			return BrokerImage{}, false, err
-		}
-		return brokerImage, true, nil
-	}
-
-	return BrokerImage{}, false, nil
+	return utils.ScanFirst(rows, scanBrokerImage)
 }
 
 // Update updates an Image in the repository

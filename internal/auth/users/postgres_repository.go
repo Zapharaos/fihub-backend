@@ -2,6 +2,7 @@ package users
 
 import (
 	"errors"
+	"github.com/Zapharaos/fihub-backend/internal/utils"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	"golang.org/x/crypto/bcrypt"
@@ -24,7 +25,7 @@ func NewPostgresRepository(dbClient *sqlx.DB) Repository {
 }
 
 // Create method used to create a user
-func (r *PostgresRepository) Create(user *UserWithPassword) (uuid.UUID, error) {
+func (r *PostgresRepository) Create(user UserWithPassword) (uuid.UUID, error) {
 
 	// UUID
 	userID := uuid.New()
@@ -60,7 +61,7 @@ func (r *PostgresRepository) Create(user *UserWithPassword) (uuid.UUID, error) {
 }
 
 // Get use to retrieve a user by id
-func (r *PostgresRepository) Get(userID uuid.UUID) (*User, error) {
+func (r *PostgresRepository) Get(userID uuid.UUID) (User, bool, error) {
 
 	// Prepare query
 	query := `SELECT *
@@ -73,22 +74,11 @@ func (r *PostgresRepository) Get(userID uuid.UUID) (*User, error) {
 	// Execute query
 	rows, err := r.conn.NamedQuery(query, params)
 	if err != nil {
-		return nil, err
+		return User{}, false, err
 	}
 	defer rows.Close()
 
-	// Retrieve user
-	var user *User
-	if rows.Next() {
-		user, err = scanUser(rows)
-		if err != nil {
-			return nil, err
-		}
-	} else {
-		return nil, nil
-	}
-
-	return user, nil
+	return utils.ScanFirst(rows, scanUser)
 }
 
 // Exists checks if a User with requested email exists in the repository
@@ -112,7 +102,7 @@ func (r *PostgresRepository) Exists(email string) (bool, error) {
 }
 
 // Authenticate returns a User from the repository by its login and password
-func (r *PostgresRepository) Authenticate(email string, password string) (*User, error) {
+func (r *PostgresRepository) Authenticate(email string, password string) (User, bool, error) {
 	// Prepare query
 	query := `SELECT *
 			  FROM users as u
@@ -124,38 +114,38 @@ func (r *PostgresRepository) Authenticate(email string, password string) (*User,
 	// Execute query
 	rows, err := r.conn.NamedQuery(query, params)
 	if err != nil {
-		return nil, err
+		return User{}, false, err
 	}
 	defer rows.Close()
 
 	// Retrieve user
-	var userWithPassword *UserWithPassword
+	var userWithPassword UserWithPassword
 	if rows.Next() {
 		userWithPassword, err = scanUserWithPassword(rows)
 		if err != nil {
-			return nil, err
+			return User{}, false, err
 		}
 
 		err = bcrypt.CompareHashAndPassword([]byte(userWithPassword.Password), []byte(password))
 		if err == nil {
-			return userWithPassword.ToUser(), nil
+			return userWithPassword.ToUser(), true, nil
 		}
 	}
 
-	return nil, errors.New("no user found, invalid credentials")
+	return User{}, false, errors.New("no user found, invalid credentials")
 }
 
-func scanUser(rows *sqlx.Rows) (*User, error) {
+func scanUser(rows *sqlx.Rows) (User, error) {
 
 	userWithPassword, err := scanUserWithPassword(rows)
 	if err != nil {
-		return nil, err
+		return User{}, err
 	}
 
 	return userWithPassword.ToUser(), nil
 }
 
-func scanUserWithPassword(rows *sqlx.Rows) (*UserWithPassword, error) {
+func scanUserWithPassword(rows *sqlx.Rows) (UserWithPassword, error) {
 	var userWithPassword UserWithPassword
 	err := rows.Scan(
 		&userWithPassword.ID,
@@ -165,8 +155,8 @@ func scanUserWithPassword(rows *sqlx.Rows) (*UserWithPassword, error) {
 		&userWithPassword.UpdatedAt,
 	)
 	if err != nil {
-		return nil, err
+		return UserWithPassword{}, err
 	}
 
-	return &userWithPassword, nil
+	return userWithPassword, nil
 }

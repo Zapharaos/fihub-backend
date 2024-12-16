@@ -69,18 +69,7 @@ func (r PostgresRepository) Get(transactionID uuid.UUID) (Transaction, bool, err
 	}
 	defer rows.Close()
 
-	// Retrieve user
-	var transaction Transaction
-	if rows.Next() {
-		transaction, err = scanTransaction(rows)
-		if err != nil {
-			return Transaction{}, false, err
-		}
-	} else {
-		return Transaction{}, false, nil
-	}
-
-	return transaction, true, nil
+	return utils.ScanFirst(rows, scanTransaction)
 }
 
 func (r PostgresRepository) Update(transactionInput TransactionInput) error {
@@ -165,22 +154,7 @@ func (r PostgresRepository) GetAll(userID uuid.UUID) ([]Transaction, error) {
 	}
 	defer rows.Close()
 
-	// Retrieve transactions
-	var transactions []Transaction
-	for rows.Next() {
-		transaction, err := scanTransaction(rows)
-		if err != nil {
-			return nil, err
-		}
-		transactions = append(transactions, transaction)
-	}
-
-	// Handle error
-	if err = rows.Err(); err != nil {
-		return nil, err
-	}
-
-	return transactions, nil
+	return utils.ScanAll(rows, scanTransaction)
 }
 
 func scanTransaction(rows *sqlx.Rows) (Transaction, error) {

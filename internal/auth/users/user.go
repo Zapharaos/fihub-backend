@@ -29,8 +29,8 @@ type User struct {
 }
 
 // ToUser Returns a User struct without the password hash
-func (u *UserWithPassword) ToUser() *User {
-	return &User{
+func (u UserWithPassword) ToUser() User {
+	return User{
 		ID:        u.ID,
 		Email:     u.Email,
 		CreatedAt: u.CreatedAt,
@@ -39,7 +39,7 @@ func (u *UserWithPassword) ToUser() *User {
 }
 
 // ToUser Returns a User struct
-func (u *UserInput) ToUser() User {
+func (u UserInput) ToUser() User {
 	return User{
 		ID:        u.ID,
 		Email:     u.Email,
@@ -49,8 +49,8 @@ func (u *UserInput) ToUser() User {
 }
 
 // ToUserWithPassword Returns a UserWithPassword struct
-func (u *UserInput) ToUserWithPassword() *UserWithPassword {
-	return &UserWithPassword{
+func (u UserInput) ToUserWithPassword() UserWithPassword {
+	return UserWithPassword{
 		User:     u.ToUser(),
 		Password: u.Password,
 	}
@@ -59,7 +59,7 @@ func (u *UserInput) ToUserWithPassword() *UserWithPassword {
 // IsValid checks if a user is valid and has no missing mandatory PGFields
 // * Email must not be empty
 // * Email must not be valid
-func (u *User) IsValid() (bool, error) {
+func (u User) IsValid() (bool, error) {
 	if u.Email == "" {
 		return false, errors.New("email-required")
 	}
@@ -73,7 +73,7 @@ func (u *User) IsValid() (bool, error) {
 // * User must be valid (see User struct)
 // * Password must not be empty
 // * Password must not be shorter than 8 characters
-func (u *UserWithPassword) IsValid() (bool, error) {
+func (u UserWithPassword) IsValid() (bool, error) {
 	if ok, err := u.User.IsValid(); !ok {
 		return false, err
 	}
@@ -94,7 +94,7 @@ func (u *UserWithPassword) IsValid() (bool, error) {
 // * Confirmation must not be empty
 // * Confirmation must be equal to UserWithPassword.Password
 // * Checkbox must be true
-func (u *UserInput) IsValid() (bool, error) {
+func (u UserInput) IsValid() (bool, error) {
 	if ok, err := u.UserWithPassword.IsValid(); !ok {
 		return false, err
 	}
