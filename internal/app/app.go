@@ -125,7 +125,8 @@ func initRepositories() {
 	// Brokers
 	brokerRepository := brokers.NewPostgresRepository(dbClient)
 	userBrokerRepository := brokers.NewUserBrokerPostgresRepository(dbClient)
-	brokers.ReplaceGlobals(brokers.NewRepository(brokerRepository, userBrokerRepository))
+	imageBrokerRepository := brokers.NewImageBrokerPostgresRepository(dbClient)
+	brokers.ReplaceGlobals(brokers.NewRepository(brokerRepository, userBrokerRepository, imageBrokerRepository))
 
 	// Transactions
 	transactions.ReplaceGlobals(transactions.NewPostgresRepository(dbClient))

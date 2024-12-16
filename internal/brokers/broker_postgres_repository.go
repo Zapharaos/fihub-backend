@@ -165,11 +165,71 @@ func (r *BrokerPostgresRepository) GetAll() ([]Broker, error) {
 	return brokers, nil
 }
 
+// SetImage use to set an image to a broker
+func (r *BrokerPostgresRepository) SetImage(id uuid.UUID, imageID uuid.UUID) error {
+	// Prepare query
+	query := `UPDATE brokers
+			  SET image_id = :image_id
+			  WHERE id = :id`
+	params := map[string]interface{}{
+		"id":       id,
+		"image_id": imageID,
+	}
+
+	// Execute query
+	_, err := r.conn.NamedQuery(query, params)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// HasImage use to check if a broker has an image
+func (r *BrokerPostgresRepository) HasImage(id uuid.UUID) (bool, error) {
+	// Prepare query
+	query := `SELECT *
+			  FROM brokers as b
+			  WHERE b.id = :id AND b.image_id IS NOT NULL`
+	params := map[string]interface{}{
+		"id": id,
+	}
+
+	// Execute query
+	rows, err := r.conn.NamedQuery(query, params)
+	if err != nil {
+		return false, err
+	}
+	defer rows.Close()
+
+	return rows.Next(), nil
+}
+
+// DeleteImage use to delete an image from a broker
+func (r *BrokerPostgresRepository) DeleteImage(id uuid.UUID) error {
+	// Prepare query
+	query := `UPDATE brokers
+			  SET image_id = NULL
+			  WHERE id = :id`
+	params := map[string]interface{}{
+		"id": id,
+	}
+
+	// Execute query
+	_, err := r.conn.NamedQuery(query, params)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func scanBroker(rows *sqlx.Rows) (Broker, error) {
 	var broker Broker
 	err := rows.Scan(
 		&broker.ID,
 		&broker.Name,
+		&broker.ImageID,
 	)
 	if err != nil {
 		return Broker{}, err

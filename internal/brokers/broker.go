@@ -6,8 +6,9 @@ import (
 
 // Broker represents a broker entity in the system
 type Broker struct {
-	ID   uuid.UUID `json:"id"`
-	Name string    `json:"name"`
+	ID      uuid.UUID  `json:"id"`
+	Name    string     `json:"name"`
+	ImageID *uuid.UUID `json:"image_id"`
 }
 
 // IsValid checks if the broker is valid

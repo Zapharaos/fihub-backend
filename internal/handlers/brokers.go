@@ -79,6 +79,7 @@ func CreateBroker(w http.ResponseWriter, r *http.Request) {
 //	@Security		Bearer
 //	@Success		200	{object}	brokers.Broker			"broker"
 //	@Failure		400	{object}	render.ErrorResponse	"Bad Request"
+//	@Failure		404	{object}	render.ErrorResponse	"Not Found"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/brokers/{id} [get]
 func GetBroker(w http.ResponseWriter, r *http.Request) {
@@ -98,7 +99,7 @@ func GetBroker(w http.ResponseWriter, r *http.Request) {
 	}
 	if !found {
 		zap.L().Error("Broker not found", zap.String("uuid", brokerID.String()))
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 

@@ -88,6 +88,8 @@ func buildProtectedRoutes(a *auth.Auth) func(r chi.Router) {
 		})
 
 		// TODO : scan utils
+		// TODO : improve isValid with uuid's check + errors
+		// TODO : status not found on Exists
 
 		// Brokers
 		r.Route("/brokers", func(r chi.Router) {
@@ -98,7 +100,19 @@ func buildProtectedRoutes(a *auth.Auth) func(r chi.Router) {
 				r.Get("/", handlers.GetBroker)
 				r.Put("/", handlers.UpdateBroker)
 				r.Delete("/", handlers.DeleteBroker)
+
+				// Image
+				r.Route("/image", func(r chi.Router) {
+					r.Post("/", handlers.CreateBrokerImage)
+
+					r.Route("/{image_id}", func(r chi.Router) {
+						r.Get("/", handlers.GetBrokerImage)
+						r.Put("/", handlers.UpdateBrokerImage)
+						r.Delete("/", handlers.DeleteBrokerImage)
+					})
+				})
 			})
+
 		})
 
 		// Transactions : retrieving userID through context

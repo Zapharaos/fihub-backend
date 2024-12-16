@@ -42,7 +42,7 @@ func ParseParamUUID(w http.ResponseWriter, r *http.Request, key string) (uuid.UU
 
 // parseUUIDPair is a helper function to parse a key and base UUIDs from the request
 // using the key "id" for the base UUID
-func parseUUIDPair(w http.ResponseWriter, r *http.Request, key string) (keyID, baseID uuid.UUID, ok bool) {
+func parseUUIDPair(w http.ResponseWriter, r *http.Request, key string) (baseID, keyID uuid.UUID, ok bool) {
 	keyID, ok = ParseParamUUID(w, r, key)
 	if !ok {
 		return
