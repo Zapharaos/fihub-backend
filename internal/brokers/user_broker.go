@@ -7,9 +7,8 @@ import (
 
 // UserBroker represents a user broker entity in the system
 type UserBroker struct {
-	UserID   uuid.UUID `json:"user_id"`
-	BrokerID uuid.UUID `json:"broker_id"`
-	ImageID  uuid.UUID `json:"image_id"`
+	UserID uuid.UUID `json:"-"`
+	Broker Broker    `json:"broker"`
 }
 
 // UserBrokerInput represents a user broker entity received by the system
@@ -34,6 +33,6 @@ func (u *UserBrokerInput) ToUserBroker() UserBroker {
 	brokerID, _ := uuid.Parse(u.BrokerID)
 
 	return UserBroker{
-		BrokerID: brokerID,
+		Broker: Broker{ID: brokerID},
 	}
 }

@@ -9,5 +9,5 @@ type UserBrokerRepository interface {
 	Create(userBroker UserBroker) error
 	Delete(userBroker UserBroker) error
 	Exists(userBroker UserBroker) (bool, error)
-	GetAll(userID uuid.UUID) ([]Broker, error)
+	GetAll(userID uuid.UUID) ([]UserBroker, error)
 }

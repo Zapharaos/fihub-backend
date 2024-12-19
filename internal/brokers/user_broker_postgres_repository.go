@@ -27,7 +27,7 @@ func (r *UserBrokerPostgresRepository) Create(userBroker UserBroker) error {
 				VALUES (:user_id, :broker_id)`
 	params := map[string]interface{}{
 		"user_id":   userBroker.UserID,
-		"broker_id": userBroker.BrokerID,
+		"broker_id": userBroker.Broker.ID,
 	}
 
 	// Execute query
@@ -45,7 +45,7 @@ func (r *UserBrokerPostgresRepository) Delete(userBroker UserBroker) error {
 			  WHERE ub.user_id = :user_id AND ub.broker_id = :broker_id`
 	params := map[string]interface{}{
 		"user_id":   userBroker.UserID,
-		"broker_id": userBroker.BrokerID,
+		"broker_id": userBroker.Broker.ID,
 	}
 
 	// Execute query
@@ -64,7 +64,7 @@ func (r *UserBrokerPostgresRepository) Exists(userBroker UserBroker) (bool, erro
 			  WHERE ub.user_id = :user_id AND ub.broker_id = :broker_id`
 	params := map[string]interface{}{
 		"user_id":   userBroker.UserID,
-		"broker_id": userBroker.BrokerID,
+		"broker_id": userBroker.Broker.ID,
 	}
 
 	// Execute query
@@ -77,7 +77,7 @@ func (r *UserBrokerPostgresRepository) Exists(userBroker UserBroker) (bool, erro
 	return rows.Next(), nil
 }
 
-func (r *UserBrokerPostgresRepository) GetAll(userID uuid.UUID) ([]Broker, error) {
+func (r *UserBrokerPostgresRepository) GetAll(userID uuid.UUID) ([]UserBroker, error) {
 	// Prepare query
 	query := `SELECT b.id, b.name, b.image_id
 			  FROM user_brokers as ub
@@ -94,5 +94,19 @@ func (r *UserBrokerPostgresRepository) GetAll(userID uuid.UUID) ([]Broker, error
 	}
 	defer rows.Close()
 
-	return utils.ScanAll(rows, scanBroker)
+	return utils.ScanAll(rows, scanUserBroker)
+}
+
+func scanUserBroker(rows *sqlx.Rows) (UserBroker, error) {
+	var userBroker UserBroker
+	err := rows.Scan(
+		&userBroker.Broker.ID,
+		&userBroker.Broker.Name,
+		&userBroker.Broker.ImageID,
+	)
+	if err != nil {
+		return UserBroker{}, err
+	}
+
+	return userBroker, nil
 }

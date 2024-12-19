@@ -20,7 +20,7 @@ import (
 //	@Produce		json
 //	@Param			userBroker	body	brokers.UserBrokerInput	true	"userBroker (json)"
 //	@Security		Bearer
-//	@Success		200	{array}		brokers.Broker			"Updated list of brokers"
+//	@Success		200	{array}		brokers.UserBroker		"Updated list of user brokers"
 //	@Failure		400	{object}	render.ErrorResponse	"Bad Request"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
@@ -55,7 +55,7 @@ func CreateUserBroker(w http.ResponseWriter, r *http.Request) {
 	userBroker.UserID = user.ID
 
 	// Verify broker existence
-	exists, err := brokers.R().B().Exists(userBroker.BrokerID)
+	exists, err := brokers.R().B().Exists(userBroker.Broker.ID)
 	if err != nil {
 		zap.L().Error("Check broker exists", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
@@ -64,7 +64,7 @@ func CreateUserBroker(w http.ResponseWriter, r *http.Request) {
 	if !exists {
 		zap.L().Warn("broker not found",
 			zap.String("UserID", userBroker.UserID.String()),
-			zap.String("BrokerID", userBroker.BrokerID.String()))
+			zap.String("BrokerID", userBroker.Broker.ID.String()))
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -77,7 +77,7 @@ func CreateUserBroker(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if exists {
-		zap.L().Warn("UserBroker already exists", zap.String("BrokerID", userBroker.BrokerID.String()))
+		zap.L().Warn("UserBroker already exists", zap.String("BrokerID", userBroker.Broker.ID.String()))
 		render.BadRequest(w, r, fmt.Errorf("broker-used"))
 		return
 	}
@@ -137,8 +137,8 @@ func DeleteUserBroker(w http.ResponseWriter, r *http.Request) {
 
 	// Build userBroker
 	userBroker := brokers.UserBroker{
-		UserID:   user.ID,
-		BrokerID: brokerID,
+		UserID: user.ID,
+		Broker: brokers.Broker{ID: brokerID},
 	}
 
 	// Verify userBroker existence
@@ -176,7 +176,7 @@ func DeleteUserBroker(w http.ResponseWriter, r *http.Request) {
 //	@Tags			UserBroker
 //	@Produce		json
 //	@Security		Bearer
-//	@Success		200	{array}		brokers.Broker			"List of brokers"
+//	@Success		200	{array}		brokers.UserBroker		"List of brokers"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/users/brokers [get]
