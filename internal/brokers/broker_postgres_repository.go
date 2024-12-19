@@ -28,11 +28,12 @@ func (r *BrokerPostgresRepository) Create(broker Broker) (uuid.UUID, error) {
 	broker.ID = uuid.New()
 
 	// Prepare query
-	query := `INSERT INTO brokers (id, name)
-			  VALUES (:id, :name)`
+	query := `INSERT INTO brokers (id, name, disabled)
+			  VALUES (:id, :name, :disabled)`
 	params := map[string]interface{}{
-		"id":   broker.ID,
-		"name": broker.Name,
+		"id":       broker.ID,
+		"name":     broker.Name,
+		"disabled": broker.Disabled,
 	}
 
 	// Execute query
@@ -70,11 +71,12 @@ func (r *BrokerPostgresRepository) Update(broker Broker) error {
 
 	// Prepare query
 	query := `UPDATE brokers
-			  SET name = :name
+			  SET name = :name, disabled = :disabled
 			  WHERE id = :id`
 	params := map[string]interface{}{
-		"id":   broker.ID,
-		"name": broker.Name,
+		"id":       broker.ID,
+		"name":     broker.Name,
+		"disabled": broker.Disabled,
 	}
 
 	// Execute query
@@ -162,6 +164,24 @@ func (r *BrokerPostgresRepository) GetAll() ([]Broker, error) {
 	return utils.ScanAll(rows, scanBroker)
 }
 
+// GetAllEnabled use to retrieve all brokers enabled
+func (r *BrokerPostgresRepository) GetAllEnabled() ([]Broker, error) {
+
+	// Prepare query
+	query := `SELECT *
+			  FROM brokers
+			  WHERE disabled = false`
+
+	// Execute query
+	rows, err := r.conn.Queryx(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	return utils.ScanAll(rows, scanBroker)
+}
+
 // SetImage use to set an image to a broker
 func (r *BrokerPostgresRepository) SetImage(id uuid.UUID, imageID uuid.UUID) error {
 	// Prepare query
@@ -227,6 +247,7 @@ func scanBroker(rows *sqlx.Rows) (Broker, error) {
 		&broker.ID,
 		&broker.Name,
 		&broker.ImageID,
+		&broker.Disabled,
 	)
 	if err != nil {
 		return Broker{}, err

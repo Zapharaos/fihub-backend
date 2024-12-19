@@ -13,6 +13,7 @@ type BrokerRepository interface {
 	Exists(id uuid.UUID) (bool, error)
 	ExistsByName(name string) (bool, error)
 	GetAll() ([]Broker, error)
+	GetAllEnabled() ([]Broker, error)
 
 	SetImage(id uuid.UUID, imageId uuid.UUID) error
 	HasImage(id uuid.UUID) (bool, error)

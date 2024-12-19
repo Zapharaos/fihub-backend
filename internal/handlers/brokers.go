@@ -288,6 +288,7 @@ func DeleteBroker(w http.ResponseWriter, r *http.Request) {
 //	@Description	Gets a list of all brokers.
 //	@Tags			Brokers
 //	@Produce		json
+//	@Param			enabled	query	string	false	"enabled only"
 //	@Security		Bearer
 //	@Success		200	{array}		brokers.Broker			"list of brokers"
 //	@Failure		401	{string}	string					"Permission denied"
@@ -295,7 +296,23 @@ func DeleteBroker(w http.ResponseWriter, r *http.Request) {
 //	@Router			/api/v1/brokers [get]
 func GetBrokers(w http.ResponseWriter, r *http.Request) {
 
-	result, err := brokers.R().B().GetAll()
+	// Get the query parameter
+	enabledOnly := r.URL.Query().Get("enabled")
+
+	zap.L().Info(r.URL.Query().Get("enabled"))
+
+	var (
+		result []brokers.Broker
+		err    error
+	)
+
+	// Check if the query parameter is set to true
+	if enabledOnly == "true" {
+		result, err = brokers.R().B().GetAllEnabled()
+	} else {
+		result, err = brokers.R().B().GetAll()
+	}
+
 	if err != nil {
 		render.Error(w, r, err, "Get brokers")
 		return

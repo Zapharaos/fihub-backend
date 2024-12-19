@@ -54,10 +54,10 @@ func CreateUserBroker(w http.ResponseWriter, r *http.Request) {
 	userBroker := userBrokerInput.ToUserBroker()
 	userBroker.UserID = user.ID
 
-	// Verify broker existence
-	exists, err := brokers.R().B().Exists(userBroker.Broker.ID)
+	// Retrieve broker to check if it exists
+	broker, exists, err := brokers.R().B().Get(userBroker.Broker.ID)
 	if err != nil {
-		zap.L().Error("Check broker exists", zap.Error(err))
+		zap.L().Error("Get broker", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -66,6 +66,13 @@ func CreateUserBroker(w http.ResponseWriter, r *http.Request) {
 			zap.String("UserID", userBroker.UserID.String()),
 			zap.String("BrokerID", userBroker.Broker.ID.String()))
 		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	// Check if broker is disabled
+	if broker.Disabled {
+		zap.L().Warn("Broker is disabled", zap.String("BrokerID", userBroker.Broker.ID.String()))
+		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
