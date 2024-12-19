@@ -19,8 +19,8 @@ import (
 //	@Tags			BrokerImages
 //	@Accept			multipart/form-data
 //	@Produce		json
-//	@Param			id		path	string	true	"broker ID"
-//	@Param			file	form	file	true	"image file"
+//	@Param			id		path		string	true	"broker ID"
+//	@Param			file	formData	file	true	"image file"
 //	@Security		Bearer
 //	@Success		200	{object}	brokers.BrokerImage		"broker image"
 //	@Failure		400	{object}	render.ErrorResponse	"Bad Request"
@@ -198,9 +198,9 @@ func GetBrokerImage(w http.ResponseWriter, r *http.Request) {
 //	@Tags			BrokerImages
 //	@Accept			multipart/form-data
 //	@Produce		json
-//	@Param			id			path	string	true	"broker ID"
-//	@Param			image_id	path	string	true	"image ID"
-//	@Param			file		form	file	true	"image file"
+//	@Param			id			path		string	true	"broker ID"
+//	@Param			image_id	path		string	true	"image ID"
+//	@Param			file		formData	file	true	"image file"
 //	@Security		Bearer
 //	@Success		200	{object}	brokers.BrokerImage		"broker image"
 //	@Failure		400	{object}	render.ErrorResponse	"Bad Request"

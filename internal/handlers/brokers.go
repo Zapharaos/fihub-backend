@@ -178,6 +178,35 @@ func UpdateBroker(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Retrieve the broker from the database and verify its existence
+	oldBroker, found, err := brokers.R().B().Get(brokerID)
+	if err != nil {
+		zap.L().Error("Cannot get broker", zap.String("uuid", brokerID.String()), zap.Error(err))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	if !found {
+		zap.L().Error("Broker not found", zap.String("uuid", brokerID.String()))
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	// Check if the broker name has changed
+	if oldBroker.Name != broker.Name {
+		// Verify that the broker name is not already used
+		exists, err = brokers.R().B().ExistsByName(broker.Name)
+		if err != nil {
+			zap.L().Error("Check broker name exists", zap.Error(err))
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		if exists {
+			zap.L().Warn("Broker name already used", zap.String("Name", broker.Name))
+			render.BadRequest(w, r, errors.New("name-used"))
+			return
+		}
+	}
+
 	// Update the broker
 	err = brokers.R().B().Update(broker)
 	if err != nil {
@@ -187,7 +216,7 @@ func UpdateBroker(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get the broker from the database
-	broker, found, err := brokers.R().B().Get(brokerID)
+	broker, found, err = brokers.R().B().Get(brokerID)
 	if err != nil {
 		zap.L().Error("Cannot get broker", zap.String("uuid", brokerID.String()), zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
