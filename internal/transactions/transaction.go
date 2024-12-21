@@ -4,7 +4,6 @@ import (
 	"errors"
 	"github.com/Zapharaos/fihub-backend/internal/brokers"
 	"github.com/google/uuid"
-	"strings"
 	"time"
 )
 
@@ -46,14 +45,9 @@ type Transaction struct {
 
 // IsValid checks if a TransactionType is valid and
 func (t TransactionType) IsValid() (bool, error) {
-
-	// Check if the TransactionType is valid (through uppercase string comparison)
-	switch TransactionType(strings.ToUpper(string(t))) {
-	case BUY:
-	case SELL:
+	if t == BUY || t == SELL {
 		return true, nil
 	}
-
 	return false, errors.New("type-invalid")
 }
 
@@ -98,11 +92,6 @@ func (t *TransactionInput) IsValid() (bool, error) {
 
 	// Price
 	if t.Price <= 0 {
-		return false, errors.New("price-invalid")
-	}
-
-	// PriceUnit
-	if t.PriceUnit <= 0 {
 		return false, errors.New("price-invalid")
 	}
 

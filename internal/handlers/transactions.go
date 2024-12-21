@@ -51,8 +51,9 @@ func CreateTransaction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Set the user ID
+	// Set the user ID + PriceUnit
 	transactionInput.UserID = user.ID
+	transactionInput.PriceUnit = transactionInput.Price / transactionInput.Quantity
 
 	// check if userBroker exists
 	exists, err := brokers.R().U().Exists(brokers.UserBroker{UserID: user.ID, Broker: brokers.Broker{ID: transactionInput.BrokerID}})
@@ -105,6 +106,7 @@ func CreateTransaction(w http.ResponseWriter, r *http.Request) {
 // @Success 		200 {object} 	transactions.Transaction 	"transaction"
 // @Failure 		400 {object} 	render.ErrorResponse 		"Bad Request"
 // @Failure 		401 {string} 	string 						"Permission denied"
+// @Failure 		404 {object} 	render.ErrorResponse 		"Not Found"
 // @Failure 		500 {object} 	render.ErrorResponse 		"Internal Server Error"
 // @Router /api/v1/transactions/{id} [get]
 func GetTransaction(w http.ResponseWriter, r *http.Request) {
@@ -120,6 +122,11 @@ func GetTransaction(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		zap.L().Error("Cannot get transaction", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	if !ok {
+		zap.L().Warn("Transaction not found", zap.String("uuid", transactionID.String()))
+		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 
@@ -175,8 +182,9 @@ func UpdateTransaction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Set the transaction ID
+	// Set the transaction ID + PriceUnit
 	transactionInput.ID = transactionID
+	transactionInput.PriceUnit = transactionInput.Price / transactionInput.Quantity
 
 	// Verify that the transaction belongs to the user
 	oldTransaction, ok, err := transactions.R().Get(transactionID)

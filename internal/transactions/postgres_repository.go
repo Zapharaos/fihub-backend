@@ -75,7 +75,8 @@ func (r PostgresRepository) Get(transactionID uuid.UUID) (Transaction, bool, err
 func (r PostgresRepository) Update(transactionInput TransactionInput) error {
 	// Prepare query
 	query := `UPDATE transactions
-			  SET date = :date,
+			  SET broker_id = :broker_id,
+			      date = :date,
 				  transaction_type = :transaction_type,
 				  asset = :asset,
 				  quantity = :quantity,
@@ -85,6 +86,7 @@ func (r PostgresRepository) Update(transactionInput TransactionInput) error {
 			  WHERE id = :id`
 	params := map[string]interface{}{
 		"id":               transactionInput.ID,
+		"broker_id":        transactionInput.BrokerID,
 		"date":             transactionInput.Date,
 		"transaction_type": transactionInput.Type,
 		"asset":            transactionInput.Asset,

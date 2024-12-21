@@ -299,8 +299,6 @@ func GetBrokers(w http.ResponseWriter, r *http.Request) {
 	// Get the query parameter
 	enabledOnly := r.URL.Query().Get("enabled")
 
-	zap.L().Info(r.URL.Query().Get("enabled"))
-
 	var (
 		result []brokers.Broker
 		err    error
