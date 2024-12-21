@@ -130,6 +130,18 @@ func GetTransaction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Verify that the transaction belongs to the user
+	user, ok := getUserFromContext(r)
+	if !ok {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+	if transaction.UserID != user.ID {
+		zap.L().Warn("Transaction does not belong to user", zap.String("uuid", transactionID.String()))
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
 	render.JSON(w, r, transaction)
 }
 

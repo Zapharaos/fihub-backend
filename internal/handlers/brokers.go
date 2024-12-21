@@ -291,7 +291,6 @@ func DeleteBroker(w http.ResponseWriter, r *http.Request) {
 //	@Param			enabled	query	string	false	"enabled only"
 //	@Security		Bearer
 //	@Success		200	{array}		brokers.Broker			"list of brokers"
-//	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/brokers [get]
 func GetBrokers(w http.ResponseWriter, r *http.Request) {
