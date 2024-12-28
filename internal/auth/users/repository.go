@@ -13,6 +13,9 @@ type Repository interface {
 	Get(userID uuid.UUID) (User, bool, error)
 	Exists(email string) (bool, error)
 	Authenticate(email string, password string) (User, bool, error)
+	Update(user User) error
+	UpdateWithPassword(user UserWithPassword) error
+	Delete(userID uuid.UUID) error
 }
 
 var (

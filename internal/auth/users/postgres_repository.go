@@ -135,6 +135,75 @@ func (r *PostgresRepository) Authenticate(email string, password string) (User, 
 	return User{}, false, errors.New("no user found, invalid credentials")
 }
 
+// Update method used to update a user
+func (r *PostgresRepository) Update(user User) error {
+
+	// Prepare query
+	query := `UPDATE users as u
+			  SET email = :email, updated_at = :updated_at
+			  WHERE u.id = :id`
+	params := map[string]interface{}{
+		"id":         user.ID,
+		"email":      user.Email,
+		"updated_at": time.Now().Truncate(1 * time.Millisecond).UTC(),
+	}
+
+	// Execute query
+	result, err := r.conn.NamedExec(query, params)
+	if err != nil {
+		return err
+	}
+
+	return utils.CheckRowAffected(result, 1)
+}
+
+// UpdateWithPassword method used to update a user with password
+func (r *PostgresRepository) UpdateWithPassword(user UserWithPassword) error {
+
+	// Hash password before saving
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+
+	// Prepare query
+	query := `UPDATE users as u
+			  SET password = :password, updated_at = :updated_at
+			  WHERE u.id = :id`
+	params := map[string]interface{}{
+		"id":         user.ID,
+		"password":   hashedPassword,
+		"updated_at": time.Now().Truncate(1 * time.Millisecond).UTC(),
+	}
+
+	// Execute query
+	result, err := r.conn.NamedExec(query, params)
+	if err != nil {
+		return err
+	}
+
+	return utils.CheckRowAffected(result, 1)
+}
+
+// Delete method used to delete a user
+func (r *PostgresRepository) Delete(userID uuid.UUID) error {
+
+	// Prepare query
+	query := `DELETE FROM users as u
+			  WHERE u.id = :id`
+	params := map[string]interface{}{
+		"id": userID,
+	}
+
+	// Execute query
+	result, err := r.conn.NamedExec(query, params)
+	if err != nil {
+		return err
+	}
+
+	return utils.CheckRowAffected(result, 1)
+}
+
 func scanUser(rows *sqlx.Rows) (User, error) {
 
 	userWithPassword, err := scanUserWithPassword(rows)
