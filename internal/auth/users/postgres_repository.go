@@ -81,6 +81,27 @@ func (r *PostgresRepository) Get(userID uuid.UUID) (User, bool, error) {
 	return utils.ScanFirst(rows, scanUser)
 }
 
+// GetByEmail use to retrieve a user by email
+func (r *PostgresRepository) GetByEmail(email string) (User, bool, error) {
+
+	// Prepare query
+	query := `SELECT *
+			  FROM users as u
+			  WHERE u.email = :email`
+	params := map[string]interface{}{
+		"email": email,
+	}
+
+	// Execute query
+	rows, err := r.conn.NamedQuery(query, params)
+	if err != nil {
+		return User{}, false, err
+	}
+	defer rows.Close()
+
+	return utils.ScanFirst(rows, scanUser)
+}
+
 // Exists checks if a User with requested email exists in the repository
 func (r *PostgresRepository) Exists(email string) (bool, error) {
 	// Prepare query

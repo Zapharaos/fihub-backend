@@ -5,6 +5,7 @@ import (
 	"github.com/joho/godotenv"
 	"os"
 	"strconv"
+	"time"
 )
 
 // Load attempts to load environment variables from a file named ".env" in the current working directory
@@ -52,4 +53,20 @@ func GetBool(key string, fallback bool) bool {
 	}
 
 	return boolVal
+}
+
+// GetDuration retrieves an environment variable by key and returns its value as a time.Duration.
+func GetDuration(key string, fallback time.Duration) time.Duration {
+	val, ok := os.LookupEnv(key)
+	if !ok {
+		return fallback
+	}
+
+	durationVal, err := time.ParseDuration(val)
+	if err != nil {
+		fmt.Println("Error converting environment variable", key, "to duration:", err)
+		return fallback
+	}
+
+	return durationVal
 }

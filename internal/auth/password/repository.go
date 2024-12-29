@@ -1,4 +1,4 @@
-package users
+package password
 
 import (
 	"github.com/google/uuid"
@@ -9,14 +9,11 @@ import (
 // (in-memory map, sql database, in-memory cache, file system, ...)
 // It allows standard CRUD operation on Users
 type Repository interface {
-	Create(user UserWithPassword) (uuid.UUID, error)
-	Get(userID uuid.UUID) (User, bool, error)
-	GetByEmail(email string) (User, bool, error)
-	Exists(email string) (bool, error)
-	Authenticate(email string, password string) (User, bool, error)
-	Update(user User) error
-	UpdateWithPassword(user UserWithPassword) error
-	Delete(userID uuid.UUID) error
+	Create(request Request) error
+	GetRequestID(userID uuid.UUID, token string) (uuid.UUID, error)
+	Delete(requestID uuid.UUID) error
+	Valid(userID uuid.UUID, requestID uuid.UUID) (bool, error)
+	ValidForUser(userID uuid.UUID) (bool, error)
 }
 
 var (

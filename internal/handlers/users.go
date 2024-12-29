@@ -182,7 +182,7 @@ func UpdateUserSelf(w http.ResponseWriter, r *http.Request) {
 //	@Tags			Users
 //	@Accept			json
 //	@Produce		json
-//	@Param			user	body	users.UserInputPassword	true	"user (json)"
+//	@Param			password	body	users.UserInputPassword	true	"password (json)"
 //	@Security		Bearer
 //	@Success		200	{string}	string					"status OK"
 //	@Failure		400	{object}	render.ErrorResponse	"Bad Request"
@@ -198,23 +198,23 @@ func ChangeUserPassword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Parse request body
-	var user users.UserInputPassword
-	err := json.NewDecoder(r.Body).Decode(&user)
+	var userPassword users.UserInputPassword
+	err := json.NewDecoder(r.Body).Decode(&userPassword)
 	if err != nil {
 		zap.L().Warn("User json decode", zap.Error(err))
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	// Validate user
-	if ok, err := user.IsValidPassword(); !ok {
+	// Validate password
+	if ok, err := userPassword.IsValidPassword(); !ok {
 		zap.L().Warn("User is not valid", zap.Error(err))
 		render.BadRequest(w, r, err)
 		return
 	}
 
 	// Convert to UserWithPassword
-	userWithPassword := user.ToUserWithPassword()
+	userWithPassword := userPassword.ToUserWithPassword()
 	userWithPassword.ID = userCtx.ID
 
 	// Update password

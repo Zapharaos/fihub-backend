@@ -47,7 +47,24 @@ func New() *chi.Mux {
 		r.Get("/health", handlers.HealthCheckHandler)
 
 		// Authentication
-		r.Post("/auth/token", a.GetToken)
+		r.Route("/auth", func(r chi.Router) {
+
+			// Token
+			r.Post("/token", a.GetToken)
+
+			// Password routes
+			r.Route("/password", func(r chi.Router) {
+
+				// Create password reset request
+				r.Post("/", handlers.CreatePasswordResetRequest)
+
+				// Input token and retrieve request ID
+				r.Get("/{id}/", handlers.GetPasswordResetRequestID)
+
+				// Reset password
+				r.Put("/{id}/{request_id}", handlers.ResetPassword)
+			})
+		})
 
 		// Protected routes
 		r.Group(buildProtectedRoutes(a))
@@ -77,11 +94,13 @@ func buildProtectedRoutes(a *auth.Auth) func(r chi.Router) {
 		r.Route("/users", func(r chi.Router) {
 			r.Post("/", handlers.CreateUser)
 
+			// User's self profile : retrieving userID through context
 			r.Route("/me", func(r chi.Router) {
 				r.Get("/", handlers.GetUserSelf)
 				r.Put("/", handlers.UpdateUserSelf)
 				r.Delete("/", handlers.DeleteUserSelf)
 
+				// User's password : retrieving userID through context
 				r.Put("/password", handlers.ChangeUserPassword)
 			})
 
