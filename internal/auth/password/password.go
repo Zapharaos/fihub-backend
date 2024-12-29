@@ -23,7 +23,7 @@ type Request struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-func InitToken(userID uuid.UUID) Request {
+func InitRequest(userID uuid.UUID) Request {
 	return Request{
 		ID:        uuid.New(),
 		UserID:    userID,

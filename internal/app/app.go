@@ -6,6 +6,7 @@ import (
 	"github.com/Zapharaos/fihub-backend/internal/brokers"
 	"github.com/Zapharaos/fihub-backend/internal/database"
 	"github.com/Zapharaos/fihub-backend/internal/transactions"
+	"github.com/Zapharaos/fihub-backend/pkg/email"
 	"github.com/Zapharaos/fihub-backend/pkg/env"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -37,6 +38,9 @@ func Init() {
 	// Setup Database
 	initPostgres()
 	initRepositories()
+
+	// Setup Email
+	email.ReplaceGlobals(email.NewSendgridService())
 }
 
 // initPostgres initializes the Zap logger.

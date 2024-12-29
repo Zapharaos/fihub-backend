@@ -6,6 +6,7 @@ import (
 	"github.com/Zapharaos/fihub-backend/internal/auth/password"
 	"github.com/Zapharaos/fihub-backend/internal/auth/users"
 	"github.com/Zapharaos/fihub-backend/internal/handlers/render"
+	"github.com/Zapharaos/fihub-backend/pkg/email"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"net/http"
@@ -63,15 +64,29 @@ func CreatePasswordResetRequest(w http.ResponseWriter, r *http.Request) {
 
 	// TODO : check for rate limiting
 
-	// Store token
-	err = password.R().Create(password.InitToken(user.ID))
+	// Create request
+	request := password.InitRequest(user.ID)
+
+	// Store request
+	err = password.R().Create(request)
 	if err != nil {
 		zap.L().Error("RequestPasswordReset", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	// TODO : send email
+	// Prepare email
+	subject := "Your OTP Code"
+	plainTextContent := "Your OTP code is: " + request.Token
+	htmlContent := "<p>Your OTP code is: <strong>" + request.Token + "</strong></p>"
+
+	// Send email
+	err = email.S().Send(user.Email, subject, plainTextContent, htmlContent)
+	if err != nil {
+		zap.L().Error("Failed to send OTP email", zap.Error(err))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 
 	render.OK(w, r)
 }
