@@ -18,6 +18,7 @@ type SendgridService struct {
 func NewSendgridService() Service {
 	s := SendgridService{
 		apiKey:      os.Getenv("SENDGRID_API_KEY"),
+		senderName:  os.Getenv("SENDGRID_SENDER_NAME"),
 		senderEmail: os.Getenv("SENDGRID_SENDER_EMAIL"),
 	}
 	var service Service = &s

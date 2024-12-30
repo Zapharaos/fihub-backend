@@ -5,10 +5,12 @@ go 1.23.3
 require (
 	filippo.io/edwards25519 v1.1.0 // indirect
 	github.com/ClickHouse/clickhouse-go v1.5.4 // indirect
+	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/cloudflare/golz4 v0.0.0-20240916140612-caecf3c00c06 // indirect
 	github.com/denisenkom/go-mssqldb v0.12.3 // indirect
 	github.com/go-chi/chi/v5 v5.1.0 // indirect
 	github.com/go-chi/cors v1.2.1 // indirect
+	github.com/go-chi/httprate v0.14.1 // indirect
 	github.com/go-sql-driver/mysql v1.8.1 // indirect
 	github.com/golang-jwt/jwt/v5 v5.2.1 // indirect
 	github.com/golang-sql/civil v0.0.0-20220223132316-b832511892a9 // indirect

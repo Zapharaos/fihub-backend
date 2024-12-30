@@ -7,6 +7,7 @@ import (
 	"github.com/Zapharaos/fihub-backend/internal/auth/users"
 	"github.com/Zapharaos/fihub-backend/internal/handlers/render"
 	"github.com/Zapharaos/fihub-backend/pkg/email"
+	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"net/http"
@@ -59,10 +60,9 @@ func CreatePasswordResetRequest(w http.ResponseWriter, r *http.Request) {
 	if exists {
 		zap.L().Warn("ResetPassword already exists", zap.Error(err))
 		render.BadRequest(w, r, errors.New("request-active"))
+		// TODO : send userID
 		return
 	}
-
-	// TODO : check for rate limiting
 
 	// Create request
 	request := password.InitRequest(user.ID)
@@ -88,7 +88,8 @@ func CreatePasswordResetRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	render.OK(w, r)
+	// TODO : maybe send remaining time as well
+	render.JSON(w, r, user.ID)
 }
 
 // GetPasswordResetRequestID godoc
@@ -101,28 +102,25 @@ func CreatePasswordResetRequest(w http.ResponseWriter, r *http.Request) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			id		path	string	true	"User ID"
-//	@Param			token	body	password.InputToken	true	"token (json)"
+//	@Param			token	path	string	true	"token"
 //	@Success		200	{string}	string	"request_id"
 //	@Failure		400	{object}	render.ErrorResponse	"Bad Request"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
-//	@Router			/api/v1/auth/{id}/password/{token} [get]
+//	@Router			/api/v1/auth/password/{id}/{token} [get]
 func GetPasswordResetRequestID(w http.ResponseWriter, r *http.Request) {
 	userID, ok := ParseParamUUID(w, r, "id")
 	if !ok {
 		return
 	}
 
-	// Parse request body
-	var inputToken password.InputToken
-	err := json.NewDecoder(r.Body).Decode(&inputToken)
-	if err != nil {
-		zap.L().Warn("Request json decode", zap.Error(err))
+	token := chi.URLParam(r, "token")
+	if token == "" {
+		zap.L().Warn("Token is empty")
 		w.WriteHeader(http.StatusBadRequest)
-		return
 	}
 
 	// Check if request exists and is valid
-	requestID, err := password.R().GetRequestID(userID, inputToken.Token)
+	requestID, err := password.R().GetRequestID(userID, token)
 	if err != nil {
 		zap.L().Error("GetPasswordResetRequestID", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
@@ -153,7 +151,7 @@ func GetPasswordResetRequestID(w http.ResponseWriter, r *http.Request) {
 //	@Success		200	{string}	string					"status OK"
 //	@Failure		400	{object}	render.ErrorResponse	"Bad Request"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
-//	@Router			/api/v1/auth/{id}/password/{request_id} [put]
+//	@Router			/api/v1/auth/password/{id}/{request_id} [put]
 func ResetPassword(w http.ResponseWriter, r *http.Request) {
 	userID, requestID, ok := parseUUIDPair(w, r, "request_id")
 	if !ok {
@@ -197,6 +195,14 @@ func ResetPassword(w http.ResponseWriter, r *http.Request) {
 	err = users.R().UpdateWithPassword(userWithPassword)
 	if err != nil {
 		zap.L().Error("PutUser.UpdatePassword", zap.Error(err))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	// Delete request
+	err = password.R().Delete(requestID)
+	if err != nil {
+		zap.L().Error("PutUser.DeleteRequest", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}

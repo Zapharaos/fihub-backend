@@ -11,10 +11,6 @@ type InputRequest struct {
 	Email string `json:"email"`
 }
 
-type InputToken struct {
-	Token string `json:"token"`
-}
-
 type Request struct {
 	ID        uuid.UUID `json:"id"`
 	UserID    uuid.UUID `json:"user_id"`

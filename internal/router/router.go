@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"github.com/Zapharaos/fihub-backend/internal/auth"
 	"github.com/Zapharaos/fihub-backend/internal/handlers"
+	"github.com/Zapharaos/fihub-backend/pkg/env"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
+	"github.com/go-chi/httprate"
 	"net/http"
 	"time"
 )
@@ -56,12 +58,14 @@ func New() *chi.Mux {
 			r.Route("/password", func(r chi.Router) {
 
 				// Create password reset request
-				r.Post("/", handlers.CreatePasswordResetRequest)
+				requestLimit := env.GetInt("OTP_MIDDLEWARE_REQUEST_LIMIT", 3)
+				windowLength := env.GetDuration("OTP_MIDDLEWARE_WINDOW_LENGTH", 24*time.Hour)
+				r.With(httprate.LimitByIP(requestLimit, windowLength)).Post("/", handlers.CreatePasswordResetRequest)
 
-				// Input token and retrieve request ID
-				r.Get("/{id}/", handlers.GetPasswordResetRequestID)
+				// Input token and retrieve requestID using userID
+				r.Get("/{id}/{token}", handlers.GetPasswordResetRequestID)
 
-				// Reset password
+				// Reset password using userID and requestID
 				r.Put("/{id}/{request_id}", handlers.ResetPassword)
 			})
 		})
