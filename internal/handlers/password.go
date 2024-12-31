@@ -23,9 +23,9 @@ import (
 //	@Accept			json
 //	@Produce		json
 //	@Param			request	body	password.InputRequest	true	"request (json)"
-//	@Success		200	{string}	string	"status OK"
-//	@Failure		400	{object}	render.ErrorResponse	"Bad Request"
-//	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
+//	@Success		200	{object}	password.ResponseRequest	"Request"
+//	@Failure		400	{object}	render.ErrorResponse		"Bad Request"
+//	@Failure		500	{object}	render.ErrorResponse		"Internal Server Error"
 //	@Router			/api/v1/auth/password [post]
 func CreatePasswordResetRequest(w http.ResponseWriter, r *http.Request) {
 	// Parse request body
@@ -58,9 +58,20 @@ func CreatePasswordResetRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if exists {
+		// Get the expiration time for the existing request
+		expiresAt, err := password.R().GetExpiresAt(user.ID)
+		if err != nil {
+			zap.L().Error("Get expires_at", zap.Error(err))
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
 		zap.L().Warn("ResetPassword already exists", zap.Error(err))
-		render.BadRequest(w, r, errors.New("request-active"))
-		// TODO : send userID
+		render.JSON(w, r, password.ResponseRequest{
+			Error:     "request-active",
+			ExpiresAt: expiresAt,
+			UserID:    user.ID,
+		})
 		return
 	}
 
@@ -68,7 +79,7 @@ func CreatePasswordResetRequest(w http.ResponseWriter, r *http.Request) {
 	request := password.InitRequest(user.ID)
 
 	// Store request
-	err = password.R().Create(request)
+	result, err := password.R().Create(request)
 	if err != nil {
 		zap.L().Error("RequestPasswordReset", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
@@ -83,13 +94,19 @@ func CreatePasswordResetRequest(w http.ResponseWriter, r *http.Request) {
 	// Send email
 	err = email.S().Send(user.Email, subject, plainTextContent, htmlContent)
 	if err != nil {
+		// Delete the request since the email could not be sent
+		_ = password.R().Delete(request.ID)
+
 		zap.L().Error("Failed to send OTP email", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	// TODO : maybe send remaining time as well
-	render.JSON(w, r, user.ID)
+	// Return user ID and expires_at in JSON response
+	render.JSON(w, r, password.ResponseRequest{
+		ExpiresAt: result.ExpiresAt,
+		UserID:    user.ID,
+	})
 }
 
 // GetPasswordResetRequestID godoc
@@ -128,7 +145,7 @@ func GetPasswordResetRequestID(w http.ResponseWriter, r *http.Request) {
 	}
 	if requestID == uuid.Nil {
 		zap.L().Warn("ResetPassword request not found", zap.Error(err))
-		w.WriteHeader(http.StatusBadRequest)
+		render.BadRequest(w, r, errors.New("otp-invalid"))
 		return
 	}
 

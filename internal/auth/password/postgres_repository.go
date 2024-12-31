@@ -1,9 +1,12 @@
 package password
 
 import (
+	"database/sql"
+	"errors"
 	"github.com/Zapharaos/fihub-backend/internal/utils"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
+	"time"
 )
 
 // PostgresRepository is a repository containing the Issue definition based on a PSQL database and
@@ -21,10 +24,11 @@ func NewPostgresRepository(dbClient *sqlx.DB) Repository {
 	return repo
 }
 
-func (p PostgresRepository) Create(request Request) error {
+func (p PostgresRepository) Create(request Request) (Request, error) {
 	// Prepare query
 	query := `INSERT INTO password_reset_tokens (user_id, token, expires_at)
-				VALUES (:user_id, :token, :expires_at)`
+				VALUES (:user_id, :token, :expires_at)
+				RETURNING id, user_id, token, expires_at, created_at`
 	params := map[string]interface{}{
 		"user_id":    request.UserID,
 		"token":      request.Token,
@@ -32,9 +36,16 @@ func (p PostgresRepository) Create(request Request) error {
 	}
 
 	// Execute query
-	_, err := p.conn.NamedQuery(query, params)
+	rows, err := p.conn.NamedQuery(query, params)
+	if err != nil {
+		return Request{}, err
+	}
+	defer rows.Close()
 
-	return err
+	// Scan result
+	result, _, err := utils.ScanFirst(rows, scanRequest)
+
+	return result, err
 }
 
 func (p PostgresRepository) GetRequestID(userID uuid.UUID, token string) (uuid.UUID, error) {
@@ -43,15 +54,36 @@ func (p PostgresRepository) GetRequestID(userID uuid.UUID, token string) (uuid.U
 			  FROM password_reset_tokens as p
 			  WHERE p.user_id = $1 AND p.token = $2 AND p.expires_at > NOW()
 			  LIMIT 1`
-	
+
 	// Execute query
 	var requestID uuid.UUID
 	err := p.conn.Get(&requestID, query, userID, token)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return uuid.Nil, nil
+		}
 		return uuid.Nil, err
 	}
 
 	return requestID, nil
+}
+
+// GetExpiresAt retrieves the expiration time for the existing password reset request for a given user.
+func (p PostgresRepository) GetExpiresAt(userID uuid.UUID) (time.Time, error) {
+	// Prepare query
+	query := `SELECT expires_at
+              FROM password_reset_tokens
+              WHERE user_id = $1 AND expires_at > NOW()
+              LIMIT 1`
+
+	// Execute query
+	var expiresAt time.Time
+	err := p.conn.Get(&expiresAt, query, userID)
+	if err != nil {
+		return time.Time{}, err
+	}
+
+	return expiresAt, nil
 }
 
 func (p PostgresRepository) Delete(requestID uuid.UUID) error {
@@ -109,4 +141,20 @@ func (p PostgresRepository) ValidForUser(userID uuid.UUID) (bool, error) {
 	defer rows.Close()
 
 	return rows.Next(), nil
+}
+
+func scanRequest(rows *sqlx.Rows) (Request, error) {
+	var request Request
+	err := rows.Scan(
+		&request.ID,
+		&request.UserID,
+		&request.Token,
+		&request.ExpiresAt,
+		&request.CreatedAt,
+	)
+	if err != nil {
+		return Request{}, err
+	}
+
+	return request, nil
 }

@@ -7,6 +7,13 @@ import (
 	"time"
 )
 
+// ResponseRequest represents the response for a password reset request
+type ResponseRequest struct {
+	Error     string    `json:"error,omitempty"`
+	ExpiresAt time.Time `json:"expires_at,omitempty"`
+	UserID    uuid.UUID `json:"user_id"`
+}
+
 type InputRequest struct {
 	Email string `json:"email"`
 }

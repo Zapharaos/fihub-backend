@@ -3,14 +3,16 @@ package password
 import (
 	"github.com/google/uuid"
 	"sync"
+	"time"
 )
 
 // Repository is a storage interface which can be implemented by multiple backend
 // (in-memory map, sql database, in-memory cache, file system, ...)
 // It allows standard CRUD operation on Users
 type Repository interface {
-	Create(request Request) error
+	Create(request Request) (Request, error)
 	GetRequestID(userID uuid.UUID, token string) (uuid.UUID, error)
+	GetExpiresAt(userID uuid.UUID) (time.Time, error)
 	Delete(requestID uuid.UUID) error
 	Valid(userID uuid.UUID, requestID uuid.UUID) (bool, error)
 	ValidForUser(userID uuid.UUID) (bool, error)
