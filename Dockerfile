@@ -15,6 +15,8 @@ RUN go install github.com/air-verse/air@latest && \
     go install github.com/go-delve/delve/cmd/dlv@latest
 
 COPY . .
+
+# Run the application with Air for hot-reloading
 CMD ["air", "-c", ".air.toml"]
 
 FROM build AS build-production
@@ -25,7 +27,7 @@ COPY . .
 # Build the Go app
 RUN go build -v -o server
 
-FROM scratch as production
+FROM scratch AS production
 # Start a new ligthwheight stage from scratch
 
 WORKDIR /
