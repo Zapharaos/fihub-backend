@@ -16,3 +16,22 @@ RUN go install github.com/air-verse/air@latest && \
 
 COPY . .
 CMD ["air", "-c", ".air.toml"]
+
+FROM build AS build-production
+
+WORKDIR /app
+COPY . .
+
+# Build the Go app
+RUN go build -v -o server
+
+FROM scratch as production
+# Start a new ligthwheight stage from scratch
+
+WORKDIR /
+
+# Copy the binary from the build stage
+COPY --from=build-production /app/server /server
+
+# Run the compiled binary
+CMD ["/server"]
