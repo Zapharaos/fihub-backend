@@ -1,6 +1,8 @@
 services:
   server:
-    build: .
+    build:
+      context: .
+      target: development
     restart: unless-stopped
     ports:
       - "${GO_PORT}:${GO_PORT}"

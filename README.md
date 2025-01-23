@@ -2,11 +2,6 @@
 
 ## Dependencies
 
-Install air
-```bash
-go install github.com/air-verse/air@latest
-```
-
 Install goose
 ```bash
 go install github.com/pressly/goose/v3/cmd/goose@latest
@@ -15,13 +10,6 @@ go install github.com/pressly/goose/v3/cmd/goose@latest
 Install swag
 ```bash
 go install github.com/swaggo/swag/cmd/swag@latest
-```
-
-## Air
-
-To run the app with hot-reload
-```bash
-air
 ```
 
 ## Goose

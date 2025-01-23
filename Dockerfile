@@ -1,12 +1,37 @@
-FROM golang:1.23
+FROM golang:1.23-alpine AS build
 
-WORKDIR /usr/src/app
+WORKDIR /app
 
 # pre-copy/cache go.mod for pre-downloading dependencies and only redownloading them in subsequent builds if they change
 COPY go.mod go.sum ./
-RUN go mod download && go mod verify
+RUN --mount=type=cache,target=/go/pkg/mod \
+    --mount=type=cache,target=/root/.cache/go-build \
+    go mod download && go mod verify
+
+FROM build AS development
+
+# Install : Air  = hot-reload ; Delve = debugger
+RUN go install github.com/air-verse/air@latest && \
+    go install github.com/go-delve/delve/cmd/dlv@latest
 
 COPY . .
-RUN go build -v -o /usr/local/bin/app
+CMD ["air", "-c", ".air.toml"]
 
-CMD ["app"]
+FROM build AS build-production
+
+WORKDIR /app
+COPY . .
+
+# Build the Go app
+RUN go build -v -o server
+
+FROM scratch as production
+# Start a new ligthwheight stage from scratch
+
+WORKDIR /
+
+# Copy the binary from the build stage
+COPY --from=build-production /app/server /server
+
+# Run the compiled binary
+CMD ["/server"]
