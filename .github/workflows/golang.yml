@@ -1,0 +1,39 @@
+name: Golang
+
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+
+  build:
+    strategy:
+      matrix:
+        go: [ 'stable' ]
+        os: [ ubuntu-latest ]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{ matrix.version }}
+
+      - name: Install dependencies
+        run: go mod download
+
+      - name: Build
+        run: go build -v ./...
+
+      - name: Test with coverage
+        run: go test -v -coverprofile=coverage.out ./...
+
+      - name: Upload results to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}

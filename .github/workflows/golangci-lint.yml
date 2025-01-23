@@ -1,0 +1,33 @@
+name: golangci-lint
+
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+
+permissions:
+  # Optional: allow write access to checks to allow the action to annotate code in the PR.
+  checks: write
+
+jobs:
+
+  golangci:
+
+    strategy:
+      matrix:
+        go: [ 'stable' ]
+        os: [ ubuntu-latest ]
+
+    name: lint
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ matrix.go }}
+
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v6
