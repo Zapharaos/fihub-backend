@@ -1,7 +1,6 @@
 package router
 
 import (
-	"fmt"
 	"github.com/Zapharaos/fihub-backend/internal/auth"
 	"github.com/Zapharaos/fihub-backend/internal/handlers"
 	"github.com/Zapharaos/fihub-backend/pkg/env"
@@ -9,7 +8,6 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 	"github.com/go-chi/httprate"
-	"net/http"
 	"time"
 )
 
@@ -76,17 +74,6 @@ func New() *chi.Mux {
 
 	// Return router
 	return r
-}
-
-func printRoutes(r chi.Router) {
-	walkFunc := func(method string, route string, handler http.Handler, middlewares ...func(http.Handler) http.Handler) error {
-		fmt.Printf("%s %s\n", method, route)
-		return nil
-	}
-
-	if err := chi.Walk(r, walkFunc); err != nil {
-		fmt.Printf("Logging err: %s\n", err.Error())
-	}
 }
 
 func buildProtectedRoutes(a *auth.Auth) func(r chi.Router) {

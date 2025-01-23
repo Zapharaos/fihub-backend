@@ -101,7 +101,7 @@ func (u UserInputCreate) IsValid() (bool, error) {
 	if ok, err := u.UserInputPassword.IsValid(); !ok {
 		return false, err
 	}
-	if u.Checkbox != true {
+	if !u.Checkbox {
 		return false, errors.New("checkbox-invalid")
 	}
 	return true, nil
