@@ -1,6 +1,7 @@
 package email
 
 import (
+	"github.com/Zapharaos/fihub-backend/pkg/email/templates"
 	"github.com/sendgrid/sendgrid-go"
 	"github.com/sendgrid/sendgrid-go/helpers/mail"
 	"go.uber.org/zap"
@@ -26,13 +27,22 @@ func NewSendgridService() Service {
 }
 
 // Send sends an email using SendGrid
-func (s *SendgridService) Send(emailTo, subject, plainTextContent, htmlContent string) error {
+func (s *SendgridService) Send(emailTo, subject, plainTextContent string, content templates.Template) error {
+
+	// Render email content
+	htmlContent, err := content.Build()
+	if err != nil {
+		zap.L().Error("Render email content", zap.Error(err))
+		return err
+	}
+
+	// Email props
 	from := mail.NewEmail(s.senderName, s.senderEmail)
 	to := mail.NewEmail(emailTo, emailTo)
 	message := mail.NewSingleEmail(from, subject, to, plainTextContent, htmlContent)
 	client := sendgrid.NewSendClient(s.apiKey)
 
-	_, err := client.Send(message)
+	_, err = client.Send(message)
 	if err != nil {
 		zap.L().Error("Sendgrid email send", zap.Error(err))
 		return err

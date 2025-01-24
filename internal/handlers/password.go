@@ -3,10 +3,12 @@ package handlers
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/Zapharaos/fihub-backend/internal/auth/password"
 	"github.com/Zapharaos/fihub-backend/internal/auth/users"
 	"github.com/Zapharaos/fihub-backend/internal/handlers/render"
 	"github.com/Zapharaos/fihub-backend/pkg/email"
+	"github.com/Zapharaos/fihub-backend/pkg/email/templates"
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
@@ -76,7 +78,7 @@ func CreatePasswordResetRequest(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Create request
-	request := password.InitRequest(user.ID)
+	request, duration := password.InitRequest(user.ID)
 
 	// Store request
 	result, err := password.R().Create(request)
@@ -89,10 +91,16 @@ func CreatePasswordResetRequest(w http.ResponseWriter, r *http.Request) {
 	// Prepare email
 	subject := "Your OTP Code"
 	plainTextContent := "Your OTP code is: " + request.Token
-	htmlContent := "<p>Your OTP code is: <strong>" + request.Token + "</strong></p>"
+
+	emailContentTemplate := templates.NewOtpTemplate(templates.OtpData{
+		Duration:       fmt.Sprintf("%d", int(duration.Minutes())),
+		RequestLabel:   "You have requested to reset the password of your Fihub account",
+		ProcedureLabel: "set your new password",
+		OTP:            request.Token,
+	})
 
 	// Send email
-	err = email.S().Send(user.Email, subject, plainTextContent, htmlContent)
+	err = email.S().Send(user.Email, subject, plainTextContent, emailContentTemplate)
 	if err != nil {
 		// Delete the request since the email could not be sent
 		_ = password.R().Delete(request.ID)
