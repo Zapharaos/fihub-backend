@@ -26,14 +26,15 @@ type Request struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-func InitRequest(userID uuid.UUID) Request {
+func InitRequest(userID uuid.UUID) (Request, time.Duration) {
+	duration := env.GetDuration("OTP_DURATION", 15*time.Minute)
 	return Request{
 		ID:        uuid.New(),
 		UserID:    userID,
 		Token:     generateToken(env.GetInt("OTP_LENGTH", 6)),
-		ExpiresAt: time.Now().Add(env.GetDuration("OTP_DURATION", 15*time.Minute)),
+		ExpiresAt: time.Now().Add(duration),
 		CreatedAt: time.Now(),
-	}
+	}, duration
 }
 
 func generateToken(length int) string {
