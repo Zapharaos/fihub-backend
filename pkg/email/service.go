@@ -1,13 +1,12 @@
 package email
 
 import (
-	"github.com/Zapharaos/fihub-backend/pkg/email/templates"
 	"sync"
 )
 
 // Service defines the interface for handling emails
 type Service interface {
-	Send(emailTo, subject, plainTextContent string, content templates.Template) error
+	Send(emailTo, subject, plainTextContent, htmlContent string) error
 }
 
 var (

@@ -2,10 +2,10 @@ package templates
 
 // OtpData contains the data for the OTP template
 type OtpData struct {
-	Duration       string
-	RequestLabel   string
-	ProcedureLabel string
-	OTP            string
+	OTP         string
+	Greeting    string
+	MainContent string
+	DoNotShare  string
 }
 
 // NewOtpTemplate creates a new OTP template
@@ -19,12 +19,14 @@ func NewOtpTemplate(data OtpData) Template {
 }
 
 const otpHtml = `
-<h1>Hello</h1>
+<h1>
+	{{.Greeting}}
+</h1>
 <p>
-{{.RequestLabel}}. Use the following OTP to complete the procedure to {{.ProcedureLabel}}. OTP is valid for <span class="out">{{.Duration}}</span>.
+	{{.MainContent}}
 </p>
 <p class="secondary">
-Do not share this code with others, including Fihub employees.
+	{{.DoNotShare}}
 </p>
 <div class="otp">
 	{{.OTP}}
