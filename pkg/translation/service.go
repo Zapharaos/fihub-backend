@@ -8,7 +8,7 @@ import (
 // Service defines the interface for handling translation
 type Service interface {
 	Localizer(language language.Tag) (interface{}, error)
-	Message(localizer interface{}, message Message) string
+	Message(localizer interface{}, message *Message) string
 }
 
 // Message represents a message to be translated

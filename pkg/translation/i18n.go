@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/BurntSushi/toml"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
+	"go.uber.org/zap"
 	"golang.org/x/text/language"
 )
 
@@ -18,18 +19,18 @@ type I18nService struct {
 func NewI18nService() Service {
 
 	// Create a new bundle
-	defaultLanguage := language.English
-	bundle := i18n.NewBundle(defaultLanguage)
+	bundle := i18n.NewBundle(language.English)
 	bundle.RegisterUnmarshalFunc("toml", toml.Unmarshal)
 
 	// Load the translations
 	// No need to load active.en.toml since we are providing default translations.
+	bundle.MustLoadMessageFile("config/translations/active.en.toml")
 	bundle.MustLoadMessageFile("config/translations/active.fr.toml")
 
 	// Create localizers for each language
 	localizers := map[language.Tag]*i18n.Localizer{
-		defaultLanguage: i18n.NewLocalizer(bundle, defaultLanguage.String()),
-		language.French: i18n.NewLocalizer(bundle, language.French.String()),
+		language.English: i18n.NewLocalizer(bundle, language.English.String()),
+		language.French:  i18n.NewLocalizer(bundle, language.French.String()),
 	}
 
 	// Create the service
@@ -51,7 +52,7 @@ func (t *I18nService) Localizer(language language.Tag) (interface{}, error) {
 }
 
 // Message returns a localized message for the given localizer and message
-func (t *I18nService) Message(localizer interface{}, message Message) string {
+func (t *I18nService) Message(localizer interface{}, message *Message) string {
 	// Verify that the localizer is of the correct type
 	loc, ok := localizer.(*i18n.Localizer)
 	if !ok {
@@ -68,6 +69,7 @@ func (t *I18nService) Message(localizer interface{}, message Message) string {
 	// Localize the message
 	result, err := loc.Localize(localizeConfig)
 	if err != nil {
+		zap.L().Error("Failed to localize", zap.Error(err))
 		return ""
 	}
 	return result
