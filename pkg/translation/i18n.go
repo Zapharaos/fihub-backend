@@ -16,10 +16,10 @@ type I18nService struct {
 }
 
 // NewI18nService returns a new instance of I18nService
-func NewI18nService() Service {
+func NewI18nService(defaultLang language.Tag) Service {
 
 	// Create a new bundle
-	bundle := i18n.NewBundle(language.English)
+	bundle := i18n.NewBundle(defaultLang)
 	bundle.RegisterUnmarshalFunc("toml", toml.Unmarshal)
 
 	// Load the translations
@@ -29,8 +29,8 @@ func NewI18nService() Service {
 
 	// Create localizers for each language
 	localizers := map[language.Tag]*i18n.Localizer{
-		language.English: i18n.NewLocalizer(bundle, language.English.String()),
-		language.French:  i18n.NewLocalizer(bundle, language.French.String()),
+		defaultLang:     i18n.NewLocalizer(bundle, defaultLang.String()),
+		language.French: i18n.NewLocalizer(bundle, language.French.String()),
 	}
 
 	// Create the service

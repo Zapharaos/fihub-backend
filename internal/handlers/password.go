@@ -9,6 +9,7 @@ import (
 	"github.com/Zapharaos/fihub-backend/internal/handlers/render"
 	"github.com/Zapharaos/fihub-backend/pkg/email"
 	"github.com/Zapharaos/fihub-backend/pkg/email/templates"
+	"github.com/Zapharaos/fihub-backend/pkg/env"
 	"github.com/Zapharaos/fihub-backend/pkg/translation"
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
@@ -27,6 +28,7 @@ import (
 //	@Tags			Auth
 //	@Accept			json
 //	@Produce		json
+//	@Param			lang	query	string					false	"Language code"
 //	@Param			request	body	password.InputRequest	true	"request (json)"
 //	@Success		200	{object}	password.ResponseRequest	"Request"
 //	@Failure		400	{object}	render.ErrorResponse		"Bad Request"
@@ -91,11 +93,19 @@ func CreatePasswordResetRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO : retrieve user language
-	// userLanguage := language.English
+	// Retrieve user language from query parameters
+	langParam := r.URL.Query().Get("lang")
+	userLanguage := language.MustParse(env.GetString("DEFAULT_LANG", "en"))
+	if langParam != "" {
+		userLanguage, err = language.Parse(langParam)
+		if err != nil {
+			zap.L().Error("Failed to parse language", zap.Error(err))
+			w.WriteHeader(http.StatusInternalServerError)
+		}
+	}
 
 	// Get localizer
-	loc, err := translation.S().Localizer(language.French)
+	loc, err := translation.S().Localizer(userLanguage)
 	if err != nil {
 		zap.L().Error("Failed to get localizer", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)

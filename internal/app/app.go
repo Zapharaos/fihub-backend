@@ -11,6 +11,7 @@ import (
 	"github.com/Zapharaos/fihub-backend/pkg/translation"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	"golang.org/x/text/language"
 	"log"
 )
 
@@ -44,7 +45,8 @@ func Init() {
 	email.ReplaceGlobals(email.NewSendgridService())
 
 	// Setup Translations
-	translation.ReplaceGlobals(translation.NewI18nService())
+	defaultLang := language.MustParse(env.GetString("DEFAULT_LANG", "en"))
+	translation.ReplaceGlobals(translation.NewI18nService(defaultLang))
 }
 
 // initPostgres initializes the Zap logger.
