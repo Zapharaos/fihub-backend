@@ -1,7 +1,6 @@
 package translation
 
 import (
-	"errors"
 	"fmt"
 	"github.com/BurntSushi/toml"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
@@ -46,7 +45,8 @@ func NewI18nService(defaultLang language.Tag) Service {
 func (t *I18nService) Localizer(language language.Tag) (interface{}, error) {
 	localizer, found := t.localizers[language]
 	if !found {
-		return nil, errors.New(fmt.Sprintf("localizer %q not found", language))
+
+		return nil, fmt.Errorf("localizer %q not found", language)
 	}
 	return localizer, nil
 }
