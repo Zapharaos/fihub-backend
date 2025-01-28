@@ -1,0 +1,27 @@
+[EmailFooterCopyrights]
+hash = "sha1-343f1e3ddb20b236e50c6890169ba8f71a57d7d8"
+other = "Copyright © {{.Year}}. Tous droits réservés."
+
+[EmailFooterHelp]
+hash = "sha1-c2d6c13c485627eb1aa5b4febd403da253027a3b"
+other = "Besoin d'aide? Contactez-nous à"
+
+[EmailGreeting]
+hash = "sha1-69342c5c39e5ae5f0077aecc32c0f81811fb8193"
+other = "Bonjour!"
+
+[EmailOtpContentForgotPassword]
+hash = "sha1-2b0557c5e08ceb8b74a7b6d6bf52d279c1a43aa1"
+other = "Vous avez demandé à réinitialiser le mot de passe de votre compte Fihub. Utilisez le code à utilisation unique suivant pour compléter la procédure de définition de votre nouveau mot de passe. Ce code est valable pendant {{.Duration}} minutes."
+
+[EmailOtpDoNotShare]
+hash = "sha1-c44177642d31d2f83575f68fa1ce1ad14df194c1"
+other = "Ne partagez pas ce code avec d'autres, y compris les employés de Fihub."
+
+[EmailOtpPlainTextContent]
+hash = "sha1-f0f8d3f34616363c927d609fdc898044d2c30886"
+other = "Votre code à utilisation unique est {{.Otp}}"
+
+[EmailOtpTitle]
+hash = "sha1-9a81c3e3b1ac64fef61bd231a4e72247ed9b6f7c"
+other = "Votre code à utilisation unique"

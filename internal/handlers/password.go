@@ -9,10 +9,14 @@ import (
 	"github.com/Zapharaos/fihub-backend/internal/handlers/render"
 	"github.com/Zapharaos/fihub-backend/pkg/email"
 	"github.com/Zapharaos/fihub-backend/pkg/email/templates"
+	"github.com/Zapharaos/fihub-backend/pkg/env"
+	"github.com/Zapharaos/fihub-backend/pkg/translation"
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
+	"golang.org/x/text/language"
 	"net/http"
+	"time"
 )
 
 // CreatePasswordResetRequest godoc
@@ -24,6 +28,7 @@ import (
 //	@Tags			Auth
 //	@Accept			json
 //	@Produce		json
+//	@Param			lang	query	string					false	"Language code"
 //	@Param			request	body	password.InputRequest	true	"request (json)"
 //	@Success		200	{object}	password.ResponseRequest	"Request"
 //	@Failure		400	{object}	render.ErrorResponse		"Bad Request"
@@ -88,19 +93,68 @@ func CreatePasswordResetRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Prepare email
-	subject := "Your OTP Code"
-	plainTextContent := "Your OTP code is: " + request.Token
+	// Retrieve user language from query parameters
+	langParam := r.URL.Query().Get("lang")
+	userLanguage := language.MustParse(env.GetString("DEFAULT_LANG", "en"))
+	if langParam != "" {
+		userLanguage, err = language.Parse(langParam)
+		if err != nil {
+			zap.L().Error("Failed to parse language", zap.Error(err))
+			w.WriteHeader(http.StatusInternalServerError)
+		}
+	}
 
-	emailContentTemplate := templates.NewOtpTemplate(templates.OtpData{
-		Duration:       fmt.Sprintf("%d", int(duration.Minutes())),
-		RequestLabel:   "You have requested to reset the password of your Fihub account",
-		ProcedureLabel: "set your new password",
-		OTP:            request.Token,
+	// Get localizer
+	loc, err := translation.S().Localizer(userLanguage)
+	if err != nil {
+		zap.L().Error("Failed to get localizer", zap.Error(err))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	// Prepare email data with translations
+	subject := translation.S().Message(loc, &translation.Message{ID: "EmailOtpTitle"})
+	plainTextContent := translation.S().Message(loc, &translation.Message{
+		ID: "EmailOtpPlainTextContent",
+		Data: map[string]interface{}{
+			"Otp": request.Token,
+		},
 	})
 
+	// Prepare email html template
+	htmlContentTemplate := templates.NewOtpTemplate(templates.OtpData{
+		OTP:      request.Token,
+		Greeting: translation.S().Message(loc, &translation.Message{ID: "EmailGreeting"}),
+		MainContent: translation.S().Message(loc, &translation.Message{
+			ID: "EmailOtpContentForgotPassword",
+			Data: map[string]interface{}{
+				"Duration": fmt.Sprintf("%d", int(duration.Minutes())),
+			},
+		}),
+		DoNotShare: translation.S().Message(loc, &translation.Message{ID: "EmailOtpDoNotShare"}),
+	})
+
+	// Prepare email layout labels
+	labels := templates.LayoutLabels{
+		Help: translation.S().Message(loc, &translation.Message{ID: "EmailFooterHelp"}),
+		Copyrights: translation.S().Message(loc, &translation.Message{
+			ID: "EmailFooterCopyrights",
+			Data: map[string]interface{}{
+				"Year": time.Now().Year(),
+			},
+		}),
+	}
+
+	// Render email html content
+	htmlContent, err := htmlContentTemplate.Build(labels)
+	if err != nil {
+		// Log error and use plain text content instead of HTML
+		zap.L().Error("Render email content", zap.Error(err))
+		htmlContent = plainTextContent
+	}
+
 	// Send email
-	err = email.S().Send(user.Email, subject, plainTextContent, emailContentTemplate)
+	err = email.S().Send(user.Email, subject, plainTextContent, htmlContent)
 	if err != nil {
 		// Delete the request since the email could not be sent
 		_ = password.R().Delete(request.ID)

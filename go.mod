@@ -17,8 +17,11 @@ require (
 )
 
 require (
+	github.com/BurntSushi/toml v1.4.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/mattn/go-sqlite3 v1.14.24 // indirect
+	github.com/nicksnyder/go-i18n/v2 v2.5.0 // indirect
 	github.com/sendgrid/rest v2.6.9+incompatible // indirect
 	go.uber.org/multierr v1.11.0 // indirect
+	golang.org/x/text v0.21.0 // indirect
 )

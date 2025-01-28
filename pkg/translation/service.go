@@ -1,12 +1,21 @@
-package email
+package translation
 
 import (
+	"golang.org/x/text/language"
 	"sync"
 )
 
-// Service defines the interface for handling emails
+// Service defines the interface for handling translation
 type Service interface {
-	Send(emailTo, subject, plainTextContent, htmlContent string) error
+	Localizer(language language.Tag) (interface{}, error)
+	Message(localizer interface{}, message *Message) string
+}
+
+// Message represents a message to be translated
+type Message struct {
+	ID          string
+	Data        interface{}
+	PluralCount interface{}
 }
 
 var (

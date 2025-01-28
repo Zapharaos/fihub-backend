@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"go.uber.org/zap"
 	"text/template"
-	"time"
 )
 
 // Template represents an email template
@@ -35,7 +34,7 @@ func (t Template) Render() (string, error) {
 }
 
 // Build renders the template and wraps it in the layout template
-func (t Template) Build() (string, error) {
+func (t Template) Build(labels LayoutLabels) (string, error) {
 
 	// Render content
 	content, err := t.Render()
@@ -45,7 +44,7 @@ func (t Template) Build() (string, error) {
 	}
 
 	// Render content within layout template
-	emailTemplate := newLayoutTemplate(content)
+	emailTemplate := newLayoutTemplate(content, labels)
 	emailHtmlContent, err := emailTemplate.Render()
 	if err != nil {
 		zap.L().Error("Render email template", zap.Error(err))
@@ -55,14 +54,14 @@ func (t Template) Build() (string, error) {
 	return emailHtmlContent, nil
 }
 
-func newLayoutTemplate(content string) Template {
+func newLayoutTemplate(content string, labels LayoutLabels) Template {
 	return Template{
 		Name:       "layout",
 		ContentRaw: layoutHtml,
 		Data: layoutData{
-			Css:     layoutCss,
-			Content: content,
-			Year:    time.Now().Year(),
+			Css:          layoutCss,
+			Content:      content,
+			LayoutLabels: labels,
 		},
 	}
 }
@@ -70,7 +69,12 @@ func newLayoutTemplate(content string) Template {
 type layoutData struct {
 	Css     string // CSS layout
 	Content string // Content to be rendered within the layout
-	Year    int    // Current year
+	LayoutLabels
+}
+
+type LayoutLabels struct {
+	Help       string
+	Copyrights string
 }
 
 const layoutHtml = `
@@ -90,7 +94,7 @@ const layoutHtml = `
         </div>
       </main>
       <p class="help">
-        Need help? Contact us at
+        {{.Help}}
         <a href="mailto:contact@fihub.com">contact@fihub.com</a>
       </p>
       <footer>
@@ -98,7 +102,7 @@ const layoutHtml = `
           Fihub Company
         </h1>
         <p class="copyrights">
-          Copyright © {{.Year}}. All rights reserved.
+          {{.Copyrights}}
         </p>
       </footer>
     </div>
