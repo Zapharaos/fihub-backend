@@ -3,8 +3,11 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/Zapharaos/fihub-backend/internal/auth/permissions"
+	"github.com/Zapharaos/fihub-backend/internal/auth/roles"
 	"github.com/Zapharaos/fihub-backend/internal/auth/users"
 	"github.com/Zapharaos/fihub-backend/internal/handlers/render"
+	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"net/http"
 )
@@ -256,4 +259,97 @@ func DeleteUserSelf(w http.ResponseWriter, r *http.Request) {
 	}
 
 	render.OK(w, r)
+}
+
+// SetUserRoles godoc
+//
+//	@Id				SetUserRoles
+//
+//	@Summary		Set roles on a user
+//	@Description	Set roles on a user. (Permission: <b>admin.users.roles.update</b>)
+//	@Tags			Users, UserRoles
+//	@Accept			json
+//	@Produce		json
+//	@Param			id		path	string				true	"user ID"
+//	@Param			user	body	users.UserWithRoles	true	"user (json)"
+//	@Security		Bearer
+//	@Success		200	{object}	users.UserWithRoles		"user"
+//	@Failure		400	{object}	render.ErrorResponse	"Bad Request"
+//	@Failure		401	{string}	string					"Permission denied"
+//	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
+//	@Router			/api/v1/users/{id}/roles [put]
+func SetUserRoles(w http.ResponseWriter, r *http.Request) {
+	userId, ok := parseParamUUID(w, r, "id")
+	if !ok || !checkPermission(w, r, "admin.users.roles.update") {
+		return
+	}
+
+	var user users.UserWithRoles
+	err := json.NewDecoder(r.Body).Decode(&user)
+	if err != nil {
+		zap.L().Warn("User json decode", zap.Error(err))
+		render.BadRequest(w, r, nil)
+		return
+	}
+
+	roleUUIDs := make([]uuid.UUID, 0)
+
+	for _, role := range user.Roles {
+		roleUUIDs = append(roleUUIDs, role.Id)
+	}
+
+	err = users.R().SetUserRoles(userId, roleUUIDs)
+	if err != nil {
+		zap.L().Error("PutUser.Update", zap.Error(err))
+		render.Error(w, r, err, "Set roles on user")
+		return
+	}
+
+	render.OK(w, r)
+}
+
+// GetUserRoles godoc
+//
+//	@Id				GetUserRoles
+//
+//	@Summary		Get all roles for a specified user id
+//	@Description	Gets a list of all roles. (Permission: <b>admin.users.roles.list</b>)
+//	@Tags			Users, UserRoles
+//	@Produce		json
+//	@Param			id	path	string	true	"user ID"
+//	@Security		Bearer
+//	@Success		200	{array}		roles.RoleWithPermissions	"list of roles"
+//	@Failure		400	{object}	render.ErrorResponse		"Bad Request"
+//	@Failure		401	{string}	string						"Permission denied"
+//	@Failure		500	{object}	render.ErrorResponse		"Internal Server Error"
+//	@Router			/api/v1/users/{id}/roles [get]
+func GetUserRoles(w http.ResponseWriter, r *http.Request) {
+	userId, ok := parseParamUUID(w, r, "id")
+	if !ok || !checkPermission(w, r, "admin.users.roles.list") {
+		return
+	}
+
+	userRoles, err := roles.R().GetRolesByUserId(userId)
+	if err != nil {
+		zap.L().Error("GetUserRoles.GetRolesByUserId", zap.Error(err))
+		render.Error(w, r, err, "Get roles by user id")
+		return
+	}
+
+	userRolesWithPermissions := make([]roles.RoleWithPermissions, 0)
+
+	for _, role := range userRoles {
+		perms, err := permissions.R().GetAllByRoleId(role.Id)
+		if err != nil {
+			zap.L().Error("GetUserRoles.GetAllByRoleId", zap.Error(err))
+			render.Error(w, r, err, "Get all permissions by role id")
+			return
+		}
+		userRolesWithPermissions = append(userRolesWithPermissions, roles.RoleWithPermissions{
+			Role:        role,
+			Permissions: perms,
+		})
+	}
+
+	render.JSON(w, r, userRolesWithPermissions)
 }

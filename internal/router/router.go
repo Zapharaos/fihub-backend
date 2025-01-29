@@ -97,6 +97,12 @@ func buildProtectedRoutes(a *auth.Auth) func(r chi.Router) {
 				r.Put("/password", handlers.ChangeUserPassword)
 			})
 
+			// Roles
+			r.Route("/{id}/roles", func(r chi.Router) {
+				r.Get("/", handlers.GetUserRoles)
+				r.Put("/", handlers.SetUserRoles)
+			})
+
 			// User's brokers : retrieving userID through context
 			r.Route("/brokers", func(r chi.Router) {
 				r.Post("/", handlers.CreateUserBroker)
@@ -117,9 +123,18 @@ func buildProtectedRoutes(a *auth.Auth) func(r chi.Router) {
 				r.Put("/", handlers.UpdateRole)
 				r.Delete("/", handlers.DeleteRole)
 
-				// permissions
-				r.Get("/permissions", handlers.GetRolePermissions)
-				// r.Put("/permissions", handlers.SetRolePermissions)
+				// Users
+				r.Route("/users", func(r chi.Router) {
+					r.Get("/", handlers.GetRoleUsers)
+					r.Put("/", handlers.PutUsersRole)
+					r.Delete("/", handlers.DeleteUsersRole)
+				})
+
+				// Permissions
+				r.Route("/permissions", func(r chi.Router) {
+					r.Get("/", handlers.GetRolePermissions)
+					r.Put("/", handlers.SetRolePermissions)
+				})
 			})
 
 		})

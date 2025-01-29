@@ -225,6 +225,45 @@ func (r *PostgresRepository) Delete(userID uuid.UUID) error {
 	return utils.CheckRowAffected(result, 1)
 }
 
+// GetUsersByRoleID returns all Users for a role in the repository
+func (r *PostgresRepository) GetUsersByRoleID(roleUUID uuid.UUID) ([]User, error) {
+	// Prepare query
+	query := `SELECT *
+			  FROM users as u
+			  INNER JOIN user_roles as ur on u.id = ur.user_id
+			  WHERE ur.role_id = :id`
+	params := map[string]interface{}{
+		"id": roleUUID,
+	}
+
+	// Execute query
+	rows, err := r.conn.NamedQuery(query, params)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	return utils.ScanAll(rows, scanUser)
+}
+
+// SetUserRoles sets the roles of a user in the repository
+func (r *PostgresRepository) SetUserRoles(userUUID uuid.UUID, roleUUIDs []uuid.UUID) error {
+	// TODO: Implement this method
+	return nil
+}
+
+// AddUsersRole adds a role to a list of users in the repository
+func (r *PostgresRepository) AddUsersRole(userUUIDs []uuid.UUID, roleUUID uuid.UUID) error {
+	// TODO: Implement this method
+	return nil
+}
+
+// RemoveUsersRole removes a role from a list of users in the repository
+func (r *PostgresRepository) RemoveUsersRole(userUUIDs []uuid.UUID, roleUUID uuid.UUID) error {
+	// TODO: Implement this method
+	return nil
+}
+
 func scanUser(rows *sqlx.Rows) (User, error) {
 
 	userWithPassword, err := scanUserWithPassword(rows)

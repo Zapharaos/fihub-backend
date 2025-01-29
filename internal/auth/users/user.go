@@ -2,6 +2,7 @@ package users
 
 import (
 	"errors"
+	"github.com/Zapharaos/fihub-backend/internal/auth/roles"
 	"github.com/Zapharaos/fihub-backend/pkg/email"
 	"github.com/google/uuid"
 	"time"
@@ -23,6 +24,11 @@ type UserInputPassword struct {
 type UserWithPassword struct {
 	User
 	Password string `json:"password"`
+}
+
+type UserWithRoles struct {
+	User
+	Roles []roles.RoleWithPermissions `json:"roles"`
 }
 
 // User represents a user entity in the system

@@ -16,7 +16,7 @@ import (
 // returns true to indicate that the user has the permission
 // returns false to indicate that the user has not the permission and the request should be stopped
 func checkPermission(w http.ResponseWriter, r *http.Request, permission string) bool {
-	// TODO : permissions
+	// TODO: Implement
 	return true
 }
 

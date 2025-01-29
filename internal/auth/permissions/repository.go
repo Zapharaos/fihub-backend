@@ -18,6 +18,7 @@ type Repository interface {
 
 	GetAllByRoleId(roleUUID uuid.UUID) ([]Permission, error)
 	GetAllByRoleIds(roleUUID []uuid.UUID) ([]Permission, error)
+	GetAllForUser(userUUID uuid.UUID) ([]Permission, error)
 }
 
 var (

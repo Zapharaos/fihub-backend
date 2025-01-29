@@ -139,6 +139,27 @@ func (r *PostgresRepository) GetAll() ([]Role, error) {
 	return utils.ScanAll(rows, r.Scan)
 }
 
+// GetRolesByUserId returns all the roles of a user in the repository
+func (r *PostgresRepository) GetRolesByUserId(userUUID uuid.UUID) ([]Role, error) {
+	// Prepare query
+	query := `SELECT *
+			  FROM roles as r
+			  INNER JOIN user_roles as ur on r.id = ur.role_id
+			  WHERE ur.user_id = :id`
+	params := map[string]interface{}{
+		"id": userUUID,
+	}
+
+	// Execute query
+	rows, err := r.conn.NamedQuery(query, params)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	return utils.ScanAll(rows, r.Scan)
+}
+
 // Scan scans the current row of the given rows and returns a Role
 func (r *PostgresRepository) Scan(rows *sqlx.Rows) (Role, error) {
 	var role Role

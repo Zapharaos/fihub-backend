@@ -15,6 +15,8 @@ type Repository interface {
 	Update(role Role) error
 	Delete(uuid uuid.UUID) error
 	GetAll() ([]Role, error)
+
+	GetRolesByUserId(userUUID uuid.UUID) ([]Role, error)
 }
 
 var (

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/Zapharaos/fihub-backend/internal/auth/permissions"
 	"github.com/Zapharaos/fihub-backend/internal/auth/roles"
+	"github.com/Zapharaos/fihub-backend/internal/auth/users"
 	"github.com/Zapharaos/fihub-backend/internal/handlers/render"
 	"net/http"
 
@@ -262,4 +263,129 @@ func GetRolePermissions(w http.ResponseWriter, r *http.Request) {
 	}
 
 	render.JSON(w, r, perms)
+}
+
+func SetRolePermissions(w http.ResponseWriter, r *http.Request) {
+	// TODO: Implement
+	render.OK(w, r)
+}
+
+// GetRoleUsers godoc
+//
+//	@Id				GetRoleUsers
+//
+//	@Summary		Get all users for a specified role id
+//	@Description	Gets a list of all role users. (Permission: <b>admin.roles.users.list</b>)
+//	@Tags			Roles, RoleUsers
+//	@Produce		json
+//	@Param			id	path	string	true	"role ID"
+//	@Security		Bearer
+//	@Success		200	{array}		users.User				"list of users"
+//	@Failure		400	{object}	render.ErrorResponse	"Bad Request"
+//	@Failure		401	{string}	string					"Permission denied"
+//	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
+//	@Router			/api/v1/roles/{id}/users [get]
+func GetRoleUsers(w http.ResponseWriter, r *http.Request) {
+	roleId, ok := parseParamUUID(w, r, "id")
+	if !ok || !checkPermission(w, r, "admin.roles.users.list") {
+		return
+	}
+
+	roleUsers, err := users.R().GetUsersByRoleID(roleId)
+	if err != nil {
+		render.Error(w, r, err, "Get role users")
+		return
+	}
+
+	render.JSON(w, r, roleUsers)
+}
+
+// PutUsersRole godoc
+//
+//	@Id				PutUsersRole
+//
+//	@Summary		Add users to a given role
+//	@Description	Updates the role. (Permission: <b>admin.roles.users.update</b>)
+//	@Tags			Roles, RoleUsers
+//	@Accept			json
+//	@Produce		json
+//	@Param			id		path	string		true	"role ID"
+//	@Param			role	body	[]string	true	"List of user UUIDs (json)"
+//	@Security		Bearer
+//	@Success		200	{string}	string					"status OK"
+//	@Failure		400	{object}	render.ErrorResponse	"Bad Request"
+//	@Failure		401	{string}	string					"Permission denied"
+//	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
+//	@Router			/api/v1/roles/{id}/users [put]
+func PutUsersRole(w http.ResponseWriter, r *http.Request) {
+	roleId, ok := parseParamUUID(w, r, "id")
+	if !ok || !checkPermission(w, r, "admin.roles.users.update") {
+		return
+	}
+
+	var userUUIDs []uuid.UUID
+	err := json.NewDecoder(r.Body).Decode(&userUUIDs)
+	if err != nil {
+		zap.L().Warn("User UUIDs json decode", zap.Error(err))
+		render.BadRequest(w, r, nil)
+		return
+	}
+
+	if len(userUUIDs) == 0 {
+		render.BadRequest(w, r, fmt.Errorf("empty user list"))
+		return
+	}
+
+	err = users.R().AddUsersRole(userUUIDs, roleId)
+	if err != nil {
+		render.Error(w, r, err, "Set user roles")
+		return
+	}
+
+	render.OK(w, r)
+}
+
+// DeleteUsersRole godoc
+//
+//	@Id				DeleteUsersRole
+//
+//	@Summary		Remove users from a given role
+//	@Description	Updates the role. (Permission: <b>admin.roles.users.delete</b>)
+//	@Tags			Roles, RoleUsers
+//	@Accept			json
+//	@Produce		json
+//	@Param			id		path	string		true	"role ID"
+//	@Param			role	body	[]string	true	"List of user UUIDs (json)"
+//	@Security		Bearer
+//	@Success		200	{string}	string					"status OK"
+//	@Failure		400	{object}	render.ErrorResponse	"Bad Request"
+//	@Failure		401	{string}	string					"Permission denied"
+//	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
+//	@Router			/api/v1/roles/{id}/users [delete]
+func DeleteUsersRole(w http.ResponseWriter, r *http.Request) {
+	roleId, ok := parseParamUUID(w, r, "id")
+	if !ok || !checkPermission(w, r, "admin.roles.users.delete") {
+		return
+	}
+
+	var userUUIDs []uuid.UUID
+	err := json.NewDecoder(r.Body).Decode(&userUUIDs)
+	if err != nil {
+		zap.L().Warn("User UUIDs json decode", zap.Error(err))
+		render.BadRequest(w, r, nil)
+		return
+	}
+
+	if len(userUUIDs) == 0 {
+		render.BadRequest(w, r, fmt.Errorf("empty user list"))
+		return
+	}
+
+	err = users.R().RemoveUsersRole(userUUIDs, roleId)
+	if err != nil {
+		render.Error(w, r, err, "Delete user roles")
+		return
+	}
+
+	render.OK(w, r)
 }
