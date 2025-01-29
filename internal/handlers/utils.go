@@ -11,6 +11,15 @@ import (
 	"net/http"
 )
 
+// checkPermission checks if context user has permission
+// if user has no permission, it returns 403 status code
+// returns true to indicate that the user has the permission
+// returns false to indicate that the user has not the permission and the request should be stopped
+func checkPermission(w http.ResponseWriter, r *http.Request, permission string) bool {
+	// TODO : permissions
+	return true
+}
+
 // getUserFromContext extract the logged user from the request context
 func getUserFromContext(r *http.Request) (users.User, bool) {
 	_user := r.Context().Value(app.ContextKeyUser)

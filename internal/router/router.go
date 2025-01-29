@@ -106,6 +106,15 @@ func buildProtectedRoutes(a *auth.Auth) func(r chi.Router) {
 			})
 		})
 
+		// Permissions
+		r.Route("/permissions", func(r chi.Router) {
+			r.Post("/", handlers.CreatePermission)
+			r.Get("/{id}", handlers.GetPermission)
+			r.Put("/{id}", handlers.UpdatePermission)
+			r.Delete("/{id}", handlers.DeletePermission)
+			r.Get("/", handlers.GetPermissions)
+		})
+
 		// Brokers
 		r.Route("/brokers", func(r chi.Router) {
 			r.Post("/", handlers.CreateBroker)
