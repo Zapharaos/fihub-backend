@@ -15,6 +15,9 @@ type Repository interface {
 	Update(permission Permission) error
 	Delete(uuid uuid.UUID) error
 	GetAll() ([]Permission, error)
+
+	GetAllByRoleId(roleUUID uuid.UUID) ([]Permission, error)
+	GetAllByRoleIds(roleUUID []uuid.UUID) ([]Permission, error)
 }
 
 var (

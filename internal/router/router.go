@@ -116,6 +116,10 @@ func buildProtectedRoutes(a *auth.Auth) func(r chi.Router) {
 				r.Get("/", handlers.GetRole)
 				r.Put("/", handlers.UpdateRole)
 				r.Delete("/", handlers.DeleteRole)
+
+				// permissions
+				r.Get("/permissions", handlers.GetRolePermissions)
+				// r.Put("/permissions", handlers.SetRolePermissions)
 			})
 
 		})

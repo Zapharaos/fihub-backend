@@ -121,6 +121,48 @@ func (r *PostgresRepository) GetAll() ([]Permission, error) {
 	return utils.ScanAll(rows, r.Scan)
 }
 
+// GetAllByRoleId returns all Permissions for a given Role
+func (r *PostgresRepository) GetAllByRoleId(roleUUID uuid.UUID) ([]Permission, error) {
+	// Prepare query
+	query := `SELECT *
+			  FROM permissions as p
+			  INNER JOIN role_permissions as rp on p.id = rp.permission_id
+			  WHERE rp.role_id = :id`
+	params := map[string]interface{}{
+		"id": roleUUID,
+	}
+
+	// Execute query
+	rows, err := r.conn.NamedQuery(query, params)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	return utils.ScanAll(rows, r.Scan)
+}
+
+// GetAllByRoleIds returns all Permissions for a given list of Roles
+func (r *PostgresRepository) GetAllByRoleIds(roleUUID []uuid.UUID) ([]Permission, error) {
+	// Prepare query
+	query := `SELECT *
+			  FROM permissions as p
+			  INNER JOIN role_permissions as rp on p.id = rp.permission_id
+			  WHERE rp.role_id = :id`
+	params := map[string]interface{}{
+		"id": roleUUID,
+	}
+
+	// Execute query
+	rows, err := r.conn.NamedQuery(query, params)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	return utils.ScanAll(rows, r.Scan)
+}
+
 // Scan scans the retrieved data from the database and returns a Permission
 func (r *PostgresRepository) Scan(rows *sqlx.Rows) (Permission, error) {
 	var permission Permission

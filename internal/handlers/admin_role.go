@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/Zapharaos/fihub-backend/internal/auth/permissions"
 	"github.com/Zapharaos/fihub-backend/internal/auth/roles"
 	"github.com/Zapharaos/fihub-backend/internal/handlers/render"
 	"net/http"
@@ -231,4 +232,34 @@ func DeleteRole(w http.ResponseWriter, r *http.Request) {
 	}
 
 	render.OK(w, r)
+}
+
+// GetRolePermissions godoc
+//
+//	@Id				GetRolePermissions
+//
+//	@Summary		Get all permissions for a specified role id
+//	@Description	Gets a list of all role permissions. (Permission: <b>admin.roles.permissions.list</b>)
+//	@Tags			Roles, RolePermissions
+//	@Produce		json
+//	@Param			id	path	string	true	"role ID"
+//	@Security		Bearer
+//	@Success		200	{array}		permissions.Permission	"list of permissions"
+//	@Failure		400	{object}	render.ErrorResponse	"Bad Request"
+//	@Failure		401	{string}	string					"Permission denied"
+//	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
+//	@Router			/api/v1/roles/{id}/permissions [get]
+func GetRolePermissions(w http.ResponseWriter, r *http.Request) {
+	roleId, ok := parseParamUUID(w, r, "id")
+	if !ok || !checkPermission(w, r, "admin.roles.permissions.list") {
+		return
+	}
+
+	perms, err := permissions.R().GetAllByRoleId(roleId)
+	if err != nil {
+		render.Error(w, r, err, "Get role permissions")
+		return
+	}
+
+	render.JSON(w, r, perms)
 }
