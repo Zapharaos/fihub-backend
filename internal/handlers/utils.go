@@ -26,8 +26,8 @@ func getUserFromContext(r *http.Request) (users.User, bool) {
 	return user, true
 }
 
-// ParseParamUUID parses an uuid from the request parameters (using key parameter)
-func ParseParamUUID(w http.ResponseWriter, r *http.Request, key string) (uuid.UUID, bool) {
+// parseParamUUID parses an uuid from the request parameters (using key parameter)
+func parseParamUUID(w http.ResponseWriter, r *http.Request, key string) (uuid.UUID, bool) {
 	value := chi.URLParam(r, key)
 
 	result, err := uuid.Parse(value)
@@ -43,10 +43,10 @@ func ParseParamUUID(w http.ResponseWriter, r *http.Request, key string) (uuid.UU
 // parseUUIDPair is a helper function to parse a key and base UUIDs from the request
 // using the key "id" for the base UUID
 func parseUUIDPair(w http.ResponseWriter, r *http.Request, key string) (baseID, keyID uuid.UUID, ok bool) {
-	keyID, ok = ParseParamUUID(w, r, key)
+	keyID, ok = parseParamUUID(w, r, key)
 	if !ok {
 		return
 	}
-	baseID, ok = ParseParamUUID(w, r, "id")
+	baseID, ok = parseParamUUID(w, r, "id")
 	return
 }

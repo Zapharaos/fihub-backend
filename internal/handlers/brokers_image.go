@@ -29,7 +29,7 @@ import (
 func CreateBrokerImage(w http.ResponseWriter, r *http.Request) {
 
 	// Get the broker ID
-	brokerID, ok := ParseParamUUID(w, r, "id")
+	brokerID, ok := parseParamUUID(w, r, "id")
 	if !ok {
 		return
 	}

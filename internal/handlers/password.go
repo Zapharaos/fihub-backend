@@ -187,7 +187,7 @@ func CreatePasswordResetRequest(w http.ResponseWriter, r *http.Request) {
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/auth/password/{id}/{token} [get]
 func GetPasswordResetRequestID(w http.ResponseWriter, r *http.Request) {
-	userID, ok := ParseParamUUID(w, r, "id")
+	userID, ok := parseParamUUID(w, r, "id")
 	if !ok {
 		return
 	}

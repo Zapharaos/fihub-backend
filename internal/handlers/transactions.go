@@ -112,7 +112,7 @@ func CreateTransaction(w http.ResponseWriter, r *http.Request) {
 func GetTransaction(w http.ResponseWriter, r *http.Request) {
 
 	// Retrieve transactionID
-	transactionID, ok := ParseParamUUID(w, r, "id")
+	transactionID, ok := parseParamUUID(w, r, "id")
 	if !ok {
 		return
 	}
@@ -166,7 +166,7 @@ func GetTransaction(w http.ResponseWriter, r *http.Request) {
 func UpdateTransaction(w http.ResponseWriter, r *http.Request) {
 
 	// Retrieve transactionID
-	transactionID, ok := ParseParamUUID(w, r, "id")
+	transactionID, ok := parseParamUUID(w, r, "id")
 	if !ok {
 		return
 	}
@@ -273,7 +273,7 @@ func UpdateTransaction(w http.ResponseWriter, r *http.Request) {
 func DeleteTransaction(w http.ResponseWriter, r *http.Request) {
 
 	// Retrieve transactionID
-	transactionID, ok := ParseParamUUID(w, r, "id")
+	transactionID, ok := parseParamUUID(w, r, "id")
 	if !ok {
 		return
 	}

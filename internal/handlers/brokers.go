@@ -99,7 +99,7 @@ func CreateBroker(w http.ResponseWriter, r *http.Request) {
 func GetBroker(w http.ResponseWriter, r *http.Request) {
 
 	// Retrieve brokerID
-	brokerID, ok := ParseParamUUID(w, r, "id")
+	brokerID, ok := parseParamUUID(w, r, "id")
 	if !ok {
 		return
 	}
@@ -142,7 +142,7 @@ func UpdateBroker(w http.ResponseWriter, r *http.Request) {
 	// TODO : permissions
 
 	// Retrieve brokerID
-	brokerID, ok := ParseParamUUID(w, r, "id")
+	brokerID, ok := parseParamUUID(w, r, "id")
 	if !ok {
 		return
 	}
@@ -251,7 +251,7 @@ func DeleteBroker(w http.ResponseWriter, r *http.Request) {
 	// TODO : permissions
 
 	// Retrieve brokerID
-	brokerID, ok := ParseParamUUID(w, r, "id")
+	brokerID, ok := parseParamUUID(w, r, "id")
 	if !ok {
 		return
 	}
