@@ -155,3 +155,16 @@ func (u UserInputPassword) IsValidPassword() (bool, error) {
 	}
 	return true, nil
 }
+
+// HasPermission returns true if the user has the given permission.
+// Wildcards (*) in permissions are supported.
+func (u *UserWithRoles) HasPermission(permission string) bool {
+	for _, r := range u.Roles {
+		for _, p := range r.Permissions {
+			if p.Match(permission) {
+				return true
+			}
+		}
+	}
+	return false
+}

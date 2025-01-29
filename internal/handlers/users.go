@@ -3,8 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/Zapharaos/fihub-backend/internal/auth/permissions"
-	"github.com/Zapharaos/fihub-backend/internal/auth/roles"
+	"github.com/Zapharaos/fihub-backend/internal/auth"
 	"github.com/Zapharaos/fihub-backend/internal/auth/users"
 	"github.com/Zapharaos/fihub-backend/internal/handlers/render"
 	"github.com/google/uuid"
@@ -329,26 +328,10 @@ func GetUserRoles(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userRoles, err := roles.R().GetRolesByUserId(userId)
+	userRolesWithPermissions, err := auth.LoadUserRoles(userId)
 	if err != nil {
-		zap.L().Error("GetUserRoles.GetRolesByUserId", zap.Error(err))
-		render.Error(w, r, err, "Get roles by user id")
+		render.Error(w, r, err, "Cannot load roles")
 		return
-	}
-
-	userRolesWithPermissions := make([]roles.RoleWithPermissions, 0)
-
-	for _, role := range userRoles {
-		perms, err := permissions.R().GetAllByRoleId(role.Id)
-		if err != nil {
-			zap.L().Error("GetUserRoles.GetAllByRoleId", zap.Error(err))
-			render.Error(w, r, err, "Get all permissions by role id")
-			return
-		}
-		userRolesWithPermissions = append(userRolesWithPermissions, roles.RoleWithPermissions{
-			Role:        role,
-			Permissions: perms,
-		})
 	}
 
 	render.JSON(w, r, userRolesWithPermissions)

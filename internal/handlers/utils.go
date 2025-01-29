@@ -16,21 +16,32 @@ import (
 // returns true to indicate that the user has the permission
 // returns false to indicate that the user has not the permission and the request should be stopped
 func checkPermission(w http.ResponseWriter, r *http.Request, permission string) bool {
-	// TODO: Implement
+	user, ok := getUserFromContext(r)
+	if !ok {
+		w.WriteHeader(http.StatusUnauthorized)
+		return false
+	}
+
+	// check if the user has the permission
+	if !user.HasPermission(permission) {
+		w.WriteHeader(http.StatusForbidden)
+		return false
+	}
+
 	return true
 }
 
 // getUserFromContext extract the logged user from the request context
-func getUserFromContext(r *http.Request) (users.User, bool) {
+func getUserFromContext(r *http.Request) (users.UserWithRoles, bool) {
 	_user := r.Context().Value(app.ContextKeyUser)
 	if _user == nil {
 		zap.L().Warn("No context user provided")
-		return users.User{}, false
+		return users.UserWithRoles{}, false
 	}
-	user, ok := _user.(users.User)
+	user, ok := _user.(users.UserWithRoles)
 	if !ok {
 		zap.L().Warn("Invalid user type in context")
-		return users.User{}, false
+		return users.UserWithRoles{}, false
 	}
 	return user, true
 }

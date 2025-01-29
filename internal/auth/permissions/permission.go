@@ -3,6 +3,8 @@ package permissions
 import (
 	"fmt"
 	"github.com/google/uuid"
+	"regexp"
+	"strings"
 )
 
 type Permission struct {
@@ -44,6 +46,26 @@ func (p Permission) HasScope(scope Scope) bool {
 // GetScopes returns the list of valid scopes
 func (p Permission) GetScopes() []Scope {
 	return validScopes
+}
+
+// Match checks if the given permission matches the pattern,
+// supporting wildcards (*) in the pattern using regular expressions.
+func (p Permission) Match(permission string) bool {
+	if p.Value == "*" {
+		return true
+	}
+
+	// Escape special characters in the pattern
+	pattern := regexp.QuoteMeta(p.Value)
+
+	// Replace wildcard (*) with a regex-friendly wildcard (.*)
+	pattern = strings.ReplaceAll(pattern, "\\*", ".*")
+
+	// Compile the regular expression
+	re := regexp.MustCompile("^" + pattern + "$")
+
+	// Check if the permission matches the compiled regex
+	return re.MatchString(permission)
 }
 
 // CheckScope checks if a scope is valid
