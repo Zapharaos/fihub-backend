@@ -57,11 +57,13 @@ func New() *chi.Mux {
 
 				// Create password reset request
 				requestLimit := env.GetInt("OTP_MIDDLEWARE_REQUEST_LIMIT", 3)
-				windowLength := env.GetDuration("OTP_MIDDLEWARE_WINDOW_LENGTH", 24*time.Hour)
-				r.With(httprate.LimitByIP(requestLimit, windowLength)).Post("/", handlers.CreatePasswordResetRequest)
+				requestLength := env.GetDuration("OTP_MIDDLEWARE_REQUEST_LENGTH", 24*time.Hour)
+				r.With(httprate.LimitByIP(requestLimit, requestLength)).Post("/", handlers.CreatePasswordResetRequest)
 
 				// Input token and retrieve requestID using userID
-				r.Get("/{id}/{token}", handlers.GetPasswordResetRequestID)
+				inputLimit := env.GetInt("OTP_MIDDLEWARE_INPUT_LIMIT", 5)
+				inputLength := env.GetDuration("OTP_MIDDLEWARE_INPUT_WINDOW", 1*time.Hour)
+				r.With(httprate.LimitByIP(inputLimit, inputLength)).Get("/{id}/{token}", handlers.GetPasswordResetRequestID)
 
 				// Reset password using userID and requestID
 				r.Put("/{id}/{request_id}", handlers.ResetPassword)
