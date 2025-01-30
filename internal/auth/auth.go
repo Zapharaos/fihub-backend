@@ -190,7 +190,7 @@ func (a *Auth) Middleware(next http.Handler) http.Handler {
 			return
 		}
 
-		ctx := context.WithValue(r.Context(), app.ContextKeyUser, user)
+		ctx := context.WithValue(r.Context(), app.ContextKeyUser, *user)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }

@@ -228,7 +228,7 @@ func (r *PostgresRepository) Delete(userID uuid.UUID) error {
 // GetUsersByRoleID returns all Users for a role in the repository
 func (r *PostgresRepository) GetUsersByRoleID(roleUUID uuid.UUID) ([]User, error) {
 	// Prepare query
-	query := `SELECT *
+	query := `SELECT u.id, u.email, u.password, u.created_at, u.updated_at
 			  FROM users as u
 			  INNER JOIN user_roles as ur on u.id = ur.user_id
 			  WHERE ur.role_id = :id`

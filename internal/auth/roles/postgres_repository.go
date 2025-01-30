@@ -89,8 +89,8 @@ func (r *PostgresRepository) Create(role Role) (uuid.UUID, error) {
 func (r *PostgresRepository) Update(role Role) error {
 	// Prepare query
 	query := `UPDATE roles as r
-			  SET name = :name,
-			  WHERE p.id = :id`
+			  SET name = :name
+			  WHERE r.id = :id`
 	params := map[string]interface{}{
 		"id":   role.Id,
 		"name": role.Name,
@@ -142,7 +142,7 @@ func (r *PostgresRepository) GetAll() ([]Role, error) {
 // GetRolesByUserId returns all the roles of a user in the repository
 func (r *PostgresRepository) GetRolesByUserId(userUUID uuid.UUID) ([]Role, error) {
 	// Prepare query
-	query := `SELECT *
+	query := `SELECT r.id, r.name
 			  FROM roles as r
 			  INNER JOIN user_roles as ur on r.id = ur.role_id
 			  WHERE ur.user_id = :id`

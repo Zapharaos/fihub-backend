@@ -11,10 +11,6 @@ import (
 
 // LoadFullUser loads the roles from the database
 func LoadFullUser(userId uuid.UUID) (*users.UserWithRoles, bool, error) {
-	if users.R() == nil {
-		zap.L().Fatal("users repository is not initialized")
-		return nil, false, nil
-	}
 	user, ok, err := users.R().Get(userId)
 	if err != nil {
 		return nil, false, err

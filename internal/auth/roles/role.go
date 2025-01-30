@@ -14,10 +14,10 @@ type Role struct {
 // IsValid checks if a role is valid and has no missing mandatory fields
 func (r Role) IsValid() (bool, error) {
 	if r.Name == "" {
-		return false, fmt.Errorf("missing name")
+		return false, fmt.Errorf("name-required")
 	}
 	if len(r.Name) < 3 {
-		return false, fmt.Errorf("name is too short (less than 3 characters)")
+		return false, fmt.Errorf("name-invalid")
 	}
 	return true, nil
 }

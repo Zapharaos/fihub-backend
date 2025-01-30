@@ -124,7 +124,7 @@ func (r *PostgresRepository) GetAll() ([]Permission, error) {
 // GetAllByRoleId returns all Permissions for a given Role
 func (r *PostgresRepository) GetAllByRoleId(roleUUID uuid.UUID) ([]Permission, error) {
 	// Prepare query
-	query := `SELECT *
+	query := `SELECT p.id, p.value, p.scope, p.description
 			  FROM permissions as p
 			  INNER JOIN role_permissions as rp on p.id = rp.permission_id
 			  WHERE rp.role_id = :id`
@@ -145,7 +145,7 @@ func (r *PostgresRepository) GetAllByRoleId(roleUUID uuid.UUID) ([]Permission, e
 // GetAllByRoleIds returns all Permissions for a given list of Roles
 func (r *PostgresRepository) GetAllByRoleIds(roleUUID []uuid.UUID) ([]Permission, error) {
 	// Prepare query
-	query := `SELECT *
+	query := `SELECT p.id, p.value, p.scope, p.description
 			  FROM permissions as p
 			  INNER JOIN role_permissions as rp on p.id = rp.permission_id
 			  WHERE rp.role_id = :id`
@@ -166,7 +166,7 @@ func (r *PostgresRepository) GetAllByRoleIds(roleUUID []uuid.UUID) ([]Permission
 // GetAllForUser returns all Permissions for a given User
 func (r *PostgresRepository) GetAllForUser(userUUID uuid.UUID) ([]Permission, error) {
 	// Prepare query
-	query := `SELECT *
+	query := `SELECT p.id, p.value, p.scope, p.description
 			  FROM permissions as p
 			  INNER JOIN role_permissions as rp on p.id = rp.permission_id
 			  INNER JOIN user_roles as ur on rp.role_id = ur.role_id

@@ -26,14 +26,14 @@ var validScopes = []Scope{AdminScope, AllScope}
 // IsValid checks if a permission is valid and has no missing mandatory fields
 func (p Permission) IsValid() (bool, error) {
 	if p.Value == "" {
-		return false, fmt.Errorf("missing value")
+		return false, fmt.Errorf("value-required")
 	}
 	if p.Scope == "" {
-		return false, fmt.Errorf("missing scope")
+		return false, fmt.Errorf("scope-required")
 	}
 	// check if the scope is valid
 	if !CheckScope(p.Scope) {
-		return false, fmt.Errorf("invalid scope")
+		return false, fmt.Errorf("scope-invalid")
 	}
 	return true, nil
 }
