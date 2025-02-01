@@ -14,6 +14,8 @@ type Permission struct {
 	Description string    `json:"description"`
 }
 
+type Permissions []Permission
+
 type Scope = string
 
 const (
@@ -34,6 +36,14 @@ func (p Permission) IsValid() (bool, error) {
 	// check if the scope is valid
 	if !CheckScope(p.Scope) {
 		return false, fmt.Errorf("scope-invalid")
+	}
+	return true, nil
+}
+
+// IsValid checks if the permissions array is valid
+func (p Permissions) IsValid() (bool, error) {
+	if len(p) > 250 {
+		return false, fmt.Errorf("permissions-limit-exceeded")
 	}
 	return true, nil
 }
@@ -76,4 +86,13 @@ func CheckScope(scope Scope) bool {
 		}
 	}
 	return false
+}
+
+// GetUUIDs returns the list of UUIDs for the permissions
+func (p Permissions) GetUUIDs() []uuid.UUID {
+	uuids := make([]uuid.UUID, 0)
+	for _, perm := range p {
+		uuids = append(uuids, perm.Id)
+	}
+	return uuids
 }

@@ -24,5 +24,5 @@ func (r Role) IsValid() (bool, error) {
 
 type RoleWithPermissions struct {
 	Role
-	Permissions []permissions.Permission `json:"permissions"`
+	Permissions permissions.Permissions `json:"permissions"`
 }

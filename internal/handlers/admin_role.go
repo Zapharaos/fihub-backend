@@ -23,9 +23,9 @@ import (
 //	@Tags			Roles
 //	@Accept			json
 //	@Produce		json
-//	@Param			role	body	roles.Role	true	"role (json)"
+//	@Param			role	body	roles.RoleWithPermissions	true	"role (json)"
 //	@Security		Bearer
-//	@Success		200	{object}	roles.Role				"role"
+//	@Success		200	{object}	roles.RoleWithPermissions				"role"
 //	@Failure		400	{object}	render.ErrorResponse	"Bad Request"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
@@ -35,7 +35,7 @@ func CreateRole(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var role roles.Role
+	var role roles.RoleWithPermissions
 	err := json.NewDecoder(r.Body).Decode(&role)
 	if err != nil {
 		zap.L().Warn("Role json decode", zap.Error(err))
@@ -49,13 +49,28 @@ func CreateRole(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	roleID, err := roles.R().Create(role)
+	var perms []uuid.UUID
+
+	// Enable permission update
+	if checkPermission(w, r, "admin.roles.permissions.update") {
+
+		if ok, err := role.Permissions.IsValid(); !ok {
+			zap.L().Warn("Permissions are not valid", zap.Error(err))
+			render.BadRequest(w, r, err)
+			return
+		}
+
+		perms = role.Permissions.GetUUIDs()
+	}
+
+	roleID, err := roles.R().Create(role.Role, perms)
 	if err != nil {
+		zap.L().Error("Cannot create role", zap.Error(err))
 		render.Error(w, r, err, "Create role")
 		return
 	}
 
-	newRole, found, err := roles.R().Get(roleID)
+	newRole, found, err := roles.R().GetWithPermissions(roleID)
 	if err != nil {
 		zap.L().Error("Cannot get role", zap.String("uuid", roleID.String()), zap.Error(err))
 		render.Error(w, r, nil, "")
@@ -80,7 +95,7 @@ func CreateRole(w http.ResponseWriter, r *http.Request) {
 //	@Produce		json
 //	@Param			id	path	string	true	"role id"
 //	@Security		Bearer
-//	@Success		200	{object}	roles.Role				"role"
+//	@Success		200	{object}	roles.RoleWithPermissions "role"
 //	@Failure		400	{object}	render.ErrorResponse	"Bad Request"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		404	{string}	string					"Role not found"
@@ -99,7 +114,7 @@ func GetRole(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	role, found, err := roles.R().Get(roleID)
+	role, found, err := roles.R().GetWithPermissions(roleID)
 	if err != nil {
 		zap.L().Error("Cannot load role", zap.String("uuid", roleID.String()), zap.Error(err))
 		render.Error(w, r, nil, "")
@@ -124,7 +139,7 @@ func GetRole(w http.ResponseWriter, r *http.Request) {
 //	@Tags			Roles
 //	@Produce		json
 //	@Security		Bearer
-//	@Success		200	{array}		roles.Role				"list of roles"
+//	@Success		200	{array}		roles.RoleWithPermissions				"list of roles"
 //	@Failure		400	{object}	render.ErrorResponse	"Bad Request"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
@@ -134,7 +149,7 @@ func GetRoles(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result, err := roles.R().GetAll()
+	result, err := roles.R().GetAllWithPermissions()
 	if err != nil {
 		render.Error(w, r, err, "Get roles")
 		return
@@ -153,9 +168,9 @@ func GetRoles(w http.ResponseWriter, r *http.Request) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			id		path	string		true	"role ID"
-//	@Param			role	body	roles.Role	true	"role (json)"
+//	@Param			role	body	roles.RoleWithPermissions	true	"role (json)"
 //	@Security		Bearer
-//	@Success		200	{object}	roles.Role				"role"
+//	@Success		200	{object}	roles.RoleWithPermissions				"role"
 //	@Failure		400	{object}	render.ErrorResponse	"Bad Request"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
@@ -170,27 +185,42 @@ func UpdateRole(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var role roles.Role
+	var role roles.RoleWithPermissions
 	err := json.NewDecoder(r.Body).Decode(&role)
 	if err != nil {
 		zap.L().Warn("Role json decode", zap.Error(err))
 		render.BadRequest(w, r, nil)
 		return
 	}
-	role.Id = roleID
 
 	if ok, err := role.IsValid(); !ok {
 		render.BadRequest(w, r, err)
 		return
 	}
 
-	err = roles.R().Update(role)
+	role.Id = roleID
+	var perms []uuid.UUID
+
+	// Enable permission update
+	if checkPermission(w, r, "admin.roles.permissions.update") {
+
+		if ok, err := role.Permissions.IsValid(); !ok {
+			zap.L().Warn("Permissions are not valid", zap.Error(err))
+			render.BadRequest(w, r, err)
+			return
+		}
+
+		perms = role.Permissions.GetUUIDs()
+	}
+
+	err = roles.R().Update(role.Role, perms)
 	if err != nil {
+		zap.L().Error("Cannot update role", zap.Error(err))
 		render.Error(w, r, err, "Update role")
 		return
 	}
 
-	role, found, err := roles.R().Get(roleID)
+	role, found, err := roles.R().GetWithPermissions(roleID)
 	if err != nil {
 		zap.L().Error("Cannot get role", zap.String("uuid", roleID.String()), zap.Error(err))
 		render.Error(w, r, nil, "")
@@ -265,8 +295,50 @@ func GetRolePermissions(w http.ResponseWriter, r *http.Request) {
 	render.JSON(w, r, perms)
 }
 
+// SetRolePermissions godoc
+//
+//	@Id				SetRolePermissions
+//
+//	@Summary		Set permissions for a given role
+//	@Description	Updates the role. (Permission: <b>admin.roles.permissions.update</b>)
+//	@Tags			Roles, RolePermissions
+//	@Accept			json
+//	@Produce		json
+//	@Param			id		path	string						true	"role ID"
+//	@Param			role	body	permissions.Permissions	true	"List of permissions (json)"
+//	@Security		Bearer
+//	@Success		200	{object}	roles.RoleWithPermissions	"role"
+//	@Failure		400	{object}	render.ErrorResponse		"Bad Request"
+//	@Failure		401	{string}	string						"Permission denied"
+//	@Failure		500	{object}	render.ErrorResponse		"Internal Server Error"
+//	@Router			/api/v1/roles/{id}/permissions [put]
 func SetRolePermissions(w http.ResponseWriter, r *http.Request) {
-	// TODO: Implement
+	roleId, ok := parseParamUUID(w, r, "id")
+	if !ok || !checkPermission(w, r, "admin.roles.permissions.update") {
+		return
+	}
+
+	var perms permissions.Permissions
+	err := json.NewDecoder(r.Body).Decode(&perms)
+	if err != nil {
+		zap.L().Warn("Permissions json decode", zap.Error(err))
+		render.BadRequest(w, r, nil)
+		return
+	}
+
+	if ok, err := perms.IsValid(); !ok {
+		zap.L().Warn("Permissions are not valid", zap.Error(err))
+		render.BadRequest(w, r, err)
+		return
+	}
+
+	err = roles.R().SetRolePermissions(roleId, perms.GetUUIDs())
+	if err != nil {
+		zap.L().Error("Failed to set permissions", zap.Error(err))
+		render.Error(w, r, err, "Set role permissions")
+		return
+	}
+
 	render.OK(w, r)
 }
 

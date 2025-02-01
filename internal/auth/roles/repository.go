@@ -11,12 +11,15 @@ import (
 type Repository interface {
 	Get(uuid uuid.UUID) (Role, bool, error)
 	GetByName(name string) (Role, bool, error)
-	Create(role Role) (uuid.UUID, error)
-	Update(role Role) error
-	Delete(uuid uuid.UUID) error
+	GetWithPermissions(uuid uuid.UUID) (RoleWithPermissions, bool, error)
 	GetAll() ([]Role, error)
+	GetAllWithPermissions() ([]RoleWithPermissions, error)
+	Create(role Role, permissionUUIDs []uuid.UUID) (uuid.UUID, error)
+	Update(role Role, permissionUUIDs []uuid.UUID) error
+	Delete(uuid uuid.UUID) error
 
 	GetRolesByUserId(userUUID uuid.UUID) ([]Role, error)
+	SetRolePermissions(roleUUID uuid.UUID, permissionUUIDs []uuid.UUID) error
 }
 
 var (
