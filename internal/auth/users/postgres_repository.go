@@ -310,23 +310,29 @@ func (r *PostgresRepository) UpdateWithRoles(user UserWithRoles, roleUUIDs []uui
 
 	// Prepare query
 	query := `UPDATE users as u SET updated_at = $1 WHERE u.id = $2`
-	result, err := tx.ExecContext(ctx, query, time.Now().Truncate(1*time.Millisecond).UTC(), user.ID)
+	_, err = tx.ExecContext(ctx, query, time.Now().Truncate(1*time.Millisecond).UTC(), user.ID)
 	if err != nil {
-		tx.Rollback()
+		if rollbackErr := tx.Rollback(); rollbackErr != nil {
+			return fmt.Errorf("main error: %v, rollback error: %v", err, rollbackErr)
+		}
 		return err
 	}
 
 	// If no roles are provided, we can commit and return
 	if len(roleUUIDs) == 0 {
-		tx.Commit()
+		if err = tx.Commit(); err != nil {
+			return err
+		}
 		return nil
 	}
 
 	// Execute query to reset roles
 	query = `DELETE FROM user_roles as ur WHERE ur.user_id = $1`
-	result, err = tx.ExecContext(ctx, query, user.ID)
+	_, err = tx.ExecContext(ctx, query, user.ID)
 	if err != nil {
-		tx.Rollback()
+		if rollbackErr := tx.Rollback(); rollbackErr != nil {
+			return fmt.Errorf("main error: %v, rollback error: %v", err, rollbackErr)
+		}
 		return err
 	}
 
@@ -340,20 +346,26 @@ func (r *PostgresRepository) UpdateWithRoles(user UserWithRoles, roleUUIDs []uui
 	query = query[:len(query)-1] // Remove the trailing comma
 
 	// Execute query
-	result, err = tx.ExecContext(ctx, query, values...)
+	result, err := tx.ExecContext(ctx, query, values...)
 	if err != nil {
-		tx.Rollback()
+		if rollbackErr := tx.Rollback(); rollbackErr != nil {
+			return fmt.Errorf("main error: %v, rollback error: %v", err, rollbackErr)
+		}
 		return err
 	}
 
 	// Check if all roles were set
 	if err = utils.CheckRowAffected(result, int64(len(roleUUIDs))); err != nil {
-		tx.Rollback()
+		if rollbackErr := tx.Rollback(); rollbackErr != nil {
+			return fmt.Errorf("main error: %v, rollback error: %v", err, rollbackErr)
+		}
 		return err
 	}
 
 	// Commit transaction
-	tx.Commit()
+	if err = tx.Commit(); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -370,15 +382,19 @@ func (r *PostgresRepository) SetUserRoles(userUUID uuid.UUID, roleUUIDs []uuid.U
 
 	// Execute query to reset roles
 	query := `DELETE FROM user_roles as ur WHERE ur.user_id = $1`
-	result, err := tx.ExecContext(ctx, query, userUUID)
+	_, err = tx.ExecContext(ctx, query, userUUID)
 	if err != nil {
-		tx.Rollback()
+		if rollbackErr := tx.Rollback(); rollbackErr != nil {
+			return fmt.Errorf("main error: %v, rollback error: %v", err, rollbackErr)
+		}
 		return err
 	}
 
 	// If no roles are provided, we can commit and return
 	if len(roleUUIDs) == 0 {
-		tx.Commit()
+		if err = tx.Commit(); err != nil {
+			return err
+		}
 		return nil
 	}
 
@@ -392,20 +408,26 @@ func (r *PostgresRepository) SetUserRoles(userUUID uuid.UUID, roleUUIDs []uuid.U
 	query = query[:len(query)-1] // Remove the trailing comma
 
 	// Execute query
-	result, err = tx.ExecContext(ctx, query, values...)
+	result, err := tx.ExecContext(ctx, query, values...)
 	if err != nil {
-		tx.Rollback()
+		if rollbackErr := tx.Rollback(); rollbackErr != nil {
+			return fmt.Errorf("main error: %v, rollback error: %v", err, rollbackErr)
+		}
 		return err
 	}
 
 	// Check if all roles were set
 	if err = utils.CheckRowAffected(result, int64(len(roleUUIDs))); err != nil {
-		tx.Rollback()
+		if rollbackErr := tx.Rollback(); rollbackErr != nil {
+			return fmt.Errorf("main error: %v, rollback error: %v", err, rollbackErr)
+		}
 		return err
 	}
 
 	// Commit transaction
-	tx.Commit()
+	if err = tx.Commit(); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -432,18 +454,24 @@ func (r *PostgresRepository) AddUsersRole(userUUIDs []uuid.UUID, roleUUID uuid.U
 	// Execute query
 	result, err := tx.ExecContext(ctx, query, values...)
 	if err != nil {
-		tx.Rollback()
+		if rollbackErr := tx.Rollback(); rollbackErr != nil {
+			return fmt.Errorf("main error: %v, rollback error: %v", err, rollbackErr)
+		}
 		return err
 	}
 
 	// Check if all roles were set
 	if err = utils.CheckRowAffected(result, int64(len(userUUIDs))); err != nil {
-		tx.Rollback()
+		if rollbackErr := tx.Rollback(); rollbackErr != nil {
+			return fmt.Errorf("main error: %v, rollback error: %v", err, rollbackErr)
+		}
 		return err
 	}
 
 	// Commit transaction
-	tx.Commit()
+	if err = tx.Commit(); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -461,18 +489,24 @@ func (r *PostgresRepository) RemoveUsersRole(userUUIDs []uuid.UUID, roleUUID uui
 	query := `DELETE FROM user_roles WHERE user_id = ANY(?) AND role_id = ?`
 	result, err := tx.ExecContext(ctx, query, pq.Array(userUUIDs), roleUUID)
 	if err != nil {
-		tx.Rollback()
+		if rollbackErr := tx.Rollback(); rollbackErr != nil {
+			return fmt.Errorf("main error: %v, rollback error: %v", err, rollbackErr)
+		}
 		return err
 	}
 
 	// Check if all roles were set
 	if err = utils.CheckRowAffected(result, int64(len(userUUIDs))); err != nil {
-		tx.Rollback()
+		if rollbackErr := tx.Rollback(); rollbackErr != nil {
+			return fmt.Errorf("main error: %v, rollback error: %v", err, rollbackErr)
+		}
 		return err
 	}
 
 	// Commit transaction
-	tx.Commit()
+	if err = tx.Commit(); err != nil {
+		return err
+	}
 	return nil
 }
 

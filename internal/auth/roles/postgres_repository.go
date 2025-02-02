@@ -82,15 +82,19 @@ func (r *PostgresRepository) Create(role Role, permissionUUIDs []uuid.UUID) (uui
 
 	// Query to create the role
 	query := `INSERT INTO roles (id, name) VALUES ($1, $2)`
-	result, err := tx.ExecContext(ctx, query, roleUUID, role.Name)
+	_, err = tx.ExecContext(ctx, query, roleUUID, role.Name)
 	if err != nil {
-		tx.Rollback()
+		if rollbackErr := tx.Rollback(); rollbackErr != nil {
+			return uuid.Nil, fmt.Errorf("main error: %v, rollback error: %v", err, rollbackErr)
+		}
 		return uuid.Nil, err
 	}
 
 	// If no permissions are provided, we can commit and return
 	if len(permissionUUIDs) == 0 {
-		tx.Commit()
+		if err = tx.Commit(); err != nil {
+			return uuid.Nil, err
+		}
 		return roleUUID, nil
 	}
 
@@ -104,19 +108,25 @@ func (r *PostgresRepository) Create(role Role, permissionUUIDs []uuid.UUID) (uui
 	query = query[:len(query)-1] // Remove the trailing comma
 
 	// Execute query
-	result, err = tx.ExecContext(ctx, query, values...)
+	result, err := tx.ExecContext(ctx, query, values...)
 	if err != nil {
-		tx.Rollback()
+		if rollbackErr := tx.Rollback(); rollbackErr != nil {
+			return uuid.Nil, fmt.Errorf("main error: %v, rollback error: %v", err, rollbackErr)
+		}
 		return uuid.Nil, err
 	}
 
 	// Check if all permissions were set
 	if err = utils.CheckRowAffected(result, int64(len(permissionUUIDs))); err != nil {
-		tx.Rollback()
+		if rollbackErr := tx.Rollback(); rollbackErr != nil {
+			return uuid.Nil, fmt.Errorf("main error: %v, rollback error: %v", err, rollbackErr)
+		}
 		return uuid.Nil, err
 	}
 
-	tx.Commit()
+	if err = tx.Commit(); err != nil {
+		return uuid.Nil, err
+	}
 	return roleUUID, nil
 }
 
@@ -132,23 +142,29 @@ func (r *PostgresRepository) Update(role Role, permissionUUIDs []uuid.UUID) erro
 
 	// Query to update the role
 	query := `UPDATE roles as r SET name = $1 WHERE r.id = $2`
-	result, err := tx.ExecContext(ctx, query, role.Name, role.Id)
+	_, err = tx.ExecContext(ctx, query, role.Name, role.Id)
 	if err != nil {
-		tx.Rollback()
+		if rollbackErr := tx.Rollback(); rollbackErr != nil {
+			return fmt.Errorf("main error: %v, rollback error: %v", err, rollbackErr)
+		}
 		return err
 	}
 
 	// Query to reset permissions
 	query = `DELETE FROM role_permissions WHERE role_id = $1`
-	result, err = tx.ExecContext(ctx, query, role.Id)
+	_, err = tx.ExecContext(ctx, query, role.Id)
 	if err != nil {
-		tx.Rollback()
+		if rollbackErr := tx.Rollback(); rollbackErr != nil {
+			return fmt.Errorf("main error: %v, rollback error: %v", err, rollbackErr)
+		}
 		return err
 	}
 
 	// If no permissions are provided, we can commit and return
 	if len(permissionUUIDs) == 0 {
-		tx.Commit()
+		if err = tx.Commit(); err != nil {
+			return err
+		}
 		return nil
 	}
 
@@ -162,20 +178,26 @@ func (r *PostgresRepository) Update(role Role, permissionUUIDs []uuid.UUID) erro
 	query = query[:len(query)-1] // Remove the trailing comma
 
 	// Execute query
-	result, err = tx.ExecContext(ctx, query, values...)
+	result, err := tx.ExecContext(ctx, query, values...)
 	if err != nil {
-		tx.Rollback()
+		if rollbackErr := tx.Rollback(); rollbackErr != nil {
+			return fmt.Errorf("main error: %v, rollback error: %v", err, rollbackErr)
+		}
 		return err
 	}
 
 	// Check if all permissions were set
 	if err = utils.CheckRowAffected(result, int64(len(permissionUUIDs))); err != nil {
-		tx.Rollback()
+		if rollbackErr := tx.Rollback(); rollbackErr != nil {
+			return fmt.Errorf("main error: %v, rollback error: %v", err, rollbackErr)
+		}
 		return err
 	}
 
 	// Commit transaction
-	tx.Commit()
+	if err = tx.Commit(); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -287,15 +309,19 @@ func (r *PostgresRepository) SetRolePermissions(roleUUID uuid.UUID, permissionUU
 
 	// Query to reset permissions
 	query := `DELETE FROM role_permissions WHERE role_id = $1`
-	result, err := tx.ExecContext(ctx, query, roleUUID)
+	_, err = tx.ExecContext(ctx, query, roleUUID)
 	if err != nil {
-		tx.Rollback()
+		if rollbackErr := tx.Rollback(); rollbackErr != nil {
+			return fmt.Errorf("main error: %v, rollback error: %v", err, rollbackErr)
+		}
 		return err
 	}
 
 	// If no permissions are provided, we can commit and return
 	if len(permissionUUIDs) == 0 {
-		tx.Commit()
+		if err = tx.Commit(); err != nil {
+			return err
+		}
 		return nil
 	}
 
@@ -309,20 +335,26 @@ func (r *PostgresRepository) SetRolePermissions(roleUUID uuid.UUID, permissionUU
 	query = query[:len(query)-1] // Remove the trailing comma
 
 	// Execute query
-	result, err = tx.ExecContext(ctx, query, values...)
+	result, err := tx.ExecContext(ctx, query, values...)
 	if err != nil {
-		tx.Rollback()
+		if rollbackErr := tx.Rollback(); rollbackErr != nil {
+			return fmt.Errorf("main error: %v, rollback error: %v", err, rollbackErr)
+		}
 		return err
 	}
 
 	// Check if all permissions were set
 	if err = utils.CheckRowAffected(result, int64(len(permissionUUIDs))); err != nil {
-		tx.Rollback()
+		if rollbackErr := tx.Rollback(); rollbackErr != nil {
+			return fmt.Errorf("main error: %v, rollback error: %v", err, rollbackErr)
+		}
 		return err
 	}
 
 	// Commit transaction
-	tx.Commit()
+	if err = tx.Commit(); err != nil {
+		return err
+	}
 	return nil
 }
 
