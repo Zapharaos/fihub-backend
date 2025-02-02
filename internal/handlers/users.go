@@ -312,8 +312,6 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	render.JSON(w, r, user)
-	return
-
 }
 
 // SetUser godoc
