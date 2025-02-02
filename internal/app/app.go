@@ -2,6 +2,8 @@ package app
 
 import (
 	"github.com/Zapharaos/fihub-backend/internal/auth/password"
+	"github.com/Zapharaos/fihub-backend/internal/auth/permissions"
+	"github.com/Zapharaos/fihub-backend/internal/auth/roles"
 	"github.com/Zapharaos/fihub-backend/internal/auth/users"
 	"github.com/Zapharaos/fihub-backend/internal/brokers"
 	"github.com/Zapharaos/fihub-backend/internal/database"
@@ -134,6 +136,12 @@ func initRepositories() {
 	// Auth
 	users.ReplaceGlobals(users.NewPostgresRepository(dbClient))
 	password.ReplaceGlobals(password.NewPostgresRepository(dbClient))
+
+	// Roles
+	roles.ReplaceGlobals(roles.NewPostgresRepository(dbClient))
+
+	// Permissions
+	permissions.ReplaceGlobals(permissions.NewPostgresRepository(dbClient))
 
 	// Brokers
 	brokerRepository := brokers.NewPostgresRepository(dbClient)

@@ -130,7 +130,7 @@ func CreateUserBroker(w http.ResponseWriter, r *http.Request) {
 //	@Router			/api/v1/users/brokers/{id} [delete]
 func DeleteUserBroker(w http.ResponseWriter, r *http.Request) {
 	// Retrieve brokerID
-	brokerID, ok := ParseParamUUID(w, r, "id")
+	brokerID, ok := parseParamUUID(w, r, "id")
 	if !ok {
 		return
 	}

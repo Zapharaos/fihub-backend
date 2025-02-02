@@ -179,7 +179,7 @@ func (a *Auth) Middleware(next http.Handler) http.Handler {
 		}
 
 		// get the user from the repository
-		user, found, err := users.R().Get(userId)
+		user, found, err := LoadFullUser(userId)
 		if err != nil {
 			zap.L().Error("Cannot load full user", zap.Error(err))
 			w.WriteHeader(http.StatusUnauthorized)
@@ -190,7 +190,7 @@ func (a *Auth) Middleware(next http.Handler) http.Handler {
 			return
 		}
 
-		ctx := context.WithValue(r.Context(), app.ContextKeyUser, user)
+		ctx := context.WithValue(r.Context(), app.ContextKeyUser, *user)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }

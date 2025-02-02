@@ -2,6 +2,7 @@ package users
 
 import (
 	"errors"
+	"github.com/Zapharaos/fihub-backend/internal/auth/roles"
 	"github.com/Zapharaos/fihub-backend/pkg/email"
 	"github.com/google/uuid"
 	"time"
@@ -23,6 +24,11 @@ type UserInputPassword struct {
 type UserWithPassword struct {
 	User
 	Password string `json:"password"`
+}
+
+type UserWithRoles struct {
+	User
+	Roles roles.RolesWithPermissions `json:"roles"`
 }
 
 // User represents a user entity in the system
@@ -148,4 +154,17 @@ func (u UserInputPassword) IsValidPassword() (bool, error) {
 		return false, err
 	}
 	return true, nil
+}
+
+// HasPermission returns true if the user has the given permission.
+// Wildcards (*) in permissions are supported.
+func (u *UserWithRoles) HasPermission(permission string) bool {
+	for _, r := range u.Roles {
+		for _, p := range r.Permissions {
+			if p.Match(permission) {
+				return true
+			}
+		}
+	}
+	return false
 }

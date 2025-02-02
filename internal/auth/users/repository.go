@@ -17,6 +17,14 @@ type Repository interface {
 	Update(user User) error
 	UpdateWithPassword(user UserWithPassword) error
 	Delete(userID uuid.UUID) error
+
+	GetWithRoles(userID uuid.UUID) (UserWithRoles, error)
+	GetAllWithRoles() ([]UserWithRoles, error)
+	GetUsersByRoleID(roleUUID uuid.UUID) ([]User, error)
+	UpdateWithRoles(user UserWithRoles, roleUUIDs []uuid.UUID) error
+	SetUserRoles(userUUID uuid.UUID, roleUUIDs []uuid.UUID) error
+	AddUsersRole(userUUIDs []uuid.UUID, id uuid.UUID) error
+	RemoveUsersRole(userUUIDs []uuid.UUID, roleUUID uuid.UUID) error
 }
 
 var (

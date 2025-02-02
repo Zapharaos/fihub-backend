@@ -86,6 +86,7 @@ func buildProtectedRoutes(a *auth.Auth) func(r chi.Router) {
 		// Users
 		r.Route("/users", func(r chi.Router) {
 			r.Post("/", handlers.CreateUser)
+			r.Get("/", handlers.GetAllUsersWithRoles)
 
 			// User's self profile : retrieving userID through context
 			r.Route("/me", func(r chi.Router) {
@@ -97,6 +98,18 @@ func buildProtectedRoutes(a *auth.Auth) func(r chi.Router) {
 				r.Put("/password", handlers.ChangeUserPassword)
 			})
 
+			// User specific
+			r.Route("/{id}", func(r chi.Router) {
+				r.Get("/", handlers.GetUser)
+				r.Put("/", handlers.SetUser)
+
+				// Roles
+				r.Route("/roles", func(r chi.Router) {
+					r.Get("/", handlers.GetUserRoles)
+					r.Put("/", handlers.SetUserRoles)
+				})
+			})
+
 			// User's brokers : retrieving userID through context
 			r.Route("/brokers", func(r chi.Router) {
 				r.Post("/", handlers.CreateUserBroker)
@@ -104,6 +117,42 @@ func buildProtectedRoutes(a *auth.Auth) func(r chi.Router) {
 
 				r.Delete("/{id}", handlers.DeleteUserBroker)
 			})
+		})
+
+		// Roles
+		r.Route("/roles", func(r chi.Router) {
+			r.Post("/", handlers.CreateRole)
+			r.Get("/", handlers.GetRoles)
+
+			// Role specific
+			r.Route("/{id}", func(r chi.Router) {
+				r.Get("/", handlers.GetRole)
+				r.Put("/", handlers.UpdateRole)
+				r.Delete("/", handlers.DeleteRole)
+
+				// Users
+				r.Route("/users", func(r chi.Router) {
+					r.Get("/", handlers.GetRoleUsers)
+					r.Put("/", handlers.PutUsersRole)
+					r.Delete("/", handlers.DeleteUsersRole)
+				})
+
+				// Permissions
+				r.Route("/permissions", func(r chi.Router) {
+					r.Get("/", handlers.GetRolePermissions)
+					r.Put("/", handlers.SetRolePermissions)
+				})
+			})
+
+		})
+
+		// Permissions
+		r.Route("/permissions", func(r chi.Router) {
+			r.Post("/", handlers.CreatePermission)
+			r.Get("/{id}", handlers.GetPermission)
+			r.Put("/{id}", handlers.UpdatePermission)
+			r.Delete("/{id}", handlers.DeletePermission)
+			r.Get("/", handlers.GetPermissions)
 		})
 
 		// Brokers
