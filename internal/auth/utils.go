@@ -31,14 +31,14 @@ func LoadFullUser(userId uuid.UUID) (*users.UserWithRoles, bool, error) {
 }
 
 // LoadUserRoles loads the roles from the database
-func LoadUserRoles(userId uuid.UUID) ([]roles.RoleWithPermissions, error) {
+func LoadUserRoles(userId uuid.UUID) (roles.RolesWithPermissions, error) {
 	userRoles, err := roles.R().GetRolesByUserId(userId)
 	if err != nil {
 		zap.L().Error("GetUserRoles.GetRolesByUserId", zap.Error(err))
 		return nil, err
 	}
 
-	userRolesWithPermissions := make([]roles.RoleWithPermissions, 0)
+	userRolesWithPermissions := make(roles.RolesWithPermissions, 0)
 
 	for _, role := range userRoles {
 		perms, err := permissions.R().GetAllByRoleId(role.Id)

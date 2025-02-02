@@ -28,7 +28,7 @@ type UserWithPassword struct {
 
 type UserWithRoles struct {
 	User
-	Roles []roles.RoleWithPermissions `json:"roles"`
+	Roles roles.RolesWithPermissions `json:"roles"`
 }
 
 // User represents a user entity in the system

@@ -1,10 +1,16 @@
 package users
 
 import (
+	"context"
+	"database/sql"
 	"errors"
+	"fmt"
+	"github.com/Zapharaos/fihub-backend/internal/auth/roles"
 	"github.com/Zapharaos/fihub-backend/internal/utils"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
+	"github.com/lib/pq"
+	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
 	"time"
 )
@@ -225,6 +231,52 @@ func (r *PostgresRepository) Delete(userID uuid.UUID) error {
 	return utils.CheckRowAffected(result, 1)
 }
 
+// GetWithRoles returns a User with its roles in the repository
+func (r *PostgresRepository) GetWithRoles(userID uuid.UUID) (UserWithRoles, error) {
+	// Prepare query
+	query := `SELECT u.id, u.email, u.created_at, u.updated_at, r.id, r.name
+			  FROM users as u
+			  LEFT JOIN user_roles as ur on u.id = ur.user_id
+			  LEFT JOIN roles as r on ur.role_id = r.id
+			  WHERE u.id = :id`
+	params := map[string]interface{}{
+		"id": userID,
+	}
+
+	// Execute query
+	rows, err := r.conn.NamedQuery(query, params)
+	if err != nil {
+		return UserWithRoles{}, err
+	}
+	defer rows.Close()
+
+	results, err := scanUsersWithRoles(rows)
+	if err != nil {
+		return UserWithRoles{}, err
+	}
+
+	return results[0], nil
+}
+
+// GetAllWithRoles returns a User with its roles in the repository
+func (r *PostgresRepository) GetAllWithRoles() ([]UserWithRoles, error) {
+	// Prepare query
+	query := `SELECT u.id, u.email, u.created_at, u.updated_at, r.id, r.name
+			  FROM users as u
+			  LEFT JOIN user_roles as ur on u.id = ur.user_id
+			  LEFT JOIN roles as r on ur.role_id = r.id`
+	params := map[string]interface{}{}
+
+	// Execute query
+	rows, err := r.conn.NamedQuery(query, params)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	return scanUsersWithRoles(rows)
+}
+
 // GetUsersByRoleID returns all Users for a role in the repository
 func (r *PostgresRepository) GetUsersByRoleID(roleUUID uuid.UUID) ([]User, error) {
 	// Prepare query
@@ -246,21 +298,181 @@ func (r *PostgresRepository) GetUsersByRoleID(roleUUID uuid.UUID) ([]User, error
 	return utils.ScanAll(rows, scanUser)
 }
 
+// UpdateWithRoles updates a user with its roles in the repository
+func (r *PostgresRepository) UpdateWithRoles(user UserWithRoles, roleUUIDs []uuid.UUID) error {
+	// Start transaction
+	ctx := context.Background()
+	tx, err := r.conn.BeginTx(ctx, nil)
+	if err != nil {
+		zap.L().Error("Cannot start transaction", zap.Error(err))
+		return err
+	}
+
+	// Prepare query
+	query := `UPDATE users as u SET updated_at = $1 WHERE u.id = $2`
+	result, err := tx.ExecContext(ctx, query, time.Now().Truncate(1*time.Millisecond).UTC(), user.ID)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	// If no roles are provided, we can commit and return
+	if len(roleUUIDs) == 0 {
+		tx.Commit()
+		return nil
+	}
+
+	// Execute query to reset roles
+	query = `DELETE FROM user_roles as ur WHERE ur.user_id = $1`
+	result, err = tx.ExecContext(ctx, query, user.ID)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	// Prepare query to set new roles
+	query = `INSERT INTO user_roles (user_id, role_id) VALUES `
+	var values []interface{}
+	for i, roleUUID := range roleUUIDs {
+		query += fmt.Sprintf("($%d, $%d),", i*2+1, i*2+2)
+		values = append(values, user.ID, roleUUID)
+	}
+	query = query[:len(query)-1] // Remove the trailing comma
+
+	// Execute query
+	result, err = tx.ExecContext(ctx, query, values...)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	// Check if all roles were set
+	if err = utils.CheckRowAffected(result, int64(len(roleUUIDs))); err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	// Commit transaction
+	tx.Commit()
+	return nil
+}
+
 // SetUserRoles sets the roles of a user in the repository
 func (r *PostgresRepository) SetUserRoles(userUUID uuid.UUID, roleUUIDs []uuid.UUID) error {
-	// TODO: Implement this method
+
+	// Start transaction
+	ctx := context.Background()
+	tx, err := r.conn.BeginTx(ctx, nil)
+	if err != nil {
+		zap.L().Error("Cannot start transaction", zap.Error(err))
+		return err
+	}
+
+	// Execute query to reset roles
+	query := `DELETE FROM user_roles as ur WHERE ur.user_id = $1`
+	result, err := tx.ExecContext(ctx, query, userUUID)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	// If no roles are provided, we can commit and return
+	if len(roleUUIDs) == 0 {
+		tx.Commit()
+		return nil
+	}
+
+	// Prepare query to set new roles
+	query = `INSERT INTO user_roles (user_id, role_id) VALUES `
+	var values []interface{}
+	for i, roleUUID := range roleUUIDs {
+		query += fmt.Sprintf("($%d, $%d),", i*2+1, i*2+2)
+		values = append(values, userUUID, roleUUID)
+	}
+	query = query[:len(query)-1] // Remove the trailing comma
+
+	// Execute query
+	result, err = tx.ExecContext(ctx, query, values...)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	// Check if all roles were set
+	if err = utils.CheckRowAffected(result, int64(len(roleUUIDs))); err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	// Commit transaction
+	tx.Commit()
 	return nil
 }
 
 // AddUsersRole adds a role to a list of users in the repository
 func (r *PostgresRepository) AddUsersRole(userUUIDs []uuid.UUID, roleUUID uuid.UUID) error {
-	// TODO: Implement this method
+
+	// Start transaction
+	ctx := context.Background()
+	tx, err := r.conn.BeginTx(ctx, nil)
+	if err != nil {
+		zap.L().Error("Cannot start transaction", zap.Error(err))
+		return err
+	}
+
+	// Prepare query to add new role to users
+	query := `INSERT INTO user_roles (user_id, role_id) VALUES `
+	var values []interface{}
+	for i, userUUID := range userUUIDs {
+		query += fmt.Sprintf("($%d, $%d),", i*2+1, i*2+2)
+		values = append(values, userUUID, roleUUID)
+	}
+	query = query[:len(query)-1] // Remove the trailing comma
+
+	// Execute query
+	result, err := tx.ExecContext(ctx, query, values...)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	// Check if all roles were set
+	if err = utils.CheckRowAffected(result, int64(len(userUUIDs))); err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	// Commit transaction
+	tx.Commit()
 	return nil
 }
 
 // RemoveUsersRole removes a role from a list of users in the repository
 func (r *PostgresRepository) RemoveUsersRole(userUUIDs []uuid.UUID, roleUUID uuid.UUID) error {
-	// TODO: Implement this method
+	// Start transaction
+	ctx := context.Background()
+	tx, err := r.conn.BeginTx(ctx, nil)
+	if err != nil {
+		zap.L().Error("Cannot start transaction", zap.Error(err))
+		return err
+	}
+
+	// Query to remove role from users
+	query := `DELETE FROM user_roles WHERE user_id = ANY(?) AND role_id = ?`
+	result, err := tx.ExecContext(ctx, query, pq.Array(userUUIDs), roleUUID)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	// Check if all roles were set
+	if err = utils.CheckRowAffected(result, int64(len(userUUIDs))); err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	// Commit transaction
+	tx.Commit()
 	return nil
 }
 
@@ -288,4 +500,65 @@ func scanUserWithPassword(rows *sqlx.Rows) (UserWithPassword, error) {
 	}
 
 	return userWithPassword, nil
+}
+
+func scanUserWithRoles(rows *sqlx.Rows) (UserWithRoles, error) {
+
+	var userWithRoles UserWithRoles
+	var role roles.RoleWithPermissions
+	var roleName sql.NullString
+	err := rows.Scan(
+		&userWithRoles.ID,
+		&userWithRoles.Email,
+		&userWithRoles.CreatedAt,
+		&userWithRoles.UpdatedAt,
+		&role.Id,
+		&roleName,
+	)
+
+	// Check if there is an error
+	if err != nil {
+		return UserWithRoles{}, err
+	}
+
+	// If role exists, add it to the user
+	if role.Id != uuid.Nil {
+		role.Name = roleName.String
+		userWithRoles.Roles = append(userWithRoles.Roles, role)
+	}
+
+	return userWithRoles, nil
+}
+
+func scanUsersWithRoles(rows *sqlx.Rows) ([]UserWithRoles, error) {
+	var usersWithRoles []UserWithRoles
+	userMap := make(map[uuid.UUID]int)
+
+	for rows.Next() {
+		// One row is a user with one single role
+		userWithRoles, err := scanUserWithRoles(rows)
+		if err != nil {
+			return []UserWithRoles{}, err
+		}
+
+		// Retrieve user from map if exists
+		index, exists := userMap[userWithRoles.ID]
+
+		// If user does not exist, add it to the map and the list
+		if !exists {
+			userMap[userWithRoles.ID] = len(usersWithRoles)
+			usersWithRoles = append(usersWithRoles, userWithRoles)
+			continue
+		}
+
+		// If user already exists but has no bew roles, skip
+		if len(userWithRoles.Roles) == 0 {
+			continue
+		}
+
+		// Add the role to the user
+		usersWithRoles[index].Roles = append(usersWithRoles[index].Roles, userWithRoles.Roles[0])
+	}
+
+	return usersWithRoles, nil
 }

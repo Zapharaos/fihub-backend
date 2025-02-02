@@ -236,7 +236,7 @@ func (r *PostgresRepository) GetWithPermissions(uuid uuid.UUID) (RoleWithPermiss
 }
 
 // GetAllWithPermissions returns all Roles in the repository with their permissions
-func (r *PostgresRepository) GetAllWithPermissions() ([]RoleWithPermissions, error) {
+func (r *PostgresRepository) GetAllWithPermissions() (RolesWithPermissions, error) {
 	// Prepare query
 	query := `SELECT r.id, r.name, p.id, p.value, p.scope, p.description
 			  FROM roles as r
@@ -374,15 +374,15 @@ func (r *PostgresRepository) ScanWithPermissions(rows *sqlx.Rows) (RoleWithPermi
 }
 
 // ScanAllWithPermissions scans all rows of the given rows and returns a list of RoleWithPermissions
-func (r *PostgresRepository) ScanAllWithPermissions(rows *sqlx.Rows) ([]RoleWithPermissions, error) {
-	var roles []RoleWithPermissions
+func (r *PostgresRepository) ScanAllWithPermissions(rows *sqlx.Rows) (RolesWithPermissions, error) {
+	var roles RolesWithPermissions
 	rolesMap := make(map[uuid.UUID]int)
 
 	for rows.Next() {
 		// One row is a role with one single permission
 		role, err := r.ScanWithPermissions(rows)
 		if err != nil {
-			return []RoleWithPermissions{}, err
+			return RolesWithPermissions{}, err
 		}
 
 		// Retrieve role from map if exists

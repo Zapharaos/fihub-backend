@@ -13,7 +13,7 @@ type Repository interface {
 	GetByName(name string) (Role, bool, error)
 	GetWithPermissions(uuid uuid.UUID) (RoleWithPermissions, bool, error)
 	GetAll() ([]Role, error)
-	GetAllWithPermissions() ([]RoleWithPermissions, error)
+	GetAllWithPermissions() (RolesWithPermissions, error)
 	Create(role Role, permissionUUIDs []uuid.UUID) (uuid.UUID, error)
 	Update(role Role, permissionUUIDs []uuid.UUID) error
 	Delete(uuid uuid.UUID) error

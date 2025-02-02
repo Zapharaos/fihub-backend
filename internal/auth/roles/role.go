@@ -26,3 +26,14 @@ type RoleWithPermissions struct {
 	Role
 	Permissions permissions.Permissions `json:"permissions"`
 }
+
+type RolesWithPermissions []RoleWithPermissions
+
+// GetUUIDs returns the list of UUIDs for the roles
+func (r RolesWithPermissions) GetUUIDs() []uuid.UUID {
+	uuids := make([]uuid.UUID, 0)
+	for _, role := range r {
+		uuids = append(uuids, role.Id)
+	}
+	return uuids
+}
