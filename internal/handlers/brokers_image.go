@@ -15,7 +15,7 @@ import (
 //	@Id				CreateBrokerImage
 //
 //	@Summary		Create a new broker image
-//	@Description	Create a new broker image.
+//	@Description	Create a new broker image. (Permission: <b>admin.brokers.create</b>)
 //	@Tags			BrokerImages
 //	@Accept			multipart/form-data
 //	@Produce		json
@@ -27,6 +27,10 @@ import (
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/brokers/{id}/image [post]
 func CreateBrokerImage(w http.ResponseWriter, r *http.Request) {
+
+	if !checkPermission(w, r, "admin.brokers.create") {
+		return
+	}
 
 	// Get the broker ID
 	brokerID, ok := parseParamUUID(w, r, "id")
@@ -194,7 +198,7 @@ func GetBrokerImage(w http.ResponseWriter, r *http.Request) {
 //	@Id				UpdateBrokerImage
 //
 //	@Summary		Update a broker image
-//	@Description	Update a broker image.
+//	@Description	Update a broker image. (Permission: <b>admin.brokers.update</b>)
 //	@Tags			BrokerImages
 //	@Accept			multipart/form-data
 //	@Produce		json
@@ -208,6 +212,10 @@ func GetBrokerImage(w http.ResponseWriter, r *http.Request) {
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/brokers/{id}/image/{image_id} [put]
 func UpdateBrokerImage(w http.ResponseWriter, r *http.Request) {
+
+	if !checkPermission(w, r, "admin.brokers.update") {
+		return
+	}
 
 	// Get the broker ID
 	brokerID, imageID, ok := parseUUIDPair(w, r, "image_id")
@@ -305,7 +313,7 @@ func UpdateBrokerImage(w http.ResponseWriter, r *http.Request) {
 //	@Id				DeleteBrokerImage
 //
 //	@Summary		Delete a broker image
-//	@Description	Delete a broker image.
+//	@Description	Delete a broker image. (Permission: <b>admin.brokers.delete</b>)
 //	@Tags			BrokerImages
 //	@Produce		json
 //	@Param			id			path	string	true	"broker ID"
@@ -317,6 +325,10 @@ func UpdateBrokerImage(w http.ResponseWriter, r *http.Request) {
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/brokers/{id}/image/{image_id} [delete]
 func DeleteBrokerImage(w http.ResponseWriter, r *http.Request) {
+
+	if !checkPermission(w, r, "admin.brokers.delete") {
+		return
+	}
 
 	// Get the broker ID
 	brokerID, imageID, ok := parseUUIDPair(w, r, "image_id")

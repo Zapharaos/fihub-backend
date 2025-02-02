@@ -14,7 +14,7 @@ import (
 //	@Id				CreateBroker
 //
 //	@Summary		Create a new broker
-//	@Description	Create a new broker.
+//	@Description	Create a new broker. (Permission: <b>admin.brokers.create</b>)
 //	@Tags			Brokers
 //	@Accept			json
 //	@Produce		json
@@ -26,7 +26,9 @@ import (
 //	@Router			/api/v1/brokers [post]
 func CreateBroker(w http.ResponseWriter, r *http.Request) {
 
-	// TODO : permissions
+	if !checkPermission(w, r, "admin.brokers.create") {
+		return
+	}
 
 	// Parse request body
 	var broker brokers.Broker
@@ -125,7 +127,7 @@ func GetBroker(w http.ResponseWriter, r *http.Request) {
 //	@Id				UpdateBroker
 //
 //	@Summary		Update a broker
-//	@Description	Updates a broker.
+//	@Description	Updates a broker. (Permission: <b>admin.brokers.update</b>)
 //	@Tags			Brokers
 //	@Accept			json
 //	@Produce		json
@@ -139,7 +141,9 @@ func GetBroker(w http.ResponseWriter, r *http.Request) {
 //	@Router			/api/v1/brokers/{id} [put]
 func UpdateBroker(w http.ResponseWriter, r *http.Request) {
 
-	// TODO : permissions
+	if !checkPermission(w, r, "admin.brokers.update") {
+		return
+	}
 
 	// Retrieve brokerID
 	brokerID, ok := parseParamUUID(w, r, "id")
@@ -236,7 +240,7 @@ func UpdateBroker(w http.ResponseWriter, r *http.Request) {
 //	@Id				DeleteBroker
 //
 //	@Summary		Delete a broker
-//	@Description	Deletes a broker.
+//	@Description	Deletes a broker. (Permission: <b>admin.brokers.delete</b>)
 //	@Tags			Brokers
 //	@Produce		json
 //	@Param			id	path	string	true	"broker ID"
@@ -248,7 +252,9 @@ func UpdateBroker(w http.ResponseWriter, r *http.Request) {
 //	@Router			/api/v1/brokers/{id} [delete]
 func DeleteBroker(w http.ResponseWriter, r *http.Request) {
 
-	// TODO : permissions
+	if !checkPermission(w, r, "admin.brokers.delete") {
+		return
+	}
 
 	// Retrieve brokerID
 	brokerID, ok := parseParamUUID(w, r, "id")

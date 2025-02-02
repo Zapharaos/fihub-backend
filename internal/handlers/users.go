@@ -265,7 +265,7 @@ func DeleteUserSelf(w http.ResponseWriter, r *http.Request) {
 //	@Id				GetUser
 //
 //	@Summary		Get a user by ID
-//	@Description	Get a user by ID.
+//	@Description	Get a user by ID. (Permission: <b>admin.users.read</b>)
 //	@Tags			Users
 //	@Produce		json
 //	@Param			id	path	string	true	"user ID"
@@ -450,7 +450,7 @@ func GetUserRoles(w http.ResponseWriter, r *http.Request) {
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/users [get]
 func GetAllUsersWithRoles(w http.ResponseWriter, r *http.Request) {
-	if !checkPermission(w, r, "admin.users.roles.list") {
+	if !checkPermission(w, r, "admin.users.list") {
 		return
 	}
 
