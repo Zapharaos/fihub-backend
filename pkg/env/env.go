@@ -2,16 +2,10 @@ package env
 
 import (
 	"fmt"
-	"github.com/joho/godotenv"
 	"os"
 	"strconv"
 	"time"
 )
-
-// Load attempts to load environment variables from a file named ".env" in the current working directory
-func Load() error {
-	return godotenv.Load()
-}
 
 // GetString retrieves an environment variable by key and returns its value as a string.
 func GetString(key, fallback string) string {

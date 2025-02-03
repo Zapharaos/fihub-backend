@@ -11,6 +11,7 @@ import (
 	"github.com/Zapharaos/fihub-backend/pkg/email"
 	"github.com/Zapharaos/fihub-backend/pkg/env"
 	"github.com/Zapharaos/fihub-backend/pkg/translation"
+	"github.com/joho/godotenv"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"golang.org/x/text/language"
@@ -28,7 +29,7 @@ var (
 func Init() {
 
 	// Load the .env file
-	err := env.Load()
+	err := godotenv.Load()
 	if err != nil {
 		log.Fatal(err)
 		return
