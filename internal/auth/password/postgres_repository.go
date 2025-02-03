@@ -143,7 +143,7 @@ func (p PostgresRepository) ValidForUser(userID uuid.UUID) (bool, error) {
 	return rows.Next(), nil
 }
 
-func scanRequest(rows *sqlx.Rows) (Request, error) {
+func scanRequest(rows utils.RowScanner) (Request, error) {
 	var request Request
 	err := rows.Scan(
 		&request.ID,

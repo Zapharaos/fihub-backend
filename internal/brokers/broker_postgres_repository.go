@@ -241,7 +241,7 @@ func (r *BrokerPostgresRepository) DeleteImage(id uuid.UUID) error {
 	return utils.CheckRowAffected(result, 1)
 }
 
-func scanBroker(rows *sqlx.Rows) (Broker, error) {
+func scanBroker(rows utils.RowScanner) (Broker, error) {
 	var broker Broker
 	err := rows.Scan(
 		&broker.ID,

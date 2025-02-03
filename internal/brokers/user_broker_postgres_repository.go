@@ -97,7 +97,7 @@ func (r *UserBrokerPostgresRepository) GetAll(userID uuid.UUID) ([]UserBroker, e
 	return utils.ScanAll(rows, scanUserBroker)
 }
 
-func scanUserBroker(rows *sqlx.Rows) (UserBroker, error) {
+func scanUserBroker(rows utils.RowScanner) (UserBroker, error) {
 	var userBroker UserBroker
 	err := rows.Scan(
 		&userBroker.Broker.ID,

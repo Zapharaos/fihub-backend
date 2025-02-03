@@ -510,7 +510,7 @@ func (r *PostgresRepository) RemoveUsersRole(userUUIDs []uuid.UUID, roleUUID uui
 	return nil
 }
 
-func scanUser(rows *sqlx.Rows) (User, error) {
+func scanUser(rows utils.RowScanner) (User, error) {
 
 	userWithPassword, err := scanUserWithPassword(rows)
 	if err != nil {
@@ -520,7 +520,7 @@ func scanUser(rows *sqlx.Rows) (User, error) {
 	return userWithPassword.ToUser(), nil
 }
 
-func scanUserWithPassword(rows *sqlx.Rows) (UserWithPassword, error) {
+func scanUserWithPassword(rows utils.RowScanner) (UserWithPassword, error) {
 	var userWithPassword UserWithPassword
 	err := rows.Scan(
 		&userWithPassword.ID,
@@ -536,7 +536,7 @@ func scanUserWithPassword(rows *sqlx.Rows) (UserWithPassword, error) {
 	return userWithPassword, nil
 }
 
-func scanUserWithRoles(rows *sqlx.Rows) (UserWithRoles, error) {
+func scanUserWithRoles(rows utils.RowScanner) (UserWithRoles, error) {
 
 	var userWithRoles UserWithRoles
 	var role roles.RoleWithPermissions
@@ -564,7 +564,7 @@ func scanUserWithRoles(rows *sqlx.Rows) (UserWithRoles, error) {
 	return userWithRoles, nil
 }
 
-func scanUsersWithRoles(rows *sqlx.Rows) ([]UserWithRoles, error) {
+func scanUsersWithRoles(rows utils.RowScanner) ([]UserWithRoles, error) {
 	var usersWithRoles []UserWithRoles
 	userMap := make(map[uuid.UUID]int)
 
