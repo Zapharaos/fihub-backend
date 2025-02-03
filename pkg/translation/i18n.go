@@ -22,7 +22,6 @@ func NewI18nService(defaultLang language.Tag) Service {
 	bundle.RegisterUnmarshalFunc("toml", toml.Unmarshal)
 
 	// Load the translations
-	// No need to load active.en.toml since we are providing default translations.
 	bundle.MustLoadMessageFile("config/translations/active.en.toml")
 	bundle.MustLoadMessageFile("config/translations/active.fr.toml")
 
@@ -45,7 +44,6 @@ func NewI18nService(defaultLang language.Tag) Service {
 func (t *I18nService) Localizer(language language.Tag) (interface{}, error) {
 	localizer, found := t.localizers[language]
 	if !found {
-
 		return nil, fmt.Errorf("localizer %q not found", language)
 	}
 	return localizer, nil
