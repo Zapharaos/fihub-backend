@@ -2,14 +2,18 @@ package utils
 
 import (
 	"database/sql"
-	"github.com/Zapharaos/fihub-backend/test/mock"
+	"errors"
+	"github.com/Zapharaos/fihub-backend/test"
+	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/assert"
+	sqlmock "github.com/zhashkevych/go-sqlxmock"
 	"testing"
 )
 
 // TestCheckRowAffected tests the CheckRowAffected function
 // It checks if the function correctly identifies the number of rows affected
 func TestCheckRowAffected(t *testing.T) {
+
 	tests := []struct {
 		name     string
 		result   sql.Result
@@ -17,16 +21,36 @@ func TestCheckRowAffected(t *testing.T) {
 		expected error
 	}{
 		{
-			name:     "Multiple rows affected",
-			result:   mock.SQLResult{ExpectRowsAffected: 2},
+			name: "With error",
+			result: sqlmock.NewErrorResult(
+				errors.New("error"),
+			),
+			nbRows:   0,
+			expected: errors.New("error"),
+		},
+		{
+			name:     "No rows affected, unexpected",
+			result:   sqlmock.NewResult(0, 0),
+			nbRows:   1,
+			expected: ErrNoRowAffected,
+		},
+		{
+			name:     "Multiple rows affected, unexpected",
+			result:   sqlmock.NewResult(0, 2),
 			nbRows:   1,
 			expected: ErrNoRowAffected,
 		},
 		{
 			name:     "No rows affected",
-			result:   mock.SQLResult{ExpectRowsAffected: 0},
-			nbRows:   1,
-			expected: ErrNoRowAffected,
+			result:   sqlmock.NewResult(0, 0),
+			nbRows:   0,
+			expected: nil,
+		},
+		{
+			name:     "Multiple rows affected",
+			result:   sqlmock.NewResult(0, 2),
+			nbRows:   2,
+			expected: nil,
 		},
 	}
 
@@ -41,83 +65,81 @@ func TestCheckRowAffected(t *testing.T) {
 // TestScanFirst tests the ScanFirst function
 // It checks if the function correctly scans only the first row
 func TestScanFirst(t *testing.T) {
+
+	s := test.Sqlx{}
+	s.CreateFullTestSqlx(t)
+	defer s.CleanTestSqlx()
+
 	tests := []struct {
 		name     string
-		rows     mock.RowScanner
-		scan     func(rows RowScanner) (int, error)
+		rows     *sqlmock.Rows
+		scan     func(rows *sqlx.Rows) (int, error)
 		expected int
 		found    bool
-		err      error
+		err      bool
 	}{
 		{
 			name: "No rows",
-			rows: mock.RowScanner{
-				Rows: [][]any{},
-			},
-			scan: func(rows RowScanner) (int, error) {
+			rows: sqlmock.NewRows([]string{"id"}),
+			scan: func(rows *sqlx.Rows) (int, error) {
 				var value int
 				err := rows.Scan(&value)
 				return value, err
 			},
 			expected: 0,
 			found:    false,
-			err:      nil,
+			err:      false,
 		}, {
 			name: "Single row",
-			rows: mock.RowScanner{
-				Rows: [][]any{
-					{1},
-				},
-			},
-			scan: func(rows RowScanner) (int, error) {
+			rows: sqlmock.NewRows([]string{"id"}).AddRow(1),
+			scan: func(rows *sqlx.Rows) (int, error) {
 				var value int
 				err := rows.Scan(&value)
 				return value, err
 			},
 			expected: 1,
 			found:    true,
-			err:      nil,
+			err:      false,
 		},
 		{
 			name: "Multiple row",
-			rows: mock.RowScanner{
-				Rows: [][]any{
-					{1}, {2}, {3},
-				},
-			},
-			scan: func(rows RowScanner) (int, error) {
+			rows: sqlmock.NewRows([]string{"id"}).AddRow(1).AddRow(2),
+			scan: func(rows *sqlx.Rows) (int, error) {
 				var value int
 				err := rows.Scan(&value)
 				return value, err
 			},
 			expected: 1,
 			found:    true,
-			err:      nil,
+			err:      false,
 		},
 		{
 			name: "Scan error",
-			rows: mock.RowScanner{
-				Rows: [][]any{
-					{"scan string into int"},
-				},
-			},
-			scan: func(rows RowScanner) (int, error) {
+			rows: sqlmock.NewRows([]string{"id"}).AddRow("invalid"),
+			scan: func(rows *sqlx.Rows) (int, error) {
 				var value int
 				err := rows.Scan(&value)
 				return value, err
 			},
 			expected: 0,
 			found:    false,
-			err:      mock.ErrRowScannerUnsupportedType,
+			err:      true,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result, found, err := ScanFirst(&tt.rows, tt.scan)
+			rows, err := s.MockQuery(tt.rows)
+			assert.NoError(t, err)
+
+			result, found, err := ScanFirst(rows, tt.scan)
 			assert.Equal(t, tt.expected, result)
 			assert.Equal(t, tt.found, found)
-			assert.Equal(t, tt.err, err)
+			if tt.err {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+			}
 		})
 	}
 }
@@ -125,77 +147,74 @@ func TestScanFirst(t *testing.T) {
 // TestScanAll tests the ScanAll function
 // It checks if the function correctly scans all rows
 func TestScanAll(t *testing.T) {
+	s := test.Sqlx{}
+	s.CreateFullTestSqlx(t)
+	defer s.CleanTestSqlx()
+
 	tests := []struct {
 		name     string
-		rows     mock.RowScanner
-		scan     func(rows RowScanner) (int, error)
+		rows     *sqlmock.Rows
+		scan     func(rows *sqlx.Rows) (int, error)
 		expected []int
-		err      error
+		err      bool
 	}{
 		{
 			name: "No rows",
-			rows: mock.RowScanner{
-				Rows: [][]any{},
-			},
-			scan: func(rows RowScanner) (int, error) {
+			rows: sqlmock.NewRows([]string{"id"}),
+			scan: func(rows *sqlx.Rows) (int, error) {
 				var value int
 				err := rows.Scan(&value)
 				return value, err
 			},
 			expected: []int{},
-			err:      nil,
+			err:      false,
 		}, {
 			name: "Single row",
-			rows: mock.RowScanner{
-				Rows: [][]any{
-					{1},
-				},
-			},
-			scan: func(rows RowScanner) (int, error) {
+			rows: sqlmock.NewRows([]string{"id"}).AddRow(1),
+			scan: func(rows *sqlx.Rows) (int, error) {
 				var value int
 				err := rows.Scan(&value)
 				return value, err
 			},
 			expected: []int{1},
-			err:      nil,
+			err:      false,
 		},
 		{
 			name: "Multiple row",
-			rows: mock.RowScanner{
-				Rows: [][]any{
-					{1}, {2}, {3},
-				},
-			},
-			scan: func(rows RowScanner) (int, error) {
+			rows: sqlmock.NewRows([]string{"id"}).AddRow(1).AddRow(2).AddRow(3),
+			scan: func(rows *sqlx.Rows) (int, error) {
 				var value int
 				err := rows.Scan(&value)
 				return value, err
 			},
 			expected: []int{1, 2, 3},
-			err:      nil,
+			err:      false,
 		},
 		{
 			name: "Scan error",
-			rows: mock.RowScanner{
-				Rows: [][]any{
-					{"scan string into int"},
-				},
-			},
-			scan: func(rows RowScanner) (int, error) {
+			rows: sqlmock.NewRows([]string{"id"}).AddRow("invalid"),
+			scan: func(rows *sqlx.Rows) (int, error) {
 				var value int
 				err := rows.Scan(&value)
 				return value, err
 			},
 			expected: []int{},
-			err:      mock.ErrRowScannerUnsupportedType,
+			err:      true,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result, err := ScanAll(&tt.rows, tt.scan)
+			rows, err := s.MockQuery(tt.rows)
+			assert.NoError(t, err)
+
+			result, err := ScanAll(rows, tt.scan)
 			assert.Equal(t, tt.expected, result)
-			assert.Equal(t, tt.err, err)
+			if tt.err {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+			}
 		})
 	}
 }

@@ -359,7 +359,7 @@ func (r *PostgresRepository) SetRolePermissions(roleUUID uuid.UUID, permissionUU
 }
 
 // Scan scans the current row of the given rows and returns a Role
-func (r *PostgresRepository) Scan(rows utils.RowScanner) (Role, error) {
+func (r *PostgresRepository) Scan(rows *sqlx.Rows) (Role, error) {
 	var role Role
 	err := rows.Scan(
 		&role.Id,
@@ -372,7 +372,7 @@ func (r *PostgresRepository) Scan(rows utils.RowScanner) (Role, error) {
 }
 
 // ScanWithPermissions scans the current row of the given rows and returns a RoleWithPermissions
-func (r *PostgresRepository) ScanWithPermissions(rows utils.RowScanner) (RoleWithPermissions, error) {
+func (r *PostgresRepository) ScanWithPermissions(rows *sqlx.Rows) (RoleWithPermissions, error) {
 
 	var role RoleWithPermissions
 	var permission permissions.Permission
@@ -406,7 +406,7 @@ func (r *PostgresRepository) ScanWithPermissions(rows utils.RowScanner) (RoleWit
 }
 
 // ScanAllWithPermissions scans all rows of the given rows and returns a list of RoleWithPermissions
-func (r *PostgresRepository) ScanAllWithPermissions(rows utils.RowScanner) (RolesWithPermissions, error) {
+func (r *PostgresRepository) ScanAllWithPermissions(rows *sqlx.Rows) (RolesWithPermissions, error) {
 	var roles RolesWithPermissions
 	rolesMap := make(map[uuid.UUID]int)
 

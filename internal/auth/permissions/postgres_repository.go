@@ -186,7 +186,7 @@ func (r *PostgresRepository) GetAllForUser(userUUID uuid.UUID) ([]Permission, er
 }
 
 // Scan scans the retrieved data from the database and returns a Permission
-func (r *PostgresRepository) Scan(rows utils.RowScanner) (Permission, error) {
+func (r *PostgresRepository) Scan(rows *sqlx.Rows) (Permission, error) {
 	var permission Permission
 	err := rows.Scan(
 		&permission.Id,

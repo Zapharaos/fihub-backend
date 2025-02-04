@@ -3,14 +3,9 @@ package utils
 import (
 	"database/sql"
 	"errors"
+	"github.com/jmoiron/sqlx"
 	"go.uber.org/zap"
 )
-
-// RowScanner is an interface that abstracts the sqlx.Rows functionality.
-type RowScanner interface {
-	Next() bool
-	Scan(dest ...interface{}) error
-}
 
 var ErrNoRowAffected = errors.New("no row affected (or multiple row affected) instead of 1 row")
 
@@ -27,7 +22,7 @@ func CheckRowAffected(result sql.Result, nbRows int64) error {
 }
 
 // ScanFirst scans the first row of a sql.Rows and returns the result
-func ScanFirst[T any](rows RowScanner, scan func(rows RowScanner) (T, error)) (T, bool, error) {
+func ScanFirst[T any](rows *sqlx.Rows, scan func(rows *sqlx.Rows) (T, error)) (T, bool, error) {
 	if rows.Next() {
 		obj, err := scan(rows)
 		return obj, err == nil, err
@@ -37,7 +32,7 @@ func ScanFirst[T any](rows RowScanner, scan func(rows RowScanner) (T, error)) (T
 }
 
 // ScanAll scans all the rows of the given rows and returns a slice of DataSource
-func ScanAll[T any](rows RowScanner, scan func(rows RowScanner) (T, error)) ([]T, error) {
+func ScanAll[T any](rows *sqlx.Rows, scan func(rows *sqlx.Rows) (T, error)) ([]T, error) {
 	objs := make([]T, 0)
 	for rows.Next() {
 		obj, err := scan(rows)

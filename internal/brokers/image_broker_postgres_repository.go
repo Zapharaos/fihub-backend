@@ -124,7 +124,7 @@ func (r *ImageBrokerPostgresRepository) Exists(brokerID uuid.UUID, brokerImageID
 	return rows.Next(), nil
 }
 
-func scanBrokerImage(rows utils.RowScanner) (BrokerImage, error) {
+func scanBrokerImage(rows *sqlx.Rows) (BrokerImage, error) {
 	var brokerImage BrokerImage
 	err := rows.Scan(
 		&brokerImage.ID,

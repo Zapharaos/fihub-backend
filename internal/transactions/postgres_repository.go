@@ -159,7 +159,7 @@ func (r PostgresRepository) GetAll(userID uuid.UUID) ([]Transaction, error) {
 	return utils.ScanAll(rows, scanTransaction)
 }
 
-func scanTransaction(rows utils.RowScanner) (Transaction, error) {
+func scanTransaction(rows *sqlx.Rows) (Transaction, error) {
 	var transaction Transaction
 	err := rows.Scan(
 		&transaction.ID,
