@@ -345,10 +345,10 @@ func TestHasPermission(t *testing.T) {
 
 	// Define test cases
 	tests := []struct {
-		name       string
-		user       UserWithRoles
-		permission string
-		expected   bool
+		name       string        // Test case name
+		user       UserWithRoles // UserWithRoles instance to test
+		permission string        // Permission to check
+		expected   bool          // Expected result
 	}{
 		{
 			name:       "User has permission",

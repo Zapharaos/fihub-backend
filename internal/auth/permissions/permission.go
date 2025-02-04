@@ -1,10 +1,21 @@
 package permissions
 
 import (
-	"fmt"
+	"errors"
 	"github.com/google/uuid"
 	"regexp"
 	"strings"
+)
+
+var (
+	ErrValueRequired = errors.New("value-required")
+	ErrScopeRequired = errors.New("scope-required")
+	ErrScopeInvalid  = errors.New("scope-invalid")
+	ErrLimitExceeded = errors.New("permissions-limit-exceeded")
+)
+
+const (
+	LimitMaxPermissions = 250
 )
 
 type Permission struct {
@@ -28,22 +39,22 @@ var validScopes = []Scope{AdminScope, AllScope}
 // IsValid checks if a permission is valid and has no missing mandatory fields
 func (p Permission) IsValid() (bool, error) {
 	if p.Value == "" {
-		return false, fmt.Errorf("value-required")
+		return false, ErrValueRequired
 	}
 	if p.Scope == "" {
-		return false, fmt.Errorf("scope-required")
+		return false, ErrScopeRequired
 	}
 	// check if the scope is valid
 	if !CheckScope(p.Scope) {
-		return false, fmt.Errorf("scope-invalid")
+		return false, ErrScopeInvalid
 	}
 	return true, nil
 }
 
 // IsValid checks if the permissions array is valid
 func (p Permissions) IsValid() (bool, error) {
-	if len(p) > 250 {
-		return false, fmt.Errorf("permissions-limit-exceeded")
+	if len(p) > LimitMaxPermissions {
+		return false, ErrLimitExceeded
 	}
 	return true, nil
 }

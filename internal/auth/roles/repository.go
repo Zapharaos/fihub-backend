@@ -7,7 +7,7 @@ import (
 
 // Repository is a storage interface which can be implemented by multiple backend
 // (in-memory map, sql database, in-memory cache, file system, ...)
-// It allows standard CRUD operation on facts
+// It allows standard CRUD operation on Role
 type Repository interface {
 	Get(uuid uuid.UUID) (Role, bool, error)
 	GetByName(name string) (Role, bool, error)
