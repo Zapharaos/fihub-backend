@@ -7,7 +7,7 @@ import (
 
 // Repository is a storage interface which can be implemented by multiple backend
 // (in-memory map, sql database, in-memory cache, file system, ...)
-// It allows standard CRUD operation on Users
+// It allows standard CRUD operation on User
 type Repository interface {
 	Create(user UserWithPassword) (uuid.UUID, error)
 	Get(userID uuid.UUID) (User, bool, error)

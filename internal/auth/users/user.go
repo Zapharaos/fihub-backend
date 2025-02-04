@@ -8,13 +8,28 @@ import (
 	"time"
 )
 
-// UserInputCreate extends UserInputPassword with a password-confirmation and checkbox
+var (
+	ErrEmailRequired        = errors.New("email-required")
+	ErrEmailInvalid         = errors.New("email-invalid")
+	ErrCheckboxInvalid      = errors.New("checkbox-invalid")
+	ErrPasswordRequired     = errors.New("password-required")
+	ErrPasswordInvalid      = errors.New("password-invalid")
+	ErrConfirmationRequired = errors.New("confirmation-required")
+	ErrConfirmationInvalid  = errors.New("confirmation-invalid")
+)
+
+const (
+	PasswordMinLength = 8
+	PasswordMaxLength = 64
+)
+
+// UserInputCreate extends UserInputPassword with a checkbox
 type UserInputCreate struct {
 	UserInputPassword
 	Checkbox bool `json:"checkbox"`
 }
 
-// UserInputPassword extends UserWithPassword with a password-confirmation and checkbox
+// UserInputPassword extends UserWithPassword with a password-confirmation
 type UserInputPassword struct {
 	UserWithPassword
 	Confirmation string `json:"confirmation"`
@@ -26,61 +41,34 @@ type UserWithPassword struct {
 	Password string `json:"password"`
 }
 
+// UserWithRoles extends User with a roles field for authorization purposes
 type UserWithRoles struct {
 	User
 	Roles roles.RolesWithPermissions `json:"roles"`
 }
 
-// User represents a user entity in the system
+// User represents a User entity in the system
 type User struct {
-	ID        uuid.UUID `json:"id"`
+	ID        uuid.UUID `json:"ID"`
 	Email     string    `json:"email"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-// ToUser Returns a User struct without the password hash
-func (u UserWithPassword) ToUser() User {
-	return User{
-		ID:        u.ID,
-		Email:     u.Email,
-		CreatedAt: u.CreatedAt,
-		UpdatedAt: u.UpdatedAt,
-	}
-}
-
-// ToUser Returns a User struct
-func (u UserInputCreate) ToUser() User {
-	return User{
-		ID:        u.ID,
-		Email:     u.Email,
-		CreatedAt: u.CreatedAt,
-		UpdatedAt: u.UpdatedAt,
-	}
-}
-
-// ToUserWithPassword Returns a UserWithPassword struct
-func (u UserInputPassword) ToUserWithPassword() UserWithPassword {
-	return UserWithPassword{
-		User:     u.ToUser(),
-		Password: u.Password,
-	}
-}
-
-// IsValid checks if a user is valid and has no missing mandatory PGFields
+// IsValid checks if a User is valid and has no missing mandatory PGFields
 // * Email must not be empty
 // * Email must not be valid
 func (u User) IsValid() (bool, error) {
 	if u.Email == "" {
-		return false, errors.New("email-required")
+		return false, ErrEmailRequired
 	}
 	if !email.IsValid(u.Email) {
-		return false, errors.New("email-invalid")
+		return false, ErrEmailInvalid
 	}
 	return true, nil
 }
 
-// IsValid checks if a user with password is valid and has no missing mandatory PGFields
+// IsValid checks if a User with password is valid and has no missing mandatory PGFields
 // * User must be valid (see User struct)
 // * Password must not be valid (see isValidPassword function)
 func (u UserWithPassword) IsValid() (bool, error) {
@@ -90,7 +78,7 @@ func (u UserWithPassword) IsValid() (bool, error) {
 	return isValidPassword(u.Password)
 }
 
-// IsValid checks if a user input is valid and has no missing mandatory PGFields
+// IsValid checks if a User input is valid and has no missing mandatory PGFields
 // * UserWithPassword must be valid (see UserWithPassword struct)
 // * Confirmation must not be valid (see isValidConfirmation function)
 func (u UserInputPassword) IsValid() (bool, error) {
@@ -100,7 +88,7 @@ func (u UserInputPassword) IsValid() (bool, error) {
 	return isValidConfirmation(u.Password, u.Confirmation)
 }
 
-// IsValid checks if a user input is valid and has no missing mandatory PGFields
+// IsValid checks if a User input is valid and has no missing mandatory PGFields
 // * UserInputPassword must be valid (see UserInputPassword struct)
 // * Checkbox must be true
 func (u UserInputCreate) IsValid() (bool, error) {
@@ -108,7 +96,7 @@ func (u UserInputCreate) IsValid() (bool, error) {
 		return false, err
 	}
 	if !u.Checkbox {
-		return false, errors.New("checkbox-invalid")
+		return false, ErrCheckboxInvalid
 	}
 	return true, nil
 }
@@ -119,13 +107,13 @@ func (u UserInputCreate) IsValid() (bool, error) {
 // * Password must not be longer than 64 characters
 func isValidPassword(password string) (bool, error) {
 	if password == "" {
-		return false, errors.New("password-required")
+		return false, ErrPasswordRequired
 	}
-	if len(password) < 8 {
-		return false, errors.New("password-invalid")
+	if len(password) < PasswordMinLength {
+		return false, ErrPasswordInvalid
 	}
-	if len(password) > 64 {
-		return false, errors.New("password-invalid")
+	if len(password) > PasswordMaxLength {
+		return false, ErrPasswordInvalid
 	}
 	return true, nil
 }
@@ -135,15 +123,15 @@ func isValidPassword(password string) (bool, error) {
 // * Confirmation must be equal to password
 func isValidConfirmation(password, confirmation string) (bool, error) {
 	if confirmation == "" {
-		return false, errors.New("confirmation-required")
+		return false, ErrConfirmationRequired
 	}
 	if confirmation != password {
-		return false, errors.New("confirmation-invalid")
+		return false, ErrConfirmationInvalid
 	}
 	return true, nil
 }
 
-// IsValidPassword checks if a user input password is valid
+// IsValidPassword checks if a User input password is valid
 // * Password must not be valid (see isValidPassword function)
 // * Confirmation must not be valid (see isValidConfirmation function)
 func (u UserInputPassword) IsValidPassword() (bool, error) {
@@ -156,7 +144,7 @@ func (u UserInputPassword) IsValidPassword() (bool, error) {
 	return true, nil
 }
 
-// HasPermission returns true if the user has the given permission.
+// HasPermission returns true if the User has the given permission.
 // Wildcards (*) in permissions are supported.
 func (u *UserWithRoles) HasPermission(permission string) bool {
 	for _, r := range u.Roles {

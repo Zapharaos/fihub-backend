@@ -267,7 +267,7 @@ func ResetPassword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Convert to UserWithPassword
-	userWithPassword := userPassword.ToUserWithPassword()
+	userWithPassword := userPassword.UserWithPassword
 	userWithPassword.ID = userID
 
 	// Reset password

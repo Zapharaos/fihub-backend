@@ -44,7 +44,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Convert to UserWithPassword
-	userWithPassword := userInputCreate.ToUserWithPassword()
+	userWithPassword := userInputCreate.UserWithPassword
 
 	// Verify user existence
 	exists, err := users.R().Exists(userWithPassword.Email)
@@ -216,7 +216,7 @@ func ChangeUserPassword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Convert to UserWithPassword
-	userWithPassword := userPassword.ToUserWithPassword()
+	userWithPassword := userPassword.UserWithPassword
 	userWithPassword.ID = userCtx.ID
 
 	// Update password
