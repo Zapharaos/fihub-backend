@@ -1,63 +1,66 @@
-package brokers
+package mock
 
-import "github.com/google/uuid"
+import (
+	"github.com/Zapharaos/fihub-backend/internal/brokers"
+	"github.com/google/uuid"
+)
 
-// MockBrokerRepository represents a mock BrokerRepository
-type MockBrokerRepository struct {
+// BrokerRepository represents a mock brokers.Repository
+type BrokerRepository struct {
 	ID      uuid.UUID
 	error   error
 	found   bool
-	Broker  Broker
-	Brokers []Broker
+	Broker  brokers.Broker
+	Brokers []brokers.Broker
 }
 
-// NewMockBrokerRepository creates a new MockBrokerRepository of the BrokerRepository interface
-func NewMockBrokerRepository() BrokerRepository {
-	r := MockBrokerRepository{}
-	var repo BrokerRepository = &r
+// NewBrokerRepository creates a new BrokerRepository of the brokers.BrokerRepository interface
+func NewBrokerRepository() brokers.BrokerRepository {
+	r := BrokerRepository{}
+	var repo brokers.BrokerRepository = &r
 	return repo
 }
 
-func (m MockBrokerRepository) Get(_ uuid.UUID) (Broker, bool, error) {
+func (m BrokerRepository) Get(_ uuid.UUID) (brokers.Broker, bool, error) {
 	return m.Broker, m.found, m.error
 }
 
-func (m MockBrokerRepository) Create(_ Broker) (uuid.UUID, error) {
+func (m BrokerRepository) Create(_ brokers.Broker) (uuid.UUID, error) {
 	return m.ID, m.error
 }
 
-func (m MockBrokerRepository) Update(_ Broker) error {
+func (m BrokerRepository) Update(_ brokers.Broker) error {
 	return m.error
 }
 
-func (m MockBrokerRepository) Delete(_ uuid.UUID) error {
+func (m BrokerRepository) Delete(_ uuid.UUID) error {
 	return m.error
 }
 
-func (m MockBrokerRepository) Exists(_ uuid.UUID) (bool, error) {
+func (m BrokerRepository) Exists(_ uuid.UUID) (bool, error) {
 	return m.found, m.error
 }
 
-func (m MockBrokerRepository) ExistsByName(_ string) (bool, error) {
+func (m BrokerRepository) ExistsByName(_ string) (bool, error) {
 	return m.found, m.error
 }
 
-func (m MockBrokerRepository) GetAll() ([]Broker, error) {
+func (m BrokerRepository) GetAll() ([]brokers.Broker, error) {
 	return m.Brokers, m.error
 }
 
-func (m MockBrokerRepository) GetAllEnabled() ([]Broker, error) {
+func (m BrokerRepository) GetAllEnabled() ([]brokers.Broker, error) {
 	return m.Brokers, m.error
 }
 
-func (m MockBrokerRepository) SetImage(_ uuid.UUID, _ uuid.UUID) error {
+func (m BrokerRepository) SetImage(_ uuid.UUID, _ uuid.UUID) error {
 	return m.error
 }
 
-func (m MockBrokerRepository) HasImage(_ uuid.UUID) (bool, error) {
+func (m BrokerRepository) HasImage(_ uuid.UUID) (bool, error) {
 	return m.found, m.error
 }
 
-func (m MockBrokerRepository) DeleteImage(_ uuid.UUID) error {
+func (m BrokerRepository) DeleteImage(_ uuid.UUID) error {
 	return m.error
 }

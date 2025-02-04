@@ -1,33 +1,36 @@
-package brokers
+package mock
 
-import "github.com/google/uuid"
+import (
+	"github.com/Zapharaos/fihub-backend/internal/brokers"
+	"github.com/google/uuid"
+)
 
-// MockUserBrokerRepository is a mock implementation of the UserRepository interface
-type MockUserBrokerRepository struct {
+// BrokerUserRepository is a mock brokers.UserRepository
+type BrokerUserRepository struct {
 	error       error
 	found       bool
-	userBrokers []User
+	userBrokers []brokers.User
 }
 
-// NewMockUserBrokerRepository creates a new instance of the MockUserBrokerRepository
-func NewMockUserBrokerRepository() UserRepository {
-	r := MockUserBrokerRepository{}
-	var repo UserRepository = &r
+// NewBrokerUserRepository creates a new BrokerUserRepository of the brokers.UserRepository
+func NewBrokerUserRepository() brokers.UserRepository {
+	r := BrokerUserRepository{}
+	var repo brokers.UserRepository = &r
 	return repo
 }
 
-func (m MockUserBrokerRepository) Create(_ User) error {
+func (m BrokerUserRepository) Create(_ brokers.User) error {
 	return m.error
 }
 
-func (m MockUserBrokerRepository) Delete(_ User) error {
+func (m BrokerUserRepository) Delete(_ brokers.User) error {
 	return m.error
 }
 
-func (m MockUserBrokerRepository) Exists(_ User) (bool, error) {
+func (m BrokerUserRepository) Exists(_ brokers.User) (bool, error) {
 	return m.found, m.error
 }
 
-func (m MockUserBrokerRepository) GetAll(_ uuid.UUID) ([]User, error) {
+func (m BrokerUserRepository) GetAll(_ uuid.UUID) ([]brokers.User, error) {
 	return m.userBrokers, m.error
 }

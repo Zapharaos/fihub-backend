@@ -1,82 +1,84 @@
-package users
+package mock
 
-import "github.com/google/uuid"
+import (
+	"github.com/Zapharaos/fihub-backend/internal/auth/users"
+	"github.com/google/uuid"
+)
 
-// MockRepository represents a mock Repository
-type MockRepository struct {
+// UsersRepository represents a mock users.Repository
+type UsersRepository struct {
 	ID             uuid.UUID
 	Err            error
 	Found          bool
-	User           User
-	Users          []User
-	UserWithRoles  UserWithRoles
-	UsersWithRoles []UserWithRoles
+	User           users.User
+	Users          []users.User
+	UserWithRoles  users.UserWithRoles
+	UsersWithRoles []users.UserWithRoles
 }
 
-// NewMockRepository creates a new MockRepository of the Repository interface
-func NewMockRepository() Repository {
-	r := MockRepository{}
-	var repo Repository
+// NewUsersRepository creates a new UsersRepository of the users.Repository interface
+func NewUsersRepository(r UsersRepository) users.Repository {
+	var repo users.Repository
 	repo = &r
 	return repo
 }
 
-func (m MockRepository) Create(_ UserWithPassword) (uuid.UUID, error) {
+func (m UsersRepository) Create(_ users.UserWithPassword) (uuid.UUID, error) {
 	return m.ID, m.Err
 }
 
-func (m MockRepository) Get(_ uuid.UUID) (User, bool, error) {
+func (m UsersRepository) Get(_ uuid.UUID) (users.User, bool, error) {
 	return m.User, m.Found, m.Err
 }
 
-func (m MockRepository) GetByEmail(_ string) (User, bool, error) {
+func (m UsersRepository) GetByEmail(_ string) (users.User, bool, error) {
 	return m.User, m.Found, m.Err
 }
 
-func (m MockRepository) Exists(_ string) (bool, error) {
+func (m UsersRepository) Exists(_ string) (bool, error) {
 	return m.Found, m.Err
 }
 
-func (m MockRepository) Authenticate(_ string, _ string) (User, bool, error) {
+func (m UsersRepository) Authenticate(_ string, _ string) (users.User, bool, error) {
 	return m.User, m.Found, m.Err
 }
 
-func (m MockRepository) Update(_ User) error {
+func (m UsersRepository) Update(_ users.User) error {
 	return m.Err
 }
 
-func (m MockRepository) UpdateWithPassword(_ UserWithPassword) error {
+func (m UsersRepository) UpdateWithPassword(_ users.UserWithPassword) error {
 	return m.Err
 }
 
-func (m MockRepository) Delete(_ uuid.UUID) error {
+func (m UsersRepository) Delete(_ uuid.UUID) error {
 	return m.Err
 }
 
-func (m MockRepository) GetWithRoles(_ uuid.UUID) (UserWithRoles, error) {
+func (m UsersRepository) GetWithRoles(_ uuid.UUID) (users.UserWithRoles, error) {
 	return m.UserWithRoles, m.Err
 }
 
-func (m MockRepository) GetAllWithRoles() ([]UserWithRoles, error) {
+func (m UsersRepository) GetAllWithRoles() ([]users.UserWithRoles, error) {
 	return m.UsersWithRoles, m.Err
 }
 
-func (m MockRepository) GetUsersByRoleID(_ uuid.UUID) ([]User, error) {
+func (m UsersRepository) GetUsersByRoleID(_ uuid.UUID) ([]users.User, error) {
 	return m.Users, m.Err
 }
 
-func (m MockRepository) UpdateWithRoles(_ UserWithRoles, _ []uuid.UUID) error {
+func (m UsersRepository) UpdateWithRoles(_ users.UserWithRoles, _ []uuid.UUID) error {
 	return m.Err
 }
 
-func (m MockRepository) SetUserRoles(_ uuid.UUID, _ []uuid.UUID) error {
+func (m UsersRepository) SetUserRoles(_ uuid.UUID, _ []uuid.UUID) error {
 	return m.Err
 }
 
-func (m MockRepository) AddUsersRole(_ []uuid.UUID, _ uuid.UUID) error {
+func (m UsersRepository) AddUsersRole(_ []uuid.UUID, _ uuid.UUID) error {
 	return m.Err
 }
 
-func (m MockRepository) RemoveUsersRole(_ []uuid.UUID, _ uuid.UUID) error {
+func (m UsersRepository) RemoveUsersRole(_ []uuid.UUID, _ uuid.UUID) error {
 	return m.Err
 }

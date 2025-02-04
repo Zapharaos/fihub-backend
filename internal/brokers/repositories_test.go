@@ -1,6 +1,8 @@
-package brokers
+package brokers_test
 
 import (
+	"github.com/Zapharaos/fihub-backend/internal/brokers"
+	"github.com/Zapharaos/fihub-backend/test/mock"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -10,12 +12,12 @@ import (
 func TestNewRepository(t *testing.T) {
 
 	// Replace with mock repositories
-	mockBrokerRepository := &MockBrokerRepository{}
-	mockUserRepository := &MockUserBrokerRepository{}
-	mockImageRepository := &MockImageRepository{}
+	mockBrokerRepository := &mock.BrokerRepository{}
+	mockUserRepository := &mock.BrokerUserRepository{}
+	mockImageRepository := &mock.BrokerImageRepository{}
 
 	// Create a new repository
-	repo := NewRepository(mockBrokerRepository, mockUserRepository, mockImageRepository)
+	repo := brokers.NewRepository(mockBrokerRepository, mockUserRepository, mockImageRepository)
 
 	// Verify that the repositories are correctly assigned
 	assert.Equal(t, mockBrokerRepository, repo.B())
@@ -27,20 +29,20 @@ func TestNewRepository(t *testing.T) {
 // It verifies that the global repository can be replaced and restored correctly.
 func TestReplaceGlobals(t *testing.T) {
 	// Replace with mock repositories
-	mockBrokerRepository := &MockBrokerRepository{}
-	mockUserRepository := &MockUserBrokerRepository{}
-	mockImageRepository := &MockImageRepository{}
-	mockRepository := NewRepository(mockBrokerRepository, mockUserRepository, mockImageRepository)
+	mockBrokerRepository := &mock.BrokerRepository{}
+	mockUserRepository := &mock.BrokerUserRepository{}
+	mockImageRepository := &mock.BrokerImageRepository{}
+	mockRepository := brokers.NewRepository(mockBrokerRepository, mockUserRepository, mockImageRepository)
 
 	// Replace the global repository with a mock repository
-	restore := ReplaceGlobals(mockRepository)
-	
+	restore := brokers.ReplaceGlobals(mockRepository)
+
 	// Verify that the global repository instance has been replaced
-	assert.Equal(t, mockRepository, R())
+	assert.Equal(t, mockRepository, brokers.R())
 
 	// Restore the global repository instance
 	restore()
 
 	// Verify that the global repository instance has been restored
-	assert.NotEqual(t, mockRepository, R())
+	assert.NotEqual(t, mockRepository, brokers.R())
 }

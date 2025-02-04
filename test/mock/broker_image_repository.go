@@ -1,37 +1,40 @@
-package brokers
+package mock
 
-import "github.com/google/uuid"
+import (
+	"github.com/Zapharaos/fihub-backend/internal/brokers"
+	"github.com/google/uuid"
+)
 
-// MockImageRepository represents a mock ImageRepository
-type MockImageRepository struct {
-	image Image
+// BrokerImageRepository represents a mock brokers.ImageRepository
+type BrokerImageRepository struct {
+	image brokers.Image
 	error error
 	found bool
 }
 
-// NewMockImageRepository creates a new MockImageRepository of the ImageRepository interface
-func NewMockImageRepository() ImageRepository {
-	r := MockImageRepository{}
-	var repo ImageRepository = &r
+// NewBrokerImageRepository creates a new BrokerImageRepository of the brokers.ImageRepository interface
+func NewBrokerImageRepository() brokers.ImageRepository {
+	r := BrokerImageRepository{}
+	var repo brokers.ImageRepository = &r
 	return repo
 }
 
-func (m MockImageRepository) Create(_ Image) error {
+func (m BrokerImageRepository) Create(_ brokers.Image) error {
 	return m.error
 }
 
-func (m MockImageRepository) Get(_ uuid.UUID) (Image, bool, error) {
+func (m BrokerImageRepository) Get(_ uuid.UUID) (brokers.Image, bool, error) {
 	return m.image, m.found, m.error
 }
 
-func (m MockImageRepository) Update(_ Image) error {
+func (m BrokerImageRepository) Update(_ brokers.Image) error {
 	return m.error
 }
 
-func (m MockImageRepository) Delete(_ uuid.UUID) error {
+func (m BrokerImageRepository) Delete(_ uuid.UUID) error {
 	return m.error
 }
 
-func (m MockImageRepository) Exists(_ uuid.UUID, _ uuid.UUID) (bool, error) {
+func (m BrokerImageRepository) Exists(_ uuid.UUID, _ uuid.UUID) (bool, error) {
 	return m.found, m.error
 }

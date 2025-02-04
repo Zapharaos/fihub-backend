@@ -1,43 +1,46 @@
-package transactions
+package mock
 
-import "github.com/google/uuid"
+import (
+	transactions2 "github.com/Zapharaos/fihub-backend/internal/transactions"
+	"github.com/google/uuid"
+)
 
-// MockRepository represents a mock Repository
-type MockRepository struct {
+// TransactionsRepository represents a mock transactions.Repository
+type TransactionsRepository struct {
 	ID           uuid.UUID
 	error        error
 	found        bool
-	transaction  Transaction
-	transactions []Transaction
+	transaction  transactions2.Transaction
+	transactions []transactions2.Transaction
 }
 
-// NewMockRepository creates a new MockRepository of the Repository interface
-func NewMockRepository() Repository {
-	r := MockRepository{}
-	var repo Repository = &r
+// NewTransactionsRepository creates a new TransactionsRepository of the transactions.Repository interface
+func NewTransactionsRepository() transactions2.Repository {
+	r := TransactionsRepository{}
+	var repo transactions2.Repository = &r
 	return repo
 }
 
-func (r MockRepository) Create(_ TransactionInput) (uuid.UUID, error) {
+func (r TransactionsRepository) Create(_ transactions2.TransactionInput) (uuid.UUID, error) {
 	return r.ID, r.error
 }
 
-func (r MockRepository) Get(_ uuid.UUID) (Transaction, bool, error) {
+func (r TransactionsRepository) Get(_ uuid.UUID) (transactions2.Transaction, bool, error) {
 	return r.transaction, r.found, r.error
 }
 
-func (r MockRepository) Update(_ TransactionInput) error {
+func (r TransactionsRepository) Update(_ transactions2.TransactionInput) error {
 	return r.error
 }
 
-func (r MockRepository) Delete(_ Transaction) error {
+func (r TransactionsRepository) Delete(_ transactions2.Transaction) error {
 	return r.error
 }
 
-func (r MockRepository) Exists(_ uuid.UUID, _ uuid.UUID) (bool, error) {
+func (r TransactionsRepository) Exists(_ uuid.UUID, _ uuid.UUID) (bool, error) {
 	return r.found, r.error
 }
 
-func (r MockRepository) GetAll(_ uuid.UUID) ([]Transaction, error) {
+func (r TransactionsRepository) GetAll(_ uuid.UUID) ([]transactions2.Transaction, error) {
 	return r.transactions, r.error
 }

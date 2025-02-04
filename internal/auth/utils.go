@@ -1,12 +1,16 @@
 package auth
 
 import (
-	"fmt"
+	"errors"
 	"github.com/Zapharaos/fihub-backend/internal/auth/permissions"
 	"github.com/Zapharaos/fihub-backend/internal/auth/roles"
 	"github.com/Zapharaos/fihub-backend/internal/auth/users"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
+)
+
+var (
+	ErrorUserNotFound = errors.New("user not found")
 )
 
 // LoadFullUser loads the roles from the database
@@ -16,7 +20,7 @@ func LoadFullUser(userId uuid.UUID) (*users.UserWithRoles, bool, error) {
 		return nil, false, err
 	}
 	if !ok {
-		return nil, false, fmt.Errorf("user not found")
+		return nil, false, ErrorUserNotFound
 	}
 
 	fullRoles, err := LoadUserRoles(user.ID)

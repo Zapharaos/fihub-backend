@@ -1,51 +1,53 @@
-package permissions
+package mock
 
-import "github.com/google/uuid"
+import (
+	"github.com/Zapharaos/fihub-backend/internal/auth/permissions"
+	"github.com/google/uuid"
+)
 
-// MockRepository represents a mock Repository
-type MockRepository struct {
+// PermissionsRepository represents a mock permissions.Repository
+type PermissionsRepository struct {
 	ID    uuid.UUID
 	Found bool
 	Error error
-	Perm  Permission
-	Perms []Permission
+	Perm  permissions.Permission
+	Perms []permissions.Permission
 }
 
-// NewMockRepository creates a new MockRepository of the Repository interface
-func NewMockRepository() Repository {
-	r := MockRepository{}
-	var repo Repository = &r
+// NewPermissionsRepository creates a new PermissionsRepository of the permissions.Repository interface
+func NewPermissionsRepository(r PermissionsRepository) permissions.Repository {
+	var repo permissions.Repository = &r
 	return repo
 }
 
-func (m MockRepository) Get(_ uuid.UUID) (Permission, bool, error) {
+func (m PermissionsRepository) Get(_ uuid.UUID) (permissions.Permission, bool, error) {
 	return m.Perm, m.Found, m.Error
 }
 
-func (m MockRepository) Create(_ Permission) (uuid.UUID, error) {
+func (m PermissionsRepository) Create(_ permissions.Permission) (uuid.UUID, error) {
 	return m.ID, m.Error
 }
 
-func (m MockRepository) Update(_ Permission) error {
+func (m PermissionsRepository) Update(_ permissions.Permission) error {
 	return m.Error
 }
 
-func (m MockRepository) Delete(_ uuid.UUID) error {
+func (m PermissionsRepository) Delete(_ uuid.UUID) error {
 	return m.Error
 }
 
-func (m MockRepository) GetAll() ([]Permission, error) {
+func (m PermissionsRepository) GetAll() ([]permissions.Permission, error) {
 	return m.Perms, m.Error
 }
 
-func (m MockRepository) GetAllByRoleId(_ uuid.UUID) ([]Permission, error) {
+func (m PermissionsRepository) GetAllByRoleId(_ uuid.UUID) ([]permissions.Permission, error) {
 	return m.Perms, m.Error
 }
 
-func (m MockRepository) GetAllByRoleIds(_ []uuid.UUID) ([]Permission, error) {
+func (m PermissionsRepository) GetAllByRoleIds(_ []uuid.UUID) ([]permissions.Permission, error) {
 	return m.Perms, m.Error
 }
 
-func (m MockRepository) GetAllForUser(_ uuid.UUID) ([]Permission, error) {
+func (m PermissionsRepository) GetAllForUser(_ uuid.UUID) ([]permissions.Permission, error) {
 	return m.Perms, m.Error
 }
