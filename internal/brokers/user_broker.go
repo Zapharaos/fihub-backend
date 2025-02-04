@@ -1,7 +1,6 @@
 package brokers
 
 import (
-	"errors"
 	"github.com/google/uuid"
 )
 
@@ -21,7 +20,7 @@ type UserBrokerInput struct {
 // * BrokerID must be valid
 func (u *UserBrokerInput) IsValid() (bool, error) {
 	if _, err := uuid.Parse(u.BrokerID); err != nil {
-		return false, errors.New("broker-required")
+		return false, errBrokerIdRequired
 	}
 	return true, nil
 }
