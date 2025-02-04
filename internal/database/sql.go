@@ -6,10 +6,12 @@ import (
 	"go.uber.org/zap"
 )
 
+// SqlDatabase is an interface for a SQL database.
 type SqlDatabase interface {
 	Connect() (*sqlx.DB, error)
 }
 
+// SqlCredentials holds the credentials for a SQL database.
 type SqlCredentials struct {
 	Host     string `json:"url,omitempty"`
 	Port     string `json:"port,omitempty"`
@@ -18,10 +20,12 @@ type SqlCredentials struct {
 	DbName   string `json:"dbname,omitempty"`
 }
 
+// Sql is a struct that holds the credentials for a SQL database.
 type Sql struct {
 	SqlCredentials
 }
 
+// NewSqlDatabase creates a new SQL database.
 func NewSqlDatabase(credentials SqlCredentials) SqlDatabase {
 	d := Sql{
 		SqlCredentials: credentials,
@@ -30,7 +34,7 @@ func NewSqlDatabase(credentials SqlCredentials) SqlDatabase {
 	return db
 }
 
-// Connect creates a new Postgres connection.
+// Connect creates a new SQL connection.
 func (s Sql) Connect() (*sqlx.DB, error) {
 
 	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s "+

@@ -7,6 +7,7 @@ import (
 
 // TestNewSqlDatabase tests the creation of a new SqlDatabase instance with given credentials.
 func TestNewSqlDatabase(t *testing.T) {
+	// Create a new SqlDatabase instance
 	credentials := SqlCredentials{
 		Host:     "localhost",
 		Port:     "5432",
@@ -15,6 +16,7 @@ func TestNewSqlDatabase(t *testing.T) {
 		DbName:   "testdb",
 	}
 
+	// Create a new SqlDatabase instance
 	db := NewSqlDatabase(credentials)
 
 	assert.NotNil(t, db, "Expected non-nil SqlDatabase instance")

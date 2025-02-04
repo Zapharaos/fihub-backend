@@ -9,16 +9,18 @@ import (
 
 // TestTransactionTypeIsValid tests the IsValid method of TransactionType
 func TestTransactionTypeIsValid(t *testing.T) {
+	// Define test cases
 	tests := []struct {
-		name     string
-		input    TransactionType
-		expected bool
+		name     string          // Test case name
+		input    TransactionType // TransactionType instance to test
+		expected bool            // Expected result
 	}{
 		{"Valid BUY", BUY, true},
 		{"Valid SELL", SELL, true},
 		{"Invalid Type", TransactionType("INVALID"), false},
 	}
 
+	// Run tests
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			valid, _ := tt.input.IsValid()
@@ -29,6 +31,7 @@ func TestTransactionTypeIsValid(t *testing.T) {
 
 // TestTransactionInputIsValid tests the IsValid method of TransactionInput
 func TestTransactionInputIsValid(t *testing.T) {
+	// Define valid values
 	validUUID := uuid.New()
 	validDate := time.Now().Add(-time.Hour) // 1 hour in the past
 	validTransactionType := BUY
@@ -37,11 +40,12 @@ func TestTransactionInputIsValid(t *testing.T) {
 	validPrice := 150.0
 	validFee := 1.0
 
+	// Define test cases
 	tests := []struct {
-		name     string
-		input    TransactionInput
-		expected bool
-		error    error
+		name     string           // Test case name
+		input    TransactionInput // TransactionInput instance to test
+		expected bool             // Expected result
+		error    error            // Expected error
 	}{
 		{
 			"Valid TransactionInput",
@@ -189,6 +193,7 @@ func TestTransactionInputIsValid(t *testing.T) {
 		},
 	}
 
+	// Run tests
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			valid, _ := tt.input.IsValid()

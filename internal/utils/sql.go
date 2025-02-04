@@ -7,7 +7,9 @@ import (
 	"go.uber.org/zap"
 )
 
-var ErrNoRowAffected = errors.New("no row affected (or multiple row affected) instead of 1 row")
+var (
+	ErrNoRowAffected = errors.New("no row affected (or multiple row affected) instead of 1 row")
+)
 
 // CheckRowAffected checks if the number of rows affected by a query is the expected number
 func CheckRowAffected(result sql.Result, nbRows int64) error {
@@ -31,7 +33,7 @@ func ScanFirst[T any](rows *sqlx.Rows, scan func(rows *sqlx.Rows) (T, error)) (T
 	return a, false, nil
 }
 
-// ScanAll scans all the rows of the given rows and returns a slice of DataSource
+// ScanAll scans all the rows of the given rows and returns a slice of T
 func ScanAll[T any](rows *sqlx.Rows, scan func(rows *sqlx.Rows) (T, error)) ([]T, error) {
 	objs := make([]T, 0)
 	for rows.Next() {

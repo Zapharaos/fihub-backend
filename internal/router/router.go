@@ -81,6 +81,7 @@ func New() *chi.Mux {
 func buildProtectedRoutes(a *auth.Auth) func(r chi.Router) {
 	return func(r chi.Router) {
 
+		// Auth middleware
 		r.Use(a.Middleware)
 
 		// Users

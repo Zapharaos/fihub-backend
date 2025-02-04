@@ -10,7 +10,7 @@ import (
 func NewPostgresDB(db SqlDatabase) *sqlx.DB {
 	zap.L().Info("Initializing Postgres")
 
-	// Connect
+	// Connect to Postgres
 	dbClient, err := db.Connect()
 	if err != nil {
 		zap.L().Error("main.DbConnection:", zap.Error(err))

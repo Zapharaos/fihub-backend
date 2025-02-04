@@ -34,9 +34,13 @@ func TestReplaceGlobals(t *testing.T) {
 
 	// Replace the global repository with a mock repository
 	restore := ReplaceGlobals(mockRepository)
-	defer restore()
+	
+	// Verify that the global repository instance has been replaced
+	assert.Equal(t, mockRepository, R())
 
-	// Access the global repository
-	repository := R()
-	assert.Equal(t, mockRepository, repository)
+	// Restore the global repository instance
+	restore()
+
+	// Verify that the global repository instance has been restored
+	assert.NotEqual(t, mockRepository, R())
 }

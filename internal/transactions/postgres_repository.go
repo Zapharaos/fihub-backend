@@ -6,8 +6,7 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-// PostgresRepository is a repository containing the Issue definition based on a PSQL database and
-// implementing the repository interface
+// PostgresRepository is a postgres interface for Repository
 type PostgresRepository struct {
 	conn *sqlx.DB
 }
@@ -21,6 +20,7 @@ func NewPostgresRepository(dbClient *sqlx.DB) Repository {
 	return repo
 }
 
+// Create use to create a Transaction
 func (r PostgresRepository) Create(transactionInput TransactionInput) (uuid.UUID, error) {
 
 	// UUID
@@ -51,6 +51,7 @@ func (r PostgresRepository) Create(transactionInput TransactionInput) (uuid.UUID
 	return transactionInput.ID, nil
 }
 
+// Get use to retrieve a Transaction by its id
 func (r PostgresRepository) Get(transactionID uuid.UUID) (Transaction, bool, error) {
 
 	// Prepare query
@@ -72,6 +73,7 @@ func (r PostgresRepository) Get(transactionID uuid.UUID) (Transaction, bool, err
 	return utils.ScanFirst(rows, scanTransaction)
 }
 
+// Update use to update a Transaction
 func (r PostgresRepository) Update(transactionInput TransactionInput) error {
 	// Prepare query
 	query := `UPDATE transactions
@@ -105,6 +107,7 @@ func (r PostgresRepository) Update(transactionInput TransactionInput) error {
 	return utils.CheckRowAffected(result, 1)
 }
 
+// Delete use to delete a Transaction
 func (r PostgresRepository) Delete(transaction Transaction) error {
 	// Prepare query
 	query := `DELETE FROM transactions as t WHERE t.id = :id`
@@ -121,6 +124,7 @@ func (r PostgresRepository) Delete(transaction Transaction) error {
 	return utils.CheckRowAffected(result, 1)
 }
 
+// Exists use to check if a Transaction exists
 func (r PostgresRepository) Exists(transactionID uuid.UUID, userID uuid.UUID) (bool, error) {
 	query := `SELECT COUNT(1)
 			  FROM transactions
@@ -138,6 +142,7 @@ func (r PostgresRepository) Exists(transactionID uuid.UUID, userID uuid.UUID) (b
 	return count > 0, nil
 }
 
+// GetAll use to retrieve all Transactions
 func (r PostgresRepository) GetAll(userID uuid.UUID) ([]Transaction, error) {
 
 	// Prepare query

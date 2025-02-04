@@ -7,9 +7,12 @@ import (
 	"testing"
 )
 
+// TestNewRouter tests the New function to ensure it creates a new router instance.
+// Verifies that the health check route is working correctly.
 func TestNewRouter(t *testing.T) {
 	r := New()
 
+	// Assert that the router instance is not nil
 	assert.NotNil(t, r, "Router should not be nil")
 
 	// Test health check route
