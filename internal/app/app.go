@@ -130,8 +130,8 @@ func initPostgres(dbClient *sqlx.DB) {
 
 	// Brokers
 	brokerRepository := brokers.NewPostgresRepository(dbClient)
-	userBrokerRepository := brokers.NewUserBrokerPostgresRepository(dbClient)
-	imageBrokerRepository := brokers.NewImageBrokerPostgresRepository(dbClient)
+	userBrokerRepository := brokers.NewUserPostgresRepository(dbClient)
+	imageBrokerRepository := brokers.NewImagePostgresRepository(dbClient)
 	brokers.ReplaceGlobals(brokers.NewRepository(brokerRepository, userBrokerRepository, imageBrokerRepository))
 
 	// Transactions

@@ -6,13 +6,12 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-// BrokerPostgresRepository is a repository containing the Issue definition based on a PSQL database and
-// implementing the repository interface
+// BrokerPostgresRepository is a postgres interface for BrokerRepository
 type BrokerPostgresRepository struct {
 	conn *sqlx.DB
 }
 
-// NewPostgresRepository returns a new instance of PostgresRepository
+// NewPostgresRepository returns a new instance of BrokerRepository
 func NewPostgresRepository(dbClient *sqlx.DB) BrokerRepository {
 	r := BrokerPostgresRepository{
 		conn: dbClient,
@@ -21,7 +20,7 @@ func NewPostgresRepository(dbClient *sqlx.DB) BrokerRepository {
 	return repo
 }
 
-// Create use to create a broker
+// Create use to create a Broker
 func (r *BrokerPostgresRepository) Create(broker Broker) (uuid.UUID, error) {
 
 	// UUID
@@ -45,7 +44,7 @@ func (r *BrokerPostgresRepository) Create(broker Broker) (uuid.UUID, error) {
 	return broker.ID, nil
 }
 
-// Get use to retrieve a broker
+// Get use to retrieve a Broker by its id
 func (r *BrokerPostgresRepository) Get(id uuid.UUID) (Broker, bool, error) {
 
 	// Prepare query
@@ -66,7 +65,7 @@ func (r *BrokerPostgresRepository) Get(id uuid.UUID) (Broker, bool, error) {
 	return utils.ScanFirst(rows, scanBroker)
 }
 
-// Update use to update a broker
+// Update use to update a Broker
 func (r *BrokerPostgresRepository) Update(broker Broker) error {
 
 	// Prepare query
@@ -88,7 +87,7 @@ func (r *BrokerPostgresRepository) Update(broker Broker) error {
 	return utils.CheckRowAffected(result, 1)
 }
 
-// Delete use to delete a broker
+// Delete use to delete a Broker
 func (r *BrokerPostgresRepository) Delete(id uuid.UUID) error {
 
 	// Prepare query
@@ -107,7 +106,7 @@ func (r *BrokerPostgresRepository) Delete(id uuid.UUID) error {
 	return utils.CheckRowAffected(result, 1)
 }
 
-// Exists use to check if a broker exists
+// Exists use to check if a Broker exists
 func (r *BrokerPostgresRepository) Exists(id uuid.UUID) (bool, error) {
 	// Prepare query
 	query := `SELECT *
@@ -127,7 +126,7 @@ func (r *BrokerPostgresRepository) Exists(id uuid.UUID) (bool, error) {
 	return rows.Next(), nil
 }
 
-// ExistsByName use to check if a broker exists with a given name
+// ExistsByName use to check if a Broker exists with a given name
 func (r *BrokerPostgresRepository) ExistsByName(name string) (bool, error) {
 	// Prepare query
 	query := `SELECT *
@@ -147,7 +146,7 @@ func (r *BrokerPostgresRepository) ExistsByName(name string) (bool, error) {
 	return rows.Next(), nil
 }
 
-// GetAll use to retrieve all brokers
+// GetAll use to retrieve all existing Broker
 func (r *BrokerPostgresRepository) GetAll() ([]Broker, error) {
 
 	// Prepare query
@@ -164,7 +163,7 @@ func (r *BrokerPostgresRepository) GetAll() ([]Broker, error) {
 	return utils.ScanAll(rows, scanBroker)
 }
 
-// GetAllEnabled use to retrieve all brokers enabled
+// GetAllEnabled use to retrieve all enabled Broker
 func (r *BrokerPostgresRepository) GetAllEnabled() ([]Broker, error) {
 
 	// Prepare query
@@ -182,7 +181,7 @@ func (r *BrokerPostgresRepository) GetAllEnabled() ([]Broker, error) {
 	return utils.ScanAll(rows, scanBroker)
 }
 
-// SetImage use to set an image to a broker
+// SetImage use to set an Image to a Broker
 func (r *BrokerPostgresRepository) SetImage(id uuid.UUID, imageID uuid.UUID) error {
 	// Prepare query
 	query := `UPDATE brokers
@@ -202,7 +201,7 @@ func (r *BrokerPostgresRepository) SetImage(id uuid.UUID, imageID uuid.UUID) err
 	return utils.CheckRowAffected(result, 1)
 }
 
-// HasImage use to check if a broker has an image
+// HasImage use to check if a Broker has an Image
 func (r *BrokerPostgresRepository) HasImage(id uuid.UUID) (bool, error) {
 	// Prepare query
 	query := `SELECT *
@@ -222,7 +221,7 @@ func (r *BrokerPostgresRepository) HasImage(id uuid.UUID) (bool, error) {
 	return rows.Next(), nil
 }
 
-// DeleteImage use to delete an image from a broker
+// DeleteImage use to delete an Image from a Broker
 func (r *BrokerPostgresRepository) DeleteImage(id uuid.UUID) error {
 	// Prepare query
 	query := `UPDATE brokers

@@ -56,14 +56,14 @@ func CreateTransaction(w http.ResponseWriter, r *http.Request) {
 	transactionInput.PriceUnit = transactionInput.Price / transactionInput.Quantity
 
 	// check if userBroker exists
-	exists, err := brokers.R().U().Exists(brokers.UserBroker{UserID: user.ID, Broker: brokers.Broker{ID: transactionInput.BrokerID}})
+	exists, err := brokers.R().U().Exists(brokers.User{UserID: user.ID, Broker: brokers.Broker{ID: transactionInput.BrokerID}})
 	if err != nil {
 		zap.L().Error("Check userBroker exists", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	if !exists {
-		zap.L().Warn("UserBroker not found")
+		zap.L().Warn("User not found")
 		render.BadRequest(w, r, fmt.Errorf("broker-invalid"))
 		return
 	}
@@ -217,14 +217,14 @@ func UpdateTransaction(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Verify that the userBroker exists
-	exists, err := brokers.R().U().Exists(brokers.UserBroker{UserID: user.ID, Broker: brokers.Broker{ID: transactionInput.BrokerID}})
+	exists, err := brokers.R().U().Exists(brokers.User{UserID: user.ID, Broker: brokers.Broker{ID: transactionInput.BrokerID}})
 	if err != nil {
 		zap.L().Error("Check userBroker exists", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	if !exists {
-		zap.L().Warn("UserBroker not found")
+		zap.L().Warn("User not found")
 		render.BadRequest(w, r, fmt.Errorf("broker-invalid"))
 		return
 	}

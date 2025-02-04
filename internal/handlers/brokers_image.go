@@ -22,7 +22,7 @@ import (
 //	@Param			id		path		string	true	"broker ID"
 //	@Param			file	formData	file	true	"image file"
 //	@Security		Bearer
-//	@Success		200	{object}	brokers.BrokerImage		"broker image"
+//	@Success		200	{object}	brokers.Image		"broker image"
 //	@Failure		400	{object}	render.ErrorResponse	"Bad Request"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/brokers/{id}/image [post]
@@ -71,7 +71,7 @@ func CreateBrokerImage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Create the broker image
-	brokerImageInput := brokers.BrokerImage{
+	brokerImageInput := brokers.Image{
 		ID:       uuid.New(),
 		BrokerID: brokerID,
 		Name:     header.Filename,
@@ -176,7 +176,7 @@ func GetBrokerImage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if !found {
-		zap.L().Warn("BrokerImage does not exist", zap.String("image_id", imageID.String()))
+		zap.L().Warn("Image does not exist", zap.String("image_id", imageID.String()))
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
@@ -206,7 +206,7 @@ func GetBrokerImage(w http.ResponseWriter, r *http.Request) {
 //	@Param			image_id	path		string	true	"image ID"
 //	@Param			file		formData	file	true	"image file"
 //	@Security		Bearer
-//	@Success		200	{object}	brokers.BrokerImage		"broker image"
+//	@Success		200	{object}	brokers.Image		"broker image"
 //	@Failure		400	{object}	render.ErrorResponse	"Bad Request"
 //	@Failure		404	{object}	render.ErrorResponse	"Not Found"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
@@ -256,7 +256,7 @@ func UpdateBrokerImage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Create the broker image
-	brokerImageInput := brokers.BrokerImage{
+	brokerImageInput := brokers.Image{
 		ID:       imageID,
 		BrokerID: brokerID,
 		Name:     header.Filename,

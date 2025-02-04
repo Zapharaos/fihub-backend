@@ -8,6 +8,10 @@ import (
 
 // TestBroker_IsValid tests the IsValid method of the Broker struct
 func TestBroker_IsValid(t *testing.T) {
+	// Define valid values
+	validUUID := uuid.New()
+	validName := "Valid Broker Name"
+
 	// Define test cases
 	tests := []struct {
 		name     string // Test case name
@@ -18,8 +22,8 @@ func TestBroker_IsValid(t *testing.T) {
 		{
 			name: "valid broker",
 			broker: Broker{
-				ID:   uuid.New(),
-				Name: "Valid Broker",
+				ID:   validUUID,
+				Name: validName,
 			},
 			expected: true,
 			err:      nil,
@@ -27,7 +31,7 @@ func TestBroker_IsValid(t *testing.T) {
 		{
 			name: "invalid broker with empty name",
 			broker: Broker{
-				ID:   uuid.New(),
+				ID:   validUUID,
 				Name: "",
 			},
 			expected: false,

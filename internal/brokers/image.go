@@ -6,13 +6,12 @@ import (
 )
 
 var (
-	errBrokerIdRequired  = errors.New("broker-required")
 	errImageNameInvalid  = errors.New("name-invalid")
 	errImageDataRequired = errors.New("data-required")
 )
 
-// BrokerImage represents an image associated with a broker
-type BrokerImage struct {
+// Image represents an image associated with a Broker
+type Image struct {
 	ID       uuid.UUID `json:"id"`
 	BrokerID uuid.UUID `json:"broker_id"`
 	Name     string    `json:"name"`
@@ -22,8 +21,8 @@ type BrokerImage struct {
 const ImageNameMinLength = 3
 const ImageNameMaxLength = 100
 
-// IsValid checks if the image is valid
-func (i BrokerImage) IsValid() (bool, error) {
+// IsValid checks if the Image is valid
+func (i Image) IsValid() (bool, error) {
 	if i.BrokerID == uuid.Nil {
 		return false, errBrokerIdRequired
 	}

@@ -3,12 +3,12 @@ package brokers
 // Repository is a struct that contains all the repositories
 type Repository struct {
 	broker BrokerRepository
-	user   UserBrokerRepository
-	image  ImageBrokerRepository
+	user   UserRepository
+	image  ImageRepository
 }
 
 // NewRepository returns a new instance of Repository
-func NewRepository(broker BrokerRepository, user UserBrokerRepository, image ImageBrokerRepository) Repository {
+func NewRepository(broker BrokerRepository, user UserRepository, image ImageRepository) Repository {
 	return Repository{
 		broker: broker,
 		user:   user,
@@ -21,13 +21,13 @@ func (r Repository) B() BrokerRepository {
 	return r.broker
 }
 
-// U is used to access the UserBrokerRepository singleton
-func (r Repository) U() UserBrokerRepository {
+// U is used to access the UserRepository singleton
+func (r Repository) U() UserRepository {
 	return r.user
 }
 
-// I is used to access the ImageBrokerRepository singleton
-func (r Repository) I() ImageBrokerRepository {
+// I is used to access the ImageRepository singleton
+func (r Repository) I() ImageRepository {
 	return r.image
 }
 

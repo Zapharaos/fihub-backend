@@ -2,7 +2,7 @@ package brokers
 
 import "github.com/google/uuid"
 
-// MockBrokerRepository is a mock implementation of a broker repository
+// MockBrokerRepository represents a mock BrokerRepository
 type MockBrokerRepository struct {
 	ID      uuid.UUID
 	error   error
@@ -11,7 +11,7 @@ type MockBrokerRepository struct {
 	Brokers []Broker
 }
 
-// NewMockBrokerRepository creates a new mock broker repository
+// NewMockBrokerRepository creates a new MockBrokerRepository of the BrokerRepository interface
 func NewMockBrokerRepository() BrokerRepository {
 	r := MockBrokerRepository{}
 	var repo BrokerRepository = &r

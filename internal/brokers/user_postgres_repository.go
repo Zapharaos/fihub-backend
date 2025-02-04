@@ -6,22 +6,22 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-// UserBrokerPostgresRepository is a repository containing the Issue definition based on a PSQL database and
-// implementing the repository interface
-type UserBrokerPostgresRepository struct {
+// UserPostgresRepository is a postgres interface for UserRepository
+type UserPostgresRepository struct {
 	conn *sqlx.DB
 }
 
-// NewUserBrokerPostgresRepository returns a new instance of UserBrokerPostgresRepository
-func NewUserBrokerPostgresRepository(dbClient *sqlx.DB) UserBrokerRepository {
-	r := UserBrokerPostgresRepository{
+// NewUserPostgresRepository returns a new instance of UserPostgresRepository
+func NewUserPostgresRepository(dbClient *sqlx.DB) UserRepository {
+	r := UserPostgresRepository{
 		conn: dbClient,
 	}
-	var repo UserBrokerRepository = &r
+	var repo UserRepository = &r
 	return repo
 }
 
-func (r *UserBrokerPostgresRepository) Create(userBroker UserBroker) error {
+// Create use to create a User
+func (r *UserPostgresRepository) Create(userBroker User) error {
 	// Prepare query
 	query := `INSERT INTO user_brokers (user_id, broker_id)
 				VALUES (:user_id, :broker_id)`
@@ -39,7 +39,8 @@ func (r *UserBrokerPostgresRepository) Create(userBroker UserBroker) error {
 	return nil
 }
 
-func (r *UserBrokerPostgresRepository) Delete(userBroker UserBroker) error {
+// Delete use to delete a User
+func (r *UserPostgresRepository) Delete(userBroker User) error {
 	// Prepare query
 	query := `DELETE FROM user_brokers as ub
 			  WHERE ub.user_id = :user_id AND ub.broker_id = :broker_id`
@@ -57,7 +58,8 @@ func (r *UserBrokerPostgresRepository) Delete(userBroker UserBroker) error {
 	return utils.CheckRowAffected(result, 1)
 }
 
-func (r *UserBrokerPostgresRepository) Exists(userBroker UserBroker) (bool, error) {
+// Exists use to check if a User exists
+func (r *UserPostgresRepository) Exists(userBroker User) (bool, error) {
 	// Prepare query
 	query := `SELECT *
 			  FROM user_brokers as ub
@@ -77,7 +79,8 @@ func (r *UserBrokerPostgresRepository) Exists(userBroker UserBroker) (bool, erro
 	return rows.Next(), nil
 }
 
-func (r *UserBrokerPostgresRepository) GetAll(userID uuid.UUID) ([]UserBroker, error) {
+// GetAll use to get all Broker for a User
+func (r *UserPostgresRepository) GetAll(userID uuid.UUID) ([]User, error) {
 	// Prepare query
 	query := `SELECT b.id, b.name, b.image_id
 			  FROM user_brokers as ub
@@ -97,15 +100,15 @@ func (r *UserBrokerPostgresRepository) GetAll(userID uuid.UUID) ([]UserBroker, e
 	return utils.ScanAll(rows, scanUserBroker)
 }
 
-func scanUserBroker(rows *sqlx.Rows) (UserBroker, error) {
-	var userBroker UserBroker
+func scanUserBroker(rows *sqlx.Rows) (User, error) {
+	var userBroker User
 	err := rows.Scan(
 		&userBroker.Broker.ID,
 		&userBroker.Broker.Name,
 		&userBroker.Broker.ImageID,
 	)
 	if err != nil {
-		return UserBroker{}, err
+		return User{}, err
 	}
 
 	return userBroker, nil

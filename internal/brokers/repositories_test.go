@@ -12,7 +12,7 @@ func TestNewRepository(t *testing.T) {
 	// Replace with mock repositories
 	mockBrokerRepository := &MockBrokerRepository{}
 	mockUserRepository := &MockUserBrokerRepository{}
-	mockImageRepository := &MockImageBrokerRepository{}
+	mockImageRepository := &MockImageRepository{}
 
 	// Create a new repository
 	repo := NewRepository(mockBrokerRepository, mockUserRepository, mockImageRepository)
@@ -29,7 +29,7 @@ func TestReplaceGlobals(t *testing.T) {
 	// Replace with mock repositories
 	mockBrokerRepository := &MockBrokerRepository{}
 	mockUserRepository := &MockUserBrokerRepository{}
-	mockImageRepository := &MockImageBrokerRepository{}
+	mockImageRepository := &MockImageRepository{}
 	mockRepository := NewRepository(mockBrokerRepository, mockUserRepository, mockImageRepository)
 
 	// Replace the global repository with a mock repository

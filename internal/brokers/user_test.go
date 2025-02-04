@@ -6,18 +6,18 @@ import (
 	"testing"
 )
 
-// TestUserBrokerInput_IsValid tests the IsValid method of the UserBrokerInput struct
+// TestUserBrokerInput_IsValid tests the IsValid method of the UserInput struct
 func TestUserBrokerInput_IsValid(t *testing.T) {
 	// Define test cases
 	tests := []struct {
-		name     string          // Test case name
-		input    UserBrokerInput // UserBrokerInput instance to test
-		expected bool            // Expected result
-		err      error           // Expected error
+		name     string    // Test case name
+		input    UserInput // UserInput instance to test
+		expected bool      // Expected result
+		err      error     // Expected error
 	}{
 		{
 			name: "valid input",
-			input: UserBrokerInput{
+			input: UserInput{
 				BrokerID: uuid.New().String(),
 			},
 			expected: true,
@@ -25,7 +25,7 @@ func TestUserBrokerInput_IsValid(t *testing.T) {
 		},
 		{
 			name: "invalid BrokerID",
-			input: UserBrokerInput{
+			input: UserInput{
 				BrokerID: "invalid-uuid",
 			},
 			expected: false,
@@ -43,17 +43,17 @@ func TestUserBrokerInput_IsValid(t *testing.T) {
 	}
 }
 
-// TestUserBrokerInput_ToUserBroker tests the ToUserBroker method of the UserBrokerInput struct
+// TestUserBrokerInput_ToUserBroker tests the ToUser method of the UserInput struct
 func TestUserBrokerInput_ToUserBroker(t *testing.T) {
 	brokerID := uuid.New()
-	input := UserBrokerInput{
+	input := UserInput{
 		BrokerID: brokerID.String(),
 	}
 
-	expected := UserBroker{
+	expected := User{
 		Broker: Broker{ID: brokerID},
 	}
 
-	result := input.ToUserBroker()
+	result := input.ToUser()
 	assert.Equal(t, expected, result)
 }
