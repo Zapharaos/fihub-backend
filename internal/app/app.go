@@ -41,8 +41,7 @@ func Init() {
 	zap.L().Info("Starting Fihub Backend", zap.String("version", Version), zap.String("build_date", BuildDate))
 
 	// Setup Database
-	initPostgres()
-	initRepositories()
+	initDatabase()
 
 	// Setup Email
 	email.ReplaceGlobals(email.NewSendgridService())
@@ -101,38 +100,25 @@ func initLogger() zap.Config {
 	return zapConfig
 }
 
-// initPostgres initializes the postgres connection.
-func initPostgres() {
-
-	zap.L().Info("Initializing Postgres")
-
-	// Configure postgres
-	credentials := postgres.Credentials{
-		Host:     env.GetString("POSTGRES_HOST", "host"),
-		Port:     env.GetString("POSTGRES_PORT", "port"),
-		DbName:   env.GetString("POSTGRES_DB", "database_name"),
-		User:     env.GetString("POSTGRES_USER", "user"),
+// initDatabase initializes the database connections.
+func initDatabase() {
+	postgres := database.NewPostgresDB(database.NewSqlDatabase(database.SqlCredentials{
+		Host:     env.GetString("POSTGRES_HOST", "localhost"),
+		Port:     env.GetString("POSTGRES_PORT", "5432"),
+		User:     env.GetString("POSTGRES_USER", "postgres"),
 		Password: env.GetString("POSTGRES_PASSWORD", "password"),
-	}
+		DbName:   env.GetString("POSTGRES_DB", "postgres"),
+	}))
+	database.ReplaceGlobals(database.NewDatabases(postgres))
 
-	// Connect
-	dbClient, err := postgres.DbConnection(credentials)
-	if err != nil {
-		zap.L().Fatal("main.DbConnection:", zap.Error(err))
-	}
-
-	zap.L().Info("Connected to Postgres")
-
-	// Finish up configuration
-	dbClient.SetMaxOpenConns(env.GetInt("POSTGRES_MAX_OPEN_CONNS", 30))
-	dbClient.SetMaxIdleConns(env.GetInt("POSTGRES_MAX_IDLE_CONNS", 30))
-	postgres.ReplaceGlobals(dbClient)
+	// Initialize the postgres repositories
+	initPostgres()
 }
 
-// initRepositories initializes the repositories. (postgres)
-func initRepositories() {
+// initPostgres initializes the postgres repositories.
+func initPostgres() {
 	// Setup for postgres
-	dbClient := postgres.DB()
+	dbClient := database.DB().Postgres()
 
 	// Auth
 	users.ReplaceGlobals(users.NewPostgresRepository(dbClient))

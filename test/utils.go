@@ -49,6 +49,12 @@ func (ts *TestSuite) CreateFullTestSuite(t *testing.T) (directoryPath string) {
 	err = os.Chdir(dname)
 	checkErrDeleteFolder(t, err, dname)
 
+	// .env file
+	file, err := os.Create(".env")
+	checkErrDeleteFolder(t, err, dname)
+	err = file.Close()
+	checkErrDeleteFolder(t, err, dname)
+
 	return dname
 }
 
