@@ -1,9 +1,29 @@
 package app
 
-/*func TestInit(t *testing.T) {
+import (
+	"github.com/Zapharaos/fihub-backend/internal/auth/password"
+	"github.com/Zapharaos/fihub-backend/internal/auth/permissions"
+	"github.com/Zapharaos/fihub-backend/internal/auth/roles"
+	"github.com/Zapharaos/fihub-backend/internal/auth/users"
+	"github.com/Zapharaos/fihub-backend/internal/brokers"
+	"github.com/Zapharaos/fihub-backend/internal/database"
+	"github.com/Zapharaos/fihub-backend/internal/transactions"
+	"github.com/Zapharaos/fihub-backend/pkg/email"
+	"github.com/Zapharaos/fihub-backend/pkg/translation"
+	"github.com/Zapharaos/fihub-backend/test"
+	"github.com/stretchr/testify/assert"
+	sqlmock "github.com/zhashkevych/go-sqlxmock"
+	"go.uber.org/zap"
+	"testing"
+)
+
+// TestInit tests the Init function to ensure that it correctly initializes the application.
+// This test only verifies : env, email, translation.
+// Any further function calls within Init are tested by their respective tests.
+func TestInit(t *testing.T) {
 	// Create a full test suite
 	ts := test.TestSuite{}
-	_ = ts.CreateFullTestSuite(t)
+	_ = ts.CreateConfigTranslationsFullTestSuite(t)
 	defer ts.CleanTestSuite(t)
 
 	// Call Init function
@@ -12,43 +32,47 @@ package app
 	// Assertions to verify initialization
 	assert.NotNil(t, email.S(), "Email service should be initialized")
 	assert.NotNil(t, translation.S(), "Translation service should be initialized")
-}*/
+}
 
-/*func TestInitLogger(t *testing.T) {
+// TestInitLogger tests the initLogger function to ensure that it correctly initializes the logger.
+func TestInitLogger(t *testing.T) {
 	// Create a full test suite
 	ts := test.TestSuite{}
 	_ = ts.CreateFullTestSuite(t)
 	defer ts.CleanTestSuite(t)
 
 	// Call initLogger function
-	zapConfig := initLogger()
+	initLogger()
 
 	// Assertions to verify logger configuration
 	assert.NotNil(t, zap.L(), "Logger should be initialized")
-	assert.Equal(t, zapcore.ISO8601TimeEncoder, zapConfig.EncoderConfig.EncodeTime, "Logger time encoder should be ISO8601")
 }
 
+// TestInit tests the initDatabase function to ensure that it correctly initializes the database.
+// This test only verifies the database.
+// Any further function calls within initDatabase are tested by their respective tests.
+func TestInitDatabase(t *testing.T) {
+	// Create a full test suite
+	ts := test.TestSuite{}
+	_ = ts.CreateFullTestSuite(t)
+	defer ts.CleanTestSuite(t)
+
+	// Call initDatabase function
+	initDatabase()
+
+	// Assertions to verify Database initialization
+	assert.NotNil(t, database.DB())
+}
+
+// TestInitPostgres tests the initPostgres function to ensure that it correctly initializes the repositories.
 func TestInitPostgres(t *testing.T) {
-	// Create a full test suite
-	ts := test.TestSuite{}
-	_ = ts.CreateFullTestSuite(t)
-	defer ts.CleanTestSuite(t)
+	// Simulate a successful connection
+	sqlxMock, _, err := sqlmock.Newx()
+	assert.NoError(t, err)
+	defer sqlxMock.Close()
 
-	// Call initPostgres function
-	initPostgres()
-
-	// Assertions to verify Postgres initialization
-	assert.NotNil(t, database.DB(), "Postgres client should be initialized")
-}
-
-func TestInitRepositories(t *testing.T) {
-	// Create a full test suite
-	ts := test.TestSuite{}
-	_ = ts.CreateFullTestSuite(t)
-	defer ts.CleanTestSuite(t)
-
-	// Call initRepositories function
-	initRepositories()
+	// Call initPostgres function with the mock connection
+	initPostgres(sqlxMock)
 
 	// Assertions to verify repositories initialization
 	assert.NotNil(t, users.R(), "Users repository should be initialized")
@@ -58,4 +82,3 @@ func TestInitRepositories(t *testing.T) {
 	assert.NotNil(t, brokers.R(), "Brokers repository should be initialized")
 	assert.NotNil(t, transactions.R(), "Transactions repository should be initialized")
 }
-*/

@@ -11,6 +11,7 @@ import (
 	"github.com/Zapharaos/fihub-backend/pkg/email"
 	"github.com/Zapharaos/fihub-backend/pkg/env"
 	"github.com/Zapharaos/fihub-backend/pkg/translation"
+	"github.com/jmoiron/sqlx"
 	"github.com/joho/godotenv"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -112,14 +113,11 @@ func initDatabase() {
 	database.ReplaceGlobals(database.NewDatabases(postgres))
 
 	// Initialize the postgres repositories
-	initPostgres()
+	initPostgres(database.DB().Postgres())
 }
 
 // initPostgres initializes the postgres repositories.
-func initPostgres() {
-	// Setup for postgres
-	dbClient := database.DB().Postgres()
-
+func initPostgres(dbClient *sqlx.DB) {
 	// Auth
 	users.ReplaceGlobals(users.NewPostgresRepository(dbClient))
 	password.ReplaceGlobals(password.NewPostgresRepository(dbClient))
