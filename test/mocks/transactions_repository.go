@@ -1,4 +1,4 @@
-package mock
+package mocks
 
 import (
 	transactions2 "github.com/Zapharaos/fihub-backend/internal/transactions"

@@ -1,11 +1,11 @@
-package mock
+package mocks
 
 import (
 	"github.com/Zapharaos/fihub-backend/internal/brokers"
 	"github.com/google/uuid"
 )
 
-// BrokerUserRepository is a mock brokers.UserRepository
+// BrokerUserRepository is a mocks brokers.UserRepository
 type BrokerUserRepository struct {
 	error       error
 	found       bool

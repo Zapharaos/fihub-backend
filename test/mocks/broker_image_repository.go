@@ -1,11 +1,11 @@
-package mock
+package mocks
 
 import (
 	"github.com/Zapharaos/fihub-backend/internal/brokers"
 	"github.com/google/uuid"
 )
 
-// BrokerImageRepository represents a mock brokers.ImageRepository
+// BrokerImageRepository represents a mocks brokers.ImageRepository
 type BrokerImageRepository struct {
 	image brokers.Image
 	error error

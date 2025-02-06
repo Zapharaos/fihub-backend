@@ -2,7 +2,7 @@ package password_test
 
 import (
 	"github.com/Zapharaos/fihub-backend/internal/auth/password"
-	"github.com/Zapharaos/fihub-backend/test/mock"
+	"github.com/Zapharaos/fihub-backend/test/mocks"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -10,8 +10,8 @@ import (
 // TestReplaceGlobals tests the ReplaceGlobals function
 // It verifies that the global repository can be replaced and restored correctly.
 func TestReplaceGlobals(t *testing.T) {
-	// Replace the global repository with a mock repository
-	mockRepository := &mock.UsersPasswordRepository{}
+	// Replace the global repository with a mocks repository
+	mockRepository := &mocks.UsersPasswordRepository{}
 	restore := password.ReplaceGlobals(mockRepository)
 
 	// Verify that the global repository instance has been replaced
@@ -27,8 +27,8 @@ func TestReplaceGlobals(t *testing.T) {
 // TestRepository tests the R function
 // It verifies that the global repository can be accessed correctly.
 func TestRepository(t *testing.T) {
-	// Replace the global repository with a mock repository
-	mockRepository := &mock.UsersPasswordRepository{}
+	// Replace the global repository with a mocks repository
+	mockRepository := &mocks.UsersPasswordRepository{}
 	restore := password.ReplaceGlobals(mockRepository)
 	defer restore()
 

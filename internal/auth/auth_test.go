@@ -9,7 +9,7 @@ import (
 	"github.com/Zapharaos/fihub-backend/internal/auth/permissions"
 	"github.com/Zapharaos/fihub-backend/internal/auth/roles"
 	"github.com/Zapharaos/fihub-backend/internal/auth/users"
-	"github.com/Zapharaos/fihub-backend/test/mock"
+	"github.com/Zapharaos/fihub-backend/test/mocks"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"io"
@@ -45,8 +45,8 @@ func TestGetToken(t *testing.T) {
 
 	// Define test cases
 	tests := []struct {
-		name        string               // Test case name
-		users       mock.UsersRepository // Users repository mock
+		name        string                // Test case name
+		users       mocks.UsersRepository // Users repository mocks
 		body        []byte
 		status      int  // Expected status code
 		expectEmpty bool // Expected empty token
@@ -59,21 +59,21 @@ func TestGetToken(t *testing.T) {
 		},
 		{
 			name:        "authentication error",
-			users:       mock.UsersRepository{Err: errors.New("error")},
+			users:       mocks.UsersRepository{Err: errors.New("error")},
 			body:        userBody,
 			status:      http.StatusInternalServerError,
 			expectEmpty: true,
 		},
 		{
 			name:        "authentication failed",
-			users:       mock.UsersRepository{Found: false},
+			users:       mocks.UsersRepository{Found: false},
 			body:        userBody,
 			status:      http.StatusBadRequest,
 			expectEmpty: true,
 		},
 		{
 			name:        "authentication success",
-			users:       mock.UsersRepository{Found: true, User: userWithPassword.User},
+			users:       mocks.UsersRepository{Found: true, User: userWithPassword.User},
 			body:        userBody,
 			status:      http.StatusOK,
 			expectEmpty: false,
@@ -84,7 +84,7 @@ func TestGetToken(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// Mock repository
-			users.ReplaceGlobals(mock.NewUsersRepository(tt.users))
+			users.ReplaceGlobals(mocks.NewUsersRepository(tt.users))
 
 			// Create a new request to the test server
 			r := httptest.NewRequest("POST", ts.URL+"/api/v1/auth/token", bytes.NewBuffer(tt.body))
@@ -197,13 +197,13 @@ func TestMiddleware(t *testing.T) {
 
 	// Define test cases
 	tests := []struct {
-		name        string               // Test case name
-		token       string               // Token to set in the request
-		target      string               // Target URL
-		users       mock.UsersRepository // Users repository mock
-		roles       mock.RolesRepository // Roles repository mock
-		expectCode  int                  // Expected status code
-		expectCtx   bool                 // Expected context
+		name        string                // Test case name
+		token       string                // Token to set in the request
+		target      string                // Target URL
+		users       mocks.UsersRepository // Users repository mocks
+		roles       mocks.RolesRepository // Roles repository mocks
+		expectCode  int                   // Expected status code
+		expectCtx   bool                  // Expected context
 		expectErr   bool
 		expectFound bool
 	}{
@@ -228,7 +228,7 @@ func TestMiddleware(t *testing.T) {
 		{
 			name:  "load user error",
 			token: validToken.Token,
-			users: mock.UsersRepository{
+			users: mocks.UsersRepository{
 				Err:   fmt.Errorf("error"),
 				Found: false,
 			},
@@ -240,11 +240,11 @@ func TestMiddleware(t *testing.T) {
 			token:       validToken.Token,
 			expectErr:   false,
 			expectFound: true,
-			users: mock.UsersRepository{
+			users: mocks.UsersRepository{
 				User:  user,
 				Found: true,
 			},
-			roles: mock.RolesRepository{
+			roles: mocks.RolesRepository{
 				Roles: []roles.Role{{Id: uuid.New(), Name: "admin"}},
 			},
 			expectCode: http.StatusOK,
@@ -257,9 +257,9 @@ func TestMiddleware(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 
 			// Mock the repositories
-			users.ReplaceGlobals(mock.NewUsersRepository(tt.users))
-			roles.ReplaceGlobals(mock.NewRolesRepository(tt.roles))
-			permissions.ReplaceGlobals(mock.NewPermissionsRepository(mock.PermissionsRepository{}))
+			users.ReplaceGlobals(mocks.NewUsersRepository(tt.users))
+			roles.ReplaceGlobals(mocks.NewRolesRepository(tt.roles))
+			permissions.ReplaceGlobals(mocks.NewPermissionsRepository(mocks.PermissionsRepository{}))
 
 			// Create a new request
 			r := httptest.NewRequest("POST", ts.URL+"/api/v1"+tt.target, nil)

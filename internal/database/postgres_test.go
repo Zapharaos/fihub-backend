@@ -13,7 +13,7 @@ type MockSql struct {
 	ConnectError error
 }
 
-// Connect simulates a database connection and returns the mock connection and error.
+// Connect simulates a database connection and returns the mocks connection and error.
 func (m MockSql) Connect() (*sqlx.DB, error) {
 	return m.ConnectDB, m.ConnectError
 }

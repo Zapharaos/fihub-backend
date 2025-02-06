@@ -5,7 +5,7 @@ import (
 	"github.com/Zapharaos/fihub-backend/internal/auth/permissions"
 	"github.com/Zapharaos/fihub-backend/internal/auth/roles"
 	"github.com/Zapharaos/fihub-backend/internal/auth/users"
-	"github.com/Zapharaos/fihub-backend/test/mock"
+	"github.com/Zapharaos/fihub-backend/test/mocks"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -20,15 +20,15 @@ func TestLoadUserRoles(t *testing.T) {
 
 	// Define test cases
 	tests := []struct {
-		name        string                     // Test case name
-		roles       mock.RolesRepository       // Roles repository mock
-		permissions mock.PermissionsRepository // Permissions repository mock
-		expected    roles.RolesWithPermissions // Expected result
-		error       error                      // Expected error
+		name        string                      // Test case name
+		roles       mocks.RolesRepository       // Roles repository mocks
+		permissions mocks.PermissionsRepository // Permissions repository mocks
+		expected    roles.RolesWithPermissions  // Expected result
+		error       error                       // Expected error
 	}{
 		{
 			name: "can't retrieve roles",
-			roles: mock.RolesRepository{
+			roles: mocks.RolesRepository{
 				Error: fmt.Errorf("error"),
 			},
 			expected: roles.RolesWithPermissions(nil),
@@ -36,7 +36,7 @@ func TestLoadUserRoles(t *testing.T) {
 		},
 		{
 			name: "user has no roles",
-			roles: mock.RolesRepository{
+			roles: mocks.RolesRepository{
 				Roles: make([]roles.Role, 0),
 			},
 			expected: make(roles.RolesWithPermissions, 0),
@@ -44,10 +44,10 @@ func TestLoadUserRoles(t *testing.T) {
 		},
 		{
 			name: "user has one role but can't retrieve permissions",
-			roles: mock.RolesRepository{
+			roles: mocks.RolesRepository{
 				Roles: []roles.Role{role},
 			},
-			permissions: mock.PermissionsRepository{
+			permissions: mocks.PermissionsRepository{
 				Error: fmt.Errorf("error"),
 			},
 			expected: roles.RolesWithPermissions(nil),
@@ -55,10 +55,10 @@ func TestLoadUserRoles(t *testing.T) {
 		},
 		{
 			name: "user has one role without permissions",
-			roles: mock.RolesRepository{
+			roles: mocks.RolesRepository{
 				Roles: []roles.Role{role},
 			},
-			permissions: mock.PermissionsRepository{
+			permissions: mocks.PermissionsRepository{
 				Perms: make([]permissions.Permission, 0),
 			},
 			expected: roles.RolesWithPermissions{
@@ -68,10 +68,10 @@ func TestLoadUserRoles(t *testing.T) {
 		},
 		{
 			name: "user has multiple roles with multiple permissions",
-			roles: mock.RolesRepository{
+			roles: mocks.RolesRepository{
 				Roles: []roles.Role{role, role, role},
 			},
-			permissions: mock.PermissionsRepository{
+			permissions: mocks.PermissionsRepository{
 				Perms: perms,
 			},
 			expected: roles.RolesWithPermissions{
@@ -87,8 +87,8 @@ func TestLoadUserRoles(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// Mock the repositories
-			roles.ReplaceGlobals(mock.NewRolesRepository(tt.roles))
-			permissions.ReplaceGlobals(mock.NewPermissionsRepository(tt.permissions))
+			roles.ReplaceGlobals(mocks.NewRolesRepository(tt.roles))
+			permissions.ReplaceGlobals(mocks.NewPermissionsRepository(tt.permissions))
 
 			// Call the function
 			result, err := LoadUserRoles(uuid.Nil)
@@ -116,17 +116,17 @@ func TestLoadFullUser(t *testing.T) {
 
 	// Define test cases
 	tests := []struct {
-		name        string                     // Test case name
-		users       mock.UsersRepository       // Users repository mock
-		roles       mock.RolesRepository       // Roles repository mock
-		permissions mock.PermissionsRepository // Permissions repository mock
-		expected    *users.UserWithRoles       // Expected result
-		found       bool                       // Expected found
-		error       error                      // Expected error
+		name        string                      // Test case name
+		users       mocks.UsersRepository       // Users repository mocks
+		roles       mocks.RolesRepository       // Roles repository mocks
+		permissions mocks.PermissionsRepository // Permissions repository mocks
+		expected    *users.UserWithRoles        // Expected result
+		found       bool                        // Expected found
+		error       error                       // Expected error
 	}{
 		{
 			name: "can't retrieve user",
-			users: mock.UsersRepository{
+			users: mocks.UsersRepository{
 				Err:   fmt.Errorf("error"),
 				Found: false,
 			},
@@ -136,7 +136,7 @@ func TestLoadFullUser(t *testing.T) {
 		},
 		{
 			name: "user not found",
-			users: mock.UsersRepository{
+			users: mocks.UsersRepository{
 				Found: false,
 			},
 			expected: nil,
@@ -145,11 +145,11 @@ func TestLoadFullUser(t *testing.T) {
 		},
 		{
 			name: "can't retrieve roles",
-			users: mock.UsersRepository{
+			users: mocks.UsersRepository{
 				User:  user,
 				Found: true,
 			},
-			roles: mock.RolesRepository{
+			roles: mocks.RolesRepository{
 				Error: fmt.Errorf("error"),
 			},
 			expected: (*users.UserWithRoles)(nil),
@@ -158,14 +158,14 @@ func TestLoadFullUser(t *testing.T) {
 		},
 		{
 			name: "user has multiple roles",
-			users: mock.UsersRepository{
+			users: mocks.UsersRepository{
 				User:  user,
 				Found: true,
 			},
-			roles: mock.RolesRepository{
+			roles: mocks.RolesRepository{
 				Roles: []roles.Role{role, role, role},
 			},
-			permissions: mock.PermissionsRepository{
+			permissions: mocks.PermissionsRepository{
 				Perms: perms,
 			},
 			expected: &users.UserWithRoles{
@@ -181,9 +181,9 @@ func TestLoadFullUser(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// Mock the repositories
-			users.ReplaceGlobals(mock.NewUsersRepository(tt.users))
-			roles.ReplaceGlobals(mock.NewRolesRepository(tt.roles))
-			permissions.ReplaceGlobals(mock.NewPermissionsRepository(tt.permissions))
+			users.ReplaceGlobals(mocks.NewUsersRepository(tt.users))
+			roles.ReplaceGlobals(mocks.NewRolesRepository(tt.roles))
+			permissions.ReplaceGlobals(mocks.NewPermissionsRepository(tt.permissions))
 
 			// Call the function
 			result, found, err := LoadFullUser(uuid.Nil)

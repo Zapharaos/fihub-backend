@@ -1,11 +1,11 @@
-package mock
+package mocks
 
 import (
 	"github.com/Zapharaos/fihub-backend/internal/auth/permissions"
 	"github.com/google/uuid"
 )
 
-// PermissionsRepository represents a mock permissions.Repository
+// PermissionsRepository represents a mocks permissions.Repository
 type PermissionsRepository struct {
 	ID    uuid.UUID
 	Found bool
