@@ -9,7 +9,6 @@ import (
 	"github.com/Zapharaos/fihub-backend/internal/handlers/render"
 	"net/http"
 
-	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 )
@@ -102,15 +101,8 @@ func CreateRole(w http.ResponseWriter, r *http.Request) {
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/roles/{id} [get]
 func GetRole(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
-	roleID, err := uuid.Parse(id)
-	if err != nil {
-		zap.L().Warn("Parse role id", zap.Error(err))
-		render.BadRequest(w, r, fmt.Errorf("invalid role id"))
-		return
-	}
-
-	if !U().CheckPermission(w, r, "admin.roles.read") {
+	roleID, ok := U().ParseParamUUID(w, r, "id")
+	if !ok || !U().CheckPermission(w, r, "admin.roles.read") {
 		return
 	}
 
@@ -177,11 +169,7 @@ func GetRoles(w http.ResponseWriter, r *http.Request) {
 //	@Router			/api/v1/roles/{id} [put]
 func UpdateRole(w http.ResponseWriter, r *http.Request) {
 	roleID, ok := U().ParseParamUUID(w, r, "id")
-	if !ok {
-		return
-	}
-
-	if !U().CheckPermission(w, r, "admin.roles.update") {
+	if !ok || !U().CheckPermission(w, r, "admin.roles.update") {
 		return
 	}
 
