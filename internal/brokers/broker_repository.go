@@ -1,5 +1,7 @@
 package brokers
 
+//go:generate mockgen -source=broker_repository.go -destination=../../test/mocks/broker_repository.go --package=mocks -mock_names=BrokerRepository=BrokerRepository BrokerRepository
+
 import "github.com/google/uuid"
 
 // BrokerRepository is a storage interface which can be implemented by multiple backend

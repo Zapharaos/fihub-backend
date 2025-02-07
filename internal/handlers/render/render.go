@@ -67,7 +67,6 @@ func JSON(w http.ResponseWriter, r *http.Request, data interface{}) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-
 	OK(w, r)
 }
 

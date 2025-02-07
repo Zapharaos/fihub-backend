@@ -1,5 +1,7 @@
 package brokers
 
+//go:generate mockgen -source=image_repository.go -destination=../../test/mocks/broker_image_repository.go --package=mocks -mock_names=ImageRepository=BrokerImageRepository ImageRepository
+
 import "github.com/google/uuid"
 
 // ImageRepository is a storage interface which can be implemented by multiple backend
