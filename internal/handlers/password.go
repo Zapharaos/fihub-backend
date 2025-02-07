@@ -11,7 +11,6 @@ import (
 	"github.com/Zapharaos/fihub-backend/pkg/email/templates"
 	"github.com/Zapharaos/fihub-backend/pkg/env"
 	"github.com/Zapharaos/fihub-backend/pkg/translation"
-	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"golang.org/x/text/language"
@@ -101,6 +100,7 @@ func CreatePasswordResetRequest(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			zap.L().Error("Failed to parse language", zap.Error(err))
 			w.WriteHeader(http.StatusInternalServerError)
+			return
 		}
 	}
 
@@ -192,10 +192,9 @@ func GetPasswordResetRequestID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token := chi.URLParam(r, "token")
-	if token == "" {
-		zap.L().Warn("Token is empty")
-		w.WriteHeader(http.StatusBadRequest)
+	token, ok := U().ParseParamString(w, r, "token")
+	if !ok {
+		return
 	}
 
 	// Check if request exists and is valid

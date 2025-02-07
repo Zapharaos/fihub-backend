@@ -71,6 +71,21 @@ func (mr *MockUtilsMockRecorder) GetUserFromContext(r any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserFromContext", reflect.TypeOf((*MockUtils)(nil).GetUserFromContext), r)
 }
 
+// ParseParamString mocks base method.
+func (m *MockUtils) ParseParamString(w http.ResponseWriter, r *http.Request, key string) (string, bool) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ParseParamString", w, r, key)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(bool)
+	return ret0, ret1
+}
+
+// ParseParamString indicates an expected call of ParseParamString.
+func (mr *MockUtilsMockRecorder) ParseParamString(w, r, key any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ParseParamString", reflect.TypeOf((*MockUtils)(nil).ParseParamString), w, r, key)
+}
+
 // ParseParamUUID mocks base method.
 func (m *MockUtils) ParseParamUUID(w http.ResponseWriter, r *http.Request, key string) (uuid.UUID, bool) {
 	m.ctrl.T.Helper()

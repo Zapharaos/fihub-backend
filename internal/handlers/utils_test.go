@@ -217,6 +217,62 @@ func TestParseParamUUID(t *testing.T) {
 	}
 }
 
+// TestParseParamString tests the ParseParamString function
+func TestParseParamString(t *testing.T) {
+	// Replace the global utils with a new instance
+	handlers.ReplaceGlobals(handlers.NewUtils())
+
+	// Define the test cases
+	tests := []struct {
+		name       string
+		paramValue string
+		paramKey   string
+		expectOK   bool
+		expectCode int
+		expectStr  string
+	}{
+		{
+			name:       "missing string",
+			paramValue: "",
+			paramKey:   "id",
+			expectOK:   false,
+			expectCode: http.StatusBadRequest,
+		},
+		{
+			name:       "valid string",
+			paramValue: "valid-string",
+			paramKey:   "id",
+			expectOK:   true,
+			expectCode: http.StatusOK,
+			expectStr:  "valid-string",
+		},
+	}
+
+	// Run the test cases
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Create a new recorder
+			w := httptest.NewRecorder()
+			r := httptest.NewRequest("GET", "/", nil)
+
+			// Create a new route context
+			rctx := chi.NewRouteContext()
+			rctx.URLParams.Add(tt.paramKey, tt.paramValue)
+			r = r.WithContext(context.WithValue(r.Context(), chi.RouteCtxKey, rctx))
+
+			// Call the function
+			resultStr, ok := handlers.U().ParseParamString(w, r, tt.paramKey)
+
+			// Check the results
+			assert.Equal(t, tt.expectOK, ok)
+			assert.Equal(t, tt.expectCode, w.Code)
+			if tt.expectOK {
+				assert.Equal(t, tt.expectStr, resultStr)
+			}
+		})
+	}
+}
+
 // TestParseUUIDPair tests the ParseUUIDPair function
 func TestParseUUIDPair(t *testing.T) {
 	// Define valid data

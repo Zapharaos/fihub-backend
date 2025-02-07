@@ -18,6 +18,7 @@ import (
 type Utils interface {
 	CheckPermission(w http.ResponseWriter, r *http.Request, permission string) bool
 	GetUserFromContext(r *http.Request) (users.UserWithRoles, bool)
+	ParseParamString(w http.ResponseWriter, r *http.Request, key string) (string, bool)
 	ParseParamUUID(w http.ResponseWriter, r *http.Request, key string) (uuid.UUID, bool)
 	ParseUUIDPair(w http.ResponseWriter, r *http.Request, key string) (baseID, keyID uuid.UUID, ok bool)
 }
@@ -87,6 +88,18 @@ func (u *utils) GetUserFromContext(r *http.Request) (users.UserWithRoles, bool) 
 		return users.UserWithRoles{}, false
 	}
 	return user, true
+}
+
+// ParseParamString parses a string from the request parameters (using key parameter)
+func (u *utils) ParseParamString(w http.ResponseWriter, r *http.Request, key string) (string, bool) {
+	value := chi.URLParam(r, key)
+	if value == "" {
+		zap.L().Debug("Parse string", zap.String("key", key))
+		render.BadRequest(w, r, fmt.Errorf("invalid %s", key))
+		return "", false
+	}
+
+	return value, true
 }
 
 // ParseParamUUID parses an uuid from the request parameters (using key parameter)

@@ -462,7 +462,6 @@ func TestUpdatePermission(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			w := httptest.NewRecorder()
-
 			r := httptest.NewRequest("PUT", "/api/v1/permissions", bytes.NewBuffer(tt.permission))
 
 			ctrl := gomock.NewController(t)
