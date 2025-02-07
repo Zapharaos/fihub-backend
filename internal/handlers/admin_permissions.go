@@ -25,7 +25,7 @@ import (
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/permissions [post]
 func CreatePermission(w http.ResponseWriter, r *http.Request) {
-	if !checkPermission(w, r, "admin.permissions.create") {
+	if !U().CheckPermission(w, r, "admin.permissions.create") {
 		return
 	}
 
@@ -81,8 +81,8 @@ func CreatePermission(w http.ResponseWriter, r *http.Request) {
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/permissions/{id} [get]
 func GetPermission(w http.ResponseWriter, r *http.Request) {
-	permissionID, ok := parseParamUUID(w, r, "id")
-	if !ok || !checkPermission(w, r, "admin.permissions.read") {
+	permissionID, ok := U().ParseParamUUID(w, r, "id")
+	if !ok || !U().CheckPermission(w, r, "admin.permissions.read") {
 		return
 	}
 
@@ -116,7 +116,7 @@ func GetPermission(w http.ResponseWriter, r *http.Request) {
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/permissions [get]
 func GetPermissions(w http.ResponseWriter, r *http.Request) {
-	if !checkPermission(w, r, "admin.permissions.list") {
+	if !U().CheckPermission(w, r, "admin.permissions.list") {
 		return
 	}
 
@@ -147,8 +147,8 @@ func GetPermissions(w http.ResponseWriter, r *http.Request) {
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/permissions/{id} [put]
 func UpdatePermission(w http.ResponseWriter, r *http.Request) {
-	permissionID, ok := parseParamUUID(w, r, "id")
-	if !ok || !checkPermission(w, r, "admin.permissions.update") {
+	permissionID, ok := U().ParseParamUUID(w, r, "id")
+	if !ok || !U().CheckPermission(w, r, "admin.permissions.update") {
 		return
 	}
 
@@ -203,8 +203,8 @@ func UpdatePermission(w http.ResponseWriter, r *http.Request) {
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/permissions/{id} [delete]
 func DeletePermission(w http.ResponseWriter, r *http.Request) {
-	permissionID, ok := parseParamUUID(w, r, "id")
-	if !ok || !checkPermission(w, r, "admin.permissions.delete") {
+	permissionID, ok := U().ParseParamUUID(w, r, "id")
+	if !ok || !U().CheckPermission(w, r, "admin.permissions.delete") {
 		return
 	}
 

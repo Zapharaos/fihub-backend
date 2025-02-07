@@ -28,7 +28,7 @@ import (
 func CreateUserBroker(w http.ResponseWriter, r *http.Request) {
 
 	// Get the authenticated user from the context
-	user, ok := getUserFromContext(r)
+	user, ok := U().GetUserFromContext(r)
 	if !ok {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
@@ -130,13 +130,13 @@ func CreateUserBroker(w http.ResponseWriter, r *http.Request) {
 //	@Router			/api/v1/users/brokers/{id} [delete]
 func DeleteUserBroker(w http.ResponseWriter, r *http.Request) {
 	// Retrieve brokerID
-	brokerID, ok := parseParamUUID(w, r, "id")
+	brokerID, ok := U().ParseParamUUID(w, r, "id")
 	if !ok {
 		return
 	}
 
 	// Get the authenticated user from the context
-	user, ok := getUserFromContext(r)
+	user, ok := U().GetUserFromContext(r)
 	if !ok {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
@@ -190,7 +190,7 @@ func DeleteUserBroker(w http.ResponseWriter, r *http.Request) {
 func GetUserBrokers(w http.ResponseWriter, r *http.Request) {
 
 	// Get the authenticated user from the context
-	user, ok := getUserFromContext(r)
+	user, ok := U().GetUserFromContext(r)
 	if !ok {
 		w.WriteHeader(http.StatusUnauthorized)
 		return

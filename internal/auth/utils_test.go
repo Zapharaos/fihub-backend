@@ -1,7 +1,8 @@
-package auth
+package auth_test
 
 import (
 	"fmt"
+	"github.com/Zapharaos/fihub-backend/internal/auth"
 	"github.com/Zapharaos/fihub-backend/internal/auth/permissions"
 	"github.com/Zapharaos/fihub-backend/internal/auth/roles"
 	"github.com/Zapharaos/fihub-backend/internal/auth/users"
@@ -91,7 +92,7 @@ func TestLoadUserRoles(t *testing.T) {
 			permissions.ReplaceGlobals(mocks.NewPermissionsRepository(tt.permissions))
 
 			// Call the function
-			result, err := LoadUserRoles(uuid.Nil)
+			result, err := auth.LoadUserRoles(uuid.Nil)
 
 			// Assert results
 			assert.Equal(t, tt.expected, result)
@@ -141,7 +142,7 @@ func TestLoadFullUser(t *testing.T) {
 			},
 			expected: nil,
 			found:    false,
-			error:    ErrorUserNotFound,
+			error:    auth.ErrorUserNotFound,
 		},
 		{
 			name: "can't retrieve roles",
@@ -186,7 +187,7 @@ func TestLoadFullUser(t *testing.T) {
 			permissions.ReplaceGlobals(mocks.NewPermissionsRepository(tt.permissions))
 
 			// Call the function
-			result, found, err := LoadFullUser(uuid.Nil)
+			result, found, err := auth.LoadFullUser(uuid.Nil)
 
 			// Assert results
 			assert.Equal(t, tt.expected, result)

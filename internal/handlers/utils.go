@@ -1,5 +1,7 @@
 package handlers
 
+//go:generate mockgen -source=utils.go -destination=../../test/mocks/handlers_utils.go --package=mocks Utils
+
 import (
 	"fmt"
 	"github.com/Zapharaos/fihub-backend/internal/app"
@@ -9,14 +11,55 @@ import (
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"net/http"
+	"sync"
 )
 
-// checkPermission checks if context user has permission
+// Utils defines the interface for handler utility functions
+type Utils interface {
+	CheckPermission(w http.ResponseWriter, r *http.Request, permission string) bool
+	GetUserFromContext(r *http.Request) (users.UserWithRoles, bool)
+	ParseParamUUID(w http.ResponseWriter, r *http.Request, key string) (uuid.UUID, bool)
+	ParseUUIDPair(w http.ResponseWriter, r *http.Request, key string) (baseID, keyID uuid.UUID, ok bool)
+}
+
+var (
+	_globalUtilsMu sync.RWMutex
+	_globalUtils   Utils
+)
+
+// U is used to access the global utils singleton
+func U() Utils {
+	_globalUtilsMu.RLock()
+	defer _globalUtilsMu.RUnlock()
+
+	utils := _globalUtils
+	return utils
+}
+
+// ReplaceGlobals affect a new utils to the global utils singleton
+func ReplaceGlobals(utils Utils) func() {
+	_globalUtilsMu.Lock()
+	defer _globalUtilsMu.Unlock()
+
+	prev := _globalUtils
+	_globalUtils = utils
+	return func() { ReplaceGlobals(prev) }
+}
+
+type utils struct{}
+
+func NewUtils() Utils {
+	u := &utils{}
+	var utils Utils = u
+	return utils
+}
+
+// CheckPermission checks if context user has permission
 // if user has no permission, it returns 403 status code
 // returns true to indicate that the user has the permission
 // returns false to indicate that the user has not the permission and the request should be stopped
-func checkPermission(w http.ResponseWriter, r *http.Request, permission string) bool {
-	user, ok := getUserFromContext(r)
+func (u *utils) CheckPermission(w http.ResponseWriter, r *http.Request, permission string) bool {
+	user, ok := U().GetUserFromContext(r)
 	if !ok {
 		w.WriteHeader(http.StatusUnauthorized)
 		return false
@@ -31,8 +74,8 @@ func checkPermission(w http.ResponseWriter, r *http.Request, permission string) 
 	return true
 }
 
-// getUserFromContext extract the logged user from the request context
-func getUserFromContext(r *http.Request) (users.UserWithRoles, bool) {
+// GetUserFromContext extract the logged user from the request context
+func (u *utils) GetUserFromContext(r *http.Request) (users.UserWithRoles, bool) {
 	_user := r.Context().Value(app.ContextKeyUser)
 	if _user == nil {
 		zap.L().Warn("No context user provided")
@@ -46,8 +89,8 @@ func getUserFromContext(r *http.Request) (users.UserWithRoles, bool) {
 	return user, true
 }
 
-// parseParamUUID parses an uuid from the request parameters (using key parameter)
-func parseParamUUID(w http.ResponseWriter, r *http.Request, key string) (uuid.UUID, bool) {
+// ParseParamUUID parses an uuid from the request parameters (using key parameter)
+func (u *utils) ParseParamUUID(w http.ResponseWriter, r *http.Request, key string) (uuid.UUID, bool) {
 	value := chi.URLParam(r, key)
 
 	result, err := uuid.Parse(value)
@@ -60,13 +103,13 @@ func parseParamUUID(w http.ResponseWriter, r *http.Request, key string) (uuid.UU
 	return result, true
 }
 
-// parseUUIDPair is a helper function to parse a key and base UUIDs from the request
+// ParseUUIDPair is a helper function to parse a key and base UUIDs from the request
 // using the key "id" for the base UUID
-func parseUUIDPair(w http.ResponseWriter, r *http.Request, key string) (baseID, keyID uuid.UUID, ok bool) {
-	keyID, ok = parseParamUUID(w, r, key)
+func (u *utils) ParseUUIDPair(w http.ResponseWriter, r *http.Request, key string) (baseID, keyID uuid.UUID, ok bool) {
+	keyID, ok = U().ParseParamUUID(w, r, key)
 	if !ok {
 		return
 	}
-	baseID, ok = parseParamUUID(w, r, "id")
+	baseID, ok = U().ParseParamUUID(w, r, "id")
 	return
 }

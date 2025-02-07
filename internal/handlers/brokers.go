@@ -26,7 +26,7 @@ import (
 //	@Router			/api/v1/brokers [post]
 func CreateBroker(w http.ResponseWriter, r *http.Request) {
 
-	if !checkPermission(w, r, "admin.brokers.create") {
+	if !U().CheckPermission(w, r, "admin.brokers.create") {
 		return
 	}
 
@@ -101,7 +101,7 @@ func CreateBroker(w http.ResponseWriter, r *http.Request) {
 func GetBroker(w http.ResponseWriter, r *http.Request) {
 
 	// Retrieve brokerID
-	brokerID, ok := parseParamUUID(w, r, "id")
+	brokerID, ok := U().ParseParamUUID(w, r, "id")
 	if !ok {
 		return
 	}
@@ -141,12 +141,12 @@ func GetBroker(w http.ResponseWriter, r *http.Request) {
 //	@Router			/api/v1/brokers/{id} [put]
 func UpdateBroker(w http.ResponseWriter, r *http.Request) {
 
-	if !checkPermission(w, r, "admin.brokers.update") {
+	if !U().CheckPermission(w, r, "admin.brokers.update") {
 		return
 	}
 
 	// Retrieve brokerID
-	brokerID, ok := parseParamUUID(w, r, "id")
+	brokerID, ok := U().ParseParamUUID(w, r, "id")
 	if !ok {
 		return
 	}
@@ -252,12 +252,12 @@ func UpdateBroker(w http.ResponseWriter, r *http.Request) {
 //	@Router			/api/v1/brokers/{id} [delete]
 func DeleteBroker(w http.ResponseWriter, r *http.Request) {
 
-	if !checkPermission(w, r, "admin.brokers.delete") {
+	if !U().CheckPermission(w, r, "admin.brokers.delete") {
 		return
 	}
 
 	// Retrieve brokerID
-	brokerID, ok := parseParamUUID(w, r, "id")
+	brokerID, ok := U().ParseParamUUID(w, r, "id")
 	if !ok {
 		return
 	}

@@ -1,4 +1,4 @@
-package auth
+package auth_test
 
 import (
 	"bytes"
@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/Zapharaos/fihub-backend/internal/app"
+	"github.com/Zapharaos/fihub-backend/internal/auth"
 	"github.com/Zapharaos/fihub-backend/internal/auth/permissions"
 	"github.com/Zapharaos/fihub-backend/internal/auth/roles"
 	"github.com/Zapharaos/fihub-backend/internal/auth/users"
@@ -21,18 +22,18 @@ import (
 // TestNew tests the New function
 func TestNew(t *testing.T) {
 	// Create a new instance of Auth
-	auth := New(CheckHeader | CheckQuery)
+	a := auth.New(auth.CheckHeader | auth.CheckQuery)
 
 	// Check the instance
-	assert.NotNil(t, auth)
-	assert.NotEmpty(t, auth.signingKey)
-	assert.Equal(t, int8(CheckHeader|CheckQuery), auth.checks)
+	assert.NotNil(t, a)
+	assert.NotEmpty(t, a.SigningKey)
+	assert.Equal(t, int8(auth.CheckHeader|auth.CheckQuery), a.Checks)
 }
 
 // TestGetToken tests the GetToken function
 func TestGetToken(t *testing.T) {
 	// Define test data
-	auth := New(CheckHeader)
+	a := auth.New(auth.CheckHeader)
 	userWithPassword := users.UserWithPassword{
 		User:     users.User{Email: "test@example.com"},
 		Password: "password",
@@ -40,7 +41,7 @@ func TestGetToken(t *testing.T) {
 	userBody, _ := json.Marshal(userWithPassword)
 
 	// Create a new httptest server
-	ts := httptest.NewServer(http.HandlerFunc(auth.GetToken))
+	ts := httptest.NewServer(http.HandlerFunc(a.GetToken))
 	defer ts.Close()
 
 	// Define test cases
@@ -91,12 +92,12 @@ func TestGetToken(t *testing.T) {
 			w := httptest.NewRecorder()
 
 			// Send the request
-			auth.GetToken(w, r)
+			a.GetToken(w, r)
 			response := w.Result()
 			defer response.Body.Close()
 
 			// Get the response body
-			var token JwtToken
+			var token auth.JwtToken
 			data, err := io.ReadAll(response.Body)
 			err = json.Unmarshal(data, &token)
 
@@ -115,13 +116,13 @@ func TestGetToken(t *testing.T) {
 // TestGenerateToken tests the GenerateToken function
 func TestGenerateToken(t *testing.T) {
 	// Define test data
-	auth := New(CheckHeader)
+	a := auth.New(auth.CheckHeader)
 	user := users.User{
 		ID: uuid.New(),
 	}
 
 	// Generate a token
-	token, err := auth.GenerateToken(user)
+	token, err := a.GenerateToken(user)
 
 	// Check the response
 	assert.NoError(t, err)
@@ -131,13 +132,13 @@ func TestGenerateToken(t *testing.T) {
 // TestValidateToken tests the ValidateToken function
 func TestValidateToken(t *testing.T) {
 	// Define test data
-	auth := New(CheckHeader)
+	a := auth.New(auth.CheckHeader)
 	user := users.User{
 		ID: uuid.New(),
 	}
 
 	// Generate a valid token
-	validToken, err := auth.GenerateToken(user)
+	validToken, err := a.GenerateToken(user)
 	assert.NoError(t, err)
 
 	// Define test cases
@@ -166,7 +167,7 @@ func TestValidateToken(t *testing.T) {
 	// Run tests
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			claims, err := auth.ValidateToken(tt.token)
+			claims, err := a.ValidateToken(tt.token)
 			if tt.expectErr {
 				assert.Error(t, err)
 				assert.Nil(t, claims)
@@ -182,17 +183,17 @@ func TestValidateToken(t *testing.T) {
 // TestMiddleware tests the Middleware function
 func TestMiddleware(t *testing.T) {
 	// Define test data
-	auth := New(CheckHeader)
+	a := auth.New(auth.CheckHeader)
 	user := users.User{
 		ID: uuid.New(),
 	}
 
 	// Generate a valid token
-	validToken, err := auth.GenerateToken(user)
+	validToken, err := a.GenerateToken(user)
 	assert.NoError(t, err)
 
 	// Create a new httptest server
-	ts := httptest.NewServer(http.HandlerFunc(auth.GetToken))
+	ts := httptest.NewServer(http.HandlerFunc(a.GetToken))
 	defer ts.Close()
 
 	// Define test cases
@@ -277,7 +278,7 @@ func TestMiddleware(t *testing.T) {
 			})
 
 			// Setups the middleware and
-			handler := auth.Middleware(next)
+			handler := a.Middleware(next)
 			handler.ServeHTTP(w, r)
 
 			// Call the handler

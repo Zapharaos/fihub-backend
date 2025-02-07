@@ -98,7 +98,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/users/me [get]
 func GetUserSelf(w http.ResponseWriter, r *http.Request) {
-	userCtx, found := getUserFromContext(r)
+	userCtx, found := U().GetUserFromContext(r)
 	if !found {
 		zap.L().Debug("No context user provided")
 		w.WriteHeader(http.StatusBadRequest)
@@ -125,7 +125,7 @@ func GetUserSelf(w http.ResponseWriter, r *http.Request) {
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/users/me [put]
 func UpdateUserSelf(w http.ResponseWriter, r *http.Request) {
-	userCtx, found := getUserFromContext(r)
+	userCtx, found := U().GetUserFromContext(r)
 	if !found {
 		zap.L().Debug("No context user provided")
 		w.WriteHeader(http.StatusUnauthorized)
@@ -192,7 +192,7 @@ func UpdateUserSelf(w http.ResponseWriter, r *http.Request) {
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/users/me/password [put]
 func ChangeUserPassword(w http.ResponseWriter, r *http.Request) {
-	userCtx, found := getUserFromContext(r)
+	userCtx, found := U().GetUserFromContext(r)
 	if !found {
 		zap.L().Debug("No context user provided")
 		w.WriteHeader(http.StatusUnauthorized)
@@ -243,7 +243,7 @@ func ChangeUserPassword(w http.ResponseWriter, r *http.Request) {
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/users/me [delete]
 func DeleteUserSelf(w http.ResponseWriter, r *http.Request) {
-	userCtx, found := getUserFromContext(r)
+	userCtx, found := U().GetUserFromContext(r)
 	if !found {
 		zap.L().Debug("No context user provided")
 		w.WriteHeader(http.StatusUnauthorized)
@@ -277,8 +277,8 @@ func DeleteUserSelf(w http.ResponseWriter, r *http.Request) {
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/users/{id} [get]
 func GetUser(w http.ResponseWriter, r *http.Request) {
-	userId, ok := parseParamUUID(w, r, "id")
-	if !ok || !checkPermission(w, r, "admin.users.read") {
+	userId, ok := U().ParseParamUUID(w, r, "id")
+	if !ok || !U().CheckPermission(w, r, "admin.users.read") {
 		return
 	}
 
@@ -300,7 +300,7 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Check if the user can retrieve the user roles as well
-	if checkPermission(w, r, "admin.users.roles.list") {
+	if U().CheckPermission(w, r, "admin.users.roles.list") {
 		roles, err := auth.LoadUserRoles(userId)
 		if err != nil {
 			zap.L().Error("GetUser.LoadUserRoles", zap.Error(err))
@@ -332,8 +332,8 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/users/{id} [put]
 func SetUser(w http.ResponseWriter, r *http.Request) {
-	userId, ok := parseParamUUID(w, r, "id")
-	if !ok || !checkPermission(w, r, "admin.users.update") {
+	userId, ok := U().ParseParamUUID(w, r, "id")
+	if !ok || !U().CheckPermission(w, r, "admin.users.update") {
 		return
 	}
 
@@ -375,8 +375,8 @@ func SetUser(w http.ResponseWriter, r *http.Request) {
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/users/{id}/roles [put]
 func SetUserRoles(w http.ResponseWriter, r *http.Request) {
-	userId, ok := parseParamUUID(w, r, "id")
-	if !ok || !checkPermission(w, r, "admin.users.roles.update") {
+	userId, ok := U().ParseParamUUID(w, r, "id")
+	if !ok || !U().CheckPermission(w, r, "admin.users.roles.update") {
 		return
 	}
 
@@ -420,8 +420,8 @@ func SetUserRoles(w http.ResponseWriter, r *http.Request) {
 //	@Failure		500	{object}	render.ErrorResponse		"Internal Server Error"
 //	@Router			/api/v1/users/{id}/roles [get]
 func GetUserRoles(w http.ResponseWriter, r *http.Request) {
-	userId, ok := parseParamUUID(w, r, "id")
-	if !ok || !checkPermission(w, r, "admin.users.roles.list") {
+	userId, ok := U().ParseParamUUID(w, r, "id")
+	if !ok || !U().CheckPermission(w, r, "admin.users.roles.list") {
 		return
 	}
 
@@ -448,7 +448,7 @@ func GetUserRoles(w http.ResponseWriter, r *http.Request) {
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/users [get]
 func GetAllUsersWithRoles(w http.ResponseWriter, r *http.Request) {
-	if !checkPermission(w, r, "admin.users.list") {
+	if !U().CheckPermission(w, r, "admin.users.list") {
 		return
 	}
 

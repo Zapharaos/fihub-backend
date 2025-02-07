@@ -29,7 +29,7 @@ import (
 func CreateTransaction(w http.ResponseWriter, r *http.Request) {
 
 	// Get the authenticated user from the context
-	user, ok := getUserFromContext(r)
+	user, ok := U().GetUserFromContext(r)
 	if !ok {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
@@ -112,7 +112,7 @@ func CreateTransaction(w http.ResponseWriter, r *http.Request) {
 func GetTransaction(w http.ResponseWriter, r *http.Request) {
 
 	// Retrieve transactionID
-	transactionID, ok := parseParamUUID(w, r, "id")
+	transactionID, ok := U().ParseParamUUID(w, r, "id")
 	if !ok {
 		return
 	}
@@ -131,7 +131,7 @@ func GetTransaction(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Verify that the transaction belongs to the user
-	user, ok := getUserFromContext(r)
+	user, ok := U().GetUserFromContext(r)
 	if !ok {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
@@ -166,13 +166,13 @@ func GetTransaction(w http.ResponseWriter, r *http.Request) {
 func UpdateTransaction(w http.ResponseWriter, r *http.Request) {
 
 	// Retrieve transactionID
-	transactionID, ok := parseParamUUID(w, r, "id")
+	transactionID, ok := U().ParseParamUUID(w, r, "id")
 	if !ok {
 		return
 	}
 
 	// Get the authenticated user from the context
-	user, ok := getUserFromContext(r)
+	user, ok := U().GetUserFromContext(r)
 	if !ok {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
@@ -273,13 +273,13 @@ func UpdateTransaction(w http.ResponseWriter, r *http.Request) {
 func DeleteTransaction(w http.ResponseWriter, r *http.Request) {
 
 	// Retrieve transactionID
-	transactionID, ok := parseParamUUID(w, r, "id")
+	transactionID, ok := U().ParseParamUUID(w, r, "id")
 	if !ok {
 		return
 	}
 
 	// Get the authenticated user from the context
-	user, ok := getUserFromContext(r)
+	user, ok := U().GetUserFromContext(r)
 	if !ok {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
@@ -330,7 +330,7 @@ func DeleteTransaction(w http.ResponseWriter, r *http.Request) {
 func GetTransactions(w http.ResponseWriter, r *http.Request) {
 
 	// Get the authenticated user from the context
-	user, ok := getUserFromContext(r)
+	user, ok := U().GetUserFromContext(r)
 	if !ok {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
