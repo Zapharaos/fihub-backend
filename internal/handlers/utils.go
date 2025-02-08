@@ -3,6 +3,7 @@ package handlers
 //go:generate mockgen -source=utils.go -destination=../../test/mocks/handlers_utils.go --package=mocks Utils
 
 import (
+	"errors"
 	"fmt"
 	"github.com/Zapharaos/fihub-backend/internal/app"
 	"github.com/Zapharaos/fihub-backend/internal/auth/users"
@@ -12,7 +13,9 @@ import (
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"golang.org/x/text/language"
+	"io"
 	"net/http"
+	"strconv"
 	"sync"
 )
 
@@ -23,7 +26,9 @@ type Utils interface {
 	ParseParamString(w http.ResponseWriter, r *http.Request, key string) (string, bool)
 	ParseParamUUID(w http.ResponseWriter, r *http.Request, key string) (uuid.UUID, bool)
 	ParseParamLanguage(w http.ResponseWriter, r *http.Request) language.Tag
+	ParseParamBool(w http.ResponseWriter, r *http.Request, key string) (bool, bool)
 	ParseUUIDPair(w http.ResponseWriter, r *http.Request, key string) (baseID, keyID uuid.UUID, ok bool)
+	ReadImage(w http.ResponseWriter, r *http.Request) ([]byte, string, bool)
 }
 
 var (
@@ -130,6 +135,25 @@ func (u *utils) ParseParamLanguage(w http.ResponseWriter, r *http.Request) langu
 	return lang
 }
 
+// ParseParamBool parses a boolean from the request parameters (using key parameter)
+func (u *utils) ParseParamBool(w http.ResponseWriter, r *http.Request, key string) (bool, bool) {
+	value := chi.URLParam(r, key)
+	if value == "" {
+		zap.L().Debug("Parse bool", zap.String("key", key))
+		render.BadRequest(w, r, fmt.Errorf("invalid %s", key))
+		return false, false
+	}
+
+	result, err := strconv.ParseBool(value)
+	if err != nil {
+		zap.L().Debug("Parse bool", zap.String("key", key), zap.Error(err))
+		render.BadRequest(w, r, fmt.Errorf("invalid %s", key))
+		return false, false
+	}
+
+	return result, true
+}
+
 // ParseUUIDPair is a helper function to parse a key and base UUIDs from the request
 // using the key "id" for the base UUID
 func (u *utils) ParseUUIDPair(w http.ResponseWriter, r *http.Request, key string) (baseID, keyID uuid.UUID, ok bool) {
@@ -139,4 +163,41 @@ func (u *utils) ParseUUIDPair(w http.ResponseWriter, r *http.Request, key string
 	}
 	baseID, ok = U().ParseParamUUID(w, r, "id")
 	return
+}
+
+// ReadImage reads an image from a multipart form
+func (u *utils) ReadImage(w http.ResponseWriter, r *http.Request) ([]byte, string, bool) {
+	// Parse the multipart form
+	err := r.ParseMultipartForm(10 << 20) // 10 MB
+	if err != nil {
+		render.BadRequest(w, r, err)
+		return nil, "", false
+	}
+
+	// Get the file from the form
+	file, header, err := r.FormFile("file")
+	if err != nil {
+		zap.L().Warn("Form file", zap.Error(err))
+		render.BadRequest(w, r, err)
+		return nil, "", false
+	}
+	defer file.Close()
+
+	// Read the file
+	data, err := io.ReadAll(file)
+	if err != nil {
+		zap.L().Warn("Read file", zap.Error(err))
+		render.BadRequest(w, r, err)
+		return nil, "", false
+	}
+
+	// Check the MIME type
+	mimeType := http.DetectContentType(data)
+	if mimeType != "image/jpeg" && mimeType != "image/png" {
+		zap.L().Warn("Invalid MIME type", zap.String("mimeType", mimeType))
+		render.BadRequest(w, r, errors.New("invalid-type"))
+		return nil, "", false
+	}
+
+	return data, header.Filename, true
 }

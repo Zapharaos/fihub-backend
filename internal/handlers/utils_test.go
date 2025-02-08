@@ -1,6 +1,7 @@
 package handlers_test
 
 import (
+	"bytes"
 	"context"
 	"github.com/Zapharaos/fihub-backend/internal/app"
 	"github.com/Zapharaos/fihub-backend/internal/auth/permissions"
@@ -13,6 +14,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"
 	"golang.org/x/text/language"
+	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -328,6 +330,77 @@ func TestParseParamLanguage(t *testing.T) {
 	}
 }
 
+// TestParseParamBool tests the ParseParamBool function
+func TestParseParamBool(t *testing.T) {
+	// Replace the global utils with a new instance
+	handlers.ReplaceGlobals(handlers.NewUtils())
+
+	// Define the test cases
+	tests := []struct {
+		name       string
+		paramValue string
+		paramKey   string
+		expectOK   bool
+		expectCode int
+		expectBool bool
+	}{
+		{
+			name:       "missing bool",
+			paramValue: "",
+			paramKey:   "flag",
+			expectOK:   false,
+			expectCode: http.StatusBadRequest,
+		},
+		{
+			name:       "invalid bool",
+			paramValue: "invalid",
+			paramKey:   "flag",
+			expectOK:   false,
+			expectCode: http.StatusBadRequest,
+		},
+		{
+			name:       "valid true bool",
+			paramValue: "true",
+			paramKey:   "flag",
+			expectOK:   true,
+			expectCode: http.StatusOK,
+			expectBool: true,
+		},
+		{
+			name:       "valid false bool",
+			paramValue: "false",
+			paramKey:   "flag",
+			expectOK:   true,
+			expectCode: http.StatusOK,
+			expectBool: false,
+		},
+	}
+
+	// Run the test cases
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Create a new recorder
+			w := httptest.NewRecorder()
+			r := httptest.NewRequest("GET", "/", nil)
+
+			// Create a new route context
+			rctx := chi.NewRouteContext()
+			rctx.URLParams.Add(tt.paramKey, tt.paramValue)
+			r = r.WithContext(context.WithValue(r.Context(), chi.RouteCtxKey, rctx))
+
+			// Call the function
+			resultBool, ok := handlers.U().ParseParamBool(w, r, tt.paramKey)
+
+			// Check the results
+			assert.Equal(t, tt.expectOK, ok)
+			assert.Equal(t, tt.expectCode, w.Code)
+			if tt.expectOK {
+				assert.Equal(t, tt.expectBool, resultBool)
+			}
+		})
+	}
+}
+
 // TestParseUUIDPair tests the ParseUUIDPair function
 func TestParseUUIDPair(t *testing.T) {
 	// Define valid data
@@ -405,6 +478,88 @@ func TestParseUUIDPair(t *testing.T) {
 			assert.Equal(t, tt.expectOK, ok)
 			assert.Equal(t, tt.expectBase, baseID)
 			assert.Equal(t, tt.expectKey, keyID)
+		})
+	}
+}
+
+// TestReadImage tests the ReadImage function
+func TestReadImage(t *testing.T) {
+	// Replace the global utils with a new instance
+	handlers.ReplaceGlobals(handlers.NewUtils())
+
+	// Define the test cases
+	tests := []struct {
+		name        string
+		fileContent []byte
+		fileName    string
+		fileType    string
+		expectOK    bool
+		expectCode  int
+		expectData  []byte
+		expectName  string
+	}{
+		{
+			name:       "missing file",
+			expectOK:   false,
+			expectCode: http.StatusBadRequest,
+		},
+		{
+			name:        "invalid MIME type",
+			fileContent: []byte("invalid content"),
+			fileName:    "invalid.txt",
+			fileType:    "text/plain",
+			expectOK:    false,
+			expectCode:  http.StatusBadRequest,
+		},
+		{
+			name:        "valid JPEG image",
+			fileContent: []byte{0xFF, 0xD8, 0xFF}, // JPEG header
+			fileName:    "image.jpg",
+			fileType:    "image/jpeg",
+			expectOK:    true,
+			expectCode:  http.StatusOK,
+			expectData:  []byte{0xFF, 0xD8, 0xFF},
+			expectName:  "image.jpg",
+		},
+		{
+			name:        "valid PNG image",
+			fileContent: []byte{0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A}, // PNG header
+			fileName:    "image.png",
+			fileType:    "image/png",
+			expectOK:    true,
+			expectCode:  http.StatusOK,
+			expectData:  []byte{0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A},
+			expectName:  "image.png",
+		},
+	}
+
+	// Run the test cases
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Create a new recorder and request
+			w := httptest.NewRecorder()
+			r := httptest.NewRequest("POST", "/", nil)
+
+			if tt.fileContent != nil {
+				body := &bytes.Buffer{}
+				writer := multipart.NewWriter(body)
+				part, _ := writer.CreateFormFile("file", tt.fileName)
+				part.Write(tt.fileContent)
+				writer.Close()
+				r = httptest.NewRequest("POST", "/", body)
+				r.Header.Set("Content-Type", writer.FormDataContentType())
+			}
+
+			// Call the function
+			data, name, ok := handlers.U().ReadImage(w, r)
+
+			// Check the results
+			assert.Equal(t, tt.expectOK, ok)
+			assert.Equal(t, tt.expectCode, w.Code)
+			if tt.expectOK {
+				assert.Equal(t, tt.expectData, data)
+				assert.Equal(t, tt.expectName, name)
+			}
 		})
 	}
 }

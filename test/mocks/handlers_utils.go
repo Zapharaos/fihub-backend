@@ -72,6 +72,21 @@ func (mr *MockUtilsMockRecorder) GetUserFromContext(r any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserFromContext", reflect.TypeOf((*MockUtils)(nil).GetUserFromContext), r)
 }
 
+// ParseParamBool mocks base method.
+func (m *MockUtils) ParseParamBool(w http.ResponseWriter, r *http.Request, key string) (bool, bool) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ParseParamBool", w, r, key)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(bool)
+	return ret0, ret1
+}
+
+// ParseParamBool indicates an expected call of ParseParamBool.
+func (mr *MockUtilsMockRecorder) ParseParamBool(w, r, key any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ParseParamBool", reflect.TypeOf((*MockUtils)(nil).ParseParamBool), w, r, key)
+}
+
 // ParseParamLanguage mocks base method.
 func (m *MockUtils) ParseParamLanguage(w http.ResponseWriter, r *http.Request) language.Tag {
 	m.ctrl.T.Helper()
@@ -130,4 +145,20 @@ func (m *MockUtils) ParseUUIDPair(w http.ResponseWriter, r *http.Request, key st
 func (mr *MockUtilsMockRecorder) ParseUUIDPair(w, r, key any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ParseUUIDPair", reflect.TypeOf((*MockUtils)(nil).ParseUUIDPair), w, r, key)
+}
+
+// ReadImage mocks base method.
+func (m *MockUtils) ReadImage(w http.ResponseWriter, r *http.Request) ([]byte, string, bool) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ReadImage", w, r)
+	ret0, _ := ret[0].([]byte)
+	ret1, _ := ret[1].(string)
+	ret2, _ := ret[2].(bool)
+	return ret0, ret1, ret2
+}
+
+// ReadImage indicates an expected call of ReadImage.
+func (mr *MockUtilsMockRecorder) ReadImage(w, r any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReadImage", reflect.TypeOf((*MockUtils)(nil).ReadImage), w, r)
 }

@@ -1,12 +1,10 @@
 package handlers
 
 import (
-	"errors"
 	"github.com/Zapharaos/fihub-backend/internal/brokers"
 	"github.com/Zapharaos/fihub-backend/internal/handlers/render"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
-	"io"
 	"net/http"
 )
 
@@ -39,34 +37,8 @@ func CreateBrokerImage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Parse the multipart form
-	err := r.ParseMultipartForm(10 << 20) // 10 MB
-	if err != nil {
-		render.BadRequest(w, r, err)
-		return
-	}
-
-	// Get the file from the form
-	file, header, err := r.FormFile("file")
-	if err != nil {
-		zap.L().Warn("Form file", zap.Error(err))
-		render.BadRequest(w, r, err)
-		return
-	}
-	defer file.Close()
-
-	// Read the file
-	data, err := io.ReadAll(file)
-	if err != nil {
-		zap.L().Warn("Read file", zap.Error(err))
-		render.BadRequest(w, r, err)
-		return
-	}
-
-	// Check the MIME type
-	mimeType := http.DetectContentType(data)
-	if mimeType != "image/jpeg" && mimeType != "image/png" {
-		zap.L().Warn("Invalid MIME type", zap.String("mimeType", mimeType))
-		render.BadRequest(w, r, errors.New("invalid-type"))
+	data, name, ok := U().ReadImage(w, r)
+	if !ok {
 		return
 	}
 
@@ -74,19 +46,19 @@ func CreateBrokerImage(w http.ResponseWriter, r *http.Request) {
 	brokerImageInput := brokers.Image{
 		ID:       uuid.New(),
 		BrokerID: brokerID,
-		Name:     header.Filename,
+		Name:     name,
 		Data:     data,
 	}
 
 	// Validate the broker image
-	if ok, err = brokerImageInput.IsValid(); !ok {
+	if ok, err := brokerImageInput.IsValid(); !ok {
 		zap.L().Warn("Broker image is not valid", zap.Error(err))
 		render.BadRequest(w, r, err)
 		return
 	}
 
 	// Verify broker has no image
-	ok, err = brokers.R().B().HasImage(brokerID)
+	ok, err := brokers.R().B().HasImage(brokerID)
 	if err != nil {
 		zap.L().Error("HasImageBroker", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
@@ -150,21 +122,8 @@ func CreateBrokerImage(w http.ResponseWriter, r *http.Request) {
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/brokers/{id}/image/{image_id} [get]
 func GetBrokerImage(w http.ResponseWriter, r *http.Request) {
-	brokerID, imageID, ok := U().ParseUUIDPair(w, r, "image_id")
+	imageID, ok := U().ParseParamUUID(w, r, "image_id")
 	if !ok {
-		return
-	}
-
-	// Verify imageBroker existence
-	exists, err := brokers.R().I().Exists(brokerID, imageID)
-	if err != nil {
-		zap.L().Error("Check imageBroker exists", zap.Error(err))
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	if !exists {
-		zap.L().Warn("ImageBroker not found", zap.String("broker_id", brokerID.String()), zap.String("image_id", imageID.String()))
-		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 
@@ -224,34 +183,8 @@ func UpdateBrokerImage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Parse the multipart form
-	err := r.ParseMultipartForm(10 << 20) // 10 MB
-	if err != nil {
-		render.BadRequest(w, r, err)
-		return
-	}
-
-	// Get the file from the form
-	file, header, err := r.FormFile("file")
-	if err != nil {
-		zap.L().Warn("Form file", zap.Error(err))
-		render.BadRequest(w, r, err)
-		return
-	}
-	defer file.Close()
-
-	// Read the file
-	data, err := io.ReadAll(file)
-	if err != nil {
-		zap.L().Warn("Read file", zap.Error(err))
-		render.BadRequest(w, r, err)
-		return
-	}
-
-	// Check the MIME type
-	mimeType := http.DetectContentType(data)
-	if mimeType != "image/jpeg" && mimeType != "image/png" {
-		zap.L().Warn("Invalid MIME type", zap.String("mimeType", mimeType))
-		render.BadRequest(w, r, errors.New("invalid-type"))
+	data, name, ok := U().ReadImage(w, r)
+	if !ok {
 		return
 	}
 
@@ -259,12 +192,12 @@ func UpdateBrokerImage(w http.ResponseWriter, r *http.Request) {
 	brokerImageInput := brokers.Image{
 		ID:       imageID,
 		BrokerID: brokerID,
-		Name:     header.Filename,
+		Name:     name,
 		Data:     data,
 	}
 
 	// Validate the broker image
-	if ok, err = brokerImageInput.IsValid(); !ok {
+	if ok, err := brokerImageInput.IsValid(); !ok {
 		zap.L().Warn("Broker image is not valid", zap.Error(err))
 		render.BadRequest(w, r, err)
 		return
