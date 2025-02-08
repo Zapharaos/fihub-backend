@@ -2,51 +2,42 @@ package email
 
 import (
 	"github.com/stretchr/testify/assert"
+	"go.uber.org/mock/gomock"
 	"testing"
 )
-
-// EmailService is a mock implementation of the email.Service interface
-type EmailService struct {
-	SendError error
-}
-
-// NewEmailService creates a new instance of the email.Service
-func NewEmailService(sendError error) Service {
-	s := EmailService{
-		SendError: sendError,
-	}
-	var service Service = &s
-	return service
-}
-
-func (e EmailService) Send(emailTo, subject, plainTextContent, htmlContent string) error {
-	return e.SendError
-}
 
 // TestTranslationReplaceGlobals tests the ReplaceGlobals function
 // It verifies that the global service can be replaced and restored correctly.
 func TestEmailReplaceGlobals(t *testing.T) {
+	// Mock
+	ctrl := gomock.NewController(t)
+	m := NewMockService(ctrl)
+	defer ctrl.Finish()
+
 	// Replace the global service with a mock service
-	mockService := &EmailService{}
-	restore := ReplaceGlobals(mockService)
+	restore := ReplaceGlobals(m)
 
 	// Ensure the global service is replaced
-	assert.Equal(t, mockService, S())
+	assert.Equal(t, m, S())
 
 	// Restore the previous global service
 	restore()
-	assert.NotEqual(t, mockService, S())
+	assert.NotEqual(t, m, S())
 }
 
 // TestTranslationS tests the S function
 // It verifies that the global service can be accessed correctly.
 func TestEmailS(t *testing.T) {
+	// Mock
+	ctrl := gomock.NewController(t)
+	m := NewMockService(ctrl)
+	defer ctrl.Finish()
+
 	// Replace the global service with a mock service
-	mockService := &EmailService{}
-	restore := ReplaceGlobals(mockService)
+	restore := ReplaceGlobals(m)
 	defer restore()
 
 	// Access the global service
 	service := S()
-	assert.Equal(t, mockService, service)
+	assert.Equal(t, m, service)
 }
