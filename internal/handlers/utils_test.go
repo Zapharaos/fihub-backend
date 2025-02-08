@@ -12,6 +12,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"
+	"golang.org/x/text/language"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -269,6 +270,60 @@ func TestParseParamString(t *testing.T) {
 			if tt.expectOK {
 				assert.Equal(t, tt.expectStr, resultStr)
 			}
+		})
+	}
+}
+
+// TestParseParamLanguage tests the ParseParamLanguage function
+func TestParseParamLanguage(t *testing.T) {
+	// Define data
+	defaultLanguage := language.English
+
+	// Replace the global utils with a new instance
+	handlers.ReplaceGlobals(handlers.NewUtils())
+
+	// Define the test cases
+	tests := []struct {
+		name       string
+		langParam  string
+		expectOK   bool
+		expectCode int
+		expectLang language.Tag
+	}{
+		{
+			name:       "missing language parameter",
+			langParam:  "",
+			expectLang: defaultLanguage,
+		},
+		{
+			name:       "invalid language parameter",
+			langParam:  "invalid-lang",
+			expectLang: defaultLanguage,
+		},
+		{
+			name:       "valid language parameter",
+			langParam:  "fr",
+			expectLang: language.MustParse("fr"),
+		},
+	}
+
+	// Run the test cases
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Create a new recorder
+			w := httptest.NewRecorder()
+			r := httptest.NewRequest("GET", "/", nil)
+
+			// Add the language parameter to the request
+			q := r.URL.Query()
+			q.Add("lang", tt.langParam)
+			r.URL.RawQuery = q.Encode()
+
+			// Call the function
+			resultLang := handlers.U().ParseParamLanguage(w, r)
+
+			// Check the results
+			assert.Equal(t, tt.expectLang, resultLang)
 		})
 	}
 }

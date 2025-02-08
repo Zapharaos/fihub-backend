@@ -7,10 +7,13 @@ import (
 	"github.com/Zapharaos/fihub-backend/internal/auth/password"
 	"github.com/Zapharaos/fihub-backend/internal/auth/users"
 	"github.com/Zapharaos/fihub-backend/internal/handlers"
+	"github.com/Zapharaos/fihub-backend/pkg/email"
+	"github.com/Zapharaos/fihub-backend/pkg/translation"
 	"github.com/Zapharaos/fihub-backend/test/mocks"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"
+	"golang.org/x/text/language"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -124,68 +127,84 @@ func TestCreatePasswordResetRequest(t *testing.T) {
 				p.EXPECT().ValidForUser(gomock.Any()).Return(false, nil)
 				p.EXPECT().Create(gomock.Any()).Return(password.Request{}, errors.New("error"))
 				password.ReplaceGlobals(p)
-				// TODO : not localizer
+				t := translation.NewMockService(ctrl)
+				t.EXPECT().Localizer(gomock.Any()).Times(0)
+				translation.ReplaceGlobals(t)
 			},
 			expectedStatus: http.StatusInternalServerError,
 		},
+		{
+			name: "fails to localize language",
+			body: validRequestBody,
+			mockSetup: func(ctrl *gomock.Controller) {
+				h := mocks.NewMockUtils(ctrl)
+				h.EXPECT().ParseParamLanguage(gomock.Any(), gomock.Any()).Return(language.English)
+				handlers.ReplaceGlobals(h)
+				u := mocks.NewUsersRepository(ctrl)
+				u.EXPECT().GetByEmail(gomock.Any()).Return(users.User{}, true, nil)
+				users.ReplaceGlobals(u)
+				p := mocks.NewUsersPasswordRepository(ctrl)
+				p.EXPECT().ValidForUser(gomock.Any()).Return(false, nil)
+				p.EXPECT().Create(gomock.Any()).Return(password.Request{}, nil)
+				password.ReplaceGlobals(p)
+				t := translation.NewMockService(ctrl)
+				t.EXPECT().Localizer(gomock.Any()).Return(nil, errors.New("error"))
+				t.EXPECT().Message(gomock.Any(), gomock.Any()).Times(0)
+				translation.ReplaceGlobals(t)
+			},
+			expectedStatus: http.StatusInternalServerError,
+		},
+		{
+			name: "fails to send email",
+			body: validRequestBody,
+			mockSetup: func(ctrl *gomock.Controller) {
+				h := mocks.NewMockUtils(ctrl)
+				h.EXPECT().ParseParamLanguage(gomock.Any(), gomock.Any()).Return(language.English)
+				handlers.ReplaceGlobals(h)
+				u := mocks.NewUsersRepository(ctrl)
+				u.EXPECT().GetByEmail(gomock.Any()).Return(users.User{}, true, nil)
+				users.ReplaceGlobals(u)
+				p := mocks.NewUsersPasswordRepository(ctrl)
+				p.EXPECT().ValidForUser(gomock.Any()).Return(false, nil)
+				p.EXPECT().Create(gomock.Any()).Return(password.Request{}, nil)
+				p.EXPECT().Delete(gomock.Any()).Return(nil)
+				password.ReplaceGlobals(p)
+				t := translation.NewMockService(ctrl)
+				t.EXPECT().Localizer(gomock.Any()).Return(nil, nil)
+				t.EXPECT().Message(gomock.Any(), gomock.Any()).Return("").AnyTimes()
+				translation.ReplaceGlobals(t)
+				e := email.NewMockService(ctrl)
+				e.EXPECT().Send(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(errors.New("error"))
+				email.ReplaceGlobals(e)
+			},
+			expectedStatus: http.StatusInternalServerError,
+		},
+		{
+			name: "succeed",
+			body: validRequestBody,
+			mockSetup: func(ctrl *gomock.Controller) {
+				h := mocks.NewMockUtils(ctrl)
+				h.EXPECT().ParseParamLanguage(gomock.Any(), gomock.Any()).Return(language.English)
+				handlers.ReplaceGlobals(h)
+				u := mocks.NewUsersRepository(ctrl)
+				u.EXPECT().GetByEmail(gomock.Any()).Return(users.User{}, true, nil)
+				users.ReplaceGlobals(u)
+				p := mocks.NewUsersPasswordRepository(ctrl)
+				p.EXPECT().ValidForUser(gomock.Any()).Return(false, nil)
+				p.EXPECT().Create(gomock.Any()).Return(password.Request{}, nil)
+				p.EXPECT().Delete(gomock.Any()).Times(0)
+				password.ReplaceGlobals(p)
+				t := translation.NewMockService(ctrl)
+				t.EXPECT().Localizer(gomock.Any()).Return(nil, nil)
+				t.EXPECT().Message(gomock.Any(), gomock.Any()).Return("").AnyTimes()
+				translation.ReplaceGlobals(t)
+				e := email.NewMockService(ctrl)
+				e.EXPECT().Send(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
+				email.ReplaceGlobals(e)
+			},
+			expectedStatus: http.StatusOK,
+		},
 	}
-
-	/*{
-	name: "fails to localizer language",
-		mockSetup: func(ctrl *gomock.Controller) {
-		u := mocks.NewUsersRepository(ctrl)
-		u.EXPECT().GetByEmail(gomock.Any()).Return(&users.User{}, nil)
-		users.ReplaceGlobals(u)
-		p := mocks.NewUsersPasswordRepository(ctrl)
-		p.EXPECT().GetByUserID(gomock.Any()).Return(nil, nil)
-		p.EXPECT().Create(gomock.Any()).Return(nil)
-		password.ReplaceGlobals(p)
-		s := mocks.NewTranslationService(ctrl)
-		s.EXPECT().Localizer(gomock.Any()).Return(nil, errors.New("error"))
-		translation.ReplaceGlobals(s)
-	},
-		expectedStatus: http.StatusInternalServerError,
-	},
-	{
-	name: "fails to send email",
-		mockSetup: func(ctrl *gomock.Controller) {
-		u := mocks.NewUsersRepository(ctrl)
-		u.EXPECT().GetByEmail(gomock.Any()).Return(&users.User{}, nil)
-		users.ReplaceGlobals(u)
-		p := mocks.NewUsersPasswordRepository(ctrl)
-		p.EXPECT().GetByUserID(gomock.Any()).Return(nil, nil)
-		p.EXPECT().Create(gomock.Any()).Return(nil)
-		password.ReplaceGlobals(p)
-		s := mocks.NewTranslationService(ctrl)
-		s.EXPECT().Localizer(gomock.Any()).Return(&translation.Localizer{}, nil)
-		s.EXPECT().Message(gomock.Any(), gomock.Any()).Return("message")
-		translation.ReplaceGlobals(s)
-		e := mocks.NewEmailService(ctrl)
-		e.EXPECT().Send(gomock.Any(), gomock.Any(), gomock.Any()).Return(errors.New("error"))
-		email.ReplaceGlobals(e)
-	},
-		expectedStatus: http.StatusInternalServerError,
-	},
-	{
-	name: "succeeded",
-		mockSetup: func(ctrl *gomock.Controller) {
-		u := mocks.NewUsersRepository(ctrl)
-		u.EXPECT().GetByEmail(gomock.Any()).Return(&users.User{}, nil)
-		users.ReplaceGlobals(u)
-		p := mocks.NewUsersPasswordRepository(ctrl)
-		p.EXPECT().GetByUserID(gomock.Any()).Return(nil, nil)
-		p.EXPECT().Create(gomock.Any()).Return(nil)
-		password.ReplaceGlobals(p)
-		s := mocks.NewTranslationService(ctrl)
-		s.EXPECT().Localizer(gomock.Any()).Return(&translation.Localizer{}, nil)
-		s.EXPECT().Message(gomock.Any(), gomock.Any()).Return("message")
-		translation.ReplaceGlobals(s)
-		e := mocks.NewEmailService(ctrl)
-		e.EXPECT().Send(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
-		email.ReplaceGlobals(e)
-	},
-		expectedStatus: http.StatusOK,
-	},*/
 
 	// Run tests
 	for _, tt := range tests {

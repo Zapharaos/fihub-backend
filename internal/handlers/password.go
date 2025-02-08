@@ -9,11 +9,9 @@ import (
 	"github.com/Zapharaos/fihub-backend/internal/handlers/render"
 	"github.com/Zapharaos/fihub-backend/pkg/email"
 	"github.com/Zapharaos/fihub-backend/pkg/email/templates"
-	"github.com/Zapharaos/fihub-backend/pkg/env"
 	"github.com/Zapharaos/fihub-backend/pkg/translation"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
-	"golang.org/x/text/language"
 	"net/http"
 	"time"
 )
@@ -93,16 +91,7 @@ func CreatePasswordResetRequest(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Retrieve user language from query parameters
-	langParam := r.URL.Query().Get("lang")
-	userLanguage := language.MustParse(env.GetString("DEFAULT_LANG", "en"))
-	if langParam != "" {
-		userLanguage, err = language.Parse(langParam)
-		if err != nil {
-			zap.L().Error("Failed to parse language", zap.Error(err))
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-	}
+	userLanguage := U().ParseParamLanguage(w, r)
 
 	// Get localizer
 	loc, err := translation.S().Localizer(userLanguage)

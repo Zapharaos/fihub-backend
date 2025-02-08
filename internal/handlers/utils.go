@@ -7,9 +7,11 @@ import (
 	"github.com/Zapharaos/fihub-backend/internal/app"
 	"github.com/Zapharaos/fihub-backend/internal/auth/users"
 	"github.com/Zapharaos/fihub-backend/internal/handlers/render"
+	"github.com/Zapharaos/fihub-backend/pkg/env"
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
+	"golang.org/x/text/language"
 	"net/http"
 	"sync"
 )
@@ -20,6 +22,7 @@ type Utils interface {
 	GetUserFromContext(r *http.Request) (users.UserWithRoles, bool)
 	ParseParamString(w http.ResponseWriter, r *http.Request, key string) (string, bool)
 	ParseParamUUID(w http.ResponseWriter, r *http.Request, key string) (uuid.UUID, bool)
+	ParseParamLanguage(w http.ResponseWriter, r *http.Request) language.Tag
 	ParseUUIDPair(w http.ResponseWriter, r *http.Request, key string) (baseID, keyID uuid.UUID, ok bool)
 }
 
@@ -114,6 +117,17 @@ func (u *utils) ParseParamUUID(w http.ResponseWriter, r *http.Request, key strin
 	}
 
 	return result, true
+}
+
+// ParseParamLanguage parses a language from the request parameters
+func (u *utils) ParseParamLanguage(w http.ResponseWriter, r *http.Request) language.Tag {
+	langParam := r.URL.Query().Get("lang")
+	lang, err := language.Parse(langParam)
+	if langParam == "" || err != nil {
+		// If no language is provided, use the default language
+		return language.MustParse(env.GetString("DEFAULT_LANG", "en"))
+	}
+	return lang
 }
 
 // ParseUUIDPair is a helper function to parse a key and base UUIDs from the request

@@ -16,6 +16,7 @@ import (
 	users "github.com/Zapharaos/fihub-backend/internal/auth/users"
 	uuid "github.com/google/uuid"
 	gomock "go.uber.org/mock/gomock"
+	language "golang.org/x/text/language"
 )
 
 // MockUtils is a mock of Utils interface.
@@ -69,6 +70,20 @@ func (m *MockUtils) GetUserFromContext(r *http.Request) (users.UserWithRoles, bo
 func (mr *MockUtilsMockRecorder) GetUserFromContext(r any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserFromContext", reflect.TypeOf((*MockUtils)(nil).GetUserFromContext), r)
+}
+
+// ParseParamLanguage mocks base method.
+func (m *MockUtils) ParseParamLanguage(w http.ResponseWriter, r *http.Request) language.Tag {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ParseParamLanguage", w, r)
+	ret0, _ := ret[0].(language.Tag)
+	return ret0
+}
+
+// ParseParamLanguage indicates an expected call of ParseParamLanguage.
+func (mr *MockUtilsMockRecorder) ParseParamLanguage(w, r any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ParseParamLanguage", reflect.TypeOf((*MockUtils)(nil).ParseParamLanguage), w, r)
 }
 
 // ParseParamString mocks base method.
