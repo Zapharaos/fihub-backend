@@ -1,40 +1,33 @@
 package test
 
 import (
-	"database/sql"
 	"github.com/jmoiron/sqlx"
-	sqlmock "github.com/zhashkevych/go-sqlxmock"
+	sqlxmock "github.com/zhashkevych/go-sqlxmock"
 	"testing"
 )
 
 type Sqlx struct {
-	mock sqlmock.Sqlmock
-	sql  *sql.DB
-	sqlx *sqlx.DB
+	Mock sqlxmock.Sqlmock
+	DB   *sqlx.DB
 }
 
 // CreateFullTestSqlx Create a full test suite
 // Please clean test suite after use (defer CleanTestSqlx())
 func (s *Sqlx) CreateFullTestSqlx(t *testing.T) {
-	// Create a new sqlmock
-	sqlDB, mock, err := sqlmock.New()
+	var err error
+	s.DB, s.Mock, err = sqlxmock.Newx()
 	if err != nil {
-		t.Fatal(err)
+		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
 	}
-
-	s.mock = mock
-	s.sql = sqlDB
-	s.sqlx = sqlx.NewDb(sqlDB, "sqlmock")
 }
 
 // CleanTestSqlx Clean the test suite
 func (s *Sqlx) CleanTestSqlx() {
-	s.sql.Close()
-	s.sqlx.Close()
+	s.DB.Close()
 }
 
-func (s *Sqlx) MockQuery(rows *sqlmock.Rows) (*sqlx.Rows, error) {
+func (s *Sqlx) MockQuery(rows *sqlxmock.Rows) (*sqlx.Rows, error) {
 	query := "SELECT"
-	s.mock.ExpectQuery(query).WillReturnRows(rows)
-	return s.sqlx.Queryx(query)
+	s.Mock.ExpectQuery(query).WillReturnRows(rows)
+	return s.DB.Queryx(query)
 }
