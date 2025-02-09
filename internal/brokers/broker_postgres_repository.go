@@ -23,25 +23,20 @@ func NewPostgresRepository(dbClient *sqlx.DB) BrokerRepository {
 // Create use to create a Broker
 func (r *BrokerPostgresRepository) Create(broker Broker) (uuid.UUID, error) {
 
-	// UUID
-	broker.ID = uuid.New()
-
-	// Prepare query
-	query := `INSERT INTO brokers (id, name, disabled)
-			  VALUES (:id, :name, :disabled)`
-	params := map[string]interface{}{
-		"id":       broker.ID,
-		"name":     broker.Name,
-		"disabled": broker.Disabled,
-	}
-
 	// Execute query
-	_, err := r.conn.NamedQuery(query, params)
-	if err != nil {
+	row := r.conn.QueryRow(""+
+		"INSERT INTO brokers (id, name, disabled)"+
+		"VALUES (:id, :name, :disabled)"+
+		"RETURNING id",
+		uuid.New(), broker.Name, broker.Disabled)
+
+	// Retrieve the created transaction ID
+	var id uuid.UUID
+	if err := row.Scan(&id); err != nil {
 		return uuid.Nil, err
 	}
 
-	return broker.ID, nil
+	return id, nil
 }
 
 // Get use to retrieve a Broker by its id
@@ -62,7 +57,7 @@ func (r *BrokerPostgresRepository) Get(id uuid.UUID) (Broker, bool, error) {
 	}
 	defer rows.Close()
 
-	return utils.ScanFirst(rows, scanBroker)
+	return utils.ScanFirst(rows, r.Scan)
 }
 
 // Update use to update a Broker
@@ -160,7 +155,7 @@ func (r *BrokerPostgresRepository) GetAll() ([]Broker, error) {
 	}
 	defer rows.Close()
 
-	return utils.ScanAll(rows, scanBroker)
+	return utils.ScanAll(rows, r.Scan)
 }
 
 // GetAllEnabled use to retrieve all enabled Broker
@@ -178,7 +173,7 @@ func (r *BrokerPostgresRepository) GetAllEnabled() ([]Broker, error) {
 	}
 	defer rows.Close()
 
-	return utils.ScanAll(rows, scanBroker)
+	return utils.ScanAll(rows, r.Scan)
 }
 
 // SetImage use to set an Image to a Broker
@@ -240,7 +235,7 @@ func (r *BrokerPostgresRepository) DeleteImage(id uuid.UUID) error {
 	return utils.CheckRowAffected(result, 1)
 }
 
-func scanBroker(rows *sqlx.Rows) (Broker, error) {
+func (r *BrokerPostgresRepository) Scan(rows *sqlx.Rows) (Broker, error) {
 	var broker Broker
 	err := rows.Scan(
 		&broker.ID,

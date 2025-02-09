@@ -97,10 +97,10 @@ func (r *UserPostgresRepository) GetAll(userID uuid.UUID) ([]User, error) {
 	}
 	defer rows.Close()
 
-	return utils.ScanAll(rows, scanUserBroker)
+	return utils.ScanAll(rows, r.Scan)
 }
 
-func scanUserBroker(rows *sqlx.Rows) (User, error) {
+func (r *UserPostgresRepository) Scan(rows *sqlx.Rows) (User, error) {
 	var userBroker User
 	err := rows.Scan(
 		&userBroker.Broker.ID,

@@ -59,7 +59,7 @@ func (r *ImagePostgresRepository) Get(brokerImageID uuid.UUID) (Image, bool, err
 	}
 	defer rows.Close()
 
-	return utils.ScanFirst(rows, scanBrokerImage)
+	return utils.ScanFirst(rows, r.Scan)
 }
 
 // Update updates an Image in the repository
@@ -123,7 +123,7 @@ func (r *ImagePostgresRepository) Exists(brokerID uuid.UUID, brokerImageID uuid.
 	return rows.Next(), nil
 }
 
-func scanBrokerImage(rows *sqlx.Rows) (Image, error) {
+func (r *ImagePostgresRepository) Scan(rows *sqlx.Rows) (Image, error) {
 	var brokerImage Image
 	err := rows.Scan(
 		&brokerImage.ID,
