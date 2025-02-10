@@ -15,12 +15,12 @@ import (
 //
 //	@Summary		Create a new user broker
 //	@Description	Create a new user broker.
-//	@Tags			UserBroker
+//	@Tags			User
 //	@Accept			json
 //	@Produce		json
-//	@Param			userBroker	body	brokers.UserBrokerInput	true	"userBroker (json)"
+//	@Param			userBroker	body	brokers.UserInput	true	"userBroker (json)"
 //	@Security		Bearer
-//	@Success		200	{array}		brokers.UserBroker		"Updated list of user brokers"
+//	@Success		200	{array}		brokers.User		"Updated list of user brokers"
 //	@Failure		400	{object}	render.ErrorResponse	"Bad Request"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
@@ -28,30 +28,30 @@ import (
 func CreateUserBroker(w http.ResponseWriter, r *http.Request) {
 
 	// Get the authenticated user from the context
-	user, ok := getUserFromContext(r)
+	user, ok := U().GetUserFromContext(r)
 	if !ok {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
 	// Parse request body
-	var userBrokerInput brokers.UserBrokerInput
+	var userBrokerInput brokers.UserInput
 	err := json.NewDecoder(r.Body).Decode(&userBrokerInput)
 	if err != nil {
-		zap.L().Warn("UserBroker json decode", zap.Error(err))
+		zap.L().Warn("User json decode", zap.Error(err))
 		render.BadRequest(w, r, err)
 		return
 	}
 
 	// Validate user
 	if ok, err := userBrokerInput.IsValid(); !ok {
-		zap.L().Warn("UserBroker is not valid", zap.Error(err))
+		zap.L().Warn("User is not valid", zap.Error(err))
 		render.BadRequest(w, r, err)
 		return
 	}
 
-	// Convert to UserBroker
-	userBroker := userBrokerInput.ToUserBroker()
+	// Convert to User
+	userBroker := userBrokerInput.ToUser()
 	userBroker.UserID = user.ID
 
 	// Retrieve broker to check if it exists
@@ -84,7 +84,7 @@ func CreateUserBroker(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if exists {
-		zap.L().Warn("UserBroker already exists", zap.String("BrokerID", userBroker.Broker.ID.String()))
+		zap.L().Warn("User already exists", zap.String("BrokerID", userBroker.Broker.ID.String()))
 		render.BadRequest(w, r, fmt.Errorf("broker-used"))
 		return
 	}
@@ -119,7 +119,7 @@ func CreateUserBroker(w http.ResponseWriter, r *http.Request) {
 //
 //	@Summary		Delete a user broker
 //	@Description	Delete a user broker.
-//	@Tags			UserBroker
+//	@Tags			User
 //	@Produce		json
 //	@Param			id	path	string	true	"broker ID"
 //	@Security		Bearer
@@ -130,20 +130,20 @@ func CreateUserBroker(w http.ResponseWriter, r *http.Request) {
 //	@Router			/api/v1/users/brokers/{id} [delete]
 func DeleteUserBroker(w http.ResponseWriter, r *http.Request) {
 	// Retrieve brokerID
-	brokerID, ok := parseParamUUID(w, r, "id")
+	brokerID, ok := U().ParseParamUUID(w, r, "id")
 	if !ok {
 		return
 	}
 
 	// Get the authenticated user from the context
-	user, ok := getUserFromContext(r)
+	user, ok := U().GetUserFromContext(r)
 	if !ok {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
 	// Build userBroker
-	userBroker := brokers.UserBroker{
+	userBroker := brokers.User{
 		UserID: user.ID,
 		Broker: brokers.Broker{ID: brokerID},
 	}
@@ -156,7 +156,7 @@ func DeleteUserBroker(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if !exists {
-		zap.L().Warn("UserBroker not found",
+		zap.L().Warn("User not found",
 			zap.String("UserID", user.ID.String()),
 			zap.String("BrokerID", brokerID.String()))
 		w.WriteHeader(http.StatusBadRequest)
@@ -180,17 +180,17 @@ func DeleteUserBroker(w http.ResponseWriter, r *http.Request) {
 //
 //	@Summary		Get all user's brokers
 //	@Description	Gets a list of all user's brokers.
-//	@Tags			UserBroker
+//	@Tags			User
 //	@Produce		json
 //	@Security		Bearer
-//	@Success		200	{array}		brokers.UserBroker		"List of brokers"
+//	@Success		200	{array}		brokers.User		"List of brokers"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/users/brokers [get]
 func GetUserBrokers(w http.ResponseWriter, r *http.Request) {
 
 	// Get the authenticated user from the context
-	user, ok := getUserFromContext(r)
+	user, ok := U().GetUserFromContext(r)
 	if !ok {
 		w.WriteHeader(http.StatusUnauthorized)
 		return

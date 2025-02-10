@@ -1,5 +1,7 @@
 package transactions
 
+//go:generate mockgen -source=repository.go -destination=../../test/mocks/transactions_repository.go --package=mocks -mock_names=Repository=TransactionsRepository Repository
+
 import (
 	"github.com/google/uuid"
 	"sync"
@@ -7,7 +9,7 @@ import (
 
 // Repository is a storage interface which can be implemented by multiple backend
 // (in-memory map, sql database, in-memory cache, file system, ...)
-// It allows standard CRUD operation on Users
+// It allows standard CRUD operation on Transaction
 type Repository interface {
 	Create(transactionInput TransactionInput) (uuid.UUID, error)
 	Get(transactionID uuid.UUID) (Transaction, bool, error)

@@ -5,10 +5,14 @@ import (
 	"time"
 )
 
-const digitsCharset = "0123456789"
-const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" + digitsCharset
+const (
+	digitsCharset = "0123456789"
+	charset       = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" + digitsCharset
+)
 
-var seededRand = rand.New(rand.NewSource(time.Now().UnixNano()))
+var (
+	seededRand = rand.New(rand.NewSource(time.Now().UnixNano()))
+)
 
 // RandStringWithCharset generate a random string with a specific charset
 func RandStringWithCharset(length int, charset string) string {

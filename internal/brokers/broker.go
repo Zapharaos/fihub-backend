@@ -5,6 +5,11 @@ import (
 	"github.com/google/uuid"
 )
 
+var (
+	errBrokerIdRequired   = errors.New("broker-required")
+	errBrokerNameRequired = errors.New("name-required")
+)
+
 // Broker represents a broker entity in the system
 type Broker struct {
 	ID       uuid.UUID     `json:"id"`
@@ -13,10 +18,10 @@ type Broker struct {
 	Disabled bool          `json:"disabled"`
 }
 
-// IsValid checks if the broker is valid
+// IsValid checks if the Broker is valid
 func (b Broker) IsValid() (bool, error) {
 	if b.Name == "" {
-		return false, errors.New("name-required")
+		return false, errBrokerNameRequired
 	}
 	return true, nil
 }

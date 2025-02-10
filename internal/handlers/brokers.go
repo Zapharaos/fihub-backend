@@ -26,7 +26,7 @@ import (
 //	@Router			/api/v1/brokers [post]
 func CreateBroker(w http.ResponseWriter, r *http.Request) {
 
-	if !checkPermission(w, r, "admin.brokers.create") {
+	if !U().CheckPermission(w, r, "admin.brokers.create") {
 		return
 	}
 
@@ -101,7 +101,7 @@ func CreateBroker(w http.ResponseWriter, r *http.Request) {
 func GetBroker(w http.ResponseWriter, r *http.Request) {
 
 	// Retrieve brokerID
-	brokerID, ok := parseParamUUID(w, r, "id")
+	brokerID, ok := U().ParseParamUUID(w, r, "id")
 	if !ok {
 		return
 	}
@@ -141,12 +141,12 @@ func GetBroker(w http.ResponseWriter, r *http.Request) {
 //	@Router			/api/v1/brokers/{id} [put]
 func UpdateBroker(w http.ResponseWriter, r *http.Request) {
 
-	if !checkPermission(w, r, "admin.brokers.update") {
+	if !U().CheckPermission(w, r, "admin.brokers.update") {
 		return
 	}
 
 	// Retrieve brokerID
-	brokerID, ok := parseParamUUID(w, r, "id")
+	brokerID, ok := U().ParseParamUUID(w, r, "id")
 	if !ok {
 		return
 	}
@@ -169,19 +169,6 @@ func UpdateBroker(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Verify that the broker exists
-	exists, err := brokers.R().B().Exists(brokerID)
-	if err != nil {
-		zap.L().Error("Check broker exists", zap.Error(err))
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	if !exists {
-		zap.L().Warn("Broker not found", zap.String("BrokerID", brokerID.String()))
-		w.WriteHeader(http.StatusNotFound)
-		return
-	}
-
 	// Retrieve the broker from the database and verify its existence
 	oldBroker, found, err := brokers.R().B().Get(brokerID)
 	if err != nil {
@@ -198,7 +185,7 @@ func UpdateBroker(w http.ResponseWriter, r *http.Request) {
 	// Check if the broker name has changed
 	if oldBroker.Name != broker.Name {
 		// Verify that the broker name is not already used
-		exists, err = brokers.R().B().ExistsByName(broker.Name)
+		exists, err := brokers.R().B().ExistsByName(broker.Name)
 		if err != nil {
 			zap.L().Error("Check broker name exists", zap.Error(err))
 			w.WriteHeader(http.StatusInternalServerError)
@@ -252,12 +239,12 @@ func UpdateBroker(w http.ResponseWriter, r *http.Request) {
 //	@Router			/api/v1/brokers/{id} [delete]
 func DeleteBroker(w http.ResponseWriter, r *http.Request) {
 
-	if !checkPermission(w, r, "admin.brokers.delete") {
+	if !U().CheckPermission(w, r, "admin.brokers.delete") {
 		return
 	}
 
 	// Retrieve brokerID
-	brokerID, ok := parseParamUUID(w, r, "id")
+	brokerID, ok := U().ParseParamUUID(w, r, "id")
 	if !ok {
 		return
 	}
@@ -301,8 +288,10 @@ func DeleteBroker(w http.ResponseWriter, r *http.Request) {
 //	@Router			/api/v1/brokers [get]
 func GetBrokers(w http.ResponseWriter, r *http.Request) {
 
-	// Get the query parameter
-	enabledOnly := r.URL.Query().Get("enabled")
+	enabled, ok := U().ParseParamBool(w, r, "enabled")
+	if !ok {
+		return
+	}
 
 	var (
 		result []brokers.Broker
@@ -310,7 +299,7 @@ func GetBrokers(w http.ResponseWriter, r *http.Request) {
 	)
 
 	// Check if the query parameter is set to true
-	if enabledOnly == "true" {
+	if enabled {
 		result, err = brokers.R().B().GetAllEnabled()
 	} else {
 		result, err = brokers.R().B().GetAll()

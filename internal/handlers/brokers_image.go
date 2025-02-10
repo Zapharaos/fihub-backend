@@ -1,12 +1,10 @@
 package handlers
 
 import (
-	"errors"
 	"github.com/Zapharaos/fihub-backend/internal/brokers"
 	"github.com/Zapharaos/fihub-backend/internal/handlers/render"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
-	"io"
 	"net/http"
 )
 
@@ -22,71 +20,45 @@ import (
 //	@Param			id		path		string	true	"broker ID"
 //	@Param			file	formData	file	true	"image file"
 //	@Security		Bearer
-//	@Success		200	{object}	brokers.BrokerImage		"broker image"
+//	@Success		200	{object}	brokers.Image		"broker image"
 //	@Failure		400	{object}	render.ErrorResponse	"Bad Request"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/brokers/{id}/image [post]
 func CreateBrokerImage(w http.ResponseWriter, r *http.Request) {
 
-	if !checkPermission(w, r, "admin.brokers.create") {
+	if !U().CheckPermission(w, r, "admin.brokers.create") {
 		return
 	}
 
 	// Get the broker ID
-	brokerID, ok := parseParamUUID(w, r, "id")
+	brokerID, ok := U().ParseParamUUID(w, r, "id")
 	if !ok {
 		return
 	}
 
 	// Parse the multipart form
-	err := r.ParseMultipartForm(10 << 20) // 10 MB
-	if err != nil {
-		render.BadRequest(w, r, err)
-		return
-	}
-
-	// Get the file from the form
-	file, header, err := r.FormFile("file")
-	if err != nil {
-		zap.L().Warn("Form file", zap.Error(err))
-		render.BadRequest(w, r, err)
-		return
-	}
-	defer file.Close()
-
-	// Read the file
-	data, err := io.ReadAll(file)
-	if err != nil {
-		zap.L().Warn("Read file", zap.Error(err))
-		render.BadRequest(w, r, err)
-		return
-	}
-
-	// Check the MIME type
-	mimeType := http.DetectContentType(data)
-	if mimeType != "image/jpeg" && mimeType != "image/png" {
-		zap.L().Warn("Invalid MIME type", zap.String("mimeType", mimeType))
-		render.BadRequest(w, r, errors.New("invalid-type"))
+	data, name, ok := U().ReadImage(w, r)
+	if !ok {
 		return
 	}
 
 	// Create the broker image
-	brokerImageInput := brokers.BrokerImage{
+	brokerImageInput := brokers.Image{
 		ID:       uuid.New(),
 		BrokerID: brokerID,
-		Name:     header.Filename,
+		Name:     name,
 		Data:     data,
 	}
 
 	// Validate the broker image
-	if ok, err = brokerImageInput.IsValid(); !ok {
+	if ok, err := brokerImageInput.IsValid(); !ok {
 		zap.L().Warn("Broker image is not valid", zap.Error(err))
 		render.BadRequest(w, r, err)
 		return
 	}
 
 	// Verify broker has no image
-	ok, err = brokers.R().B().HasImage(brokerID)
+	ok, err := brokers.R().B().HasImage(brokerID)
 	if err != nil {
 		zap.L().Error("HasImageBroker", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
@@ -150,21 +122,8 @@ func CreateBrokerImage(w http.ResponseWriter, r *http.Request) {
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/brokers/{id}/image/{image_id} [get]
 func GetBrokerImage(w http.ResponseWriter, r *http.Request) {
-	brokerID, imageID, ok := parseUUIDPair(w, r, "image_id")
+	imageID, ok := U().ParseParamUUID(w, r, "image_id")
 	if !ok {
-		return
-	}
-
-	// Verify imageBroker existence
-	exists, err := brokers.R().I().Exists(brokerID, imageID)
-	if err != nil {
-		zap.L().Error("Check imageBroker exists", zap.Error(err))
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	if !exists {
-		zap.L().Warn("ImageBroker not found", zap.String("broker_id", brokerID.String()), zap.String("image_id", imageID.String()))
-		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 
@@ -176,7 +135,7 @@ func GetBrokerImage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if !found {
-		zap.L().Warn("BrokerImage does not exist", zap.String("image_id", imageID.String()))
+		zap.L().Warn("Image does not exist", zap.String("image_id", imageID.String()))
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
@@ -206,65 +165,39 @@ func GetBrokerImage(w http.ResponseWriter, r *http.Request) {
 //	@Param			image_id	path		string	true	"image ID"
 //	@Param			file		formData	file	true	"image file"
 //	@Security		Bearer
-//	@Success		200	{object}	brokers.BrokerImage		"broker image"
+//	@Success		200	{object}	brokers.Image		"broker image"
 //	@Failure		400	{object}	render.ErrorResponse	"Bad Request"
 //	@Failure		404	{object}	render.ErrorResponse	"Not Found"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/brokers/{id}/image/{image_id} [put]
 func UpdateBrokerImage(w http.ResponseWriter, r *http.Request) {
 
-	if !checkPermission(w, r, "admin.brokers.update") {
+	if !U().CheckPermission(w, r, "admin.brokers.update") {
 		return
 	}
 
 	// Get the broker ID
-	brokerID, imageID, ok := parseUUIDPair(w, r, "image_id")
+	brokerID, imageID, ok := U().ParseUUIDPair(w, r, "image_id")
 	if !ok {
 		return
 	}
 
 	// Parse the multipart form
-	err := r.ParseMultipartForm(10 << 20) // 10 MB
-	if err != nil {
-		render.BadRequest(w, r, err)
-		return
-	}
-
-	// Get the file from the form
-	file, header, err := r.FormFile("file")
-	if err != nil {
-		zap.L().Warn("Form file", zap.Error(err))
-		render.BadRequest(w, r, err)
-		return
-	}
-	defer file.Close()
-
-	// Read the file
-	data, err := io.ReadAll(file)
-	if err != nil {
-		zap.L().Warn("Read file", zap.Error(err))
-		render.BadRequest(w, r, err)
-		return
-	}
-
-	// Check the MIME type
-	mimeType := http.DetectContentType(data)
-	if mimeType != "image/jpeg" && mimeType != "image/png" {
-		zap.L().Warn("Invalid MIME type", zap.String("mimeType", mimeType))
-		render.BadRequest(w, r, errors.New("invalid-type"))
+	data, name, ok := U().ReadImage(w, r)
+	if !ok {
 		return
 	}
 
 	// Create the broker image
-	brokerImageInput := brokers.BrokerImage{
+	brokerImageInput := brokers.Image{
 		ID:       imageID,
 		BrokerID: brokerID,
-		Name:     header.Filename,
+		Name:     name,
 		Data:     data,
 	}
 
 	// Validate the broker image
-	if ok, err = brokerImageInput.IsValid(); !ok {
+	if ok, err := brokerImageInput.IsValid(); !ok {
 		zap.L().Warn("Broker image is not valid", zap.Error(err))
 		render.BadRequest(w, r, err)
 		return
@@ -326,12 +259,12 @@ func UpdateBrokerImage(w http.ResponseWriter, r *http.Request) {
 //	@Router			/api/v1/brokers/{id}/image/{image_id} [delete]
 func DeleteBrokerImage(w http.ResponseWriter, r *http.Request) {
 
-	if !checkPermission(w, r, "admin.brokers.delete") {
+	if !U().CheckPermission(w, r, "admin.brokers.delete") {
 		return
 	}
 
 	// Get the broker ID
-	brokerID, imageID, ok := parseUUIDPair(w, r, "image_id")
+	brokerID, imageID, ok := U().ParseUUIDPair(w, r, "image_id")
 	if !ok {
 		return
 	}

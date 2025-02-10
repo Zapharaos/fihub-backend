@@ -9,12 +9,9 @@ import (
 	"github.com/Zapharaos/fihub-backend/internal/handlers/render"
 	"github.com/Zapharaos/fihub-backend/pkg/email"
 	"github.com/Zapharaos/fihub-backend/pkg/email/templates"
-	"github.com/Zapharaos/fihub-backend/pkg/env"
 	"github.com/Zapharaos/fihub-backend/pkg/translation"
-	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
-	"golang.org/x/text/language"
 	"net/http"
 	"time"
 )
@@ -94,15 +91,7 @@ func CreatePasswordResetRequest(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Retrieve user language from query parameters
-	langParam := r.URL.Query().Get("lang")
-	userLanguage := language.MustParse(env.GetString("DEFAULT_LANG", "en"))
-	if langParam != "" {
-		userLanguage, err = language.Parse(langParam)
-		if err != nil {
-			zap.L().Error("Failed to parse language", zap.Error(err))
-			w.WriteHeader(http.StatusInternalServerError)
-		}
-	}
+	userLanguage := U().ParseParamLanguage(w, r)
 
 	// Get localizer
 	loc, err := translation.S().Localizer(userLanguage)
@@ -187,15 +176,14 @@ func CreatePasswordResetRequest(w http.ResponseWriter, r *http.Request) {
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/auth/password/{id}/{token} [get]
 func GetPasswordResetRequestID(w http.ResponseWriter, r *http.Request) {
-	userID, ok := parseParamUUID(w, r, "id")
+	userID, ok := U().ParseParamUUID(w, r, "id")
 	if !ok {
 		return
 	}
 
-	token := chi.URLParam(r, "token")
-	if token == "" {
-		zap.L().Warn("Token is empty")
-		w.WriteHeader(http.StatusBadRequest)
+	token, ok := U().ParseParamString(w, r, "token")
+	if !ok {
+		return
 	}
 
 	// Check if request exists and is valid
@@ -232,7 +220,7 @@ func GetPasswordResetRequestID(w http.ResponseWriter, r *http.Request) {
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/auth/password/{id}/{request_id} [put]
 func ResetPassword(w http.ResponseWriter, r *http.Request) {
-	userID, requestID, ok := parseUUIDPair(w, r, "request_id")
+	userID, requestID, ok := U().ParseUUIDPair(w, r, "request_id")
 	if !ok {
 		return
 	}
@@ -267,7 +255,7 @@ func ResetPassword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Convert to UserWithPassword
-	userWithPassword := userPassword.ToUserWithPassword()
+	userWithPassword := userPassword.UserWithPassword
 	userWithPassword.ID = userID
 
 	// Reset password

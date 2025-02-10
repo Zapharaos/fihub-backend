@@ -3,7 +3,7 @@ package auth
 import (
 	"context"
 	"encoding/json"
-	"fmt"
+	"errors"
 	"github.com/Zapharaos/fihub-backend/internal/app"
 	"github.com/Zapharaos/fihub-backend/internal/auth/users"
 	"github.com/Zapharaos/fihub-backend/internal/handlers/render"
@@ -16,6 +16,10 @@ import (
 	"time"
 )
 
+var (
+	ErrLoginInvalid = errors.New("login-invalid")
+)
+
 const (
 	CheckHeader = 1 << iota
 	CheckQuery
@@ -26,8 +30,8 @@ type JwtToken struct {
 }
 
 type Auth struct {
-	signingKey []byte
-	checks     int8
+	SigningKey []byte
+	Checks     int8
 }
 
 // New initialize a new instance of Auth and returns a pointer of it
@@ -39,8 +43,8 @@ func New(checks int8) *Auth {
 		zap.L().Fatal("no checks are enabled")
 	}
 	return &Auth{
-		signingKey: []byte(utils.RandString(128)),
-		checks:     checks,
+		SigningKey: []byte(utils.RandString(128)),
+		Checks:     checks,
 	}
 }
 
@@ -66,14 +70,14 @@ func (a *Auth) GetToken(w http.ResponseWriter, r *http.Request) {
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		zap.L().Error("GetToken.ReadAll:", zap.Error(err))
-		render.BadRequest(w, r, fmt.Errorf("login-invalid"))
+		render.BadRequest(w, r, ErrLoginInvalid)
 		return
 	}
 
 	err = json.Unmarshal(body, &userCredentials)
 	if err != nil {
 		zap.L().Error("GetToken.Decode:", zap.Error(err))
-		render.BadRequest(w, r, fmt.Errorf("login-invalid"))
+		render.BadRequest(w, r, ErrLoginInvalid)
 		return
 	}
 
@@ -85,7 +89,7 @@ func (a *Auth) GetToken(w http.ResponseWriter, r *http.Request) {
 	}
 	if !found {
 		zap.L().Warn("GetToken.Authenticate", zap.Error(err))
-		render.BadRequest(w, r, fmt.Errorf("login-invalid"))
+		render.BadRequest(w, r, ErrLoginInvalid)
 		return
 	}
 
@@ -111,7 +115,7 @@ func (a *Auth) GenerateToken(user users.User) (JwtToken, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 	// Sign the token with our signing key
-	tokenString, err := token.SignedString(a.signingKey)
+	tokenString, err := token.SignedString(a.SigningKey)
 	if err != nil {
 		return JwtToken{}, err
 	}
@@ -122,7 +126,7 @@ func (a *Auth) GenerateToken(user users.User) (JwtToken, error) {
 // ValidateToken validate a JWT token
 func (a *Auth) ValidateToken(tokenString string) (jwt.MapClaims, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		return a.signingKey, nil
+		return a.SigningKey, nil
 	})
 	if err != nil {
 		return nil, err
@@ -147,9 +151,9 @@ func (a *Auth) Middleware(next http.Handler) http.Handler {
 
 		// first check header if enabled
 		var tokenString string
-		if a.checks&CheckHeader != 0 {
+		if a.Checks&CheckHeader != 0 {
 			tokenString = r.Header.Get("Authorization")
-		} else if a.checks&CheckQuery != 0 {
+		} else if a.Checks&CheckQuery != 0 {
 			tokenString = r.URL.Query().Get("token")
 		}
 

@@ -1,28 +1,34 @@
-package postgres
+package database
 
-import (
-	"github.com/jmoiron/sqlx"
-	"sync"
-)
+import "github.com/jmoiron/sqlx"
 
-var (
-	_globalMu sync.RWMutex
-	_globalDB *sqlx.DB
-)
-
-// DB is the main accessor to the global postgresql client singleton
-func DB() *sqlx.DB {
-	_globalMu.RLock()
-	db := _globalDB
-	_globalMu.RUnlock()
-	return db
+// Databases holds all the database connections
+type Databases struct {
+	postgres *sqlx.DB
 }
 
-// ReplaceGlobals replace the global postgresql client singleton with the provided one
-func ReplaceGlobals(dbClient *sqlx.DB) func() {
-	_globalMu.Lock()
-	prev := _globalDB
-	_globalDB = dbClient
-	_globalMu.Unlock()
-	return func() { ReplaceGlobals(prev) }
+// NewDatabases creates a new Databases struct
+func NewDatabases(sql *sqlx.DB) Databases {
+	return Databases{
+		postgres: sql,
+	}
+}
+
+// Postgres returns the postgres database connection
+func (db Databases) Postgres() *sqlx.DB {
+	return db.postgres
+}
+
+var _databases Databases
+
+// DB returns the global Databases struct
+func DB() Databases {
+	return _databases
+}
+
+// ReplaceGlobals replaces the global Databases struct with the provided one
+func ReplaceGlobals(databases Databases) func() {
+	prev := _databases
+	_databases = databases
+	return func() { _databases = prev }
 }

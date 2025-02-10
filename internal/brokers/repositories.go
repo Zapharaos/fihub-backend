@@ -1,14 +1,14 @@
 package brokers
 
-// Repository stores the different repositories for events, parameters, users, roles and items
+// Repository is a struct that contains all the repositories
 type Repository struct {
 	broker BrokerRepository
-	user   UserBrokerRepository
-	image  ImageBrokerRepository
+	user   UserRepository
+	image  ImageRepository
 }
 
 // NewRepository returns a new instance of Repository
-func NewRepository(broker BrokerRepository, user UserBrokerRepository, image ImageBrokerRepository) Repository {
+func NewRepository(broker BrokerRepository, user UserRepository, image ImageRepository) Repository {
 	return Repository{
 		broker: broker,
 		user:   user,
@@ -16,18 +16,18 @@ func NewRepository(broker BrokerRepository, user UserBrokerRepository, image Ima
 	}
 }
 
-// B is used to access the broker repository singleton
+// B is used to access the BrokerRepository singleton
 func (r Repository) B() BrokerRepository {
 	return r.broker
 }
 
-// U is used to access the user repository singleton
-func (r Repository) U() UserBrokerRepository {
+// U is used to access the UserRepository singleton
+func (r Repository) U() UserRepository {
 	return r.user
 }
 
-// I is used to access the image repository singleton
-func (r Repository) I() ImageBrokerRepository {
+// I is used to access the ImageRepository singleton
+func (r Repository) I() ImageRepository {
 	return r.image
 }
 

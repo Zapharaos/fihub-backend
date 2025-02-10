@@ -15,8 +15,7 @@ import (
 	"time"
 )
 
-// PostgresRepository is a repository containing the Issue definition based on a PSQL database and
-// implementing the repository interface
+// PostgresRepository is a postgres interface for Repository
 type PostgresRepository struct {
 	conn *sqlx.DB
 }
@@ -30,7 +29,7 @@ func NewPostgresRepository(dbClient *sqlx.DB) Repository {
 	return repo
 }
 
-// Create method used to create a user
+// Create method used to create a User
 func (r *PostgresRepository) Create(user UserWithPassword) (uuid.UUID, error) {
 
 	// UUID
@@ -47,10 +46,10 @@ func (r *PostgresRepository) Create(user UserWithPassword) (uuid.UUID, error) {
 	updateTS := creationTS
 
 	// Prepare query
-	query := `INSERT INTO users (id, email, password, created_at, updated_at)
-				VALUES (:id, :email, :password, :created_at, :updated_at)`
+	query := `INSERT INTO Users (ID, email, password, created_at, updated_at)
+				VALUES (:ID, :email, :password, :created_at, :updated_at)`
 	params := map[string]interface{}{
-		"id":         userID,
+		"ID":         userID,
 		"email":      user.Email,
 		"password":   hashedPassword,
 		"created_at": creationTS,
@@ -66,15 +65,15 @@ func (r *PostgresRepository) Create(user UserWithPassword) (uuid.UUID, error) {
 	return userID, nil
 }
 
-// Get use to retrieve a user by id
+// Get use to retrieve a User by ID
 func (r *PostgresRepository) Get(userID uuid.UUID) (User, bool, error) {
 
 	// Prepare query
 	query := `SELECT *
-			  FROM users as u
-			  WHERE u.id = :id`
+			  FROM Users as u
+			  WHERE u.ID = :ID`
 	params := map[string]interface{}{
-		"id": userID,
+		"ID": userID,
 	}
 
 	// Execute query
@@ -84,15 +83,15 @@ func (r *PostgresRepository) Get(userID uuid.UUID) (User, bool, error) {
 	}
 	defer rows.Close()
 
-	return utils.ScanFirst(rows, scanUser)
+	return utils.ScanFirst(rows, r.Scan)
 }
 
-// GetByEmail use to retrieve a user by email
+// GetByEmail use to retrieve a User by email
 func (r *PostgresRepository) GetByEmail(email string) (User, bool, error) {
 
 	// Prepare query
 	query := `SELECT *
-			  FROM users as u
+			  FROM Users as u
 			  WHERE u.email = :email`
 	params := map[string]interface{}{
 		"email": email,
@@ -105,14 +104,14 @@ func (r *PostgresRepository) GetByEmail(email string) (User, bool, error) {
 	}
 	defer rows.Close()
 
-	return utils.ScanFirst(rows, scanUser)
+	return utils.ScanFirst(rows, r.Scan)
 }
 
 // Exists checks if a User with requested email exists in the repository
 func (r *PostgresRepository) Exists(email string) (bool, error) {
 	// Prepare query
 	query := `SELECT *
-			  FROM users as u
+			  FROM Users as u
 			  WHERE u.email = :email`
 	params := map[string]interface{}{
 		"email": email,
@@ -132,7 +131,7 @@ func (r *PostgresRepository) Exists(email string) (bool, error) {
 func (r *PostgresRepository) Authenticate(email string, password string) (User, bool, error) {
 	// Prepare query
 	query := `SELECT *
-			  FROM users as u
+			  FROM Users as u
 			  WHERE u.email = :email`
 	params := map[string]interface{}{
 		"email": email,
@@ -145,32 +144,32 @@ func (r *PostgresRepository) Authenticate(email string, password string) (User, 
 	}
 	defer rows.Close()
 
-	// Retrieve user
+	// Retrieve User
 	var userWithPassword UserWithPassword
 	if rows.Next() {
-		userWithPassword, err = scanUserWithPassword(rows)
+		userWithPassword, err = r.ScanWithPassword(rows)
 		if err != nil {
 			return User{}, false, err
 		}
 
 		err = bcrypt.CompareHashAndPassword([]byte(userWithPassword.Password), []byte(password))
 		if err == nil {
-			return userWithPassword.ToUser(), true, nil
+			return userWithPassword.User, true, nil
 		}
 	}
 
-	return User{}, false, errors.New("no user found, invalid credentials")
+	return User{}, false, errors.New("no User Found, invalid credentials")
 }
 
-// Update method used to update a user
+// Update method used to update a User
 func (r *PostgresRepository) Update(user User) error {
 
 	// Prepare query
-	query := `UPDATE users as u
+	query := `UPDATE Users as u
 			  SET email = :email, updated_at = :updated_at
-			  WHERE u.id = :id`
+			  WHERE u.ID = :ID`
 	params := map[string]interface{}{
-		"id":         user.ID,
+		"ID":         user.ID,
 		"email":      user.Email,
 		"updated_at": time.Now().Truncate(1 * time.Millisecond).UTC(),
 	}
@@ -184,7 +183,7 @@ func (r *PostgresRepository) Update(user User) error {
 	return utils.CheckRowAffected(result, 1)
 }
 
-// UpdateWithPassword method used to update a user with password
+// UpdateWithPassword method used to update a User with password
 func (r *PostgresRepository) UpdateWithPassword(user UserWithPassword) error {
 
 	// Hash password before saving
@@ -194,11 +193,11 @@ func (r *PostgresRepository) UpdateWithPassword(user UserWithPassword) error {
 	}
 
 	// Prepare query
-	query := `UPDATE users as u
+	query := `UPDATE Users as u
 			  SET password = :password, updated_at = :updated_at
-			  WHERE u.id = :id`
+			  WHERE u.ID = :ID`
 	params := map[string]interface{}{
-		"id":         user.ID,
+		"ID":         user.ID,
 		"password":   hashedPassword,
 		"updated_at": time.Now().Truncate(1 * time.Millisecond).UTC(),
 	}
@@ -212,14 +211,14 @@ func (r *PostgresRepository) UpdateWithPassword(user UserWithPassword) error {
 	return utils.CheckRowAffected(result, 1)
 }
 
-// Delete method used to delete a user
+// Delete method used to delete a User
 func (r *PostgresRepository) Delete(userID uuid.UUID) error {
 
 	// Prepare query
-	query := `DELETE FROM users as u
-			  WHERE u.id = :id`
+	query := `DELETE FROM Users as u
+			  WHERE u.ID = :ID`
 	params := map[string]interface{}{
-		"id": userID,
+		"ID": userID,
 	}
 
 	// Execute query
@@ -234,13 +233,13 @@ func (r *PostgresRepository) Delete(userID uuid.UUID) error {
 // GetWithRoles returns a User with its roles in the repository
 func (r *PostgresRepository) GetWithRoles(userID uuid.UUID) (UserWithRoles, error) {
 	// Prepare query
-	query := `SELECT u.id, u.email, u.created_at, u.updated_at, r.id, r.name
-			  FROM users as u
-			  LEFT JOIN user_roles as ur on u.id = ur.user_id
-			  LEFT JOIN roles as r on ur.role_id = r.id
-			  WHERE u.id = :id`
+	query := `SELECT u.ID, u.email, u.created_at, u.updated_at, r.ID, r.name
+			  FROM Users as u
+			  LEFT JOIN user_roles as ur on u.ID = ur.user_id
+			  LEFT JOIN roles as r on ur.role_id = r.ID
+			  WHERE u.ID = :ID`
 	params := map[string]interface{}{
-		"id": userID,
+		"ID": userID,
 	}
 
 	// Execute query
@@ -250,7 +249,7 @@ func (r *PostgresRepository) GetWithRoles(userID uuid.UUID) (UserWithRoles, erro
 	}
 	defer rows.Close()
 
-	results, err := scanUsersWithRoles(rows)
+	results, err := r.ScanMultiplesWithRoles(rows)
 	if err != nil {
 		return UserWithRoles{}, err
 	}
@@ -261,10 +260,10 @@ func (r *PostgresRepository) GetWithRoles(userID uuid.UUID) (UserWithRoles, erro
 // GetAllWithRoles returns a User with its roles in the repository
 func (r *PostgresRepository) GetAllWithRoles() ([]UserWithRoles, error) {
 	// Prepare query
-	query := `SELECT u.id, u.email, u.created_at, u.updated_at, r.id, r.name
-			  FROM users as u
-			  LEFT JOIN user_roles as ur on u.id = ur.user_id
-			  LEFT JOIN roles as r on ur.role_id = r.id`
+	query := `SELECT u.ID, u.email, u.created_at, u.updated_at, r.ID, r.name
+			  FROM Users as u
+			  LEFT JOIN user_roles as ur on u.ID = ur.user_id
+			  LEFT JOIN roles as r on ur.role_id = r.ID`
 	params := map[string]interface{}{}
 
 	// Execute query
@@ -274,18 +273,18 @@ func (r *PostgresRepository) GetAllWithRoles() ([]UserWithRoles, error) {
 	}
 	defer rows.Close()
 
-	return scanUsersWithRoles(rows)
+	return r.ScanMultiplesWithRoles(rows)
 }
 
-// GetUsersByRoleID returns all Users for a role in the repository
+// GetUsersByRoleID returns all User for a role in the repository
 func (r *PostgresRepository) GetUsersByRoleID(roleUUID uuid.UUID) ([]User, error) {
 	// Prepare query
-	query := `SELECT u.id, u.email, u.password, u.created_at, u.updated_at
-			  FROM users as u
-			  INNER JOIN user_roles as ur on u.id = ur.user_id
-			  WHERE ur.role_id = :id`
+	query := `SELECT u.ID, u.email, u.password, u.created_at, u.updated_at
+			  FROM Users as u
+			  INNER JOIN user_roles as ur on u.ID = ur.user_id
+			  WHERE ur.role_id = :ID`
 	params := map[string]interface{}{
-		"id": roleUUID,
+		"ID": roleUUID,
 	}
 
 	// Execute query
@@ -295,10 +294,10 @@ func (r *PostgresRepository) GetUsersByRoleID(roleUUID uuid.UUID) ([]User, error
 	}
 	defer rows.Close()
 
-	return utils.ScanAll(rows, scanUser)
+	return utils.ScanAll(rows, r.Scan)
 }
 
-// UpdateWithRoles updates a user with its roles in the repository
+// UpdateWithRoles updates a User with its roles in the repository
 func (r *PostgresRepository) UpdateWithRoles(user UserWithRoles, roleUUIDs []uuid.UUID) error {
 	// Start transaction
 	ctx := context.Background()
@@ -309,7 +308,7 @@ func (r *PostgresRepository) UpdateWithRoles(user UserWithRoles, roleUUIDs []uui
 	}
 
 	// Prepare query
-	query := `UPDATE users as u SET updated_at = $1 WHERE u.id = $2`
+	query := `UPDATE Users as u SET updated_at = $1 WHERE u.ID = $2`
 	_, err = tx.ExecContext(ctx, query, time.Now().Truncate(1*time.Millisecond).UTC(), user.ID)
 	if err != nil {
 		if rollbackErr := tx.Rollback(); rollbackErr != nil {
@@ -369,7 +368,7 @@ func (r *PostgresRepository) UpdateWithRoles(user UserWithRoles, roleUUIDs []uui
 	return nil
 }
 
-// SetUserRoles sets the roles of a user in the repository
+// SetUserRoles sets the roles of a User in the repository
 func (r *PostgresRepository) SetUserRoles(userUUID uuid.UUID, roleUUIDs []uuid.UUID) error {
 
 	// Start transaction
@@ -431,7 +430,7 @@ func (r *PostgresRepository) SetUserRoles(userUUID uuid.UUID, roleUUIDs []uuid.U
 	return nil
 }
 
-// AddUsersRole adds a role to a list of users in the repository
+// AddUsersRole adds a role to a list of User in the repository
 func (r *PostgresRepository) AddUsersRole(userUUIDs []uuid.UUID, roleUUID uuid.UUID) error {
 
 	// Start transaction
@@ -442,7 +441,7 @@ func (r *PostgresRepository) AddUsersRole(userUUIDs []uuid.UUID, roleUUID uuid.U
 		return err
 	}
 
-	// Prepare query to add new role to users
+	// Prepare query to add new role to Users
 	query := `INSERT INTO user_roles (user_id, role_id) VALUES `
 	var values []interface{}
 	for i, userUUID := range userUUIDs {
@@ -475,7 +474,7 @@ func (r *PostgresRepository) AddUsersRole(userUUIDs []uuid.UUID, roleUUID uuid.U
 	return nil
 }
 
-// RemoveUsersRole removes a role from a list of users in the repository
+// RemoveUsersRole removes a role from a list of User in the repository
 func (r *PostgresRepository) RemoveUsersRole(userUUIDs []uuid.UUID, roleUUID uuid.UUID) error {
 	// Start transaction
 	ctx := context.Background()
@@ -485,7 +484,7 @@ func (r *PostgresRepository) RemoveUsersRole(userUUIDs []uuid.UUID, roleUUID uui
 		return err
 	}
 
-	// Query to remove role from users
+	// Query to remove role from Users
 	query := `DELETE FROM user_roles WHERE user_id = ANY(?) AND role_id = ?`
 	result, err := tx.ExecContext(ctx, query, pq.Array(userUUIDs), roleUUID)
 	if err != nil {
@@ -510,17 +509,17 @@ func (r *PostgresRepository) RemoveUsersRole(userUUIDs []uuid.UUID, roleUUID uui
 	return nil
 }
 
-func scanUser(rows *sqlx.Rows) (User, error) {
+func (r *PostgresRepository) Scan(rows *sqlx.Rows) (User, error) {
 
-	userWithPassword, err := scanUserWithPassword(rows)
+	userWithPassword, err := r.ScanWithPassword(rows)
 	if err != nil {
 		return User{}, err
 	}
 
-	return userWithPassword.ToUser(), nil
+	return userWithPassword.User, nil
 }
 
-func scanUserWithPassword(rows *sqlx.Rows) (UserWithPassword, error) {
+func (r *PostgresRepository) ScanWithPassword(rows *sqlx.Rows) (UserWithPassword, error) {
 	var userWithPassword UserWithPassword
 	err := rows.Scan(
 		&userWithPassword.ID,
@@ -536,7 +535,7 @@ func scanUserWithPassword(rows *sqlx.Rows) (UserWithPassword, error) {
 	return userWithPassword, nil
 }
 
-func scanUserWithRoles(rows *sqlx.Rows) (UserWithRoles, error) {
+func (r *PostgresRepository) ScanWithRoles(rows *sqlx.Rows) (UserWithRoles, error) {
 
 	var userWithRoles UserWithRoles
 	var role roles.RoleWithPermissions
@@ -555,7 +554,7 @@ func scanUserWithRoles(rows *sqlx.Rows) (UserWithRoles, error) {
 		return UserWithRoles{}, err
 	}
 
-	// If role exists, add it to the user
+	// If role exists, add it to the User
 	if role.Id != uuid.Nil {
 		role.Name = roleName.String
 		userWithRoles.Roles = append(userWithRoles.Roles, role)
@@ -564,33 +563,33 @@ func scanUserWithRoles(rows *sqlx.Rows) (UserWithRoles, error) {
 	return userWithRoles, nil
 }
 
-func scanUsersWithRoles(rows *sqlx.Rows) ([]UserWithRoles, error) {
+func (r *PostgresRepository) ScanMultiplesWithRoles(rows *sqlx.Rows) ([]UserWithRoles, error) {
 	var usersWithRoles []UserWithRoles
 	userMap := make(map[uuid.UUID]int)
 
 	for rows.Next() {
-		// One row is a user with one single role
-		userWithRoles, err := scanUserWithRoles(rows)
+		// One row is a User with one single role
+		userWithRoles, err := r.ScanWithRoles(rows)
 		if err != nil {
 			return []UserWithRoles{}, err
 		}
 
-		// Retrieve user from map if exists
+		// Retrieve User from map if exists
 		index, exists := userMap[userWithRoles.ID]
 
-		// If user does not exist, add it to the map and the list
+		// If User does not exist, add it to the map and the list
 		if !exists {
 			userMap[userWithRoles.ID] = len(usersWithRoles)
 			usersWithRoles = append(usersWithRoles, userWithRoles)
 			continue
 		}
 
-		// If user already exists but has no bew roles, skip
+		// If User already exists but has no bew roles, skip
 		if len(userWithRoles.Roles) == 0 {
 			continue
 		}
 
-		// Add the role to the user
+		// Add the role to the User
 		usersWithRoles[index].Roles = append(usersWithRoles[index].Roles, userWithRoles.Roles[0])
 	}
 

@@ -2,7 +2,9 @@ package templates
 
 import (
 	"bytes"
+	"fmt"
 	"go.uber.org/zap"
+	"strings"
 	"text/template"
 )
 
@@ -27,6 +29,11 @@ func (t Template) Render() (string, error) {
 	err = tmpl.Execute(&buf, t.Data)
 	if err != nil {
 		return "", err
+	}
+
+	// Check if the rendered template contains <no value>
+	if strings.Contains(buf.String(), "<no value>") {
+		return "", fmt.Errorf("rendered template contains <no value>")
 	}
 
 	// Return the rendered template

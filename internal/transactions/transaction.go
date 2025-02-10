@@ -15,6 +15,17 @@ const (
 	SELL TransactionType = "SELL"
 )
 
+var (
+	errBrokerRequired  = errors.New("broker-required")
+	errDateRequired    = errors.New("date-required")
+	errDateFuture      = errors.New("date-future")
+	errTypeInvalid     = errors.New("type-invalid")
+	errAssetRequired   = errors.New("asset-required")
+	errQuantityInvalid = errors.New("quantity-invalid")
+	errPriceInvalid    = errors.New("price-invalid")
+	errFeeInvalid      = errors.New("fee-invalid")
+)
+
 // TransactionInput represents a transaction entity in the system
 type TransactionInput struct {
 	ID        uuid.UUID       `json:"id"`
@@ -48,7 +59,7 @@ func (t TransactionType) IsValid() (bool, error) {
 	if t == BUY || t == SELL {
 		return true, nil
 	}
-	return false, errors.New("type-invalid")
+	return false, errTypeInvalid
 }
 
 // IsValid checks if a TransactionInput is valid and has no missing mandatory PGFields
@@ -64,15 +75,15 @@ func (t TransactionType) IsValid() (bool, error) {
 func (t *TransactionInput) IsValid() (bool, error) {
 	// Broker
 	if t.BrokerID == uuid.Nil {
-		return false, errors.New("broker-required")
+		return false, errBrokerRequired
 	}
 
 	// Date
 	if t.Date.IsZero() {
-		return false, errors.New("date-required")
+		return false, errDateRequired
 	}
 	if !t.Date.Before(time.Now()) {
-		return false, errors.New("date-future")
+		return false, errDateFuture
 	}
 
 	// Transaction Type
@@ -82,22 +93,22 @@ func (t *TransactionInput) IsValid() (bool, error) {
 
 	// Asset
 	if t.Asset == "" {
-		return false, errors.New("asset-required")
+		return false, errAssetRequired
 	}
 
 	// Quantity
 	if t.Quantity <= 0 {
-		return false, errors.New("quantity-invalid")
+		return false, errQuantityInvalid
 	}
 
 	// Price
 	if t.Price <= 0 {
-		return false, errors.New("price-invalid")
+		return false, errPriceInvalid
 	}
 
 	// Fee
 	if t.Fee < 0 {
-		return false, errors.New("fee-invalid")
+		return false, errFeeInvalid
 	}
 
 	return true, nil

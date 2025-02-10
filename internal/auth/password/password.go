@@ -1,9 +1,9 @@
 package password
 
 import (
+	"github.com/Zapharaos/fihub-backend/internal/utils"
 	"github.com/Zapharaos/fihub-backend/pkg/env"
 	"github.com/google/uuid"
-	"math/rand"
 	"time"
 )
 
@@ -31,17 +31,8 @@ func InitRequest(userID uuid.UUID) (Request, time.Duration) {
 	return Request{
 		ID:        uuid.New(),
 		UserID:    userID,
-		Token:     generateToken(env.GetInt("OTP_LENGTH", 6)),
+		Token:     utils.RandDigitString(env.GetInt("OTP_LENGTH", 6)),
 		ExpiresAt: time.Now().Add(duration),
 		CreatedAt: time.Now(),
 	}, duration
-}
-
-func generateToken(length int) string {
-	const charset = "0123456789"
-	b := make([]byte, length)
-	for i := range b {
-		b[i] = charset[rand.Intn(len(charset))]
-	}
-	return string(b)
 }

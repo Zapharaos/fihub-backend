@@ -1,25 +1,36 @@
 package email
 
 import (
+	"context"
+	"github.com/sendgrid/rest"
 	"github.com/sendgrid/sendgrid-go"
 	"github.com/sendgrid/sendgrid-go/helpers/mail"
 	"go.uber.org/zap"
 	"os"
 )
 
+// SendgridClient is an interface for sending emails
+type SendgridClient interface {
+	Send(email *mail.SGMailV3) (*rest.Response, error)
+	SendWithContext(ctx context.Context, email *mail.SGMailV3) (*rest.Response, error)
+}
+
 // SendgridService implements the Service interface using SendGrid
 type SendgridService struct {
-	apiKey      string
-	senderName  string
-	senderEmail string
+	client SendgridClient
+	from   *mail.Email
 }
 
 // NewSendgridService returns a new instance of SendgridService
 func NewSendgridService() Service {
+	// Get SendGrid API key and sender info from environment variables
+	apiKey := os.Getenv("SENDGRID_API_KEY")
+	senderName := os.Getenv("SENDGRID_SENDER_NAME")
+	senderEmail := os.Getenv("SENDGRID_SENDER_EMAIL")
+
 	s := SendgridService{
-		apiKey:      os.Getenv("SENDGRID_API_KEY"),
-		senderName:  os.Getenv("SENDGRID_SENDER_NAME"),
-		senderEmail: os.Getenv("SENDGRID_SENDER_EMAIL"),
+		client: sendgrid.NewSendClient(apiKey),
+		from:   mail.NewEmail(senderName, senderEmail),
 	}
 	var service Service = &s
 	return service
@@ -27,20 +38,17 @@ func NewSendgridService() Service {
 
 // Send sends an email using SendGrid
 func (s *SendgridService) Send(emailTo, subject, plainTextContent, htmlContent string) error {
-
 	// Email props
-	from := mail.NewEmail(s.senderName, s.senderEmail)
 	to := mail.NewEmail(emailTo, emailTo)
-	message := mail.NewSingleEmail(from, subject, to, plainTextContent, htmlContent)
-	client := sendgrid.NewSendClient(s.apiKey)
+	message := mail.NewSingleEmail(s.from, subject, to, plainTextContent, htmlContent)
 
-	_, err := client.Send(message)
+	// Send email
+	_, err := s.client.Send(message)
 	if err != nil {
 		zap.L().Error("Sendgrid email send", zap.Error(err))
 		return err
 	}
 
 	zap.L().Info("Email sent", zap.String("to", emailTo), zap.String("subject", subject))
-
 	return nil
 }

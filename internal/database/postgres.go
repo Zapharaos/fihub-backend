@@ -1,44 +1,27 @@
-package postgres
+package database
 
 import (
-	"fmt"
+	"github.com/Zapharaos/fihub-backend/pkg/env"
 	"github.com/jmoiron/sqlx"
-	_ "github.com/lib/pq"
 	"go.uber.org/zap"
 )
 
-// Credentials : Give All DB Information.
-type Credentials struct {
-	Host     string `json:"url,omitempty"`
-	Port     string `json:"port,omitempty"`
-	User     string `json:"user,omitempty"`
-	Password string `json:"password,omitempty"`
-	DbName   string `json:"dbname,omitempty"`
-}
+// NewPostgresDB create a new Postgres DB.
+func NewPostgresDB(db SqlDatabase) *sqlx.DB {
+	zap.L().Info("Initializing Postgres")
 
-// DbConnection : init DB access.
-func DbConnection(credentials Credentials) (*sqlx.DB, error) {
-
-	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s "+
-		"password=%s dbname=%s sslmode=disable",
-		credentials.Host,
-		credentials.Port,
-		credentials.User,
-		credentials.Password,
-		credentials.DbName)
-
-	// Connect
-	db, err := sqlx.Open("postgres", psqlInfo)
+	// Connect to Postgres
+	dbClient, err := db.Connect()
 	if err != nil {
-		zap.L().Error("DbConnection.Open:", zap.Error(err))
-		return nil, err
+		zap.L().Error("main.DbConnection:", zap.Error(err))
+		return nil
 	}
 
-	// Ping for verification
-	if err = db.Ping(); err != nil {
-		zap.L().Error("DbConnection.Ping:", zap.Error(err))
-		return nil, err
-	}
+	zap.L().Info("Connected to Postgres")
 
-	return db, nil
+	// Finish up configuration
+	dbClient.SetMaxOpenConns(env.GetInt("POSTGRES_MAX_OPEN_CONNS", 30))
+	dbClient.SetMaxIdleConns(env.GetInt("POSTGRES_MAX_IDLE_CONNS", 30))
+
+	return dbClient
 }

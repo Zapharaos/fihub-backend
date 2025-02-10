@@ -1,10 +1,12 @@
 package brokers
 
+//go:generate mockgen -source=broker_repository.go -destination=../../test/mocks/broker_repository.go --package=mocks -mock_names=BrokerRepository=BrokerRepository BrokerRepository
+
 import "github.com/google/uuid"
 
 // BrokerRepository is a storage interface which can be implemented by multiple backend
 // (in-memory map, sql database, in-memory cache, file system, ...)
-// It allows standard CRUD operation on Users
+// It allows standard CRUD operation on Broker
 type BrokerRepository interface {
 	Get(id uuid.UUID) (Broker, bool, error)
 	Create(broker Broker) (uuid.UUID, error)

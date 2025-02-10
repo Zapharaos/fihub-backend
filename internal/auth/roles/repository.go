@@ -1,5 +1,7 @@
 package roles
 
+//go:generate mockgen -source=repository.go -destination=../../../test/mocks/roles_repository.go --package=mocks -mock_names=Repository=RolesRepository Repository
+
 import (
 	"github.com/google/uuid"
 	"sync"
@@ -7,7 +9,7 @@ import (
 
 // Repository is a storage interface which can be implemented by multiple backend
 // (in-memory map, sql database, in-memory cache, file system, ...)
-// It allows standard CRUD operation on facts
+// It allows standard CRUD operation on Role
 type Repository interface {
 	Get(uuid uuid.UUID) (Role, bool, error)
 	GetByName(name string) (Role, bool, error)

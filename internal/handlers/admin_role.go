@@ -9,7 +9,6 @@ import (
 	"github.com/Zapharaos/fihub-backend/internal/handlers/render"
 	"net/http"
 
-	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 )
@@ -31,7 +30,7 @@ import (
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/roles [post]
 func CreateRole(w http.ResponseWriter, r *http.Request) {
-	if !checkPermission(w, r, "admin.roles.create") {
+	if !U().CheckPermission(w, r, "admin.roles.create") {
 		return
 	}
 
@@ -52,7 +51,7 @@ func CreateRole(w http.ResponseWriter, r *http.Request) {
 	var perms []uuid.UUID
 
 	// Enable permission update
-	if checkPermission(w, r, "admin.roles.permissions.update") {
+	if U().CheckPermission(w, r, "admin.roles.permissions.update") {
 
 		if ok, err := role.Permissions.IsValid(); !ok {
 			zap.L().Warn("Permissions are not valid", zap.Error(err))
@@ -102,15 +101,8 @@ func CreateRole(w http.ResponseWriter, r *http.Request) {
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/roles/{id} [get]
 func GetRole(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
-	roleID, err := uuid.Parse(id)
-	if err != nil {
-		zap.L().Warn("Parse role id", zap.Error(err))
-		render.BadRequest(w, r, fmt.Errorf("invalid role id"))
-		return
-	}
-
-	if !checkPermission(w, r, "admin.roles.read") {
+	roleID, ok := U().ParseParamUUID(w, r, "id")
+	if !ok || !U().CheckPermission(w, r, "admin.roles.read") {
 		return
 	}
 
@@ -145,7 +137,7 @@ func GetRole(w http.ResponseWriter, r *http.Request) {
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/roles [get]
 func GetRoles(w http.ResponseWriter, r *http.Request) {
-	if !checkPermission(w, r, "admin.roles.list") {
+	if !U().CheckPermission(w, r, "admin.roles.list") {
 		return
 	}
 
@@ -176,12 +168,8 @@ func GetRoles(w http.ResponseWriter, r *http.Request) {
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/roles/{id} [put]
 func UpdateRole(w http.ResponseWriter, r *http.Request) {
-	roleID, ok := parseParamUUID(w, r, "id")
-	if !ok {
-		return
-	}
-
-	if !checkPermission(w, r, "admin.roles.update") {
+	roleID, ok := U().ParseParamUUID(w, r, "id")
+	if !ok || !U().CheckPermission(w, r, "admin.roles.update") {
 		return
 	}
 
@@ -202,7 +190,7 @@ func UpdateRole(w http.ResponseWriter, r *http.Request) {
 	var perms []uuid.UUID
 
 	// Enable permission update
-	if checkPermission(w, r, "admin.roles.permissions.update") {
+	if U().CheckPermission(w, r, "admin.roles.permissions.update") {
 
 		if ok, err := role.Permissions.IsValid(); !ok {
 			zap.L().Warn("Permissions are not valid", zap.Error(err))
@@ -251,8 +239,8 @@ func UpdateRole(w http.ResponseWriter, r *http.Request) {
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/roles/{id} [delete]
 func DeleteRole(w http.ResponseWriter, r *http.Request) {
-	roleID, ok := parseParamUUID(w, r, "id")
-	if !ok || !checkPermission(w, r, "admin.roles.delete") {
+	roleID, ok := U().ParseParamUUID(w, r, "id")
+	if !ok || !U().CheckPermission(w, r, "admin.roles.delete") {
 		return
 	}
 
@@ -281,8 +269,8 @@ func DeleteRole(w http.ResponseWriter, r *http.Request) {
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/roles/{id}/permissions [get]
 func GetRolePermissions(w http.ResponseWriter, r *http.Request) {
-	roleId, ok := parseParamUUID(w, r, "id")
-	if !ok || !checkPermission(w, r, "admin.roles.permissions.list") {
+	roleId, ok := U().ParseParamUUID(w, r, "id")
+	if !ok || !U().CheckPermission(w, r, "admin.roles.permissions.list") {
 		return
 	}
 
@@ -313,8 +301,8 @@ func GetRolePermissions(w http.ResponseWriter, r *http.Request) {
 //	@Failure		500	{object}	render.ErrorResponse		"Internal Server Error"
 //	@Router			/api/v1/roles/{id}/permissions [put]
 func SetRolePermissions(w http.ResponseWriter, r *http.Request) {
-	roleId, ok := parseParamUUID(w, r, "id")
-	if !ok || !checkPermission(w, r, "admin.roles.permissions.update") {
+	roleId, ok := U().ParseParamUUID(w, r, "id")
+	if !ok || !U().CheckPermission(w, r, "admin.roles.permissions.update") {
 		return
 	}
 
@@ -358,8 +346,8 @@ func SetRolePermissions(w http.ResponseWriter, r *http.Request) {
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/roles/{id}/users [get]
 func GetRoleUsers(w http.ResponseWriter, r *http.Request) {
-	roleId, ok := parseParamUUID(w, r, "id")
-	if !ok || !checkPermission(w, r, "admin.roles.users.list") {
+	roleId, ok := U().ParseParamUUID(w, r, "id")
+	if !ok || !U().CheckPermission(w, r, "admin.roles.users.list") {
 		return
 	}
 
@@ -390,8 +378,8 @@ func GetRoleUsers(w http.ResponseWriter, r *http.Request) {
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/roles/{id}/users [put]
 func PutUsersRole(w http.ResponseWriter, r *http.Request) {
-	roleId, ok := parseParamUUID(w, r, "id")
-	if !ok || !checkPermission(w, r, "admin.roles.users.update") {
+	roleId, ok := U().ParseParamUUID(w, r, "id")
+	if !ok || !U().CheckPermission(w, r, "admin.roles.users.update") {
 		return
 	}
 
@@ -435,8 +423,8 @@ func PutUsersRole(w http.ResponseWriter, r *http.Request) {
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/roles/{id}/users [delete]
 func DeleteUsersRole(w http.ResponseWriter, r *http.Request) {
-	roleId, ok := parseParamUUID(w, r, "id")
-	if !ok || !checkPermission(w, r, "admin.roles.users.delete") {
+	roleId, ok := U().ParseParamUUID(w, r, "id")
+	if !ok || !U().CheckPermission(w, r, "admin.roles.users.delete") {
 		return
 	}
 

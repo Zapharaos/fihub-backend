@@ -6,8 +6,7 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-// PostgresRepository is a repository containing the Issue definition based on a PSQL database and
-// implementing the repository interface
+// PostgresRepository is a postgres interface for Repository
 type PostgresRepository struct {
 	conn *sqlx.DB
 }
@@ -21,36 +20,27 @@ func NewPostgresRepository(dbClient *sqlx.DB) Repository {
 	return repo
 }
 
+// Create use to create a Transaction
 func (r PostgresRepository) Create(transactionInput TransactionInput) (uuid.UUID, error) {
 
-	// UUID
-	transactionInput.ID = uuid.New()
-
-	// Prepare query
-	query := `INSERT INTO transactions (id, user_id, broker_id, date, transaction_type, asset, quantity, price, price_unit, fee)
-			  VALUES (:id, :user_id, :broker_id, :date, :transaction_type, :asset, :quantity, :price, :price_unit, :fee)`
-	params := map[string]interface{}{
-		"id":               transactionInput.ID,
-		"user_id":          transactionInput.UserID,
-		"broker_id":        transactionInput.BrokerID,
-		"date":             transactionInput.Date,
-		"transaction_type": transactionInput.Type,
-		"asset":            transactionInput.Asset,
-		"quantity":         transactionInput.Quantity,
-		"price":            transactionInput.Price,
-		"price_unit":       transactionInput.PriceUnit,
-		"fee":              transactionInput.Fee,
-	}
-
 	// Execute query
-	_, err := r.conn.NamedQuery(query, params)
-	if err != nil {
-		return uuid.UUID{}, err
+	row := r.conn.QueryRow(""+
+		"INSERT INTO transactions (id, user_id, broker_id, date, transaction_type, asset, quantity, price, price_unit, fee)"+
+		"VALUES (:id, :user_id, :broker_id, :date, :transaction_type, :asset, :quantity, :price, :price_unit, :fee)"+
+		"RETURNING id",
+		uuid.New(), transactionInput.UserID, transactionInput.BrokerID, transactionInput.Date, transactionInput.Type,
+		transactionInput.Asset, transactionInput.Quantity, transactionInput.Price, transactionInput.PriceUnit, transactionInput.Fee)
+
+	// Retrieve the created transaction ID
+	var id uuid.UUID
+	if err := row.Scan(&id); err != nil {
+		return uuid.Nil, err
 	}
 
-	return transactionInput.ID, nil
+	return id, nil
 }
 
+// Get use to retrieve a Transaction by its id
 func (r PostgresRepository) Get(transactionID uuid.UUID) (Transaction, bool, error) {
 
 	// Prepare query
@@ -69,9 +59,10 @@ func (r PostgresRepository) Get(transactionID uuid.UUID) (Transaction, bool, err
 	}
 	defer rows.Close()
 
-	return utils.ScanFirst(rows, scanTransaction)
+	return utils.ScanFirst(rows, r.Scan)
 }
 
+// Update use to update a Transaction
 func (r PostgresRepository) Update(transactionInput TransactionInput) error {
 	// Prepare query
 	query := `UPDATE transactions
@@ -105,6 +96,7 @@ func (r PostgresRepository) Update(transactionInput TransactionInput) error {
 	return utils.CheckRowAffected(result, 1)
 }
 
+// Delete use to delete a Transaction
 func (r PostgresRepository) Delete(transaction Transaction) error {
 	// Prepare query
 	query := `DELETE FROM transactions as t WHERE t.id = :id`
@@ -121,8 +113,9 @@ func (r PostgresRepository) Delete(transaction Transaction) error {
 	return utils.CheckRowAffected(result, 1)
 }
 
+// Exists use to check if a Transaction exists
 func (r PostgresRepository) Exists(transactionID uuid.UUID, userID uuid.UUID) (bool, error) {
-	query := `SELECT COUNT(1)
+	query := `SELECT id
 			  FROM transactions
 			  WHERE id = :id AND user_id = :user_id`
 	params := map[string]interface{}{
@@ -130,14 +123,17 @@ func (r PostgresRepository) Exists(transactionID uuid.UUID, userID uuid.UUID) (b
 		"user_id": userID,
 	}
 
-	var count int
-	err := r.conn.Get(&count, query, params)
+	// Execute query
+	rows, err := r.conn.NamedQuery(query, params)
 	if err != nil {
 		return false, err
 	}
-	return count > 0, nil
+	defer rows.Close()
+
+	return rows.Next(), nil
 }
 
+// GetAll use to retrieve all Transactions
 func (r PostgresRepository) GetAll(userID uuid.UUID) ([]Transaction, error) {
 
 	// Prepare query
@@ -156,10 +152,10 @@ func (r PostgresRepository) GetAll(userID uuid.UUID) ([]Transaction, error) {
 	}
 	defer rows.Close()
 
-	return utils.ScanAll(rows, scanTransaction)
+	return utils.ScanAll(rows, r.Scan)
 }
 
-func scanTransaction(rows *sqlx.Rows) (Transaction, error) {
+func (r PostgresRepository) Scan(rows *sqlx.Rows) (Transaction, error) {
 	var transaction Transaction
 	err := rows.Scan(
 		&transaction.ID,

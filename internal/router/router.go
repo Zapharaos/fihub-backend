@@ -40,6 +40,9 @@ func New() *chi.Mux {
 	// processing should be stopped.
 	r.Use(middleware.Timeout(60 * time.Second))
 
+	// Setup handler utils
+	handlers.ReplaceGlobals(handlers.NewUtils())
+
 	// Declare routes
 	r.Route("/api/v1", func(r chi.Router) {
 
@@ -81,6 +84,7 @@ func New() *chi.Mux {
 func buildProtectedRoutes(a *auth.Auth) func(r chi.Router) {
 	return func(r chi.Router) {
 
+		// Auth middleware
 		r.Use(a.Middleware)
 
 		// Users

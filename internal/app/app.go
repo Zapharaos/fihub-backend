@@ -11,6 +11,8 @@ import (
 	"github.com/Zapharaos/fihub-backend/pkg/email"
 	"github.com/Zapharaos/fihub-backend/pkg/env"
 	"github.com/Zapharaos/fihub-backend/pkg/translation"
+	"github.com/jmoiron/sqlx"
+	"github.com/joho/godotenv"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"golang.org/x/text/language"
@@ -28,7 +30,7 @@ var (
 func Init() {
 
 	// Load the .env file
-	err := env.Load()
+	err := godotenv.Load()
 	if err != nil {
 		log.Fatal(err)
 		return
@@ -40,8 +42,7 @@ func Init() {
 	zap.L().Info("Starting Fihub Backend", zap.String("version", Version), zap.String("build_date", BuildDate))
 
 	// Setup Database
-	initPostgres()
-	initRepositories()
+	initDatabase()
 
 	// Setup Email
 	email.ReplaceGlobals(email.NewSendgridService())
@@ -100,39 +101,23 @@ func initLogger() zap.Config {
 	return zapConfig
 }
 
-// initPostgres initializes the postgres connection.
-func initPostgres() {
-
-	zap.L().Info("Initializing Postgres")
-
-	// Configure postgres
-	credentials := postgres.Credentials{
-		Host:     env.GetString("POSTGRES_HOST", "host"),
-		Port:     env.GetString("POSTGRES_PORT", "port"),
-		DbName:   env.GetString("POSTGRES_DB", "database_name"),
-		User:     env.GetString("POSTGRES_USER", "user"),
+// initDatabase initializes the database connections.
+func initDatabase() {
+	postgres := database.NewPostgresDB(database.NewSqlDatabase(database.SqlCredentials{
+		Host:     env.GetString("POSTGRES_HOST", "localhost"),
+		Port:     env.GetString("POSTGRES_PORT", "5432"),
+		User:     env.GetString("POSTGRES_USER", "postgres"),
 		Password: env.GetString("POSTGRES_PASSWORD", "password"),
-	}
+		DbName:   env.GetString("POSTGRES_DB", "postgres"),
+	}))
+	database.ReplaceGlobals(database.NewDatabases(postgres))
 
-	// Connect
-	dbClient, err := postgres.DbConnection(credentials)
-	if err != nil {
-		zap.L().Fatal("main.DbConnection:", zap.Error(err))
-	}
-
-	zap.L().Info("Connected to Postgres")
-
-	// Finish up configuration
-	dbClient.SetMaxOpenConns(env.GetInt("POSTGRES_MAX_OPEN_CONNS", 30))
-	dbClient.SetMaxIdleConns(env.GetInt("POSTGRES_MAX_IDLE_CONNS", 30))
-	postgres.ReplaceGlobals(dbClient)
+	// Initialize the postgres repositories
+	initPostgres(database.DB().Postgres())
 }
 
-// initRepositories initializes the repositories. (postgres)
-func initRepositories() {
-	// Setup for postgres
-	dbClient := postgres.DB()
-
+// initPostgres initializes the postgres repositories.
+func initPostgres(dbClient *sqlx.DB) {
 	// Auth
 	users.ReplaceGlobals(users.NewPostgresRepository(dbClient))
 	password.ReplaceGlobals(password.NewPostgresRepository(dbClient))
@@ -145,8 +130,8 @@ func initRepositories() {
 
 	// Brokers
 	brokerRepository := brokers.NewPostgresRepository(dbClient)
-	userBrokerRepository := brokers.NewUserBrokerPostgresRepository(dbClient)
-	imageBrokerRepository := brokers.NewImageBrokerPostgresRepository(dbClient)
+	userBrokerRepository := brokers.NewUserPostgresRepository(dbClient)
+	imageBrokerRepository := brokers.NewImagePostgresRepository(dbClient)
 	brokers.ReplaceGlobals(brokers.NewRepository(brokerRepository, userBrokerRepository, imageBrokerRepository))
 
 	// Transactions
