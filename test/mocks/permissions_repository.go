@@ -116,21 +116,6 @@ func (mr *PermissionsRepositoryMockRecorder) GetAllByRoleId(roleUUID any) *gomoc
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllByRoleId", reflect.TypeOf((*PermissionsRepository)(nil).GetAllByRoleId), roleUUID)
 }
 
-// GetAllByRoleIds mocks base method.
-func (m *PermissionsRepository) GetAllByRoleIds(roleUUID []uuid.UUID) ([]permissions.Permission, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAllByRoleIds", roleUUID)
-	ret0, _ := ret[0].([]permissions.Permission)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetAllByRoleIds indicates an expected call of GetAllByRoleIds.
-func (mr *PermissionsRepositoryMockRecorder) GetAllByRoleIds(roleUUID any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllByRoleIds", reflect.TypeOf((*PermissionsRepository)(nil).GetAllByRoleIds), roleUUID)
-}
-
 // GetAllForUser mocks base method.
 func (m *PermissionsRepository) GetAllForUser(userUUID uuid.UUID) ([]permissions.Permission, error) {
 	m.ctrl.T.Helper()

@@ -43,7 +43,7 @@ func (p PostgresRepository) Create(request Request) (Request, error) {
 	defer rows.Close()
 
 	// Scan result
-	result, _, err := utils.ScanFirst(rows, scanRequest)
+	result, _, err := utils.ScanFirst(rows, p.Scan)
 
 	return result, err
 }
@@ -143,7 +143,7 @@ func (p PostgresRepository) ValidForUser(userID uuid.UUID) (bool, error) {
 	return rows.Next(), nil
 }
 
-func scanRequest(rows *sqlx.Rows) (Request, error) {
+func (p PostgresRepository) Scan(rows *sqlx.Rows) (Request, error) {
 	var request Request
 	err := rows.Scan(
 		&request.ID,
