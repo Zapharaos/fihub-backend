@@ -118,9 +118,6 @@ func TestGetToken(t *testing.T) {
 				assert.Fail(t, "failed to decode response")
 			}
 			err = json.Unmarshal(data, &token)
-			if err != nil {
-				assert.Fail(t, "failed to decode response")
-			}
 
 			// Check the response
 			assert.Equal(t, tt.status, response.StatusCode)

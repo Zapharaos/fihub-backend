@@ -7,6 +7,8 @@
 
 # fihub-backend
 
+The backend handles users' requests to list their financial transactions and provide analysis. It connects to brokers selected by the users to retrieve their assets and transactions.
+
 ## Development
 
 ### Docker
