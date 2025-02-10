@@ -83,7 +83,7 @@ func (r *PostgresRepository) Get(userID uuid.UUID) (User, bool, error) {
 	}
 	defer rows.Close()
 
-	return utils.ScanFirst(rows, scanUser)
+	return utils.ScanFirst(rows, r.Scan)
 }
 
 // GetByEmail use to retrieve a User by email
@@ -104,7 +104,7 @@ func (r *PostgresRepository) GetByEmail(email string) (User, bool, error) {
 	}
 	defer rows.Close()
 
-	return utils.ScanFirst(rows, scanUser)
+	return utils.ScanFirst(rows, r.Scan)
 }
 
 // Exists checks if a User with requested email exists in the repository
@@ -147,7 +147,7 @@ func (r *PostgresRepository) Authenticate(email string, password string) (User, 
 	// Retrieve User
 	var userWithPassword UserWithPassword
 	if rows.Next() {
-		userWithPassword, err = scanUserWithPassword(rows)
+		userWithPassword, err = r.ScanWithPassword(rows)
 		if err != nil {
 			return User{}, false, err
 		}
@@ -249,7 +249,7 @@ func (r *PostgresRepository) GetWithRoles(userID uuid.UUID) (UserWithRoles, erro
 	}
 	defer rows.Close()
 
-	results, err := scanUsersWithRoles(rows)
+	results, err := r.ScanMultiplesWithRoles(rows)
 	if err != nil {
 		return UserWithRoles{}, err
 	}
@@ -273,7 +273,7 @@ func (r *PostgresRepository) GetAllWithRoles() ([]UserWithRoles, error) {
 	}
 	defer rows.Close()
 
-	return scanUsersWithRoles(rows)
+	return r.ScanMultiplesWithRoles(rows)
 }
 
 // GetUsersByRoleID returns all User for a role in the repository
@@ -294,7 +294,7 @@ func (r *PostgresRepository) GetUsersByRoleID(roleUUID uuid.UUID) ([]User, error
 	}
 	defer rows.Close()
 
-	return utils.ScanAll(rows, scanUser)
+	return utils.ScanAll(rows, r.Scan)
 }
 
 // UpdateWithRoles updates a User with its roles in the repository
@@ -509,9 +509,9 @@ func (r *PostgresRepository) RemoveUsersRole(userUUIDs []uuid.UUID, roleUUID uui
 	return nil
 }
 
-func scanUser(rows *sqlx.Rows) (User, error) {
+func (r *PostgresRepository) Scan(rows *sqlx.Rows) (User, error) {
 
-	userWithPassword, err := scanUserWithPassword(rows)
+	userWithPassword, err := r.ScanWithPassword(rows)
 	if err != nil {
 		return User{}, err
 	}
@@ -519,7 +519,7 @@ func scanUser(rows *sqlx.Rows) (User, error) {
 	return userWithPassword.User, nil
 }
 
-func scanUserWithPassword(rows *sqlx.Rows) (UserWithPassword, error) {
+func (r *PostgresRepository) ScanWithPassword(rows *sqlx.Rows) (UserWithPassword, error) {
 	var userWithPassword UserWithPassword
 	err := rows.Scan(
 		&userWithPassword.ID,
@@ -535,7 +535,7 @@ func scanUserWithPassword(rows *sqlx.Rows) (UserWithPassword, error) {
 	return userWithPassword, nil
 }
 
-func scanUserWithRoles(rows *sqlx.Rows) (UserWithRoles, error) {
+func (r *PostgresRepository) ScanWithRoles(rows *sqlx.Rows) (UserWithRoles, error) {
 
 	var userWithRoles UserWithRoles
 	var role roles.RoleWithPermissions
@@ -563,13 +563,13 @@ func scanUserWithRoles(rows *sqlx.Rows) (UserWithRoles, error) {
 	return userWithRoles, nil
 }
 
-func scanUsersWithRoles(rows *sqlx.Rows) ([]UserWithRoles, error) {
+func (r *PostgresRepository) ScanMultiplesWithRoles(rows *sqlx.Rows) ([]UserWithRoles, error) {
 	var usersWithRoles []UserWithRoles
 	userMap := make(map[uuid.UUID]int)
 
 	for rows.Next() {
 		// One row is a User with one single role
-		userWithRoles, err := scanUserWithRoles(rows)
+		userWithRoles, err := r.ScanWithRoles(rows)
 		if err != nil {
 			return []UserWithRoles{}, err
 		}
