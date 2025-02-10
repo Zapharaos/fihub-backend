@@ -1,4 +1,9 @@
+![GitHub Release](https://img.shields.io/github/v/release/zapharaos/fihub-backend)
+<a href="https://github.com/go-goyave/goyave/actions"><img src="https://github.com/go-goyave/goyave/workflows/CI/badge.svg" alt="Build Status"/></a>
 [![codecov](https://codecov.io/gh/Zapharaos/fihub-backend/graph/badge.svg?token=BL7YP0GTK9)](https://codecov.io/gh/Zapharaos/fihub-backend)
+
+![GitHub License](https://img.shields.io/github/license/zapharaos/fihub-backend)
+[![Go Report Card](https://goreportcard.com/badge/github.com/Zapharaos/fihub-backend)](https://goreportcard.com/report/github.com/Zapharaos/fihub-backend)
 
 # fihub-backend
 
