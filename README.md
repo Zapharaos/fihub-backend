@@ -1,3 +1,5 @@
+[![codecov](https://codecov.io/gh/Zapharaos/fihub-backend/graph/badge.svg?token=BL7YP0GTK9)](https://codecov.io/gh/Zapharaos/fihub-backend)
+
 # fihub-backend
 
 ## Development
