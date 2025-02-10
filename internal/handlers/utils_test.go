@@ -544,7 +544,10 @@ func TestReadImage(t *testing.T) {
 				body := &bytes.Buffer{}
 				writer := multipart.NewWriter(body)
 				part, _ := writer.CreateFormFile("file", tt.fileName)
-				part.Write(tt.fileContent)
+				_, err := part.Write(tt.fileContent)
+				if err != nil {
+					assert.Fail(t, "failed to decode response")
+				}
 				writer.Close()
 				r = httptest.NewRequest("POST", "/", body)
 				r.Header.Set("Content-Type", writer.FormDataContentType())

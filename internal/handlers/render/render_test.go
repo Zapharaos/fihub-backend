@@ -136,7 +136,10 @@ func TestNotImplemented(t *testing.T) {
 	assert.Equal(t, http.StatusNotImplemented, resp.StatusCode)
 
 	var response map[string]interface{}
-	json.NewDecoder(resp.Body).Decode(&response)
+	err := json.NewDecoder(resp.Body).Decode(&response)
+	if err != nil {
+		assert.Fail(t, "failed to decode response")
+	}
 	assert.Equal(t, "Not Implemented", response["message"])
 }
 
@@ -245,6 +248,10 @@ func TestCount(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 
 	var response CountResponse
-	json.NewDecoder(resp.Body).Decode(&response)
+	err := json.NewDecoder(resp.Body).Decode(&response)
+	if err != nil {
+		assert.Fail(t, "failed to decode response")
+	}
+
 	assert.Equal(t, count, response.Count)
 }
