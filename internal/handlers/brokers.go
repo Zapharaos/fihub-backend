@@ -288,10 +288,8 @@ func DeleteBroker(w http.ResponseWriter, r *http.Request) {
 //	@Router			/api/v1/brokers [get]
 func GetBrokers(w http.ResponseWriter, r *http.Request) {
 
-	enabled, ok := U().ParseParamBool(w, r, "enabled")
-	if !ok {
-		return
-	}
+	// Get the query parameter
+	enabled := r.URL.Query().Get("enabled")
 
 	var (
 		result []brokers.Broker
@@ -299,7 +297,7 @@ func GetBrokers(w http.ResponseWriter, r *http.Request) {
 	)
 
 	// Check if the query parameter is set to true
-	if enabled {
+	if enabled == "true" {
 		result, err = brokers.R().B().GetAllEnabled()
 	} else {
 		result, err = brokers.R().B().GetAll()
