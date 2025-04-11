@@ -35,7 +35,7 @@ func Init() {
 	email.ReplaceGlobals(email.NewSendgridService())
 
 	// Setup Translations
-	defaultLang := language.MustParse(viper.GetString("DEFAULT_LANG"))
+	defaultLang := language.MustParse(viper.GetString("DEFAULT_LANGUAGE"))
 	translation.ReplaceGlobals(translation.NewI18nService(defaultLang))
 }
 
