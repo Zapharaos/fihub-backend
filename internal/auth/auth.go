@@ -29,22 +29,31 @@ type JwtToken struct {
 	Token string `json:"token"`
 }
 
+type Config struct {
+	CORS        bool
+	Security    bool
+	GatewayMode bool
+	AllowOrigin string
+}
+
 type Auth struct {
 	SigningKey []byte
 	Checks     int8
+	Config     Config
 }
 
 // New initialize a new instance of Auth and returns a pointer of it
 // The signing key is generated randomly and is used to sign the JWT tokens
 // The checks parameter is a bitfield to enable or disable checks
 // how to use it: auth.NewAuth(auth.CheckHeader | auth.CheckQuery)
-func New(checks int8) *Auth {
+func New(checks int8, config Config) *Auth {
 	if checks == 0 {
 		zap.L().Fatal("no checks are enabled")
 	}
 	return &Auth{
 		SigningKey: []byte(utils.RandString(128)),
 		Checks:     checks,
+		Config:     config,
 	}
 }
 
@@ -145,6 +154,12 @@ func (a *Auth) Middleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "/api/v1/users" && r.Method == "POST" {
 			// No need for middleware for user creation
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		if a.Config.GatewayMode {
+			// No need for middleware in gateway mode
 			next.ServeHTTP(w, r)
 			return
 		}

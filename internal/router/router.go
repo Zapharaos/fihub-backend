@@ -8,16 +8,21 @@ import (
 	"github.com/go-chi/cors"
 	"github.com/go-chi/httprate"
 	"github.com/spf13/viper"
+	"strings"
 	"time"
 )
 
 // New Sets up the server's router
-func New() *chi.Mux {
+func New(config auth.Config) *chi.Mux {
+
 	// Create router
 	r := chi.NewRouter()
 
 	// Create auth
-	a := auth.New(auth.CheckHeader)
+	var a *auth.Auth
+	if config.Security {
+		a = auth.New(auth.CheckHeader, config)
+	}
 
 	// Setup router
 	r.Use(middleware.RequestID)
@@ -26,14 +31,16 @@ func New() *chi.Mux {
 	r.Use(middleware.Recoverer)
 
 	// CORS
-	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{"https://*", "http://*"},
-		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
-		ExposedHeaders:   []string{"Link"},
-		AllowCredentials: false,
-		MaxAge:           300, // Maximum value not ignored by any of major browsers
-	}))
+	if config.CORS {
+		r.Use(cors.Handler(cors.Options{
+			AllowedOrigins:   strings.Split(config.AllowOrigin, ","),
+			AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+			AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+			ExposedHeaders:   []string{"Link"},
+			AllowCredentials: false,
+			MaxAge:           300, // Maximum value not ignored by any of major browsers
+		}))
+	}
 
 	// Set a timeout value on the request context (ctx), that will signal
 	// through ctx.Done() that the request has timed out and further
@@ -53,7 +60,9 @@ func New() *chi.Mux {
 		r.Route("/auth", func(r chi.Router) {
 
 			// Token
-			r.Post("/token", a.GetToken)
+			if config.Security {
+				r.Post("/token", a.GetToken)
+			}
 
 			// Password routes
 			r.Route("/password", func(r chi.Router) {
@@ -90,8 +99,10 @@ func New() *chi.Mux {
 func buildProtectedRoutes(a *auth.Auth) func(r chi.Router) {
 	return func(r chi.Router) {
 
-		// Auth middleware
-		r.Use(a.Middleware)
+		// Apply auth middleware only if security is enabled
+		if a.Config.Security {
+			r.Use(a.Middleware)
+		}
 
 		// Users
 		r.Route("/users", func(r chi.Router) {

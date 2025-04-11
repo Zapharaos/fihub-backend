@@ -1,26 +1,28 @@
 services:
+
   server:
     build:
       context: .
       target: development
     restart: unless-stopped
     ports:
-      - "${GO_PORT}:${GO_PORT}"
+      - "8080:8080"
     depends_on:
       - postgres
     volumes:
       - ./:/app
     networks: # Networks to join (Services on the same network can communicate with each other using their name)
       - backend
+
   postgres:
     image: postgres:latest
     restart: unless-stopped
     ports:
-      - "${POSTGRES_PORT}:${POSTGRES_PORT}"
+      - "5432:5432"
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
     volumes:
       - db-data:/var/lib/postgresql/data
     networks:

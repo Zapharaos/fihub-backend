@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/Zapharaos/fihub-backend/internal/app"
+	"github.com/Zapharaos/fihub-backend/internal/auth"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 	"net/http"
@@ -33,13 +34,24 @@ func main() {
 	// Setup application
 	app.Init()
 
-	// Create router
-	r := router.New()
+	// Server configuration
+	serverPort := viper.GetString("HTTP_SERVER_PORT")
+	serverEnableTLS := viper.GetBool("HTTP_SERVER_ENABLE_TLS")
+	serverTLSCert := viper.GetString("HTTP_SERVER_TLS_FILE_CRT")
+	serverTLSKey := viper.GetString("HTTP_SERVER_TLS_FILE_KEY")
+
+	// Auth configuration
+	authConfig := auth.Config{
+		CORS:        viper.GetBool("HTTP_SERVER_API_ENABLE_CORS"),
+		Security:    viper.GetBool("HTTP_SERVER_API_ENABLE_SECURITY"),
+		GatewayMode: viper.GetBool("HTTP_SERVER_API_ENABLE_GATEWAY_MODE"),
+		AllowOrigin: viper.GetString("CORS_ALLOWED_ORIGIN"),
+	}
 
 	// Create server
 	srv := &http.Server{
-		Addr:         ":" + viper.GetString("GO_PORT"),
-		Handler:      r,
+		Addr:         ":" + serverPort,
+		Handler:      router.New(authConfig),
 		WriteTimeout: 30 * time.Second,
 		ReadTimeout:  10 * time.Second,
 		IdleTimeout:  time.Minute,
@@ -51,12 +63,18 @@ func main() {
 
 	// Start the server in a separate goroutine
 	go func() {
-		// Listen for and handle incoming requests
-		err := srv.ListenAndServe()
-
-		// Check if the error is due to a graceful shutdown
-		if err != nil && !errors.Is(err, http.ErrServerClosed) {
-			zap.L().Fatal("server listen", zap.Error(err))
+		if serverEnableTLS {
+			// Start the server with TLS
+			err := srv.ListenAndServeTLS(serverTLSCert, serverTLSKey)
+			if err != nil && !errors.Is(err, http.ErrServerClosed) {
+				zap.L().Fatal("server listen with TLS", zap.Error(err))
+			}
+		} else {
+			// Start the server without TLS
+			err := srv.ListenAndServe()
+			if err != nil && !errors.Is(err, http.ErrServerClosed) {
+				zap.L().Fatal("server listen", zap.Error(err))
+			}
 		}
 	}()
 	zap.L().Info("Server started", zap.String("addr", srv.Addr))
