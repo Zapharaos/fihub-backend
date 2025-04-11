@@ -11,6 +11,10 @@ The backend handles users' requests to list their financial transactions and pro
 
 ## Development
 
+### Configuration
+
+Open the `config/fihub-backend.toml` file and set the `APP_ENV` variable to `development`.
+
 ### Docker
 
 This project is using Docker. Get started [here](https://www.docker.com/get-started).
@@ -36,6 +40,10 @@ When using JetBrains Goland, learn how to attach the debugger to a Go process th
 ## Production
 
 Work in progress.
+
+### Configuration
+
+Fill in the `config/fihub-backend.prod.toml` file by overriding variables. Don't forget to set the `APP_ENV` variable to `production` in the default .toml file.
 
 ## Dependencies
 

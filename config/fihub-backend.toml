@@ -1,10 +1,10 @@
 ### DO NOT COMMIT ANY ENVIRONMENT CHANGE ON THIS FILE
 ### If you need to use another environment, edit this file localy, and do not propagate the changes.
 
-# Enable or disable production logging
-# If true, logs will be formatted for production use
-# Default value: "false"
-LOGGER_PROD = "false"
+# Specify the application environment
+# Possible values: "production", "development"
+# Default value: "production"
+APP_ENV = "production"
 
 # Specify the logging level
 # Possible values: "debug", "info", "warn", "error"

@@ -44,10 +44,10 @@ func InitLogger() zap.Config {
 
 	// Set environment config
 	var zapConfig zap.Config
-	if viper.GetBool("LOGGER_PROD") {
-		zapConfig = zap.NewProductionConfig()
-	} else {
+	if viper.GetString("APP_ENV") != "production" {
 		zapConfig = zap.NewDevelopmentConfig()
+	} else {
+		zapConfig = zap.NewProductionConfig()
 	}
 
 	zapConfig.EncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
