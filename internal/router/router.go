@@ -3,11 +3,11 @@ package router
 import (
 	"github.com/Zapharaos/fihub-backend/internal/auth"
 	"github.com/Zapharaos/fihub-backend/internal/handlers"
-	"github.com/Zapharaos/fihub-backend/pkg/env"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 	"github.com/go-chi/httprate"
+	"github.com/spf13/viper"
 	"time"
 )
 
@@ -59,13 +59,19 @@ func New() *chi.Mux {
 			r.Route("/password", func(r chi.Router) {
 
 				// Create password reset request
-				requestLimit := env.GetInt("OTP_MIDDLEWARE_REQUEST_LIMIT", 3)
-				requestLength := env.GetDuration("OTP_MIDDLEWARE_REQUEST_LENGTH", 24*time.Hour)
+				requestLimit := viper.GetInt("OTP_MIDDLEWARE_REQUEST_LIMIT")
+				requestLength := viper.GetDuration("OTP_MIDDLEWARE_REQUEST_LENGTH")
+				if requestLength == 0 {
+					requestLength = 24 * time.Hour
+				}
 				r.With(httprate.LimitByIP(requestLimit, requestLength)).Post("/", handlers.CreatePasswordResetRequest)
 
 				// Input token and retrieve requestID using userID
-				inputLimit := env.GetInt("OTP_MIDDLEWARE_INPUT_LIMIT", 5)
-				inputLength := env.GetDuration("OTP_MIDDLEWARE_INPUT_WINDOW", 1*time.Hour)
+				inputLimit := viper.GetInt("OTP_MIDDLEWARE_INPUT_LIMIT")
+				inputLength := viper.GetDuration("OTP_MIDDLEWARE_INPUT_WINDOW")
+				if inputLength == 0 {
+					inputLength = 1 * time.Hour
+				}
 				r.With(httprate.LimitByIP(inputLimit, inputLength)).Get("/{id}/{token}", handlers.GetPasswordResetRequestID)
 
 				// Reset password using userID and requestID

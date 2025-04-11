@@ -8,18 +8,18 @@ import (
 	"github.com/Zapharaos/fihub-backend/internal/brokers"
 	"github.com/Zapharaos/fihub-backend/internal/database"
 	"github.com/Zapharaos/fihub-backend/internal/transactions"
-	"github.com/Zapharaos/fihub-backend/pkg/env"
 	"github.com/jmoiron/sqlx"
+	"github.com/spf13/viper"
 )
 
 // initDatabase initializes the database connections.
 func initDatabase() {
 	postgres := database.NewPostgresDB(database.NewSqlDatabase(database.SqlCredentials{
-		Host:     env.GetString("POSTGRES_HOST", "localhost"),
-		Port:     env.GetString("POSTGRES_PORT", "5432"),
-		User:     env.GetString("POSTGRES_USER", "postgres"),
-		Password: env.GetString("POSTGRES_PASSWORD", "password"),
-		DbName:   env.GetString("POSTGRES_DB", "postgres"),
+		Host:     viper.GetString("POSTGRES_HOST"),
+		Port:     viper.GetString("POSTGRES_PORT"),
+		User:     viper.GetString("POSTGRES_USER"),
+		Password: viper.GetString("POSTGRES_PASSWORD"),
+		DbName:   viper.GetString("POSTGRES_DB"),
 	}))
 	database.ReplaceGlobals(database.NewDatabases(postgres))
 

@@ -2,8 +2,8 @@ package password
 
 import (
 	"github.com/Zapharaos/fihub-backend/internal/utils"
-	"github.com/Zapharaos/fihub-backend/pkg/env"
 	"github.com/google/uuid"
+	"github.com/spf13/viper"
 	"time"
 )
 
@@ -27,11 +27,14 @@ type Request struct {
 }
 
 func InitRequest(userID uuid.UUID) (Request, time.Duration) {
-	duration := env.GetDuration("OTP_DURATION", 15*time.Minute)
+	duration := viper.GetDuration("OTP_DURATION")
+	if duration == 0 {
+		duration = 15 * time.Minute
+	}
 	return Request{
 		ID:        uuid.New(),
 		UserID:    userID,
-		Token:     utils.RandDigitString(env.GetInt("OTP_LENGTH", 6)),
+		Token:     utils.RandDigitString(viper.GetInt("OTP_LENGTH")),
 		ExpiresAt: time.Now().Add(duration),
 		CreatedAt: time.Now(),
 	}, duration

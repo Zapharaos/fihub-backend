@@ -1,0 +1,101 @@
+### DO NOT COMMIT ANY ENVIRONMENT CHANGE ON THIS FILE
+### If you need to use another environment, edit this file localy, and do not propagate the changes.
+
+# Enable or disable production logging
+# If true, logs will be formatted for production use
+# Default value: "false"
+LOGGER_PROD = "false"
+
+# Specify the logging level
+# Possible values: "debug", "info", "warn", "error"
+# Default value: "debug"
+LOGGER_LEVEL = "debug"
+
+# Specify the default language for the application
+# Used for localization and internationalization
+# Default value: "en"
+DEFAULT_LANGUAGE = "en"
+
+# Specify the allowed origin for CORS (Cross-Origin Resource Sharing)
+# This is used to control which domains can access the API
+# Default value: "http://localhost:4420"
+CORS_ALLOWED_ORIGIN = "http://localhost:4420"
+
+# Specify the PostgreSQL username
+# Used to authenticate with the PostgreSQL database
+# Default value: "postgres"
+POSTGRES_USER = "postgres"
+
+# Specify the PostgreSQL password
+# Used to authenticate with the PostgreSQL database
+# Default value: "postgres"
+POSTGRES_PASSWORD = "postgres"
+
+# Specify the PostgreSQL host
+# Use "postgres" when running through Docker, "localhost" otherwise
+# Default value: "postgres"
+POSTGRES_HOST = "postgres"
+
+# Specify the PostgreSQL database name
+# The name of the database to connect to
+# Default value: "fihub"
+POSTGRES_DB = "fihub"
+
+# Specify the PostgreSQL port
+# The port on which the PostgreSQL server is running
+# Default value: "5432"
+POSTGRES_PORT = "5432"
+
+# Specify the maximum number of open connections in the PostgreSQL connection pool
+# Default value: "30"
+POSTGRES_MAX_OPEN_CONNS = "30"
+
+# Specify the maximum number of idle connections in the PostgreSQL connection pool
+# Default value: "30"
+POSTGRES_MAX_IDLE_CONNS = "30"
+
+# Specify the maximum idle time for connections in the PostgreSQL connection pool
+# Expressed as a Golang duration
+# Default value: "15m"
+POSTGRES_MAX_IDLE_TIME = "15m"
+
+# Specify the length of the OTP (One-Time Password)
+# Default value: "6"
+OTP_LENGTH = "6"
+
+# Specify the duration for which the OTP is valid
+# Expressed as a Golang duration
+# Default value: "30m"
+OTP_DURATION = "30m"
+
+# Specify the maximum number of OTP requests allowed per client
+# Default value: "3"
+OTP_MIDDLEWARE_REQUEST_LIMIT = "3"
+
+# Specify the time window for OTP request limits
+# Expressed as a Golang duration
+# Default value: "24h"
+OTP_MIDDLEWARE_REQUEST_LENGTH = "24h"
+
+# Specify the maximum number of OTP input attempts allowed
+# Default value: "5"
+OTP_MIDDLEWARE_INPUT_LIMIT = "5"
+
+# Specify the time window for OTP input attempts
+# This value should be the same as OTP_DURATION to ensure proper validation
+# Expressed as a Golang duration
+# Default value: "30m"
+OTP_MIDDLEWARE_INPUT_WINDOW = "30m"
+
+# Specify the SendGrid API key
+# Used for sending emails through the SendGrid service
+# Default value: "YOUR_SENDGRID_API_KEY"
+SENDGRID_API_KEY = "YOUR_SENDGRID_API_KEY"
+
+# Specify the sender name for emails sent via SendGrid
+# Default value: "Fihub"
+SENDGRID_SENDER_NAME = "Fihub"
+
+# Specify the sender email address for emails sent via SendGrid
+# Default value: "contact@fihub.com"
+SENDGRID_SENDER_EMAIL = "contact@fihub.com"

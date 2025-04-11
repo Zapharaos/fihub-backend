@@ -11,6 +11,7 @@ import (
 	"github.com/Zapharaos/fihub-backend/test/mocks"
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
+	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"
 	"golang.org/x/text/language"
@@ -283,6 +284,9 @@ func TestParseParamLanguage(t *testing.T) {
 
 	// Replace the global utils with a new instance
 	handlers.ReplaceGlobals(handlers.NewUtils())
+
+	// Mock DEFAULT_LANG
+	viper.Set("DEFAULT_LANG", "en")
 
 	// Define the test cases
 	tests := []struct {

@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/Zapharaos/fihub-backend/internal/app"
-	"github.com/Zapharaos/fihub-backend/pkg/env"
+	"github.com/spf13/viper"
 	"go.uber.org/zap"
 	"net/http"
 	"os"
@@ -38,7 +38,7 @@ func main() {
 
 	// Create server
 	srv := &http.Server{
-		Addr:         ":" + env.GetString("GO_PORT", "8080"),
+		Addr:         ":" + viper.GetString("GO_PORT"),
 		Handler:      r,
 		WriteTimeout: 30 * time.Second,
 		ReadTimeout:  10 * time.Second,

@@ -8,9 +8,9 @@ import (
 	"github.com/Zapharaos/fihub-backend/internal/app"
 	"github.com/Zapharaos/fihub-backend/internal/auth/users"
 	"github.com/Zapharaos/fihub-backend/internal/handlers/render"
-	"github.com/Zapharaos/fihub-backend/pkg/env"
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
+	"github.com/spf13/viper"
 	"go.uber.org/zap"
 	"golang.org/x/text/language"
 	"io"
@@ -130,7 +130,8 @@ func (u *utils) ParseParamLanguage(w http.ResponseWriter, r *http.Request) langu
 	lang, err := language.Parse(langParam)
 	if langParam == "" || err != nil {
 		// If no language is provided, use the default language
-		return language.MustParse(env.GetString("DEFAULT_LANG", "en"))
+		defaultLang := viper.GetString("DEFAULT_LANG")
+		return language.MustParse(defaultLang)
 	}
 	return lang
 }

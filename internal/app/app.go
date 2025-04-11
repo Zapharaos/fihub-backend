@@ -2,9 +2,8 @@ package app
 
 import (
 	"github.com/Zapharaos/fihub-backend/pkg/email"
-	"github.com/Zapharaos/fihub-backend/pkg/env"
 	"github.com/Zapharaos/fihub-backend/pkg/translation"
-	"github.com/joho/godotenv"
+	"github.com/spf13/viper"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"golang.org/x/text/language"
@@ -21,13 +20,6 @@ var (
 // Init initialize all the app configuration and components
 func Init() {
 
-	// Load the .env file
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal(err)
-		return
-	}
-
 	// Setup Environment
 	InitConfiguration()
 
@@ -43,7 +35,7 @@ func Init() {
 	email.ReplaceGlobals(email.NewSendgridService())
 
 	// Setup Translations
-	defaultLang := language.MustParse(env.GetString("DEFAULT_LANG", "en"))
+	defaultLang := language.MustParse(viper.GetString("DEFAULT_LANG"))
 	translation.ReplaceGlobals(translation.NewI18nService(defaultLang))
 }
 
@@ -52,7 +44,7 @@ func InitLogger() zap.Config {
 
 	// Set environment config
 	var zapConfig zap.Config
-	if env.GetBool("LOGGER_PROD", true) {
+	if viper.GetBool("LOGGER_PROD") {
 		zapConfig = zap.NewProductionConfig()
 	} else {
 		zapConfig = zap.NewDevelopmentConfig()
@@ -61,7 +53,7 @@ func InitLogger() zap.Config {
 	zapConfig.EncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
 
 	// Logger level
-	switch env.GetString("LOGGER_LEVEL", "debug") {
+	switch viper.GetString("LOGGER_LEVEL") {
 	case "debug":
 		zapConfig.Level.SetLevel(zap.DebugLevel)
 	case "info":

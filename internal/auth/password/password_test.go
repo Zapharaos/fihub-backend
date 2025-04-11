@@ -2,6 +2,7 @@ package password
 
 import (
 	"github.com/google/uuid"
+	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
@@ -9,6 +10,10 @@ import (
 
 // TestInitRequest tests the InitRequest function
 func TestInitRequest(t *testing.T) {
+	// Mock the viper configuration
+	viper.Set("OTP_DURATION", 15*time.Minute)
+	viper.Set("OTP_LENGTH", 6)
+
 	userID := uuid.New()
 	request, duration := InitRequest(userID)
 

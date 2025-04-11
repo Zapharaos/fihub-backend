@@ -11,6 +11,7 @@ import (
 	"github.com/Zapharaos/fihub-backend/pkg/email"
 	"github.com/Zapharaos/fihub-backend/pkg/translation"
 	"github.com/Zapharaos/fihub-backend/test"
+	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	sqlmock "github.com/zhashkevych/go-sqlxmock"
 	"go.uber.org/zap"
@@ -25,6 +26,14 @@ func TestInit(t *testing.T) {
 	ts := test.TestSuite{}
 	_ = ts.CreateConfigTranslationsFullTestSuite(t)
 	defer ts.CleanTestSuite(t)
+
+	// Mock viper configuration
+	viper.Set("DEFAULT_LANG", "en")
+	viper.Set("POSTGRES_HOST", "localhost")
+	viper.Set("POSTGRES_PORT", "5432")
+	viper.Set("POSTGRES_USER", "user")
+	viper.Set("POSTGRES_PASSWORD", "password")
+	viper.Set("POSTGRES_DB", "testdb")
 
 	// Call Init function
 	Init()
@@ -42,7 +51,7 @@ func TestInitLogger(t *testing.T) {
 	defer ts.CleanTestSuite(t)
 
 	// Call initLogger function
-	initLogger()
+	InitLogger()
 
 	// Assertions to verify logger configuration
 	assert.NotNil(t, zap.L(), "Logger should be initialized")
