@@ -15,6 +15,14 @@ The backend handles users' requests to list their financial transactions and pro
 
 Open the `config/fihub-backend.toml` file and set the `APP_ENV` variable to `development`.
 
+### Generation
+
+When editing the proto files, you need to regenerate the Go files. To do this, run the following command:
+
+```bash
+protoc --go_out=protogen --go-grpc_out=protogen .\proto\<file_name>.proto
+```
+
 ### Docker
 
 This project is using Docker. Get started [here](https://www.docker.com/get-started).
@@ -47,12 +55,14 @@ Fill in the `config/fihub-backend.prod.toml` file by overriding variables. Don't
 
 ## Dependencies
 
-Install goose
+- Install gRPC [here](https://grpc.io/docs/languages/go/quickstart/).
+
+- Install goose
 ```bash
 go install github.com/pressly/goose/v3/cmd/goose@latest
 ```
 
-Install swag
+- Install swag
 ```bash
 go install github.com/swaggo/swag/cmd/swag@latest
 ```
