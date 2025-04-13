@@ -5,10 +5,8 @@ services:
     restart: unless-stopped
     ports:
       - "5432:5432"
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: fihub
+    env_file:
+      - .env
     volumes:
       - db-data:/var/lib/postgresql/data
     networks:
@@ -21,6 +19,8 @@ services:
     restart: unless-stopped
     ports:
       - "8080:8080"
+    env_file:
+      - .env
     depends_on:
       - postgres
     volumes:
@@ -36,6 +36,8 @@ services:
     restart: unless-stopped
     ports:
       - "50001:50001"
+    env_file:
+      - .env
     depends_on:
       - server
     volumes:

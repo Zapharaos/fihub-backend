@@ -27,22 +27,4 @@ func InitConfiguration() {
 	if err != nil {
 		log.Printf("Failed to read configuration file: %v", err)
 	}
-
-	// Check if the application is running in production mode
-	if viper.GetString("APP_ENV") == "production" {
-		v := viper.New()
-		v.SetConfigName(ConfigName + ".prod")
-		v.AddConfigPath(ConfigPath)
-		err = v.ReadInConfig()
-		if err != nil {
-			log.Printf("No plugins configuration found: %v", err)
-			return
-		}
-
-		// Merge plugin configuration into the main configuration
-		err = viper.MergeConfigMap(v.AllSettings())
-		if err != nil {
-			log.Printf("Failed to merge plugins configuration: %v", err)
-		}
-	}
 }

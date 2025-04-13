@@ -1,4 +1,4 @@
-package health
+package main
 
 import (
 	"github.com/Zapharaos/fihub-backend/internal/app"

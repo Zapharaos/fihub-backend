@@ -33,7 +33,9 @@ go install github.com/swaggo/swag/cmd/swag@latest
 
 ### Configuration
 
-Open the `config/fihub-backend.toml` file and set the `APP_ENV` variable to `development`.
+- Create a `.env` file to override any variables from `config/fihub-backend.toml` that you need.
+- Please note that each variable you wish to override must have the `FIHUB_` prefix.
+- Don't forget to override the `FIHUB_APP_ENV` variable to `development`.
 
 ### Docker
 
@@ -107,7 +109,9 @@ Work in progress.
 
 ### Configuration
 
-Fill in the `config/fihub-backend.prod.toml` file by overriding variables. Don't forget to set the `APP_ENV` variable to `production` in the default .toml file.
+- Create a `.env` file to override any variables from `config/fihub-backend.toml` that you need.
+- Please note that each variable you wish to override must have the `FIHUB_` prefix.
+- Don't forget to comment any override of the `FIHUB_APP_ENV` variable.
 
 ### Run
 
