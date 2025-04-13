@@ -28,7 +28,7 @@ func TestInit(t *testing.T) {
 	defer ts.CleanTestSuite(t)
 
 	// Mock viper configuration
-	viper.Set("DEFAULT_LANG", "en")
+	viper.Set("DEFAULT_LANGUAGE", "en")
 	viper.Set("POSTGRES_HOST", "localhost")
 	viper.Set("POSTGRES_PORT", "5432")
 	viper.Set("POSTGRES_USER", "user")

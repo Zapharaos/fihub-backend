@@ -285,8 +285,8 @@ func TestParseParamLanguage(t *testing.T) {
 	// Replace the global utils with a new instance
 	handlers.ReplaceGlobals(handlers.NewUtils())
 
-	// Mock DEFAULT_LANG
-	viper.Set("DEFAULT_LANG", "en")
+	// Mock DEFAULT_LANGUAGE
+	viper.Set("DEFAULT_LANGUAGE", "en")
 
 	// Define the test cases
 	tests := []struct {

@@ -22,7 +22,7 @@ import (
 // TestNew tests the New function
 func TestNew(t *testing.T) {
 	// Create a new instance of Auth
-	a := auth.New(auth.CheckHeader | auth.CheckQuery)
+	a := auth.New(auth.CheckHeader|auth.CheckQuery, auth.Config{})
 
 	// Check the instance
 	assert.NotNil(t, a)
@@ -33,7 +33,7 @@ func TestNew(t *testing.T) {
 // TestGetToken tests the GetToken function
 func TestGetToken(t *testing.T) {
 	// Define test data
-	a := auth.New(auth.CheckHeader)
+	a := auth.New(auth.CheckHeader, auth.Config{})
 	userWithPassword := users.UserWithPassword{
 		User:     users.User{Email: "test@example.com"},
 		Password: "password",
@@ -134,7 +134,7 @@ func TestGetToken(t *testing.T) {
 // TestGenerateToken tests the GenerateToken function
 func TestGenerateToken(t *testing.T) {
 	// Define test data
-	a := auth.New(auth.CheckHeader)
+	a := auth.New(auth.CheckHeader, auth.Config{})
 	user := users.User{
 		ID: uuid.New(),
 	}
@@ -150,7 +150,7 @@ func TestGenerateToken(t *testing.T) {
 // TestValidateToken tests the ValidateToken function
 func TestValidateToken(t *testing.T) {
 	// Define test data
-	a := auth.New(auth.CheckHeader)
+	a := auth.New(auth.CheckHeader, auth.Config{})
 	user := users.User{
 		ID: uuid.New(),
 	}
@@ -201,7 +201,7 @@ func TestValidateToken(t *testing.T) {
 // TestMiddleware tests the Middleware function
 func TestMiddleware(t *testing.T) {
 	// Define test data
-	a := auth.New(auth.CheckHeader)
+	a := auth.New(auth.CheckHeader, auth.Config{})
 	user := users.User{
 		ID: uuid.New(),
 	}

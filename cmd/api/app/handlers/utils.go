@@ -130,7 +130,7 @@ func (u *utils) ParseParamLanguage(w http.ResponseWriter, r *http.Request) langu
 	lang, err := language.Parse(langParam)
 	if langParam == "" || err != nil {
 		// If no language is provided, use the default language
-		defaultLang := viper.GetString("DEFAULT_LANG")
+		defaultLang := viper.GetString("DEFAULT_LANGUAGE")
 		return language.MustParse(defaultLang)
 	}
 	return lang
