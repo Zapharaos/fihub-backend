@@ -33,4 +33,4 @@ go.work.sum
 /docs
 
 # Go Air
-/tmp
+tmp/

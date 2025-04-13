@@ -1,0 +1,15 @@
+services:
+
+  postgres:
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: fihub
+
+  server:
+    build:
+      target: development
+
+  health:
+    build:
+      target: development

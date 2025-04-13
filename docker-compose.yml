@@ -1,19 +1,5 @@
 services:
 
-  server:
-    build:
-      context: .
-      target: development
-    restart: unless-stopped
-    ports:
-      - "8080:8080"
-    depends_on:
-      - postgres
-    volumes:
-      - ./:/app
-    networks: # Networks to join (Services on the same network can communicate with each other using their name)
-      - backend
-
   postgres:
     image: postgres:latest
     restart: unless-stopped
@@ -25,6 +11,33 @@ services:
       POSTGRES_DB: fihub
     volumes:
       - db-data:/var/lib/postgresql/data
+    networks:
+      - backend
+
+  server:
+    build:
+      context: .
+      target: production
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    volumes:
+      - ./:/app
+    networks: # Networks to join (Services on the same network can communicate with each other using their name)
+      - backend
+
+  health:
+    build:
+      context: .
+      dockerfile: cmd/health/Dockerfile
+      target: production
+    restart: unless-stopped
+    ports:
+      - "50001:50001"
+    volumes:
+      - ./:/app
     networks:
       - backend
 

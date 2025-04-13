@@ -9,33 +9,45 @@
 
 The backend handles users' requests to list their financial transactions and provide analysis. It connects to brokers selected by the users to retrieve their assets and transactions.
 
+## Dependencies
+
+- Install gRPC [here](https://grpc.io/docs/languages/go/quickstart/).
+
+- Install goose :
+```bash
+go install github.com/pressly/goose/v3/cmd/goose@latest
+```
+
+- Install swag :
+```bash
+go install github.com/swaggo/swag/cmd/swag@latest
+```
+
 ## Development
 
 ### Configuration
 
 Open the `config/fihub-backend.toml` file and set the `APP_ENV` variable to `development`.
 
-### Generation
-
-When editing the proto files, you need to regenerate the Go files. To do this, run the following command:
-
-```bash
-protoc --go_out=protogen --go-grpc_out=protogen .\proto\<file_name>.proto
-```
-
 ### Docker
 
 This project is using Docker. Get started [here](https://www.docker.com/get-started).
 
-### Start
+#### Build
 
 ```bash
-docker-compose up
+docker-compose build --progress=plain # build with verbose output
+```
+
+#### Start
+
+```bash
+docker-compose -f docker-compose.yml -f docker-compose.dev.yml up --build
 ```
 
 Includes [Air](https://github.com/air-verse/air) for hot-reloading.
 
-### Debug
+#### Debug
 ```bash
 docker-compose -f docker-compose.yml -f docker-compose.debug.yml up
 ```
@@ -44,30 +56,15 @@ Includes [Delve](https://github.com/go-delve/delve) for debugging on top of Air.
 
 When using JetBrains Goland, learn how to attach the debugger to a Go process that is running in a Docker container [here](https://www.jetbrains.com/help/go/attach-to-running-go-processes-with-debugger.html#attach-to-a-process-in-the-docker-container).
 
+### Generation - gRPC
 
-## Production
+When editing the proto files, you need to regenerate the Go files. To do this, run the following command:
 
-Work in progress.
-
-### Configuration
-
-Fill in the `config/fihub-backend.prod.toml` file by overriding variables. Don't forget to set the `APP_ENV` variable to `production` in the default .toml file.
-
-## Dependencies
-
-- Install gRPC [here](https://grpc.io/docs/languages/go/quickstart/).
-
-- Install goose
 ```bash
-go install github.com/pressly/goose/v3/cmd/goose@latest
+protoc --go_out=protogen --go-grpc_out=protogen .\proto\<file_name>.proto
 ```
 
-- Install swag
-```bash
-go install github.com/swaggo/swag/cmd/swag@latest
-```
-
-## Goose
+### Migrations - PostgreSQL
 
 To create a new migration file
 ```bash
@@ -79,8 +76,7 @@ To apply the migrations
 goose -dir migrations postgres "host=localhost port=5432 user=postgres password=postgres dbname=fihub sslmode=disable" up
 ```
 
-
-## Swagger
+### Swagger
 
 Generate the swagger file.
 
@@ -107,3 +103,11 @@ docker run --rm -v ${PWD}:/local -v ${PWD}\..\fihub-ui\src\app\core\api:/local2 
 # Bash
 docker run --rm -v ${PWD}/GolandProjects/caisse-back:/local -v ${PWD}/PhpstormProjects/caisse-front/src/app/core/api:/local2 openapitools/openapi-generator-cli generate -i /local/docs/swagger.yaml -g typescript-angular -o /local2
 ```
+
+## Production
+
+Work in progress.
+
+### Configuration
+
+Fill in the `config/fihub-backend.prod.toml` file by overriding variables. Don't forget to set the `APP_ENV` variable to `production` in the default .toml file.

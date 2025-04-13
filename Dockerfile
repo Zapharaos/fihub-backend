@@ -21,6 +21,7 @@ CMD ["air", "-c", ".air.toml"]
 
 FROM build AS build-production
 
+# Copy whole project (shared + microservices) to the build stage
 WORKDIR /app
 COPY . .
 
@@ -34,6 +35,9 @@ WORKDIR /
 
 # Copy the binary from the build stage
 COPY --from=build-production /app/server /server
+
+# Copy config files from the build stage
+COPY --from=build-production /app/config /config
 
 # Run the compiled binary
 CMD ["/server"]
