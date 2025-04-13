@@ -3,6 +3,7 @@ package health
 import (
 	"context"
 	"github.com/Zapharaos/fihub-backend/protogen/health"
+	"go.uber.org/zap"
 )
 
 // Service is the implementation of the HealthService interface.
@@ -12,13 +13,19 @@ type Service struct {
 
 // CheckHealth implements the CheckHealth RPC method.
 func (h *Service) CheckHealth(ctx context.Context, req *health.HealthRequest) (*health.HealthResponse, error) {
+
+	zap.L().Info("Checking health", zap.String("service_name", req.ServiceName))
+
 	// Example logic for health check
 	if req.ServiceName == "" {
+		zap.L().Error("Service name is required")
 		return &health.HealthResponse{
 			IsHealthy: false,
 			Message:   "Service name is required",
 		}, nil
 	}
+
+	zap.L().Info("Service is healthy", zap.String("service_name", req.ServiceName))
 
 	return &health.HealthResponse{
 		IsHealthy: true,

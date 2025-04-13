@@ -100,7 +100,7 @@ func buildProtectedRoutes(a *auth.Auth) func(r chi.Router) {
 	return func(r chi.Router) {
 
 		// Apply auth middleware only if security is enabled
-		if a.Config.Security {
+		if a != nil && a.Config.Security {
 			r.Use(a.Middleware)
 		}
 

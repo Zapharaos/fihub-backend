@@ -1,8 +1,8 @@
 package main
 
 import (
+	"github.com/Zapharaos/fihub-backend/cmd/health/app/health"
 	"github.com/Zapharaos/fihub-backend/internal/app"
-	"github.com/Zapharaos/fihub-backend/internal/health"
 	genhealth "github.com/Zapharaos/fihub-backend/protogen/health"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
