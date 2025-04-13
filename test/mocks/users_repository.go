@@ -10,9 +10,9 @@
 package mocks
 
 import (
+	users "github.com/Zapharaos/fihub-backend/internal/users"
 	reflect "reflect"
 
-	users "github.com/Zapharaos/fihub-backend/internal/auth/users"
 	uuid "github.com/google/uuid"
 	gomock "go.uber.org/mock/gomock"
 )

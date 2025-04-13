@@ -12,9 +12,10 @@ services:
     networks:
       - backend
 
-  server:
+  api:
     build:
       context: .
+      dockerfile: cmd/api/Dockerfile
       target: production
     restart: unless-stopped
     ports:
@@ -39,7 +40,7 @@ services:
     env_file:
       - .env
     depends_on:
-      - server
+      - api
     volumes:
       - ./:/app
     networks:

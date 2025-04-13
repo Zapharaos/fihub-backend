@@ -1,5 +1,5 @@
 services:
-  server:
+  api:
     ports:
       - "2345:2345" # Delve debug port
     command: ["air", "-c", ".air.debug.toml"]

@@ -1,13 +1,13 @@
 package app
 
 import (
-	"github.com/Zapharaos/fihub-backend/internal/auth/password"
-	"github.com/Zapharaos/fihub-backend/internal/auth/permissions"
-	"github.com/Zapharaos/fihub-backend/internal/auth/roles"
-	"github.com/Zapharaos/fihub-backend/internal/auth/users"
 	"github.com/Zapharaos/fihub-backend/internal/brokers"
 	"github.com/Zapharaos/fihub-backend/internal/database"
 	"github.com/Zapharaos/fihub-backend/internal/transactions"
+	"github.com/Zapharaos/fihub-backend/internal/users"
+	"github.com/Zapharaos/fihub-backend/internal/users/password"
+	"github.com/Zapharaos/fihub-backend/internal/users/permissions"
+	"github.com/Zapharaos/fihub-backend/internal/users/roles"
 	"github.com/jmoiron/sqlx"
 	"github.com/spf13/viper"
 )

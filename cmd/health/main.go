@@ -18,7 +18,7 @@ func main() {
 	// Setup Logger
 	app.InitLogger()
 
-	// Start gRPC server
+	// Start gRPC microservice
 	port := viper.GetString("HEALTH_MICROSERVICE_PORT")
 	lis, err := net.Listen("tcp", ":"+port)
 	if err != nil {

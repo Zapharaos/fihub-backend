@@ -10,10 +10,10 @@
 package mocks
 
 import (
+	users "github.com/Zapharaos/fihub-backend/internal/users"
 	http "net/http"
 	reflect "reflect"
 
-	users "github.com/Zapharaos/fihub-backend/internal/auth/users"
 	uuid "github.com/google/uuid"
 	gomock "go.uber.org/mock/gomock"
 	language "golang.org/x/text/language"

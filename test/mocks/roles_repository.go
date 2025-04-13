@@ -12,7 +12,7 @@ package mocks
 import (
 	reflect "reflect"
 
-	roles "github.com/Zapharaos/fihub-backend/internal/auth/roles"
+	roles "github.com/Zapharaos/fihub-backend/internal/users/roles"
 	uuid "github.com/google/uuid"
 	gomock "go.uber.org/mock/gomock"
 )

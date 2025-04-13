@@ -13,7 +13,7 @@ import (
 	reflect "reflect"
 	time "time"
 
-	password "github.com/Zapharaos/fihub-backend/internal/auth/password"
+	password "github.com/Zapharaos/fihub-backend/internal/users/password"
 	uuid "github.com/google/uuid"
 	gomock "go.uber.org/mock/gomock"
 )
