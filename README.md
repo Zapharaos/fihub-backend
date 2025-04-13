@@ -11,14 +11,20 @@ The backend handles users' requests to list their financial transactions and pro
 
 ## Dependencies
 
+- Makefile is used to run commands 
+```bash
+sudo apt-get install make # If using WSL or any Linux distribution
+choco install make # If using Powershell (not recommended, some commands may not work)
+```
+
 - Install gRPC [here](https://grpc.io/docs/languages/go/quickstart/).
 
-- Install goose :
+- Goose is used for database migrations. Install it with the following command:
 ```bash
 go install github.com/pressly/goose/v3/cmd/goose@latest
 ```
 
-- Install swag :
+- Swagg is used to generate the swagger file. Install it with the following command:
 ```bash
 go install github.com/swaggo/swag/cmd/swag@latest
 ```
@@ -35,21 +41,32 @@ This project is using Docker. Get started [here](https://www.docker.com/get-star
 
 #### Build
 
+To build the project, you can use either of the following commands:
 ```bash
-docker-compose build --progress=plain # build with verbose output
+make build
+make build-plain # build with verbose output progress=plain
 ```
 
 #### Start
 
+To start the project, you can use either of the following commands:
 ```bash
-docker-compose -f docker-compose.yml -f docker-compose.dev.yml up --build
+make dev
+make dev-d # detached mode
+make dev-b # build on top
+make dev-bd # detached & build on top
 ```
 
 Includes [Air](https://github.com/air-verse/air) for hot-reloading.
 
 #### Debug
+
+To debug the project, you can use either of the following commands:
 ```bash
-docker-compose -f docker-compose.yml -f docker-compose.debug.yml up
+make debug
+make debug-d # detached mode
+make debug-b # build on top
+make debug-bd # detached & build on top
 ```
 
 Includes [Delve](https://github.com/go-delve/delve) for debugging on top of Air.
@@ -61,7 +78,15 @@ When using JetBrains Goland, learn how to attach the debugger to a Go process th
 When editing the proto files, you need to regenerate the Go files. To do this, run the following command:
 
 ```bash
-protoc --go_out=protogen --go-grpc_out=protogen .\proto\<file_name>.proto
+make proto-gen
+```
+
+### Swagger
+
+Generate the swagger file (reused by frontend).
+
+```bash
+make swagger
 ```
 
 ### Migrations - PostgreSQL
@@ -76,34 +101,6 @@ To apply the migrations
 goose -dir migrations postgres "host=localhost port=5432 user=postgres password=postgres dbname=fihub sslmode=disable" up
 ```
 
-### Swagger
-
-Generate the swagger file.
-
-```bash
-swag init -ot yaml
-```
-
-Display swagger-ui with the generated swagger file [at this local url](http://localhost:80/)
-
-```bash
-# Bash
-docker run --rm -d -p 80:8080 -e SWAGGER_JSON=/tmp/swagger.yaml -v `pwd`/docs:/tmp swaggerapi/swagger-ui
-# Powershell
-docker run --rm -d -p 80:8080 -e SWAGGER_JSON=/tmp/swagger.yaml -v "$(pwd)/docs:/tmp" swaggerapi/swagger-ui
-```
-
-Generate the angular typescript client.
-
-```bash
-docker run --rm -v ${PWD}:/local openapitools/openapi-generator-cli generate -i /local/docs/swagger.yaml -g typescript-angular -o /local/docs/angular
-
-# Powershell
-docker run --rm -v ${PWD}:/local -v ${PWD}\..\fihub-ui\src\app\core\api:/local2 openapitools/openapi-generator-cli generate -i /local/docs/swagger.yaml -g typescript-angular -o /local2 
-# Bash
-docker run --rm -v ${PWD}/GolandProjects/caisse-back:/local -v ${PWD}/PhpstormProjects/caisse-front/src/app/core/api:/local2 openapitools/openapi-generator-cli generate -i /local/docs/swagger.yaml -g typescript-angular -o /local2
-```
-
 ## Production
 
 Work in progress.
@@ -111,3 +108,9 @@ Work in progress.
 ### Configuration
 
 Fill in the `config/fihub-backend.prod.toml` file by overriding variables. Don't forget to set the `APP_ENV` variable to `production` in the default .toml file.
+
+### Run
+
+```bash
+make prod-bd # detached & build on top
+```
