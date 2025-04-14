@@ -11,6 +11,7 @@ import (
 	"github.com/Zapharaos/fihub-backend/pkg/translation"
 	"github.com/Zapharaos/fihub-backend/test/mocks"
 	"github.com/google/uuid"
+	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"
 	"golang.org/x/text/language"
@@ -209,8 +210,9 @@ func TestCreatePasswordResetRequest(t *testing.T) {
 	// Run tests
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			apiBasePath := viper.GetString("API_BASE_PATH")
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest("POST", "/api/v1/auth/password/reset", bytes.NewBuffer(tt.body))
+			r := httptest.NewRequest("POST", apiBasePath+"/auth/password/reset", bytes.NewBuffer(tt.body))
 
 			// Apply mocks
 			ctrl := gomock.NewController(t)
@@ -299,8 +301,9 @@ func TestGetPasswordResetRequestID(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			apiBasePath := viper.GetString("API_BASE_PATH")
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest("GET", "/api/v1/auth/password/{id}/{token}", nil)
+			r := httptest.NewRequest("GET", apiBasePath+"/auth/password/{id}/{token}", nil)
 
 			// Apply mocks
 			ctrl := gomock.NewController(t)
@@ -469,8 +472,9 @@ func TestResetPassword(t *testing.T) {
 	// Run tests
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			apiBasePath := viper.GetString("API_BASE_PATH")
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest("PUT", "/api/v1/auth/password/{id}/{request_id}", bytes.NewBuffer(tt.body))
+			r := httptest.NewRequest("PUT", apiBasePath+"/auth/password/{id}/{request_id}", bytes.NewBuffer(tt.body))
 
 			// Apply mocks
 			ctrl := gomock.NewController(t)

@@ -6,8 +6,11 @@ import (
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/auth"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/router"
 	"github.com/Zapharaos/fihub-backend/internal/app"
+	"github.com/Zapharaos/fihub-backend/pkg/email"
+	"github.com/Zapharaos/fihub-backend/pkg/translation"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
+	"golang.org/x/text/language"
 	"net/http"
 	"os"
 	"os/signal"
@@ -31,8 +34,23 @@ import (
 // @name						Authorization
 func main() {
 
-	// Setup application
-	app.Init()
+	// Setup Environment
+	app.InitConfiguration("api")
+
+	// Setup Logger
+	app.InitLogger()
+
+	zap.L().Info("Starting Fihub Backend", zap.String("version", app.Version), zap.String("build_date", app.BuildDate))
+
+	// Setup Database
+	app.InitDatabase()
+
+	// Setup Email
+	email.ReplaceGlobals(email.NewSendgridService())
+
+	// Setup Translations
+	defaultLang := language.MustParse(viper.GetString("DEFAULT_LANGUAGE"))
+	translation.ReplaceGlobals(translation.NewI18nService(defaultLang))
 
 	// Server configuration
 	serverPort := viper.GetString("HTTP_SERVER_PORT")

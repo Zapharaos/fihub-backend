@@ -13,7 +13,7 @@ import (
 func main() {
 
 	// Setup Environment
-	app.InitConfiguration()
+	app.InitConfiguration("health")
 
 	// Setup Logger
 	app.InitLogger()

@@ -9,6 +9,7 @@ import (
 	"github.com/Zapharaos/fihub-backend/internal/users"
 	"github.com/Zapharaos/fihub-backend/test/mocks"
 	"github.com/google/uuid"
+	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"
 	"net/http"
@@ -221,8 +222,9 @@ func TestCreateUserBroker(t *testing.T) {
 	// Run tests
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			apiBasePath := viper.GetString("API_BASE_PATH")
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest("POST", "/api/v1/users/brokers", bytes.NewBuffer(tt.broker))
+			r := httptest.NewRequest("POST", apiBasePath+"/users/brokers", bytes.NewBuffer(tt.broker))
 
 			ctrl := gomock.NewController(t)
 			tt.mockSetup(ctrl)
@@ -329,8 +331,9 @@ func TestDeleteUserBroker(t *testing.T) {
 	// Run tests
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			apiBasePath := viper.GetString("API_BASE_PATH")
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest("DELETE", "/api/v1/users/brokers/"+uuid.New().String(), nil)
+			r := httptest.NewRequest("DELETE", apiBasePath+"/users/brokers/"+uuid.New().String(), nil)
 
 			// Apply mocks
 			ctrl := gomock.NewController(t)
@@ -395,8 +398,9 @@ func TestGetUserBrokers(t *testing.T) {
 	// Run tests
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			apiBasePath := viper.GetString("API_BASE_PATH")
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest("GET", "/api/v1/users/brokers", nil)
+			r := httptest.NewRequest("GET", apiBasePath+"/users/brokers", nil)
 
 			// Apply mocks
 			ctrl := gomock.NewController(t)

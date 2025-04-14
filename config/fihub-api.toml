@@ -16,6 +16,11 @@ LOGGER_LEVEL = "debug"
 # Default value: "en"
 DEFAULT_LANGUAGE = "en"
 
+# Specify the default api path
+# This is the base path for all API endpoints
+# Default value: "/api/v1"
+API_BASE_PATH = "/api/v1"
+
 # Specify the server running port. API (including swagger) will be reachable through this port
 # Default value: "8080"
 HTTP_SERVER_PORT = "8080"
@@ -40,7 +45,7 @@ HTTP_SERVER_API_ENABLE_CORS = "true"
 
 # Enable or disable API security
 # If unsecured = false, a valid JWT (JSON Web Token) is required to access the API
-# This JWT is delivered using the /login endpoint (which required a login and a password)
+# This JWT is delivered using the /auth/token endpoint (which requires a login and a password)
 # If HTTP_SERVER_API_ENABLE_SECURITY = false, no JWT is required and all endpoints can be called freely
 # Default value: "true"
 HTTP_SERVER_API_ENABLE_SECURITY = "true"
@@ -48,7 +53,7 @@ HTTP_SERVER_API_ENABLE_SECURITY = "true"
 # Enable or disable API Gateway mode
 # If HTTP_SERVER_API_ENABLE_GATEWAY_MODE = true, the API will still required a JWT but no validation will be done on this JWT
 # Be aware that in gateway mode, every JWT MUST have been validated by another layer of security (in this case, an API Gateway using the auth-api)
-# The auth-api will be responsible to deliver the tokens (/login) and to validate the tokens (/validate)
+# The auth-api will be responsible to deliver the tokens (/auth/token) and to validate the tokens using middleware on API protected routes
 # Default value: "false"
 HTTP_SERVER_API_ENABLE_GATEWAY_MODE = "false"
 

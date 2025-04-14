@@ -10,6 +10,7 @@ import (
 	"github.com/Zapharaos/fihub-backend/internal/users/roles"
 	"github.com/Zapharaos/fihub-backend/test/mocks"
 	"github.com/google/uuid"
+	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"
 	"net/http"
@@ -167,8 +168,9 @@ func TestCreateRole(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// Create a new recorder and request
+			apiBasePath := viper.GetString("API_BASE_PATH")
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest("POST", "/api/v1/roles", bytes.NewBuffer(tt.role))
+			r := httptest.NewRequest("POST", apiBasePath+"/roles", bytes.NewBuffer(tt.role))
 
 			// Apply mocks
 			ctrl := gomock.NewController(t)
@@ -272,8 +274,9 @@ func TestGetRole(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// Create a new recorder and request
+			apiBasePath := viper.GetString("API_BASE_PATH")
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest("GET", "/api/v1/roles", nil)
+			r := httptest.NewRequest("GET", apiBasePath+"/roles", nil)
 
 			// Apply mocks
 			ctrl := gomock.NewController(t)
@@ -339,8 +342,9 @@ func TestGetRoles(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// Create a new recorder and request
+			apiBasePath := viper.GetString("API_BASE_PATH")
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest("GET", "/api/v1/roles", nil)
+			r := httptest.NewRequest("GET", apiBasePath+"/roles", nil)
 
 			// Apply mocks
 			ctrl := gomock.NewController(t)
@@ -524,8 +528,9 @@ func TestUpdateRole(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// Create a new recorder and request
+			apiBasePath := viper.GetString("API_BASE_PATH")
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest("POST", "/api/v1/roles", bytes.NewBuffer(tt.role))
+			r := httptest.NewRequest("POST", apiBasePath+"/roles", bytes.NewBuffer(tt.role))
 
 			// Apply mocks
 			ctrl := gomock.NewController(t)
@@ -612,8 +617,9 @@ func TestDeleteRole(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// Create a new recorder and request
+			apiBasePath := viper.GetString("API_BASE_PATH")
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest("GET", "/api/v1/roles", nil)
+			r := httptest.NewRequest("GET", apiBasePath+"/roles", nil)
 
 			// Apply mocks
 			ctrl := gomock.NewController(t)
@@ -700,8 +706,9 @@ func TestGetRolePermissions(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// Create a new recorder and request
+			apiBasePath := viper.GetString("API_BASE_PATH")
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest("GET", "/api/v1/roles", nil)
+			r := httptest.NewRequest("GET", apiBasePath+"/roles", nil)
 
 			// Apply mocks
 			ctrl := gomock.NewController(t)
@@ -819,8 +826,9 @@ func TestSetRolePermissions(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// Create a new recorder and request
+			apiBasePath := viper.GetString("API_BASE_PATH")
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest("PUT", "/api/v1/roles/{id}/permissions", bytes.NewBuffer(tt.body))
+			r := httptest.NewRequest("PUT", apiBasePath+"/roles/{id}/permissions", bytes.NewBuffer(tt.body))
 
 			// Apply mocks
 			ctrl := gomock.NewController(t)
@@ -907,8 +915,9 @@ func TestGetRoleUsers(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// Create a new recorder and request
+			apiBasePath := viper.GetString("API_BASE_PATH")
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest("GET", "/api/v1/roles", nil)
+			r := httptest.NewRequest("GET", apiBasePath+"/roles", nil)
 
 			// Apply mocks
 			ctrl := gomock.NewController(t)
@@ -1022,8 +1031,9 @@ func TestPutUsersRole(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// Create a new recorder and request
+			apiBasePath := viper.GetString("API_BASE_PATH")
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest("PUT", "/api/v1/roles/{id}/users", bytes.NewBuffer(tt.body))
+			r := httptest.NewRequest("PUT", apiBasePath+"/roles/{id}/users", bytes.NewBuffer(tt.body))
 
 			// Apply mocks
 			ctrl := gomock.NewController(t)
@@ -1137,8 +1147,9 @@ func TestDeleteUsersRole(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// Create a new recorder and request
+			apiBasePath := viper.GetString("API_BASE_PATH")
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest("DELETE", "/api/v1/roles/{id}/users", bytes.NewBuffer(tt.body))
+			r := httptest.NewRequest("DELETE", apiBasePath+"/roles/{id}/users", bytes.NewBuffer(tt.body))
 
 			// Apply mocks
 			ctrl := gomock.NewController(t)

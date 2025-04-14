@@ -7,6 +7,7 @@ import (
 	"github.com/Zapharaos/fihub-backend/internal/users/permissions"
 	"github.com/Zapharaos/fihub-backend/test/mocks"
 	"github.com/google/uuid"
+	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"
 	"net/http"
@@ -126,8 +127,9 @@ func TestCreatePermission(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// Create a new recorder and request
+			apiBasePath := viper.GetString("API_BASE_PATH")
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest("POST", "/api/v1/permissions", bytes.NewBuffer(tt.body))
+			r := httptest.NewRequest("POST", apiBasePath+"/permissions", bytes.NewBuffer(tt.body))
 
 			// Apply mocks
 			ctrl := gomock.NewController(t)
@@ -230,8 +232,9 @@ func TestGetPermission(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// Create a new recorder and request
+			apiBasePath := viper.GetString("API_BASE_PATH")
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest("GET", "/api/v1/permissions/{id}", nil)
+			r := httptest.NewRequest("GET", apiBasePath+"/permissions/{id}", nil)
 
 			// Apply mocks
 			ctrl := gomock.NewController(t)
@@ -300,8 +303,9 @@ func TestGetPermissions(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// Create a new recorder and request
+			apiBasePath := viper.GetString("API_BASE_PATH")
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest("GET", "/api/v1/permissions", nil)
+			r := httptest.NewRequest("GET", apiBasePath+"/permissions", nil)
 
 			// Apply mocks
 			ctrl := gomock.NewController(t)
@@ -461,8 +465,9 @@ func TestUpdatePermission(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			apiBasePath := viper.GetString("API_BASE_PATH")
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest("PUT", "/api/v1/permissions", bytes.NewBuffer(tt.permission))
+			r := httptest.NewRequest("PUT", apiBasePath+"/permissions", bytes.NewBuffer(tt.permission))
 
 			ctrl := gomock.NewController(t)
 			tt.mockSetup(ctrl)
@@ -548,8 +553,9 @@ func TestDeletePermission(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// Create a new recorder and request
+			apiBasePath := viper.GetString("API_BASE_PATH")
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest("DELETE", "/api/v1/permissions", nil)
+			r := httptest.NewRequest("DELETE", apiBasePath+"/permissions", nil)
 
 			// Apply mocks
 			ctrl := gomock.NewController(t)

@@ -10,6 +10,7 @@ import (
 	"github.com/Zapharaos/fihub-backend/internal/utils"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
+	"github.com/spf13/viper"
 	"go.uber.org/zap"
 	"io"
 	"net/http"
@@ -152,7 +153,8 @@ func (a *Auth) ValidateToken(tokenString string) (jwt.MapClaims, error) {
 // Middleware is a middleware to authenticate and validate JWT tokens
 func (a *Auth) Middleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path == "/api/v1/users" && r.Method == "POST" {
+		apiBasePath := viper.GetString("API_BASE_PATH")
+		if r.URL.Path == apiBasePath+"/users" && r.Method == "POST" {
 			// No need for middleware for user creation
 			next.ServeHTTP(w, r)
 			return

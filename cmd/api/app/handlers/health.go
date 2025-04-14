@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	genhealth "github.com/Zapharaos/fihub-backend/protogen/health"
+	"github.com/spf13/viper"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -13,7 +14,8 @@ import (
 
 func HealthCheckHandler(w http.ResponseWriter, r *http.Request) {
 	// Connect to the gRPC health microservice
-	conn, err := grpc.NewClient("health:50001", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	port := viper.GetString("HEALTH_MICROSERVICE_PORT")
+	conn, err := grpc.NewClient("health:"+port, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		zap.L().Error("Failed to connect to gRPC server", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)

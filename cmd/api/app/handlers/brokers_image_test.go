@@ -6,6 +6,7 @@ import (
 	"github.com/Zapharaos/fihub-backend/internal/brokers"
 	"github.com/Zapharaos/fihub-backend/test/mocks"
 	"github.com/google/uuid"
+	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"
 	"net/http"
@@ -201,8 +202,9 @@ func TestCreateBrokerImage(t *testing.T) {
 	// Run tests
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			apiBasePath := viper.GetString("API_BASE_PATH")
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest("GET", "/api/v1/brokers/{id}/image", nil)
+			r := httptest.NewRequest("GET", apiBasePath+"/brokers/{id}/image", nil)
 
 			// Apply mocks
 			ctrl := gomock.NewController(t)
@@ -279,8 +281,9 @@ func TestGetBrokerImage(t *testing.T) {
 	// Run tests
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			apiBasePath := viper.GetString("API_BASE_PATH")
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest("GET", "/api/v1/brokers/{id}/image/{image_id}", nil)
+			r := httptest.NewRequest("GET", apiBasePath+"/brokers/{id}/image/{image_id}", nil)
 
 			// Apply mocks
 			ctrl := gomock.NewController(t)
@@ -455,8 +458,9 @@ func TestUpdateBrokerImage(t *testing.T) {
 	// Run tests
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			apiBasePath := viper.GetString("API_BASE_PATH")
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest("PUT", "/api/v1/brokers/{id}/image/{image_id}", nil)
+			r := httptest.NewRequest("PUT", apiBasePath+"/brokers/{id}/image/{image_id}", nil)
 
 			// Apply mocks
 			ctrl := gomock.NewController(t)
@@ -564,8 +568,9 @@ func TestDeleteBrokerImage(t *testing.T) {
 	// Run tests
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			apiBasePath := viper.GetString("API_BASE_PATH")
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest("DELETE", "/api/v1/brokers/{id}/image/{image_id}", nil)
+			r := httptest.NewRequest("DELETE", apiBasePath+"/brokers/{id}/image/{image_id}", nil)
 
 			// Apply mocks
 			ctrl := gomock.NewController(t)

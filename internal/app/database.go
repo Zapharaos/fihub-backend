@@ -12,8 +12,8 @@ import (
 	"github.com/spf13/viper"
 )
 
-// initDatabase initializes the database connections.
-func initDatabase() {
+// InitDatabase initializes the database connections.
+func InitDatabase() {
 	postgres := database.NewPostgresDB(database.NewSqlDatabase(database.SqlCredentials{
 		Host:     viper.GetString("POSTGRES_HOST"),
 		Port:     viper.GetString("POSTGRES_PORT"),

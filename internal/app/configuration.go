@@ -8,16 +8,13 @@ import (
 // ConfigPath is the toml configuration file path
 var ConfigPath = "config"
 
-// ConfigName is the toml configuration file name
-var ConfigName = "fihub-backend"
-
 // EnvPrefix is the standard environment variable prefix
 var EnvPrefix = "FIHUB"
 
 // InitConfiguration initializes the application configuration
-func InitConfiguration() {
+func InitConfiguration(name string) {
 	// Set up Viper to read the main configuration file
-	viper.SetConfigName(ConfigName)
+	viper.SetConfigName("fihub-" + name)
 	viper.AddConfigPath(ConfigPath)
 	viper.SetEnvPrefix(EnvPrefix)
 	viper.AutomaticEnv()

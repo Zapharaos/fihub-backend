@@ -8,6 +8,7 @@ import (
 	"github.com/Zapharaos/fihub-backend/internal/brokers"
 	"github.com/Zapharaos/fihub-backend/test/mocks"
 	"github.com/google/uuid"
+	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"
 	"net/http"
@@ -161,8 +162,9 @@ func TestCreateBroker(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			apiBasePath := viper.GetString("API_BASE_PATH")
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest("PUT", "/api/v1/brokers", bytes.NewBuffer(tt.body))
+			r := httptest.NewRequest("PUT", apiBasePath+"/brokers", bytes.NewBuffer(tt.body))
 
 			// Apply mocks
 			ctrl := gomock.NewController(t)
@@ -237,8 +239,9 @@ func TestGetBroker(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			apiBasePath := viper.GetString("API_BASE_PATH")
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest("GET", "/api/v1/brokers/{id}", nil)
+			r := httptest.NewRequest("GET", apiBasePath+"/brokers/{id}", nil)
 
 			// Apply mocks
 			ctrl := gomock.NewController(t)
@@ -456,8 +459,9 @@ func TestUpdateBroker(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			apiBasePath := viper.GetString("API_BASE_PATH")
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest("PUT", "/api/v1/brokers", bytes.NewBuffer(tt.body))
+			r := httptest.NewRequest("PUT", apiBasePath+"/brokers", bytes.NewBuffer(tt.body))
 
 			// Apply mocks
 			ctrl := gomock.NewController(t)
@@ -563,8 +567,9 @@ func TestDeleteBroker(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			apiBasePath := viper.GetString("API_BASE_PATH")
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest("DELETE", "/api/v1/brokers/{id}", nil)
+			r := httptest.NewRequest("DELETE", apiBasePath+"/brokers/{id}", nil)
 
 			// Apply mocks
 			ctrl := gomock.NewController(t)
@@ -640,8 +645,9 @@ func TestGetBrokers(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			apiBasePath := viper.GetString("API_BASE_PATH")
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest("GET", "/api/v1/brokers", nil)
+			r := httptest.NewRequest("GET", apiBasePath+"/brokers", nil)
 
 			// Apply mocks
 			ctrl := gomock.NewController(t)

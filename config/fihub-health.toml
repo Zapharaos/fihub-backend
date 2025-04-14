@@ -1,0 +1,17 @@
+### DO NOT COMMIT ANY ENVIRONMENT CHANGE ON THIS FILE
+### If you need to use another environment, edit this file localy, and do not propagate the changes.
+
+# Specify the application environment
+# Possible values: "production", "development"
+# Default value: "production"
+APP_ENV = "production"
+
+# Specify the logging level
+# Possible values: "debug", "info", "warn", "error"
+# Default value: "debug"
+LOGGER_LEVEL = "debug"
+
+# Specify the port for the Health microservice
+# This port is used to run the gRPC HealthService
+# Default value: "50001"
+HEALTH_MICROSERVICE_PORT = "50001"

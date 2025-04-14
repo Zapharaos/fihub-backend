@@ -1,12 +1,9 @@
 package app
 
 import (
-	"github.com/Zapharaos/fihub-backend/pkg/email"
-	"github.com/Zapharaos/fihub-backend/pkg/translation"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-	"golang.org/x/text/language"
 	"log"
 )
 
@@ -16,28 +13,6 @@ var (
 	// BuildDate is the date of build
 	BuildDate = ""
 )
-
-// Init initialize all the app configuration and components
-func Init() {
-
-	// Setup Environment
-	InitConfiguration()
-
-	// Setup Logger
-	InitLogger()
-
-	zap.L().Info("Starting Fihub Backend", zap.String("version", Version), zap.String("build_date", BuildDate))
-
-	// Setup Database
-	initDatabase()
-
-	// Setup Email
-	email.ReplaceGlobals(email.NewSendgridService())
-
-	// Setup Translations
-	defaultLang := language.MustParse(viper.GetString("DEFAULT_LANGUAGE"))
-	translation.ReplaceGlobals(translation.NewI18nService(defaultLang))
-}
 
 // InitLogger initializes the Zap logger.
 func InitLogger() zap.Config {

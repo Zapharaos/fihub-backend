@@ -10,6 +10,7 @@ import (
 	"github.com/Zapharaos/fihub-backend/internal/users"
 	"github.com/Zapharaos/fihub-backend/test/mocks"
 	"github.com/google/uuid"
+	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"
 	"net/http"
@@ -179,8 +180,9 @@ func TestCreateTransaction(t *testing.T) {
 	// Run tests
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			apiBasePath := viper.GetString("API_BASE_PATH")
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest("POST", "/api/v1/transactions", bytes.NewBuffer(tt.body))
+			r := httptest.NewRequest("POST", apiBasePath+"/transactions", bytes.NewBuffer(tt.body))
 
 			// Apply mocks
 			ctrl := gomock.NewController(t)
@@ -286,8 +288,9 @@ func TestGetTransaction(t *testing.T) {
 	// Run tests
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			apiBasePath := viper.GetString("API_BASE_PATH")
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest("GET", "/api/v1/transactions/{id}", nil)
+			r := httptest.NewRequest("GET", apiBasePath+"/transactions/{id}", nil)
 
 			// Apply mocks
 			ctrl := gomock.NewController(t)
@@ -545,8 +548,9 @@ func TestUpdateTransaction(t *testing.T) {
 	// Run tests
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			apiBasePath := viper.GetString("API_BASE_PATH")
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest("PUT", "/api/v1/transactions/{id}", bytes.NewBuffer(tt.body))
+			r := httptest.NewRequest("PUT", apiBasePath+"/transactions/{id}", bytes.NewBuffer(tt.body))
 
 			// Apply mocks
 			ctrl := gomock.NewController(t)
@@ -668,8 +672,9 @@ func TestDeleteTransaction(t *testing.T) {
 	// Run tests
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			apiBasePath := viper.GetString("API_BASE_PATH")
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest("DELETE", "/api/v1/transactions/{id}", nil)
+			r := httptest.NewRequest("DELETE", apiBasePath+"/transactions/{id}", nil)
 
 			// Apply mocks
 			ctrl := gomock.NewController(t)
@@ -734,8 +739,9 @@ func TestGetTransactions(t *testing.T) {
 	// Run tests
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			apiBasePath := viper.GetString("API_BASE_PATH")
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest("GET", "/api/v1/transactions", nil)
+			r := httptest.NewRequest("GET", apiBasePath+"/transactions", nil)
 
 			// Apply mocks
 			ctrl := gomock.NewController(t)

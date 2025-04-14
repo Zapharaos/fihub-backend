@@ -51,7 +51,8 @@ func New(config auth.Config) *chi.Mux {
 	handlers.ReplaceGlobals(handlers.NewUtils())
 
 	// Declare routes
-	r.Route("/api/v1", func(r chi.Router) {
+	apiBasePath := viper.GetString("API_BASE_PATH")
+	r.Route(apiBasePath, func(r chi.Router) {
 
 		// Health
 		r.Get("/health", handlers.HealthCheckHandler)

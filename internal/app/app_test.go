@@ -8,40 +8,12 @@ import (
 	"github.com/Zapharaos/fihub-backend/internal/users/password"
 	"github.com/Zapharaos/fihub-backend/internal/users/permissions"
 	"github.com/Zapharaos/fihub-backend/internal/users/roles"
-	"github.com/Zapharaos/fihub-backend/pkg/email"
-	"github.com/Zapharaos/fihub-backend/pkg/translation"
 	"github.com/Zapharaos/fihub-backend/test"
-	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	sqlmock "github.com/zhashkevych/go-sqlxmock"
 	"go.uber.org/zap"
 	"testing"
 )
-
-// TestInit tests the Init function to ensure that it correctly initializes the application.
-// This test only verifies : env, email, translation.
-// Any further function calls within Init are tested by their respective tests.
-func TestInit(t *testing.T) {
-	// Create a full test suite
-	ts := test.TestSuite{}
-	_ = ts.CreateConfigTranslationsFullTestSuite(t)
-	defer ts.CleanTestSuite(t)
-
-	// Mock viper configuration
-	viper.Set("DEFAULT_LANGUAGE", "en")
-	viper.Set("POSTGRES_HOST", "localhost")
-	viper.Set("POSTGRES_PORT", "5432")
-	viper.Set("POSTGRES_USER", "user")
-	viper.Set("POSTGRES_PASSWORD", "password")
-	viper.Set("POSTGRES_DB", "testdb")
-
-	// Call Init function
-	Init()
-
-	// Assertions to verify initialization
-	assert.NotNil(t, email.S(), "Email service should be initialized")
-	assert.NotNil(t, translation.S(), "Translation service should be initialized")
-}
 
 // TestInitLogger tests the initLogger function to ensure that it correctly initializes the logger.
 func TestInitLogger(t *testing.T) {
@@ -67,7 +39,7 @@ func TestInitDatabase(t *testing.T) {
 	defer ts.CleanTestSuite(t)
 
 	// Call initDatabase function
-	initDatabase()
+	InitDatabase()
 
 	// Assertions to verify Database initialization
 	assert.NotNil(t, database.DB())

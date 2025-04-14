@@ -11,6 +11,7 @@ import (
 	"github.com/Zapharaos/fihub-backend/internal/users/roles"
 	"github.com/Zapharaos/fihub-backend/test/mocks"
 	"github.com/google/uuid"
+	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"
 	"io"
@@ -98,7 +99,8 @@ func TestGetToken(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// Create a new request to the test server
-			r := httptest.NewRequest("POST", ts.URL+"/api/v1/auth/token", bytes.NewBuffer(tt.body))
+			apiBasePath := viper.GetString("API_BASE_PATH")
+			r := httptest.NewRequest("POST", ts.URL+apiBasePath+"/auth/token", bytes.NewBuffer(tt.body))
 			w := httptest.NewRecorder()
 
 			// Apply mocks
@@ -304,7 +306,8 @@ func TestMiddleware(t *testing.T) {
 			tt.mockSetup(ctrl)
 
 			// Create a new request
-			r := httptest.NewRequest("POST", ts.URL+"/api/v1"+tt.target, nil)
+			apiBasePath := viper.GetString("API_BASE_PATH")
+			r := httptest.NewRequest("POST", ts.URL+apiBasePath+tt.target, nil)
 			w := httptest.NewRecorder()
 			if tt.token != "" {
 				r.Header.Set("Authorization", tt.token)
