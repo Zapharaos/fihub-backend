@@ -7,3 +7,7 @@ services:
   health:
     build:
       target: development
+
+  transaction:
+    build:
+      target: development

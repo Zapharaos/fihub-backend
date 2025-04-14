@@ -1,9 +1,11 @@
-package transactions
+package transaction
 
 import (
 	"errors"
 	"github.com/Zapharaos/fihub-backend/internal/brokers"
+	gentransaction "github.com/Zapharaos/fihub-backend/protogen/transaction"
 	"github.com/google/uuid"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	"time"
 )
 
@@ -112,4 +114,31 @@ func (t *TransactionInput) IsValid() (bool, error) {
 	}
 
 	return true, nil
+}
+
+// ToGenTransactionType converts a TransactionType to a gentransaction.TransactionType
+func (t TransactionType) ToGenTransactionType() gentransaction.TransactionType {
+	switch t {
+	case BUY:
+		return gentransaction.TransactionType_BUY
+	case SELL:
+		return gentransaction.TransactionType_SELL
+	default:
+		return gentransaction.TransactionType_TRANSACTION_TYPE_UNSPECIFIED
+	}
+}
+
+func (t Transaction) ToGenTransaction() *gentransaction.Transaction {
+	return &gentransaction.Transaction{
+		Id:              t.ID.String(),
+		UserId:          t.UserID.String(),
+		BrokerId:        t.Broker.ID.String(),
+		Date:            timestamppb.New(t.Date),
+		TransactionType: t.Type.ToGenTransactionType(),
+		Asset:           t.Asset,
+		Quantity:        t.Quantity,
+		Price:           t.Price,
+		Fee:             t.Fee,
+		PriceUnit:       t.PriceUnit,
+	}
 }

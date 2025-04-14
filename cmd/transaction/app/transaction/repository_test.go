@@ -1,7 +1,7 @@
-package transactions_test
+package transaction_test
 
 import (
-	"github.com/Zapharaos/fihub-backend/internal/transactions"
+	"github.com/Zapharaos/fihub-backend/cmd/transaction/app/transaction"
 	"github.com/Zapharaos/fihub-backend/test/mocks"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -12,16 +12,16 @@ import (
 func TestReplaceGlobals(t *testing.T) {
 	// Replace the global repository with a mocks repository
 	mockRepository := &mocks.TransactionsRepository{}
-	restore := transactions.ReplaceGlobals(mockRepository)
+	restore := transaction.ReplaceGlobals(mockRepository)
 
 	// Verify that the global repository instance has been replaced
-	assert.Equal(t, mockRepository, transactions.R())
+	assert.Equal(t, mockRepository, transaction.R())
 
 	// Restore the global repository instance
 	restore()
 
 	// Verify that the global repository instance has been restored
-	assert.NotEqual(t, mockRepository, transactions.R())
+	assert.NotEqual(t, mockRepository, transaction.R())
 }
 
 // TestRepository tests the R function
@@ -29,9 +29,9 @@ func TestReplaceGlobals(t *testing.T) {
 func TestRepository(t *testing.T) {
 	// Replace the global repository with a mocks repository
 	mockRepository := &mocks.TransactionsRepository{}
-	restore := transactions.ReplaceGlobals(mockRepository)
+	restore := transaction.ReplaceGlobals(mockRepository)
 	defer restore()
 
 	// Access the global repository
-	assert.Equal(t, mockRepository, transactions.R())
+	assert.Equal(t, mockRepository, transaction.R())
 }

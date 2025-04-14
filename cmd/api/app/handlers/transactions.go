@@ -1,13 +1,21 @@
 package handlers
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/Zapharaos/fihub-backend/cmd/api/app/clients"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/handlers/render"
+	"github.com/Zapharaos/fihub-backend/cmd/transaction/app/transaction"
 	"github.com/Zapharaos/fihub-backend/internal/brokers"
-	"github.com/Zapharaos/fihub-backend/internal/transactions"
+	gentransaction "github.com/Zapharaos/fihub-backend/protogen/transaction"
+	"github.com/google/uuid"
 	"go.uber.org/zap"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	"net/http"
+	"time"
 )
 
 // CreateTransaction 	godoc
@@ -35,25 +43,14 @@ func CreateTransaction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Parse request body
-	var transactionInput transactions.TransactionInput
+	// Parse request body to TransactionInput
+	var transactionInput transaction.TransactionInput
 	err := json.NewDecoder(r.Body).Decode(&transactionInput)
 	if err != nil {
 		zap.L().Warn("Transaction json decode", zap.Error(err))
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-
-	// Validate the transaction
-	if valid, err := transactionInput.IsValid(); !valid {
-		zap.L().Warn("Transaction is not valid", zap.Error(err))
-		render.BadRequest(w, r, err)
-		return
-	}
-
-	// Set the user ID + PriceUnit
-	transactionInput.UserID = user.ID
-	transactionInput.PriceUnit = transactionInput.Price / transactionInput.Quantity
 
 	// check if userBroker exists
 	exists, err := brokers.R().U().Exists(brokers.User{UserID: user.ID, Broker: brokers.Broker{ID: transactionInput.BrokerID}})
@@ -68,28 +65,56 @@ func CreateTransaction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Create the transaction using the transactions.r() repository
-	transactionID, err := transactions.R().Create(transactionInput)
+	// Map TransactionInput to gRPC ValidateTransactionRequest
+	transactionRequest := &gentransaction.CreateTransactionRequest{
+		UserId:          user.ID.String(),
+		BrokerId:        transactionInput.BrokerID.String(),
+		Date:            timestamppb.New(transactionInput.Date),
+		TransactionType: transactionInput.Type.ToGenTransactionType(),
+		Asset:           transactionInput.Asset,
+		Quantity:        transactionInput.Quantity,
+		Price:           transactionInput.Price,
+		Fee:             transactionInput.Fee,
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	// Create the transaction
+	response, err := clients.C().Transaction().CreateTransaction(ctx, transactionRequest)
 	if err != nil {
 		zap.L().Error("Create transaction", zap.Error(err))
+		if s, ok := status.FromError(err); ok {
+			switch s.Code() {
+			case codes.InvalidArgument:
+				render.BadRequest(w, r, err)
+				return
+			case codes.NotFound:
+				w.WriteHeader(http.StatusNotFound)
+				return
+			case codes.Internal:
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+		}
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	// Get transaction back from database
-	transaction, ok, err := transactions.R().Get(transactionID)
-	if err != nil {
-		zap.L().Error("Cannot get transaction", zap.String("uuid", transactionID.String()), zap.Error(err))
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	if !ok {
-		zap.L().Error("Transaction not found after creation", zap.String("uuid", transactionID.String()))
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	render.JSON(w, r, transaction)
+	// TODO : do not return Broker type here, only ID
+	// Map gRPC response to Transaction
+	render.JSON(w, r, transaction.Transaction{
+		ID:        uuid.MustParse(response.Transaction.Id),
+		UserID:    uuid.MustParse(response.Transaction.UserId),
+		Broker:    brokers.Broker{ID: uuid.MustParse(response.Transaction.BrokerId)},
+		Date:      response.Transaction.Date.AsTime(),
+		Type:      transaction.TransactionType(response.Transaction.TransactionType),
+		Asset:     response.Transaction.Asset,
+		Quantity:  response.Transaction.Quantity,
+		Price:     response.Transaction.Price,
+		PriceUnit: response.Transaction.PriceUnit,
+		Fee:       response.Transaction.Fee,
+	})
 }
 
 // GetTransaction godoc
@@ -118,7 +143,7 @@ func GetTransaction(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get transaction
-	transaction, ok, err := transactions.R().Get(transactionID)
+	transaction, ok, err := transaction.R().Get(transactionID)
 	if err != nil {
 		zap.L().Error("Cannot get transaction", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
@@ -179,7 +204,7 @@ func UpdateTransaction(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Parse request body
-	var transactionInput transactions.TransactionInput
+	var transactionInput transaction.TransactionInput
 	err := json.NewDecoder(r.Body).Decode(&transactionInput)
 	if err != nil {
 		zap.L().Warn("Transaction json decode", zap.Error(err))
@@ -199,7 +224,7 @@ func UpdateTransaction(w http.ResponseWriter, r *http.Request) {
 	transactionInput.PriceUnit = transactionInput.Price / transactionInput.Quantity
 
 	// Verify that the transaction belongs to the user
-	oldTransaction, ok, err := transactions.R().Get(transactionID)
+	oldTransaction, ok, err := transaction.R().Get(transactionID)
 	if err != nil {
 		zap.L().Error("Cannot get transaction", zap.String("uuid", transactionID.String()), zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
@@ -230,7 +255,7 @@ func UpdateTransaction(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Update the transaction using the transactions.r() repository
-	err = transactions.R().Update(transactionInput)
+	err = transaction.R().Update(transactionInput)
 	if err != nil {
 		zap.L().Error("Update transaction", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
@@ -238,7 +263,7 @@ func UpdateTransaction(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get transaction back from database
-	transaction, ok, err := transactions.R().Get(transactionID)
+	transaction, ok, err := transaction.R().Get(transactionID)
 	if err != nil {
 		zap.L().Error("Cannot get transaction", zap.String("uuid", transactionID.String()), zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
@@ -286,7 +311,7 @@ func DeleteTransaction(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Verify that the transaction belongs to the user
-	transaction, ok, err := transactions.R().Get(transactionID)
+	t, ok, err := transaction.R().Get(transactionID)
 	if err != nil {
 		zap.L().Error("Cannot get transaction", zap.String("uuid", transactionID.String()), zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
@@ -297,14 +322,14 @@ func DeleteTransaction(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
-	if transaction.UserID != user.ID {
+	if t.UserID != user.ID {
 		zap.L().Warn("Transaction does not belong to user", zap.String("uuid", transactionID.String()))
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
 	// Remove transaction
-	err = transactions.R().Delete(transactions.Transaction{ID: transactionID, UserID: user.ID})
+	err = transaction.R().Delete(transaction.Transaction{ID: transactionID, UserID: user.ID})
 	if err != nil {
 		zap.L().Error("Cannot remove transaction", zap.String("uuid", transactionID.String()), zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
@@ -337,7 +362,7 @@ func GetTransactions(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get all transactions
-	userTransactions, err := transactions.R().GetAll(user.ID)
+	userTransactions, err := transaction.R().GetAll(user.ID)
 	if err != nil {
 		zap.L().Error("Cannot get transactions", zap.String("uuid", user.ID.String()), zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)

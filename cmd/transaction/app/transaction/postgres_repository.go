@@ -1,4 +1,4 @@
-package transactions
+package transaction
 
 import (
 	"github.com/Zapharaos/fihub-backend/internal/utils"

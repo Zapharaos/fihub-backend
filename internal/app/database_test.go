@@ -1,9 +1,9 @@
 package app
 
 import (
+	"github.com/Zapharaos/fihub-backend/cmd/transaction/app/transaction"
 	"github.com/Zapharaos/fihub-backend/internal/brokers"
 	"github.com/Zapharaos/fihub-backend/internal/database"
-	"github.com/Zapharaos/fihub-backend/internal/transactions"
 	"github.com/Zapharaos/fihub-backend/internal/users"
 	"github.com/Zapharaos/fihub-backend/internal/users/password"
 	"github.com/Zapharaos/fihub-backend/internal/users/permissions"
@@ -46,5 +46,5 @@ func TestInitPostgres(t *testing.T) {
 	assert.NotNil(t, roles.R(), "Roles repository should be initialized")
 	assert.NotNil(t, permissions.R(), "Permissions repository should be initialized")
 	assert.NotNil(t, brokers.R(), "Brokers repository should be initialized")
-	assert.NotNil(t, transactions.R(), "Transactions repository should be initialized")
+	assert.NotNil(t, transaction.R(), "Transactions repository should be initialized")
 }

@@ -7,9 +7,11 @@ import (
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/clients"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/router"
 	"github.com/Zapharaos/fihub-backend/internal/app"
+	"github.com/Zapharaos/fihub-backend/internal/database"
 	"github.com/Zapharaos/fihub-backend/pkg/email"
 	"github.com/Zapharaos/fihub-backend/pkg/translation"
 	genhealth "github.com/Zapharaos/fihub-backend/protogen/health"
+	gentransaction "github.com/Zapharaos/fihub-backend/protogen/transaction"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 	"golang.org/x/text/language"
@@ -115,8 +117,17 @@ func initGrpcClients() {
 	}
 	healthClient := genhealth.NewHealthServiceClient(healthConn)
 
+	// Connect to the gRPC transaction microservice
+	transactionConn, err := grpc.NewClient("transaction:"+viper.GetString("TRANSACTION_MICROSERVICE_PORT"), grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		zap.L().Fatal("Failed to connect to Transaction gRPC server", zap.Error(err))
+	} else {
+		zap.L().Info("Connected to health gRPC Transaction", zap.String("address", transactionConn.Target()))
+	}
+	transactionClient := gentransaction.NewTransactionServiceClient(transactionConn)
+
 	// Initialize the gRPC clients
-	clients.ReplaceGlobals(clients.NewClients(healthClient))
+	clients.ReplaceGlobals(clients.NewClients(healthClient, transactionClient))
 }
 
 func setup() {
@@ -131,6 +142,9 @@ func setup() {
 
 	// Setup Database
 	app.InitDatabase()
+
+	// Initialize the postgres repositories
+	app.InitPostgres(database.DB().Postgres())
 
 	// Setup api clients
 	initGrpcClients()

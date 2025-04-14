@@ -10,9 +10,9 @@
 package mocks
 
 import (
+	transactions "github.com/Zapharaos/fihub-backend/cmd/transaction/app/transaction"
 	reflect "reflect"
 
-	transactions "github.com/Zapharaos/fihub-backend/internal/transactions"
 	uuid "github.com/google/uuid"
 	gomock "go.uber.org/mock/gomock"
 )

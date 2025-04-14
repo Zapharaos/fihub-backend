@@ -3,7 +3,6 @@ package app
 import (
 	"github.com/Zapharaos/fihub-backend/internal/brokers"
 	"github.com/Zapharaos/fihub-backend/internal/database"
-	"github.com/Zapharaos/fihub-backend/internal/transactions"
 	"github.com/Zapharaos/fihub-backend/internal/users"
 	"github.com/Zapharaos/fihub-backend/internal/users/password"
 	"github.com/Zapharaos/fihub-backend/internal/users/permissions"
@@ -22,13 +21,10 @@ func InitDatabase() {
 		DbName:   viper.GetString("POSTGRES_DB"),
 	}))
 	database.ReplaceGlobals(database.NewDatabases(postgres))
-
-	// Initialize the postgres repositories
-	initPostgres(database.DB().Postgres())
 }
 
-// initPostgres initializes the postgres repositories.
-func initPostgres(dbClient *sqlx.DB) {
+// InitPostgres initializes the postgres repositories.
+func InitPostgres(dbClient *sqlx.DB) {
 	// Auth
 	users.ReplaceGlobals(users.NewPostgresRepository(dbClient))
 	password.ReplaceGlobals(password.NewPostgresRepository(dbClient))
@@ -44,7 +40,4 @@ func initPostgres(dbClient *sqlx.DB) {
 	userBrokerRepository := brokers.NewUserPostgresRepository(dbClient)
 	imageBrokerRepository := brokers.NewImagePostgresRepository(dbClient)
 	brokers.ReplaceGlobals(brokers.NewRepository(brokerRepository, userBrokerRepository, imageBrokerRepository))
-
-	// Transactions
-	transactions.ReplaceGlobals(transactions.NewPostgresRepository(dbClient))
 }

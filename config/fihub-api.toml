@@ -68,6 +68,16 @@ CORS_ALLOWED_ORIGIN = "https://*,http://*"
 # Default value: "50001"
 HEALTH_MICROSERVICE_PORT = "50001"
 
+# Specify the port for the Broker microservice
+# This port is used to run the gRPC BrokerService
+# Default value: "50003"
+BROKER_MICROSERVICE_PORT = "50003"
+
+# Specify the port for the Transaction microservice
+# This port is used to run the gRPC TransactionService
+# Default value: "50004"
+TRANSACTION_MICROSERVICE_PORT = "50004"
+
 # Specify the PostgreSQL username
 # Used to authenticate with the PostgreSQL database
 # Default value: "postgres"

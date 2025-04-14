@@ -1,0 +1,104 @@
+syntax = "proto3";
+
+package transaction;
+
+option go_package = "./transaction";
+
+// Import Google's well-known types for UUID and timestamps
+import "google/protobuf/timestamp.proto";
+
+// TransactionType enum
+enum TransactionType {
+  TRANSACTION_TYPE_UNSPECIFIED = 0;
+  BUY = 1;
+  SELL = 2;
+}
+
+// Request message for creating a transaction
+message CreateTransactionRequest {
+  string user_id = 1;
+  string broker_id = 2;
+  google.protobuf.Timestamp date = 3;
+  TransactionType transaction_type = 4;
+  string asset = 5;
+  double quantity = 6;
+  double price = 7;
+  double fee = 8;
+}
+
+// Response message for creating a transaction
+
+message CreateTransactionResponse {
+  Transaction transaction = 1;
+}
+
+// Request message for retrieving a transaction
+message GetTransactionRequest {
+  string transaction_id = 1;
+}
+
+// Response message for retrieving a transaction
+message GetTransactionResponse {
+  Transaction transaction = 1;
+}
+
+// Request message for updating a transaction
+message UpdateTransactionRequest {
+  string transaction_id = 1;
+  string user_id = 2;
+  string broker_id = 3;
+  google.protobuf.Timestamp date = 4;
+  TransactionType transaction_type = 5;
+  string asset = 6;
+  double quantity = 7;
+  double price = 8;
+  double fee = 9;
+}
+
+// Response message for updating a transaction
+message UpdateTransactionResponse {
+  Transaction transaction = 1;
+}
+
+// Request message for deleting a transaction
+message DeleteTransactionRequest {
+  string transaction_id = 1;
+}
+
+// Response message for deleting a transaction
+message DeleteTransactionResponse {
+  string status = 1;
+}
+
+// Request message for listing all transactions
+message ListTransactionsRequest {
+  string user_id = 1;
+}
+
+// Response message for listing all transactions
+message ListTransactionsResponse {
+  repeated Transaction transactions = 1;
+}
+
+// Transaction message
+message Transaction {
+  string id = 1;
+  string user_id = 2;
+  string broker_id = 3;
+  google.protobuf.Timestamp date = 4;
+  TransactionType transaction_type = 5;
+  string asset = 6;
+  double quantity = 7;
+  double price = 8;
+  double price_unit = 9;
+  double fee = 10;
+}
+
+// TransactionService definition
+service TransactionService {
+  rpc CreateTransaction(CreateTransactionRequest) returns (CreateTransactionResponse);
+  rpc GetTransaction(GetTransactionRequest) returns (GetTransactionResponse);
+  rpc UpdateTransaction(UpdateTransactionRequest) returns (UpdateTransactionResponse);
+  rpc DeleteTransaction(DeleteTransactionRequest) returns (DeleteTransactionResponse);
+  rpc ListTransactions(ListTransactionsRequest) returns (ListTransactionsResponse);
+}
