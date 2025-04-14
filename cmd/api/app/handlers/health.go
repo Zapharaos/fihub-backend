@@ -2,34 +2,19 @@ package handlers
 
 import (
 	"context"
+	"github.com/Zapharaos/fihub-backend/cmd/api/app/clients"
 	genhealth "github.com/Zapharaos/fihub-backend/protogen/health"
-	"github.com/spf13/viper"
-	"go.uber.org/zap"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 	"log"
 	"net/http"
 	"time"
 )
 
 func HealthCheckHandler(w http.ResponseWriter, r *http.Request) {
-	// Connect to the gRPC health microservice
-	port := viper.GetString("HEALTH_MICROSERVICE_PORT")
-	conn, err := grpc.NewClient("health:"+port, grpc.WithTransportCredentials(insecure.NewCredentials()))
-	if err != nil {
-		zap.L().Error("Failed to connect to gRPC server", zap.Error(err))
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	defer conn.Close()
-
-	client := genhealth.NewHealthServiceClient(conn)
-
-	// Call the HealthCheck method
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	_, err = client.CheckHealth(ctx, &genhealth.HealthRequest{
+	// Call the health check method on the gRPC client
+	_, err := clients.C().Health().CheckHealth(ctx, &genhealth.HealthRequest{
 		ServiceName: "fihub-backend",
 	})
 	if err != nil {

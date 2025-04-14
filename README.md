@@ -75,7 +75,9 @@ Includes [Delve](https://github.com/go-delve/delve) for debugging on top of Air.
 
 When using JetBrains Goland, learn how to attach the debugger to a Go process that is running in a Docker container [here](https://www.jetbrains.com/help/go/attach-to-running-go-processes-with-debugger.html#attach-to-a-process-in-the-docker-container).
 
-### Generation - gRPC
+### Generation
+
+#### Protobuf & gRPC
 
 When editing the proto files, you need to regenerate the Go files. To do this, run the following command:
 
@@ -83,7 +85,14 @@ When editing the proto files, you need to regenerate the Go files. To do this, r
 make proto-gen
 ```
 
-### Swagger
+#### Mocks
+
+When editing the code (proto, repository, ...), you may need to regenerate the mocks. To do this, run the following command:
+```bash
+make mocks
+```
+
+#### Swagger
 
 Generate the swagger file (reused by frontend).
 

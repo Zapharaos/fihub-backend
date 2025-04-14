@@ -12,7 +12,7 @@ var ConfigPath = "config"
 var EnvPrefix = "FIHUB"
 
 // InitConfiguration initializes the application configuration
-func InitConfiguration(name string) {
+func InitConfiguration(name string) error {
 	// Set up Viper to read the main configuration file
 	viper.SetConfigName("fihub-" + name)
 	viper.AddConfigPath(ConfigPath)
@@ -23,5 +23,8 @@ func InitConfiguration(name string) {
 	err := viper.ReadInConfig()
 	if err != nil {
 		log.Printf("Failed to read configuration file: %v", err)
+		return err
 	}
+
+	return nil
 }

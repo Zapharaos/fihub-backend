@@ -1,7 +1,5 @@
 package permissions
 
-//go:generate mockgen -source=repository.go -destination=../../../test/mocks/permissions_repository.go --package=mocks -mock_names=Repository=PermissionsRepository Repository
-
 import (
 	"sync"
 

@@ -1,7 +1,5 @@
 package password
 
-//go:generate mockgen -source=repository.go -destination=../../../test/mocks/users_password_repository.go --package=mocks -mock_names=Repository=UsersPasswordRepository Repository
-
 import (
 	"github.com/google/uuid"
 	"sync"

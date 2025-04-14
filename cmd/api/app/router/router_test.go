@@ -2,8 +2,12 @@ package router
 
 import (
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/auth"
+	"github.com/Zapharaos/fihub-backend/cmd/api/app/clients"
+	"github.com/Zapharaos/fihub-backend/protogen/health"
+	"github.com/Zapharaos/fihub-backend/test/mocks"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
+	"go.uber.org/mock/gomock"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -22,6 +26,15 @@ func TestNewRouter(t *testing.T) {
 
 	// Assert that the router instance is not nil
 	assert.NotNil(t, r, "Router should not be nil")
+
+	// Set up a mock controller and a mock HealthServiceClient
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	m := mocks.NewHealthServiceClient(ctrl)
+	m.EXPECT().CheckHealth(gomock.Any(), gomock.Any()).Return(&health.HealthResponse{
+		IsHealthy: true,
+	}, nil)
+	clients.ReplaceGlobals(clients.NewClients(m))
 
 	// Test health check route
 	apiBasePath := viper.GetString("API_BASE_PATH")

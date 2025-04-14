@@ -4,13 +4,17 @@ import (
 	"context"
 	"errors"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/auth"
+	"github.com/Zapharaos/fihub-backend/cmd/api/app/clients"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/router"
 	"github.com/Zapharaos/fihub-backend/internal/app"
 	"github.com/Zapharaos/fihub-backend/pkg/email"
 	"github.com/Zapharaos/fihub-backend/pkg/translation"
+	genhealth "github.com/Zapharaos/fihub-backend/protogen/health"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 	"golang.org/x/text/language"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"net/http"
 	"os"
 	"os/signal"
@@ -34,23 +38,9 @@ import (
 // @name						Authorization
 func main() {
 
-	// Setup Environment
-	app.InitConfiguration("api")
-
-	// Setup Logger
-	app.InitLogger()
+	setup()
 
 	zap.L().Info("Starting Fihub Backend", zap.String("version", app.Version), zap.String("build_date", app.BuildDate))
-
-	// Setup Database
-	app.InitDatabase()
-
-	// Setup Email
-	email.ReplaceGlobals(email.NewSendgridService())
-
-	// Setup Translations
-	defaultLang := language.MustParse(viper.GetString("DEFAULT_LANGUAGE"))
-	translation.ReplaceGlobals(translation.NewI18nService(defaultLang))
 
 	// Server configuration
 	serverPort := viper.GetString("HTTP_SERVER_PORT")
@@ -112,4 +102,43 @@ func main() {
 	}
 
 	zap.L().Info("Server shutdown")
+}
+
+// initGrpcClients initializes the gRPC clients for the application.
+func initGrpcClients() {
+	// Connect to the gRPC health microservice
+	healthConn, err := grpc.NewClient("health:"+viper.GetString("HEALTH_MICROSERVICE_PORT"), grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		zap.L().Fatal("Failed to connect to health gRPC server", zap.Error(err))
+	} else {
+		zap.L().Info("Connected to health gRPC server", zap.String("address", healthConn.Target()))
+	}
+	healthClient := genhealth.NewHealthServiceClient(healthConn)
+
+	// Initialize the gRPC clients
+	clients.ReplaceGlobals(clients.NewClients(healthClient))
+}
+
+func setup() {
+	// Setup Environment
+	err := app.InitConfiguration("api")
+	if err != nil {
+		return
+	}
+
+	// Setup Logger
+	app.InitLogger()
+
+	// Setup Database
+	app.InitDatabase()
+
+	// Setup api clients
+	initGrpcClients()
+
+	// Setup Email
+	email.ReplaceGlobals(email.NewSendgridService())
+
+	// Setup Translations
+	defaultLang := language.MustParse(viper.GetString("DEFAULT_LANGUAGE"))
+	translation.ReplaceGlobals(translation.NewI18nService(defaultLang))
 }

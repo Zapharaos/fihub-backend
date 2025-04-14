@@ -1,8 +1,12 @@
 package handlers
 
 import (
+	"github.com/Zapharaos/fihub-backend/cmd/api/app/clients"
+	"github.com/Zapharaos/fihub-backend/protogen/health"
+	"github.com/Zapharaos/fihub-backend/test/mocks"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
+	"go.uber.org/mock/gomock"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -14,6 +18,16 @@ func TestHealthCheckHandler(t *testing.T) {
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest("PUT", apiBasePath+"/health", nil)
 
+	// Set up a mock controller and a mock HealthServiceClient
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	m := mocks.NewHealthServiceClient(ctrl)
+	m.EXPECT().CheckHealth(gomock.Any(), gomock.Any()).Return(&health.HealthResponse{
+		IsHealthy: true,
+	}, nil)
+	clients.ReplaceGlobals(clients.NewClients(m))
+
+	// Call the HealthCheckHandler function
 	HealthCheckHandler(w, r)
 	response := w.Result()
 	defer response.Body.Close()

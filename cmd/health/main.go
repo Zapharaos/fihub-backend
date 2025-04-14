@@ -13,7 +13,10 @@ import (
 func main() {
 
 	// Setup Environment
-	app.InitConfiguration("health")
+	err := app.InitConfiguration("health")
+	if err != nil {
+		return
+	}
 
 	// Setup Logger
 	app.InitLogger()

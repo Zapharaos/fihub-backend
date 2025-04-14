@@ -1,7 +1,5 @@
 package users
 
-//go:generate mockgen -source=repository.go -destination=../../../test/mocks/users_repository.go --package=mocks -mock_names=Repository=UsersRepository Repository
-
 import (
 	"github.com/google/uuid"
 	"sync"

@@ -1,7 +1,5 @@
 package roles
 
-//go:generate mockgen -source=repository.go -destination=../../../test/mocks/roles_repository.go --package=mocks -mock_names=Repository=RolesRepository Repository
-
 import (
 	"github.com/google/uuid"
 	"sync"

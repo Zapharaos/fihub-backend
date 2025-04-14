@@ -61,6 +61,13 @@ debug-b:
 debug-bd:
 	$(DOCKER_COMPOSE) -f $(DOCKER_FILE) -f docker-compose.debug.yml $(UP) $(BUILD_FLAG) $(DETACHED)
 
+# Mock commands
+mocks:
+	go generate ./cmd/api/app/clients/mockgen.go
+	go generate ./internal/brokers/mockgen.go
+	go generate ./internal/transactions/mockgen.go
+	go generate ./internal/users/mockgen.go
+
 # Proto commands
 proto-gen:
 	protoc --go_out=$(PROTO_GEN_PATH) --go-grpc_out=$(PROTO_GEN_PATH) ./proto/*.proto
@@ -95,6 +102,7 @@ help:
 	@echo "  make debug-d             \- Run Docker in debug mode detached"
 	@echo "  make debug-b             \- Run Docker in debug mode with build"
 	@echo "  make debug-bd            \- Run Docker in debug mode with build and detached"
+	@echo "  make mocks           	  \- Generate mocks for the project"
 	@echo "  make proto-gen           \- Generate Go code from proto files"
 	@echo "  make swagger             \- Generate and serve Swagger documentation"
 	@echo "  make swagger-init        \- Initialize Swagger documentation"

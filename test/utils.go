@@ -55,7 +55,30 @@ func (ts *TestSuite) CreateFullTestSuite(t *testing.T) (directoryPath string) {
 	err = file.Close()
 	checkErrDeleteFolder(t, err, dname)
 
+	// Setup config directory
+	ts.createConfigFile(t)
+
 	return dname
+}
+
+func (ts *TestSuite) createConfigFile(t *testing.T) {
+	// Create the config directory
+	err := os.MkdirAll("config", os.ModePerm)
+	checkErrDeleteFolder(t, err, ts.dname)
+
+	// Create the config file
+	file, err := os.Create("config/fihub-test.toml")
+	checkErrDeleteFolder(t, err, ts.dname)
+
+	// Write the config content
+	_, err = file.WriteString(`
+		APP_ENV = "test"
+	`)
+	checkErrDeleteFolder(t, err, ts.dname)
+
+	// Close the file
+	err = file.Close()
+	checkErrDeleteFolder(t, err, ts.dname)
 }
 
 // CreateConfigTranslationsFullTestSuite Create a full test suite with a config/translations directory
