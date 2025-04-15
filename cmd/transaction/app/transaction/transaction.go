@@ -128,6 +128,7 @@ func (t TransactionType) ToGenTransactionType() gentransaction.TransactionType {
 	}
 }
 
+// ToGenTransaction converts a Transaction to a gentransaction.Transaction
 func (t Transaction) ToGenTransaction() *gentransaction.Transaction {
 	return &gentransaction.Transaction{
 		Id:              t.ID.String(),
@@ -140,5 +141,22 @@ func (t Transaction) ToGenTransaction() *gentransaction.Transaction {
 		Price:           t.Price,
 		Fee:             t.Fee,
 		PriceUnit:       t.PriceUnit,
+	}
+}
+
+// FromGenTransaction converts a gentransaction.Transaction to a Transaction
+func FromGenTransaction(t *gentransaction.Transaction) Transaction {
+	// TODO : do not return Broker type here, only ID
+	return Transaction{
+		ID:        uuid.MustParse(t.Id),
+		UserID:    uuid.MustParse(t.UserId),
+		Broker:    brokers.Broker{ID: uuid.MustParse(t.BrokerId)},
+		Date:      t.Date.AsTime(),
+		Type:      TransactionType(t.TransactionType.String()),
+		Asset:     t.Asset,
+		Quantity:  t.Quantity,
+		Price:     t.Price,
+		Fee:       t.Fee,
+		PriceUnit: t.PriceUnit,
 	}
 }

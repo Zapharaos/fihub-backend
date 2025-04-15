@@ -465,6 +465,7 @@ func (x *UpdateTransactionResponse) GetTransaction() *Transaction {
 type DeleteTransactionRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	TransactionId string                 `protobuf:"bytes,1,opt,name=transaction_id,json=transactionId,proto3" json:"transaction_id,omitempty"`
+	UserId        string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -506,10 +507,16 @@ func (x *DeleteTransactionRequest) GetTransactionId() string {
 	return ""
 }
 
+func (x *DeleteTransactionRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
 // Response message for deleting a transaction
 type DeleteTransactionResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Status        string                 `protobuf:"bytes,1,opt,name=status,proto3" json:"status,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -542,13 +549,6 @@ func (x *DeleteTransactionResponse) ProtoReflect() protoreflect.Message {
 // Deprecated: Use DeleteTransactionResponse.ProtoReflect.Descriptor instead.
 func (*DeleteTransactionResponse) Descriptor() ([]byte, []int) {
 	return file_proto_transaction_proto_rawDescGZIP(), []int{7}
-}
-
-func (x *DeleteTransactionResponse) GetStatus() string {
-	if x != nil {
-		return x.Status
-	}
-	return ""
 }
 
 // Request message for listing all transactions
@@ -789,11 +789,11 @@ const file_proto_transaction_proto_rawDesc = "" +
 	"\x05price\x18\b \x01(\x01R\x05price\x12\x10\n" +
 	"\x03fee\x18\t \x01(\x01R\x03fee\"W\n" +
 	"\x19UpdateTransactionResponse\x12:\n" +
-	"\vtransaction\x18\x01 \x01(\v2\x18.transaction.TransactionR\vtransaction\"A\n" +
+	"\vtransaction\x18\x01 \x01(\v2\x18.transaction.TransactionR\vtransaction\"Z\n" +
 	"\x18DeleteTransactionRequest\x12%\n" +
-	"\x0etransaction_id\x18\x01 \x01(\tR\rtransactionId\"3\n" +
-	"\x19DeleteTransactionResponse\x12\x16\n" +
-	"\x06status\x18\x01 \x01(\tR\x06status\"2\n" +
+	"\x0etransaction_id\x18\x01 \x01(\tR\rtransactionId\x12\x17\n" +
+	"\auser_id\x18\x02 \x01(\tR\x06userId\"\x1b\n" +
+	"\x19DeleteTransactionResponse\"2\n" +
 	"\x17ListTransactionsRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\"X\n" +
 	"\x18ListTransactionsResponse\x12<\n" +

@@ -9,7 +9,6 @@ import (
 	"github.com/Zapharaos/fihub-backend/cmd/transaction/app/transaction"
 	"github.com/Zapharaos/fihub-backend/internal/brokers"
 	gentransaction "github.com/Zapharaos/fihub-backend/protogen/transaction"
-	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -101,20 +100,8 @@ func CreateTransaction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO : do not return Broker type here, only ID
 	// Map gRPC response to Transaction
-	render.JSON(w, r, transaction.Transaction{
-		ID:        uuid.MustParse(response.Transaction.Id),
-		UserID:    uuid.MustParse(response.Transaction.UserId),
-		Broker:    brokers.Broker{ID: uuid.MustParse(response.Transaction.BrokerId)},
-		Date:      response.Transaction.Date.AsTime(),
-		Type:      transaction.TransactionType(response.Transaction.TransactionType),
-		Asset:     response.Transaction.Asset,
-		Quantity:  response.Transaction.Quantity,
-		Price:     response.Transaction.Price,
-		PriceUnit: response.Transaction.PriceUnit,
-		Fee:       response.Transaction.Fee,
-	})
+	render.JSON(w, r, transaction.FromGenTransaction(response.Transaction))
 }
 
 // GetTransaction godoc
@@ -142,18 +129,31 @@ func GetTransaction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Get transaction
-	transaction, ok, err := transaction.R().Get(transactionID)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	// Retrieve the transaction
+	response, err := clients.C().Transaction().GetTransaction(ctx, &gentransaction.GetTransactionRequest{
+		TransactionId: transactionID.String(),
+	})
 	if err != nil {
-		zap.L().Error("Cannot get transaction", zap.Error(err))
+		zap.L().Error("Get transaction", zap.Error(err))
+		if s, ok := status.FromError(err); ok {
+			switch s.Code() {
+			case codes.NotFound:
+				w.WriteHeader(http.StatusNotFound)
+				return
+			case codes.Internal:
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+		}
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	if !ok {
-		zap.L().Warn("Transaction not found", zap.String("uuid", transactionID.String()))
-		w.WriteHeader(http.StatusNotFound)
-		return
-	}
+
+	// Map gRPC response to Transaction
+	t := transaction.FromGenTransaction(response.Transaction)
 
 	// Verify that the transaction belongs to the user
 	user, ok := U().GetUserFromContext(r)
@@ -161,13 +161,13 @@ func GetTransaction(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
-	if transaction.UserID != user.ID {
+	if t.UserID != user.ID {
 		zap.L().Warn("Transaction does not belong to user", zap.String("uuid", transactionID.String()))
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
-	render.JSON(w, r, transaction)
+	render.JSON(w, r, t)
 }
 
 // UpdateTransaction godoc
@@ -219,28 +219,6 @@ func UpdateTransaction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Set the transaction ID + PriceUnit
-	transactionInput.ID = transactionID
-	transactionInput.PriceUnit = transactionInput.Price / transactionInput.Quantity
-
-	// Verify that the transaction belongs to the user
-	oldTransaction, ok, err := transaction.R().Get(transactionID)
-	if err != nil {
-		zap.L().Error("Cannot get transaction", zap.String("uuid", transactionID.String()), zap.Error(err))
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	if !ok {
-		zap.L().Warn("Transaction not found", zap.String("uuid", transactionID.String()))
-		w.WriteHeader(http.StatusNotFound)
-		return
-	}
-	if oldTransaction.UserID != user.ID {
-		zap.L().Warn("Transaction does not belong to user", zap.String("uuid", transactionID.String()))
-		w.WriteHeader(http.StatusUnauthorized)
-		return
-	}
-
 	// Verify that the userBroker exists
 	exists, err := brokers.R().U().Exists(brokers.User{UserID: user.ID, Broker: brokers.Broker{ID: transactionInput.BrokerID}})
 	if err != nil {
@@ -254,28 +232,45 @@ func UpdateTransaction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Update the transaction using the transactions.r() repository
-	err = transaction.R().Update(transactionInput)
+	// Map TransactionInput to gRPC ValidateTransactionRequest
+	transactionRequest := &gentransaction.UpdateTransactionRequest{
+		TransactionId:   transactionID.String(),
+		UserId:          user.ID.String(),
+		BrokerId:        transactionInput.BrokerID.String(),
+		Date:            timestamppb.New(transactionInput.Date),
+		TransactionType: transactionInput.Type.ToGenTransactionType(),
+		Asset:           transactionInput.Asset,
+		Quantity:        transactionInput.Quantity,
+		Price:           transactionInput.Price,
+		Fee:             transactionInput.Fee,
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	// Create the transaction
+	response, err := clients.C().Transaction().UpdateTransaction(ctx, transactionRequest)
 	if err != nil {
 		zap.L().Error("Update transaction", zap.Error(err))
+		if s, ok := status.FromError(err); ok {
+			switch s.Code() {
+			case codes.InvalidArgument:
+				render.BadRequest(w, r, err)
+				return
+			case codes.NotFound:
+				w.WriteHeader(http.StatusNotFound)
+				return
+			case codes.Internal:
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+		}
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	// Get transaction back from database
-	transaction, ok, err := transaction.R().Get(transactionID)
-	if err != nil {
-		zap.L().Error("Cannot get transaction", zap.String("uuid", transactionID.String()), zap.Error(err))
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	if !ok {
-		zap.L().Error("Transaction not found after update", zap.String("uuid", transactionID.String()))
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	render.JSON(w, r, transaction)
+	// Map gRPC response to Transaction
+	render.JSON(w, r, transaction.FromGenTransaction(response.Transaction))
 }
 
 // DeleteTransaction godoc
@@ -310,28 +305,29 @@ func DeleteTransaction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Verify that the transaction belongs to the user
-	t, ok, err := transaction.R().Get(transactionID)
-	if err != nil {
-		zap.L().Error("Cannot get transaction", zap.String("uuid", transactionID.String()), zap.Error(err))
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	if !ok {
-		zap.L().Warn("Transaction not found", zap.String("uuid", transactionID.String()))
-		w.WriteHeader(http.StatusNotFound)
-		return
-	}
-	if t.UserID != user.ID {
-		zap.L().Warn("Transaction does not belong to user", zap.String("uuid", transactionID.String()))
-		w.WriteHeader(http.StatusUnauthorized)
-		return
-	}
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 
-	// Remove transaction
-	err = transaction.R().Delete(transaction.Transaction{ID: transactionID, UserID: user.ID})
+	// Retrieve the transaction
+	_, err := clients.C().Transaction().DeleteTransaction(ctx, &gentransaction.DeleteTransactionRequest{
+		TransactionId: transactionID.String(),
+		UserId:        user.ID.String(),
+	})
 	if err != nil {
-		zap.L().Error("Cannot remove transaction", zap.String("uuid", transactionID.String()), zap.Error(err))
+		zap.L().Error("Delete transaction", zap.Error(err))
+		if s, ok := status.FromError(err); ok {
+			switch s.Code() {
+			case codes.NotFound:
+				w.WriteHeader(http.StatusNotFound)
+				return
+			case codes.PermissionDenied:
+				w.WriteHeader(http.StatusUnauthorized)
+				return
+			case codes.Internal:
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+		}
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -361,13 +357,34 @@ func GetTransactions(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Get all transactions
-	userTransactions, err := transaction.R().GetAll(user.ID)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	// Retrieve the transaction
+	response, err := clients.C().Transaction().ListTransactions(ctx, &gentransaction.ListTransactionsRequest{
+		UserId: user.ID.String(),
+	})
 	if err != nil {
-		zap.L().Error("Cannot get transactions", zap.String("uuid", user.ID.String()), zap.Error(err))
+		zap.L().Error("List transactions", zap.Error(err))
+		if s, ok := status.FromError(err); ok {
+			switch s.Code() {
+			case codes.NotFound:
+				w.WriteHeader(http.StatusNotFound)
+				return
+			case codes.Internal:
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+		}
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	render.JSON(w, r, userTransactions)
+	// Map gRPC response to Transaction array
+	t := make([]transaction.Transaction, len(response.Transactions))
+	for i, genTransaction := range response.Transactions {
+		t[i] = transaction.FromGenTransaction(genTransaction)
+	}
+
+	render.JSON(w, r, t)
 }

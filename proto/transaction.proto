@@ -63,12 +63,11 @@ message UpdateTransactionResponse {
 // Request message for deleting a transaction
 message DeleteTransactionRequest {
   string transaction_id = 1;
+  string user_id = 2;
 }
 
 // Response message for deleting a transaction
-message DeleteTransactionResponse {
-  string status = 1;
-}
+message DeleteTransactionResponse {}
 
 // Request message for listing all transactions
 message ListTransactionsRequest {

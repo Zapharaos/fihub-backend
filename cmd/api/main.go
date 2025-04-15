@@ -111,18 +111,18 @@ func initGrpcClients() {
 	// Connect to the gRPC health microservice
 	healthConn, err := grpc.NewClient("health:"+viper.GetString("HEALTH_MICROSERVICE_PORT"), grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
-		zap.L().Fatal("Failed to connect to health gRPC server", zap.Error(err))
+		zap.L().Fatal("Failed to connect to health gRPC service", zap.Error(err))
 	} else {
-		zap.L().Info("Connected to health gRPC server", zap.String("address", healthConn.Target()))
+		zap.L().Info("Connected to health gRPC service", zap.String("address", healthConn.Target()))
 	}
 	healthClient := genhealth.NewHealthServiceClient(healthConn)
 
 	// Connect to the gRPC transaction microservice
 	transactionConn, err := grpc.NewClient("transaction:"+viper.GetString("TRANSACTION_MICROSERVICE_PORT"), grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
-		zap.L().Fatal("Failed to connect to Transaction gRPC server", zap.Error(err))
+		zap.L().Fatal("Failed to connect to Transaction gRPC service", zap.Error(err))
 	} else {
-		zap.L().Info("Connected to health gRPC Transaction", zap.String("address", transactionConn.Target()))
+		zap.L().Info("Connected to transaction gRPC service", zap.String("address", transactionConn.Target()))
 	}
 	transactionClient := gentransaction.NewTransactionServiceClient(transactionConn)
 

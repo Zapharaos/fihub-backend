@@ -83,39 +83,197 @@ func (s *Service) CreateTransaction(ctx context.Context, req *transaction.Create
 		}, status.Error(codes.NotFound, "Transaction not found")
 	}
 
-	// Implement the logic to create a transaction
-	// This is just a placeholder implementation
+	// Return the created transaction
 	return &transaction.CreateTransactionResponse{
 		Transaction: t.ToGenTransaction(),
 	}, nil
 }
 
+// GetTransaction implements the GetTransaction RPC method.
 func (s *Service) GetTransaction(ctx context.Context, req *transaction.GetTransactionRequest) (*transaction.GetTransactionResponse, error) {
-	// Implement the logic to get a transaction
-	// This is just a placeholder implementation
+	transactionID := uuid.MustParse(req.GetTransactionId())
+
+	// Get transaction
+	t, ok, err := R().Get(transactionID)
+	if err != nil {
+		zap.L().Error("Cannot get transaction", zap.String("uuid", transactionID.String()), zap.Error(err))
+		return &transaction.GetTransactionResponse{
+			Transaction: nil,
+		}, status.Error(codes.Internal, "Failed to get transaction")
+	}
+	if !ok {
+		zap.L().Error("Transaction not found", zap.String("uuid", transactionID.String()))
+		return &transaction.GetTransactionResponse{
+			Transaction: nil,
+		}, status.Error(codes.NotFound, "Transaction not found")
+	}
+
+	// Return the transaction
 	return &transaction.GetTransactionResponse{
-		Transaction: &transaction.Transaction{},
+		Transaction: t.ToGenTransaction(),
 	}, nil
 }
 
+// ListTransactions implements the ListTransactions RPC method.
 func (s *Service) ListTransactions(ctx context.Context, req *transaction.ListTransactionsRequest) (*transaction.ListTransactionsResponse, error) {
-	// Implement the logic to list transactions
-	// This is just a placeholder implementation
+	userID := uuid.MustParse(req.GetUserId())
+
+	// Get all transactions
+	t, err := R().GetAll(userID)
+	if err != nil {
+		zap.L().Error("Cannot get transactions", zap.String("uuid", userID.String()), zap.Error(err))
+		return &transaction.ListTransactionsResponse{
+			Transactions: nil,
+		}, status.Error(codes.Internal, "Failed to get transaction")
+	}
+
+	// Convert transactions to gRPC format
+	list := make([]*transaction.Transaction, len(t))
+	for i, item := range t {
+		list[i] = item.ToGenTransaction()
+	}
+
+	// Return the list of transactions
 	return &transaction.ListTransactionsResponse{
-		Transactions: []*transaction.Transaction{},
+		Transactions: list,
 	}, nil
 }
 
+// UpdateTransaction implements the UpdateTransaction RPC method.
 func (s *Service) UpdateTransaction(ctx context.Context, req *transaction.UpdateTransactionRequest) (*transaction.UpdateTransactionResponse, error) {
-	// Implement the logic to update a transaction
-	// This is just a placeholder implementation
+
+	// Parse the transaction ID from the request
+	transactionID, err := uuid.Parse(req.GetTransactionId())
+	if err != nil {
+		// Log the error and return an invalid response
+		zap.L().Error("Invalid transaction ID", zap.String("transaction_id", req.GetUserId()), zap.Error(err))
+		return &transaction.UpdateTransactionResponse{
+			Transaction: nil,
+		}, status.Error(codes.InvalidArgument, "Invalid transaction ID")
+	}
+
+	// Parse the user ID from the request
+	userID, err := uuid.Parse(req.GetUserId())
+	if err != nil {
+		// Log the error and return an invalid response
+		zap.L().Error("Invalid user ID", zap.String("user_id", req.GetUserId()), zap.Error(err))
+		return &transaction.UpdateTransactionResponse{
+			Transaction: nil,
+		}, status.Error(codes.InvalidArgument, "Invalid user ID")
+	}
+
+	// Parse the broker ID from the request
+	brokerID, err := uuid.Parse(req.GetBrokerId())
+	if err != nil {
+		// Log the error and return an invalid response
+		zap.L().Error("Invalid broker ID", zap.String("broker_id", req.GetBrokerId()), zap.Error(err))
+		return &transaction.UpdateTransactionResponse{
+			Transaction: nil,
+		}, status.Error(codes.InvalidArgument, "Invalid broker ID")
+	}
+
+	// Construct the transaction input object
+	transactionInput := TransactionInput{
+		ID:        transactionID,
+		UserID:    userID,
+		BrokerID:  brokerID,
+		Date:      req.GetDate().AsTime(),
+		Type:      TransactionType(req.GetTransactionType()),
+		Asset:     req.GetAsset(),
+		Quantity:  req.GetQuantity(),
+		Price:     req.GetPrice(),
+		Fee:       req.GetFee(),
+		PriceUnit: req.GetPrice() / req.GetQuantity(),
+	}
+
+	// Validate the transaction input
+	_, validationErr := transactionInput.IsValid()
+	if validationErr != nil {
+		// Log the validation error and return an invalid response
+		zap.L().Error("Transaction validation failed", zap.Error(validationErr))
+		return &transaction.UpdateTransactionResponse{
+			Transaction: nil,
+		}, status.Error(codes.InvalidArgument, validationErr.Error())
+	}
+
+	// Verify that the transaction belongs to the user
+	oldTransaction, ok, err := R().Get(transactionID)
+	if err != nil {
+		zap.L().Error("Cannot get transaction", zap.String("uuid", transactionID.String()), zap.Error(err))
+		return &transaction.UpdateTransactionResponse{
+			Transaction: nil,
+		}, status.Error(codes.Internal, "Failed to get transaction")
+	}
+	if !ok {
+		zap.L().Error("Transaction not found after creation", zap.String("uuid", transactionID.String()))
+		return &transaction.UpdateTransactionResponse{
+			Transaction: nil,
+		}, status.Error(codes.NotFound, "Transaction not found")
+	}
+	if oldTransaction.UserID != userID {
+		zap.L().Warn("Transaction does not belong to user", zap.String("uuid", transactionID.String()))
+		return &transaction.UpdateTransactionResponse{
+			Transaction: nil,
+		}, status.Error(codes.PermissionDenied, "Transaction does not belong to user")
+	}
+
+	// Update the transaction
+	err = R().Update(transactionInput)
+	if err != nil {
+		zap.L().Error("Cannot update transaction", zap.String("uuid", transactionID.String()), zap.Error(err))
+		return &transaction.UpdateTransactionResponse{
+			Transaction: nil,
+		}, status.Error(codes.Internal, "Failed to update transaction")
+	}
+
+	// Get transaction back from database
+	t, ok, err := R().Get(transactionID)
+	if err != nil {
+		zap.L().Error("Cannot get transaction", zap.String("uuid", transactionID.String()), zap.Error(err))
+		return &transaction.UpdateTransactionResponse{
+			Transaction: nil,
+		}, status.Error(codes.Internal, "Failed to get transaction")
+	}
+	if !ok {
+		zap.L().Error("Transaction not found after update", zap.String("uuid", transactionID.String()))
+		return &transaction.UpdateTransactionResponse{
+			Transaction: nil,
+		}, status.Error(codes.NotFound, "Transaction not found")
+	}
+
+	// Return the created transaction
 	return &transaction.UpdateTransactionResponse{
-		Transaction: &transaction.Transaction{},
+		Transaction: t.ToGenTransaction(),
 	}, nil
 }
 
+// DeleteTransaction implements the DeleteTransaction RPC method.
 func (s *Service) DeleteTransaction(ctx context.Context, req *transaction.DeleteTransactionRequest) (*transaction.DeleteTransactionResponse, error) {
-	// Implement the logic to delete a transaction
-	// This is just a placeholder implementation
+	userID := uuid.MustParse(req.GetUserId())
+	transactionID := uuid.MustParse(req.GetTransactionId())
+
+	// Verify that the transaction belongs to the user
+	t, ok, err := R().Get(transactionID)
+	if err != nil {
+		zap.L().Error("Cannot get transaction", zap.String("uuid", transactionID.String()), zap.Error(err))
+		return &transaction.DeleteTransactionResponse{}, status.Error(codes.Internal, "Failed to get transaction")
+	}
+	if !ok {
+		zap.L().Error("Transaction not found", zap.String("uuid", transactionID.String()))
+		return &transaction.DeleteTransactionResponse{}, status.Error(codes.NotFound, "Transaction not found")
+	}
+	if t.UserID != userID {
+		zap.L().Warn("Transaction does not belong to user", zap.String("uuid", transactionID.String()))
+		return &transaction.DeleteTransactionResponse{}, status.Error(codes.PermissionDenied, "Transaction does not belong to user")
+	}
+
+	// Remove transaction
+	err = R().Delete(Transaction{ID: transactionID, UserID: userID})
+	if err != nil {
+		zap.L().Error("Cannot remove transaction", zap.String("uuid", transactionID.String()), zap.Error(err))
+		return &transaction.DeleteTransactionResponse{}, status.Error(codes.Internal, "Failed to remove transaction")
+	}
+
+	// Return success response
 	return &transaction.DeleteTransactionResponse{}, nil
 }
