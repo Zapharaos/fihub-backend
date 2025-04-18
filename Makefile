@@ -50,16 +50,16 @@ dev-bd:
 
 # Run Docker for debugging
 debug:
-	$(DOCKER_COMPOSE) -f $(DOCKER_FILE) -f docker-compose.debug.yml $(UP)
+	$(DOCKER_COMPOSE) -f $(DOCKER_FILE) -f docker-compose.dev.yml -f docker-compose.debug.yml $(UP)
 
 debug-d:
-	$(DOCKER_COMPOSE) -f $(DOCKER_FILE) -f docker-compose.debug.yml $(UP) $(DETACHED)
+	$(DOCKER_COMPOSE) -f $(DOCKER_FILE) -f docker-compose.dev.yml -f docker-compose.debug.yml $(UP) $(DETACHED)
 
 debug-b:
-	$(DOCKER_COMPOSE) -f $(DOCKER_FILE) -f docker-compose.debug.yml $(UP) $(BUILD_FLAG)
+	$(DOCKER_COMPOSE) -f $(DOCKER_FILE) -f docker-compose.dev.yml -f docker-compose.debug.yml $(UP) $(BUILD_FLAG)
 
 debug-bd:
-	$(DOCKER_COMPOSE) -f $(DOCKER_FILE) -f docker-compose.debug.yml $(UP) $(BUILD_FLAG) $(DETACHED)
+	$(DOCKER_COMPOSE) -f $(DOCKER_FILE) -f docker-compose.dev.yml -f docker-compose.debug.yml $(UP) $(BUILD_FLAG) $(DETACHED)
 
 # Mock commands
 mocks:
@@ -76,7 +76,7 @@ proto-gen:
 swagger: swagger-init swagger-ui swagger-gen
 
 swagger-init:
-	swag init -ot yaml
+	swag init -d cmd/api,internal -ot yaml
 
 swagger-ui:
 	docker run --rm -d -p $(SWAGGER_UI_PORT):8080 -e SWAGGER_JSON=/tmp/swagger.yaml -v `pwd`/docs:/tmp swaggerapi/swagger-ui

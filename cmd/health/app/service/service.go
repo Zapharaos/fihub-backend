@@ -16,6 +16,8 @@ func (h *Service) CheckHealth(ctx context.Context, req *health.HealthRequest) (*
 
 	zap.L().Info("Checking service", zap.String("service_name", req.ServiceName))
 
+	// TODO : check global health status or specific service health status
+
 	// Example logic for service check
 	if req.ServiceName == "" {
 		zap.L().Error("Service name is required")

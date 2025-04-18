@@ -19,9 +19,9 @@ import (
 //	@Tags			Brokers
 //	@Accept			json
 //	@Produce		json
-//	@Param			broker	body	brokers.Broker	true	"broker (json)"
+//	@Param			broker	body	models.Broker	true	"broker (json)"
 //	@Security		Bearer
-//	@Success		200	{object}	brokers.Broker			"broker"
+//	@Success		200	{object}	models.Broker			"broker"
 //	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/brokers [post]
@@ -94,7 +94,7 @@ func CreateBroker(w http.ResponseWriter, r *http.Request) {
 //	@Produce		json
 //	@Param			id	path	string	true	"broker id"
 //	@Security		Bearer
-//	@Success		200	{object}	brokers.Broker			"broker"
+//	@Success		200	{object}	models.Broker			"broker"
 //	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		404	{object}	render.ErrorResponse	"Not Found"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
@@ -133,9 +133,9 @@ func GetBroker(w http.ResponseWriter, r *http.Request) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			id			path	string					true	"broker ID"
-//	@Param			broker		body	brokers.Broker			true	"broker (json)"
+//	@Param			broker		body	models.Broker			true	"broker (json)"
 //	@Security		Bearer
-//	@Success		200	{object}	brokers.Broker			"broker"
+//	@Success		200	{object}	models.Broker			"broker"
 //	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		404	{object}	render.ErrorResponse	"Not Found"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
@@ -284,7 +284,7 @@ func DeleteBroker(w http.ResponseWriter, r *http.Request) {
 //	@Produce		json
 //	@Param			enabled	query	string	false	"enabled only"
 //	@Security		Bearer
-//	@Success		200	{array}		brokers.Broker			"list of brokers"
+//	@Success		200	{array}		models.Broker			"list of brokers"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/brokers [get]
 func GetBrokers(w http.ResponseWriter, r *http.Request) {

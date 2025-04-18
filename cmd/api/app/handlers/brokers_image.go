@@ -21,7 +21,7 @@ import (
 //	@Param			id		path		string	true	"broker ID"
 //	@Param			file	formData	file	true	"image file"
 //	@Security		Bearer
-//	@Success		200	{object}	brokers.BrokerImage		"broker image"
+//	@Success		200	{object}	models.BrokerImage		"broker image"
 //	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/brokers/{id}/image [post]
@@ -166,7 +166,7 @@ func GetBrokerImage(w http.ResponseWriter, r *http.Request) {
 //	@Param			image_id	path		string	true	"image ID"
 //	@Param			file		formData	file	true	"image file"
 //	@Security		Bearer
-//	@Success		200	{object}	brokers.BrokerImage		"broker image"
+//	@Success		200	{object}	models.BrokerImage		"broker image"
 //	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		404	{object}	render.ErrorResponse	"Not Found"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"

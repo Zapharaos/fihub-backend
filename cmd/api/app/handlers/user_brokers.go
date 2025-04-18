@@ -19,9 +19,9 @@ import (
 //	@Tags			BrokerUser
 //	@Accept			json
 //	@Produce		json
-//	@Param			userBroker	body	brokers.BrokerUserInput	true	"userBroker (json)"
+//	@Param			userBroker	body	models.BrokerUserInput	true	"userBroker (json)"
 //	@Security		Bearer
-//	@Success		200	{array}		brokers.BrokerUser		"Updated list of user brokers"
+//	@Success		200	{array}		models.BrokerUser		"Updated list of user brokers"
 //	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
@@ -184,7 +184,7 @@ func DeleteUserBroker(w http.ResponseWriter, r *http.Request) {
 //	@Tags			BrokerUser
 //	@Produce		json
 //	@Security		Bearer
-//	@Success		200	{array}		brokers.BrokerUser		"List of brokers"
+//	@Success		200	{array}		models.BrokerUser		"List of brokers"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/users/brokers [get]

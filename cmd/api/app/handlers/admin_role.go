@@ -23,9 +23,9 @@ import (
 //	@Tags			Roles
 //	@Accept			json
 //	@Produce		json
-//	@Param			role	body	roles.RoleWithPermissions	true	"role (json)"
+//	@Param			role	body	models.RoleWithPermissions	true	"role (json)"
 //	@Security		Bearer
-//	@Success		200	{object}	roles.RoleWithPermissions				"role"
+//	@Success		200	{object}	models.RoleWithPermissions				"role"
 //	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
@@ -95,7 +95,7 @@ func CreateRole(w http.ResponseWriter, r *http.Request) {
 //	@Produce		json
 //	@Param			id	path	string	true	"role id"
 //	@Security		Bearer
-//	@Success		200	{object}	roles.RoleWithPermissions "role"
+//	@Success		200	{object}	models.RoleWithPermissions "role"
 //	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		404	{string}	string					"Role not found"
@@ -132,7 +132,7 @@ func GetRole(w http.ResponseWriter, r *http.Request) {
 //	@Tags			Roles
 //	@Produce		json
 //	@Security		Bearer
-//	@Success		200	{array}		roles.RoleWithPermissions				"list of roles"
+//	@Success		200	{array}		models.RoleWithPermissions				"list of roles"
 //	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
@@ -161,9 +161,9 @@ func GetRoles(w http.ResponseWriter, r *http.Request) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			id		path	string		true	"role ID"
-//	@Param			role	body	roles.RoleWithPermissions	true	"role (json)"
+//	@Param			role	body	models.RoleWithPermissions	true	"role (json)"
 //	@Security		Bearer
-//	@Success		200	{object}	roles.RoleWithPermissions				"role"
+//	@Success		200	{object}	models.RoleWithPermissions				"role"
 //	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
@@ -264,7 +264,7 @@ func DeleteRole(w http.ResponseWriter, r *http.Request) {
 //	@Produce		json
 //	@Param			id	path	string	true	"role ID"
 //	@Security		Bearer
-//	@Success		200	{array}		permissions.Permission	"list of permissions"
+//	@Success		200	{array}		models.Permission	"list of permissions"
 //	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
@@ -294,9 +294,9 @@ func GetRolePermissions(w http.ResponseWriter, r *http.Request) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			id		path	string						true	"role ID"
-//	@Param			role	body	permissions.Permissions	true	"List of permissions (json)"
+//	@Param			role	body	models.Permissions	true	"List of permissions (json)"
 //	@Security		Bearer
-//	@Success		200	{object}	roles.RoleWithPermissions	"role"
+//	@Success		200	{object}	models.RoleWithPermissions	"role"
 //	@Failure		400	{object}	render.ErrorResponse		"Bad PasswordRequest"
 //	@Failure		401	{string}	string						"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse		"Internal Server Error"
@@ -341,7 +341,7 @@ func SetRolePermissions(w http.ResponseWriter, r *http.Request) {
 //	@Produce		json
 //	@Param			id	path	string	true	"role ID"
 //	@Security		Bearer
-//	@Success		200	{array}		users.User				"list of users"
+//	@Success		200	{array}		models.User				"list of users"
 //	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"

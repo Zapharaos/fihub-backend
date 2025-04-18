@@ -18,9 +18,9 @@ import (
 //	@Tags			Permissions
 //	@Accept			json
 //	@Produce		json
-//	@Param			permission	body	permissions.Permission	true	"permission (json)"
+//	@Param			permission	body	models.Permission	true	"permission (json)"
 //	@Security		Bearer
-//	@Success		200	{object}	permissions.Permission	"permission"
+//	@Success		200	{object}	models.Permission	"permission"
 //	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
@@ -75,7 +75,7 @@ func CreatePermission(w http.ResponseWriter, r *http.Request) {
 //	@Produce		json
 //	@Param			id	path	string	true	"permission id"
 //	@Security		Bearer
-//	@Success		200	{object}	permissions.Permission	"permission"
+//	@Success		200	{object}	models.Permission	"permission"
 //	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		404	{string}	string					"Not Found"
@@ -112,7 +112,7 @@ func GetPermission(w http.ResponseWriter, r *http.Request) {
 //	@Tags			Permissions
 //	@Produce		json
 //	@Security		Bearer
-//	@Success		200	{array}		permissions.Permission	"list of permissions"
+//	@Success		200	{array}		models.Permission	"list of permissions"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/permissions [get]
@@ -140,9 +140,9 @@ func GetPermissions(w http.ResponseWriter, r *http.Request) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			id			path	string					true	"permission ID"
-//	@Param			permission	body	permissions.Permission	true	"permission (json)"
+//	@Param			permission	body	models.Permission	true	"permission (json)"
 //	@Security		Bearer
-//	@Success		200	{object}	permissions.Permission	"permission"
+//	@Success		200	{object}	models.Permission	"permission"
 //	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"

@@ -26,9 +26,9 @@ import (
 // @Tags 				Transactions
 // @Accept 				json
 // @Produce 			json
-// @Param 				transaction body 	transactions.TransactionInput true 	"transaction (json)"
+// @Param 				transaction body 	models.TransactionInput true 	"transaction (json)"
 // @Security 			Bearer
-// @Success 			200 {object} 		transactions.Transaction 		"transaction"
+// @Success 			200 {object} 		models.Transaction 		"transaction"
 // @Failure 			400 {object} 		render.ErrorResponse 			"Bad PasswordRequest"
 // @Failure 			401 {string} 		string 							"Permission denied"
 // @Failure 			500 {object} 		render.ErrorResponse 			"Internal Server Error"
@@ -102,7 +102,7 @@ func CreateTransaction(w http.ResponseWriter, r *http.Request) {
 // @Produce 		json
 // @Param 			id path 		string true 				"transaction id"
 // @Security 		Bearer
-// @Success 		200 {object} 	transactions.Transaction 	"transaction"
+// @Success 		200 {object} 	models.Transaction 	"transaction"
 // @Failure 		400 {object} 	render.ErrorResponse 		"Bad PasswordRequest"
 // @Failure 		401 {string} 	string 						"Permission denied"
 // @Failure 		404 {object} 	render.ErrorResponse 		"Not Found"
@@ -159,9 +159,9 @@ func GetTransaction(w http.ResponseWriter, r *http.Request) {
 // @Accept 			json
 // @Produce 		json
 // @Param 			id path 		string true 				"transaction ID"
-// @Param 			transaction body transactions.Transaction true "transaction (json)"
+// @Param 			transaction body models.Transaction true "transaction (json)"
 // @Security 		Bearer
-// @Success 		200 {object} 	transactions.Transaction 	"transaction"
+// @Success 		200 {object} 	models.Transaction 	"transaction"
 // @Failure 		400 {object} 	render.ErrorResponse 		"Bad PasswordRequest"
 // @Failure 		401 {string} 	string 						"Permission denied"
 // @Failure			404	{object}	render.ErrorResponse		"Not Found"
@@ -303,7 +303,7 @@ func DeleteTransaction(w http.ResponseWriter, r *http.Request) {
 // @Tags 			Transactions
 // @Produce 		json
 // @Security 		Bearer
-// @Success 		200 {array} 	transactions.Transaction 	"List of transactions"
+// @Success 		200 {array} 	models.Transaction 	"List of transactions"
 // @Failure 		401 {string} 	string 						"Permission denied"
 // @Failure 		500 {object} 	render.ErrorResponse 		"Internal Server Error"
 // @Router /api/v1/transactions [get]

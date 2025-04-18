@@ -2,4 +2,15 @@ services:
   api:
     ports:
       - "2345:2345" # Delve debug port
-    command: ["air", "-c", ".air.debug.toml"]
+    command: ["air", "-c", "cmd/api/.air.debug.toml"]
+
+  health:
+    ports:
+      - "2346:2346" # Delve debug port
+    command: [ "air", "-c", "cmd/health/.air.debug.toml" ]
+
+  transaction:
+    ports:
+      - "2349:2349" # Delve debug port
+    command: [ "air", "-c", "cmd/transaction/.air.debug.toml" ]
+

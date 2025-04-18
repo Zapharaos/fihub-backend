@@ -68,7 +68,7 @@ func New(checks int8, config Config) *Auth {
 //	@Tags			Auth
 //	@Accept			json
 //	@Produce		json
-//	@Param			user	body	users.UserWithPassword	true	"login & user (json)"
+//	@Param			user	body	models.UserWithPassword	true	"login & user (json)"
 //	@Security		Bearer
 //	@Success		200	{object}	auth.JwtToken			"event"
 //	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"

@@ -20,9 +20,9 @@ import (
 //	@Tags			Users
 //	@Accept			json
 //	@Produce		json
-//	@Param			user	body	users.UserInputCreate	true	"user (json)"
+//	@Param			user	body	models.UserInputCreate	true	"user (json)"
 //	@Security		Bearer
-//	@Success		200	{object}	users.User				"user"
+//	@Success		200	{object}	models.User				"user"
 //	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/users [post]
@@ -92,7 +92,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 //	@Tags			Users
 //	@Produce		json
 //	@Security		Bearer
-//	@Success		200	{object}	users.UserWithRoles		"user"
+//	@Success		200	{object}	models.UserWithRoles		"user"
 //	@Failure		400	{string}	string					"Bad PasswordRequest"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
@@ -117,9 +117,9 @@ func GetUserSelf(w http.ResponseWriter, r *http.Request) {
 //	@Tags			Users
 //	@Accept			json
 //	@Produce		json
-//	@Param			user	body	users.User	true	"user (json)"
+//	@Param			user	body	models.User	true	"user (json)"
 //	@Security		Bearer
-//	@Success		200	{object}	users.User				"user"
+//	@Success		200	{object}	models.User				"user"
 //	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
@@ -184,7 +184,7 @@ func UpdateUserSelf(w http.ResponseWriter, r *http.Request) {
 //	@Tags			Users
 //	@Accept			json
 //	@Produce		json
-//	@Param			password	body	users.UserInputPassword	true	"password (json)"
+//	@Param			password	body	models.UserInputPassword	true	"password (json)"
 //	@Security		Bearer
 //	@Success		200	{string}	string					"status OK"
 //	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
@@ -270,7 +270,7 @@ func DeleteUserSelf(w http.ResponseWriter, r *http.Request) {
 //	@Produce		json
 //	@Param			id	path	string	true	"user ID"
 //	@Security		Bearer
-//	@Success		200	{object}	users.UserWithRoles		"user"
+//	@Success		200	{object}	models.UserWithRoles		"user"
 //	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		404	{string}	string					"User not found"
@@ -324,9 +324,9 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			id		path	string				true	"user ID"
-//	@Param			user	body	users.UserWithRoles	true	"user (json)"
+//	@Param			user	body	models.UserWithRoles	true	"user (json)"
 //	@Security		Bearer
-//	@Success		200	{object}	users.UserWithRoles		"user"
+//	@Success		200	{object}	models.UserWithRoles		"user"
 //	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
@@ -367,9 +367,9 @@ func SetUser(w http.ResponseWriter, r *http.Request) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			id		path	string				true	"user ID"
-//	@Param			user	body	users.UserWithRoles	true	"user (json)"
+//	@Param			user	body	models.UserWithRoles	true	"user (json)"
 //	@Security		Bearer
-//	@Success		200	{object}	users.UserWithRoles		"user"
+//	@Success		200	{object}	models.UserWithRoles		"user"
 //	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
@@ -414,7 +414,7 @@ func SetUserRoles(w http.ResponseWriter, r *http.Request) {
 //	@Produce		json
 //	@Param			id	path	string	true	"user ID"
 //	@Security		Bearer
-//	@Success		200	{array}		roles.RoleWithPermissions	"list of roles"
+//	@Success		200	{array}		models.RoleWithPermissions	"list of roles"
 //	@Failure		400	{object}	render.ErrorResponse		"Bad PasswordRequest"
 //	@Failure		401	{string}	string						"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse		"Internal Server Error"
@@ -443,7 +443,7 @@ func GetUserRoles(w http.ResponseWriter, r *http.Request) {
 //	@Tags			Users, UserRoles
 //	@Produce		json
 //	@Security		Bearer
-//	@Success		200	{array}		users.UserWithRoles	"list of users"
+//	@Success		200	{array}		models.UserWithRoles	"list of users"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/users [get]

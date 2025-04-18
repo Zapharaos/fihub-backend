@@ -27,8 +27,8 @@ import (
 //	@Accept			json
 //	@Produce		json
 //	@Param			lang	query	string					false	"Language code"
-//	@Param			request	body	password.PasswordInputRequest	true	"request (json)"
-//	@Success		200	{object}	password.PasswordResponseRequest	"PasswordRequest"
+//	@Param			request	body	models.PasswordInputRequest	true	"request (json)"
+//	@Success		200	{object}	models.PasswordResponseRequest	"PasswordRequest"
 //	@Failure		400	{object}	render.ErrorResponse		"Bad PasswordRequest"
 //	@Failure		500	{object}	render.ErrorResponse		"Internal Server Error"
 //	@Router			/api/v1/auth/password [post]
@@ -214,7 +214,7 @@ func GetPasswordResetRequestID(w http.ResponseWriter, r *http.Request) {
 //	@Produce		json
 //	@Param			id				path	string					true	"User ID"
 //	@Param			request_id		path	string					true	"Reset token"
-//	@Param			password		body	users.UserInputPassword	true	"password (json)"
+//	@Param			password		body	models.UserInputPassword	true	"password (json)"
 //	@Security		Bearer
 //	@Success		200	{string}	string					"status OK"
 //	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
