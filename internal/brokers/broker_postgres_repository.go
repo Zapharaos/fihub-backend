@@ -1,6 +1,7 @@
 package brokers
 
 import (
+	"github.com/Zapharaos/fihub-backend/internal/models"
 	"github.com/Zapharaos/fihub-backend/internal/utils"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
@@ -21,7 +22,7 @@ func NewPostgresRepository(dbClient *sqlx.DB) BrokerRepository {
 }
 
 // Create use to create a Broker
-func (r *BrokerPostgresRepository) Create(broker Broker) (uuid.UUID, error) {
+func (r *BrokerPostgresRepository) Create(broker models.Broker) (uuid.UUID, error) {
 
 	// Execute query
 	row := r.conn.QueryRow(""+
@@ -40,7 +41,7 @@ func (r *BrokerPostgresRepository) Create(broker Broker) (uuid.UUID, error) {
 }
 
 // Get use to retrieve a Broker by its id
-func (r *BrokerPostgresRepository) Get(id uuid.UUID) (Broker, bool, error) {
+func (r *BrokerPostgresRepository) Get(id uuid.UUID) (models.Broker, bool, error) {
 
 	// Prepare query
 	query := `SELECT *
@@ -53,7 +54,7 @@ func (r *BrokerPostgresRepository) Get(id uuid.UUID) (Broker, bool, error) {
 	// Execute query
 	rows, err := r.conn.NamedQuery(query, params)
 	if err != nil {
-		return Broker{}, false, err
+		return models.Broker{}, false, err
 	}
 	defer rows.Close()
 
@@ -61,7 +62,7 @@ func (r *BrokerPostgresRepository) Get(id uuid.UUID) (Broker, bool, error) {
 }
 
 // Update use to update a Broker
-func (r *BrokerPostgresRepository) Update(broker Broker) error {
+func (r *BrokerPostgresRepository) Update(broker models.Broker) error {
 
 	// Prepare query
 	query := `UPDATE brokers
@@ -142,7 +143,7 @@ func (r *BrokerPostgresRepository) ExistsByName(name string) (bool, error) {
 }
 
 // GetAll use to retrieve all existing Broker
-func (r *BrokerPostgresRepository) GetAll() ([]Broker, error) {
+func (r *BrokerPostgresRepository) GetAll() ([]models.Broker, error) {
 
 	// Prepare query
 	query := `SELECT *
@@ -159,7 +160,7 @@ func (r *BrokerPostgresRepository) GetAll() ([]Broker, error) {
 }
 
 // GetAllEnabled use to retrieve all enabled Broker
-func (r *BrokerPostgresRepository) GetAllEnabled() ([]Broker, error) {
+func (r *BrokerPostgresRepository) GetAllEnabled() ([]models.Broker, error) {
 
 	// Prepare query
 	query := `SELECT *
@@ -176,7 +177,7 @@ func (r *BrokerPostgresRepository) GetAllEnabled() ([]Broker, error) {
 	return utils.ScanAll(rows, r.Scan)
 }
 
-// SetImage use to set an Image to a Broker
+// SetImage use to set an BrokerImage to a Broker
 func (r *BrokerPostgresRepository) SetImage(id uuid.UUID, imageID uuid.UUID) error {
 	// Prepare query
 	query := `UPDATE brokers
@@ -196,7 +197,7 @@ func (r *BrokerPostgresRepository) SetImage(id uuid.UUID, imageID uuid.UUID) err
 	return utils.CheckRowAffected(result, 1)
 }
 
-// HasImage use to check if a Broker has an Image
+// HasImage use to check if a Broker has an BrokerImage
 func (r *BrokerPostgresRepository) HasImage(id uuid.UUID) (bool, error) {
 	// Prepare query
 	query := `SELECT *
@@ -216,7 +217,7 @@ func (r *BrokerPostgresRepository) HasImage(id uuid.UUID) (bool, error) {
 	return rows.Next(), nil
 }
 
-// DeleteImage use to delete an Image from a Broker
+// DeleteImage use to delete an BrokerImage from a Broker
 func (r *BrokerPostgresRepository) DeleteImage(id uuid.UUID) error {
 	// Prepare query
 	query := `UPDATE brokers
@@ -235,8 +236,8 @@ func (r *BrokerPostgresRepository) DeleteImage(id uuid.UUID) error {
 	return utils.CheckRowAffected(result, 1)
 }
 
-func (r *BrokerPostgresRepository) Scan(rows *sqlx.Rows) (Broker, error) {
-	var broker Broker
+func (r *BrokerPostgresRepository) Scan(rows *sqlx.Rows) (models.Broker, error) {
+	var broker models.Broker
 	err := rows.Scan(
 		&broker.ID,
 		&broker.Name,
@@ -244,7 +245,7 @@ func (r *BrokerPostgresRepository) Scan(rows *sqlx.Rows) (Broker, error) {
 		&broker.Disabled,
 	)
 	if err != nil {
-		return Broker{}, err
+		return models.Broker{}, err
 	}
 
 	return broker, nil

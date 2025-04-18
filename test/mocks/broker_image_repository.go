@@ -12,7 +12,7 @@ package mocks
 import (
 	reflect "reflect"
 
-	brokers "github.com/Zapharaos/fihub-backend/internal/brokers"
+	models "github.com/Zapharaos/fihub-backend/internal/models"
 	uuid "github.com/google/uuid"
 	gomock "go.uber.org/mock/gomock"
 )
@@ -42,7 +42,7 @@ func (m *BrokerImageRepository) EXPECT() *BrokerImageRepositoryMockRecorder {
 }
 
 // Create mocks base method.
-func (m *BrokerImageRepository) Create(image brokers.Image) error {
+func (m *BrokerImageRepository) Create(image models.BrokerImage) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Create", image)
 	ret0, _ := ret[0].(error)
@@ -85,10 +85,10 @@ func (mr *BrokerImageRepositoryMockRecorder) Exists(brokerID, brokerImageID any)
 }
 
 // Get mocks base method.
-func (m *BrokerImageRepository) Get(brokerImageID uuid.UUID) (brokers.Image, bool, error) {
+func (m *BrokerImageRepository) Get(brokerImageID uuid.UUID) (models.BrokerImage, bool, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Get", brokerImageID)
-	ret0, _ := ret[0].(brokers.Image)
+	ret0, _ := ret[0].(models.BrokerImage)
 	ret1, _ := ret[1].(bool)
 	ret2, _ := ret[2].(error)
 	return ret0, ret1, ret2
@@ -101,7 +101,7 @@ func (mr *BrokerImageRepositoryMockRecorder) Get(brokerImageID any) *gomock.Call
 }
 
 // Update mocks base method.
-func (m *BrokerImageRepository) Update(image brokers.Image) error {
+func (m *BrokerImageRepository) Update(image models.BrokerImage) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Update", image)
 	ret0, _ := ret[0].(error)

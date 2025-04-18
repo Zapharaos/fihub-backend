@@ -2,6 +2,7 @@ package roles_test
 
 import (
 	"errors"
+	"github.com/Zapharaos/fihub-backend/internal/models"
 	"github.com/Zapharaos/fihub-backend/internal/users/roles"
 	"github.com/Zapharaos/fihub-backend/test"
 	"github.com/google/uuid"
@@ -123,14 +124,14 @@ func TestPostgresRepository_Create(t *testing.T) {
 
 	tests := []struct {
 		name          string
-		role          roles.Role
+		role          models.Role
 		permissionIDs []uuid.UUID
 		mockSetup     func()
 		expectErr     bool
 	}{
 		{
 			name: "Fail role creation",
-			role: roles.Role{Name: "role_name"},
+			role: models.Role{Name: "role_name"},
 			mockSetup: func() {
 				sqlxMock.Mock.ExpectBegin()
 				sqlxMock.Mock.ExpectExec("INSERT INTO roles").WillReturnError(errors.New("error"))
@@ -140,7 +141,7 @@ func TestPostgresRepository_Create(t *testing.T) {
 		},
 		{
 			name: "Create role without permissions",
-			role: roles.Role{Name: "role_name"},
+			role: models.Role{Name: "role_name"},
 			mockSetup: func() {
 				sqlxMock.Mock.ExpectBegin()
 				sqlxMock.Mock.ExpectExec("INSERT INTO roles").WillReturnResult(sqlxmock.NewResult(1, 1))
@@ -150,7 +151,7 @@ func TestPostgresRepository_Create(t *testing.T) {
 		},
 		{
 			name:          "Create role with permissions",
-			role:          roles.Role{Name: "role_name"},
+			role:          models.Role{Name: "role_name"},
 			permissionIDs: []uuid.UUID{uuid.New(), uuid.New()},
 			mockSetup: func() {
 				sqlxMock.Mock.ExpectBegin()
@@ -162,7 +163,7 @@ func TestPostgresRepository_Create(t *testing.T) {
 		},
 		{
 			name:          "Fail to set role permissions",
-			role:          roles.Role{Name: "role_name"},
+			role:          models.Role{Name: "role_name"},
 			permissionIDs: []uuid.UUID{uuid.New(), uuid.New()},
 			mockSetup: func() {
 				sqlxMock.Mock.ExpectBegin()
@@ -174,7 +175,7 @@ func TestPostgresRepository_Create(t *testing.T) {
 		},
 		{
 			name:          "Fail to commit transaction",
-			role:          roles.Role{Name: "role_name"},
+			role:          models.Role{Name: "role_name"},
 			permissionIDs: []uuid.UUID{uuid.New(), uuid.New()},
 			mockSetup: func() {
 				sqlxMock.Mock.ExpectBegin()
@@ -207,14 +208,14 @@ func TestPostgresRepository_Update(t *testing.T) {
 
 	tests := []struct {
 		name          string
-		role          roles.Role
+		role          models.Role
 		permissionIDs []uuid.UUID
 		mockSetup     func()
 		expectErr     bool
 	}{
 		{
 			name: "Fail role update",
-			role: roles.Role{Id: uuid.New(), Name: "role_name"},
+			role: models.Role{Id: uuid.New(), Name: "role_name"},
 			mockSetup: func() {
 				sqlxMock.Mock.ExpectBegin()
 				sqlxMock.Mock.ExpectExec("UPDATE roles").WillReturnError(errors.New("error"))
@@ -224,7 +225,7 @@ func TestPostgresRepository_Update(t *testing.T) {
 		},
 		{
 			name: "Update role without permissions",
-			role: roles.Role{Id: uuid.New(), Name: "role_name"},
+			role: models.Role{Id: uuid.New(), Name: "role_name"},
 			mockSetup: func() {
 				sqlxMock.Mock.ExpectBegin()
 				sqlxMock.Mock.ExpectExec("UPDATE roles").WillReturnResult(sqlxmock.NewResult(1, 1))
@@ -235,7 +236,7 @@ func TestPostgresRepository_Update(t *testing.T) {
 		},
 		{
 			name:          "Update role with permissions",
-			role:          roles.Role{Id: uuid.New(), Name: "role_name"},
+			role:          models.Role{Id: uuid.New(), Name: "role_name"},
 			permissionIDs: []uuid.UUID{uuid.New(), uuid.New()},
 			mockSetup: func() {
 				sqlxMock.Mock.ExpectBegin()
@@ -248,7 +249,7 @@ func TestPostgresRepository_Update(t *testing.T) {
 		},
 		{
 			name:          "Fail to set role permissions",
-			role:          roles.Role{Id: uuid.New(), Name: "role_name"},
+			role:          models.Role{Id: uuid.New(), Name: "role_name"},
 			permissionIDs: []uuid.UUID{uuid.New(), uuid.New()},
 			mockSetup: func() {
 				sqlxMock.Mock.ExpectBegin()
@@ -261,7 +262,7 @@ func TestPostgresRepository_Update(t *testing.T) {
 		},
 		{
 			name:          "Fail to commit transaction",
-			role:          roles.Role{Id: uuid.New(), Name: "role_name"},
+			role:          models.Role{Id: uuid.New(), Name: "role_name"},
 			permissionIDs: []uuid.UUID{uuid.New(), uuid.New()},
 			mockSetup: func() {
 				sqlxMock.Mock.ExpectBegin()

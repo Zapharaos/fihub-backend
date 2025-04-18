@@ -3,6 +3,7 @@ package brokers_test
 import (
 	"errors"
 	"github.com/Zapharaos/fihub-backend/internal/brokers"
+	"github.com/Zapharaos/fihub-backend/internal/models"
 	"github.com/Zapharaos/fihub-backend/test"
 	"github.com/google/uuid"
 	sqlxmock "github.com/zhashkevych/go-sqlxmock"
@@ -42,7 +43,7 @@ func TestBrokerPostgresRepository_Create(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mockSetup()
-			_, err := brokers.R().B().Create(brokers.Broker{})
+			_, err := brokers.R().B().Create(models.Broker{})
 			if (err != nil) != tt.expectErr {
 				t.Errorf("Create() error = %v, expectErr %v", err, tt.expectErr)
 			}
@@ -121,13 +122,13 @@ func TestBrokerPostgresRepository_Update(t *testing.T) {
 
 	tests := []struct {
 		name      string
-		broker    brokers.Broker
+		broker    models.Broker
 		mockSetup func()
 		expectErr bool
 	}{
 		{
 			name: "Fail broker update",
-			broker: brokers.Broker{
+			broker: models.Broker{
 				ID:       uuid.New(),
 				Name:     "broker_name",
 				Disabled: false,
@@ -139,7 +140,7 @@ func TestBrokerPostgresRepository_Update(t *testing.T) {
 		},
 		{
 			name: "Update broker",
-			broker: brokers.Broker{
+			broker: models.Broker{
 				ID:       uuid.New(),
 				Name:     "broker_name",
 				Disabled: false,

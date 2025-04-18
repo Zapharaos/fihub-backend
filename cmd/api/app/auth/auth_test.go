@@ -6,6 +6,7 @@ import (
 	"errors"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/auth"
 	"github.com/Zapharaos/fihub-backend/internal/app"
+	"github.com/Zapharaos/fihub-backend/internal/models"
 	"github.com/Zapharaos/fihub-backend/internal/users"
 	"github.com/Zapharaos/fihub-backend/internal/users/permissions"
 	"github.com/Zapharaos/fihub-backend/internal/users/roles"
@@ -35,8 +36,8 @@ func TestNew(t *testing.T) {
 func TestGetToken(t *testing.T) {
 	// Define test data
 	a := auth.New(auth.CheckHeader, auth.Config{})
-	userWithPassword := users.UserWithPassword{
-		User:     users.User{Email: "test@example.com"},
+	userWithPassword := models.UserWithPassword{
+		User:     models.User{Email: "test@example.com"},
 		Password: "password",
 	}
 	userBody, _ := json.Marshal(userWithPassword)
@@ -64,7 +65,7 @@ func TestGetToken(t *testing.T) {
 			name: "authentication error",
 			mockSetup: func(ctrl *gomock.Controller) {
 				m := mocks.NewUsersRepository(ctrl)
-				m.EXPECT().Authenticate(gomock.Any(), gomock.Any()).Return(users.User{}, false, errors.New("error"))
+				m.EXPECT().Authenticate(gomock.Any(), gomock.Any()).Return(models.User{}, false, errors.New("error"))
 				users.ReplaceGlobals(m)
 			},
 			body:        userBody,
@@ -75,7 +76,7 @@ func TestGetToken(t *testing.T) {
 			name: "authentication failed",
 			mockSetup: func(ctrl *gomock.Controller) {
 				m := mocks.NewUsersRepository(ctrl)
-				m.EXPECT().Authenticate(gomock.Any(), gomock.Any()).Return(users.User{}, false, nil)
+				m.EXPECT().Authenticate(gomock.Any(), gomock.Any()).Return(models.User{}, false, nil)
 				users.ReplaceGlobals(m)
 			},
 			body:        userBody,
@@ -137,7 +138,7 @@ func TestGetToken(t *testing.T) {
 func TestGenerateToken(t *testing.T) {
 	// Define test data
 	a := auth.New(auth.CheckHeader, auth.Config{})
-	user := users.User{
+	user := models.User{
 		ID: uuid.New(),
 	}
 
@@ -153,7 +154,7 @@ func TestGenerateToken(t *testing.T) {
 func TestValidateToken(t *testing.T) {
 	// Define test data
 	a := auth.New(auth.CheckHeader, auth.Config{})
-	user := users.User{
+	user := models.User{
 		ID: uuid.New(),
 	}
 
@@ -204,7 +205,7 @@ func TestValidateToken(t *testing.T) {
 func TestMiddleware(t *testing.T) {
 	// Define test data
 	a := auth.New(auth.CheckHeader, auth.Config{})
-	user := users.User{
+	user := models.User{
 		ID: uuid.New(),
 	}
 
@@ -266,7 +267,7 @@ func TestMiddleware(t *testing.T) {
 			token: validToken.Token,
 			mockSetup: func(ctrl *gomock.Controller) {
 				u := mocks.NewUsersRepository(ctrl)
-				u.EXPECT().Get(gomock.Any()).Return(users.User{}, false, errors.New("error"))
+				u.EXPECT().Get(gomock.Any()).Return(models.User{}, false, errors.New("error"))
 				users.ReplaceGlobals(u)
 				r := mocks.NewRolesRepository(ctrl)
 				r.EXPECT().GetRolesByUserId(gomock.Any()).Times(0)
@@ -283,10 +284,10 @@ func TestMiddleware(t *testing.T) {
 				u.EXPECT().Get(gomock.Any()).Return(user, true, nil)
 				users.ReplaceGlobals(u)
 				r := mocks.NewRolesRepository(ctrl)
-				r.EXPECT().GetRolesByUserId(gomock.Any()).Return([]roles.Role{{Id: uuid.New(), Name: "admin"}}, nil)
+				r.EXPECT().GetRolesByUserId(gomock.Any()).Return([]models.Role{{Id: uuid.New(), Name: "admin"}}, nil)
 				roles.ReplaceGlobals(r)
 				p := mocks.NewPermissionsRepository(ctrl)
-				p.EXPECT().GetAllByRoleId(gomock.Any()).Return([]permissions.Permission{}, nil)
+				p.EXPECT().GetAllByRoleId(gomock.Any()).Return([]models.Permission{}, nil)
 				permissions.ReplaceGlobals(p)
 			},
 			expectErr:   false,
@@ -316,7 +317,7 @@ func TestMiddleware(t *testing.T) {
 			// Create a simple handler function
 			next := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				// Check the context
-				_, ok := r.Context().Value(app.ContextKeyUser).(users.UserWithRoles)
+				_, ok := r.Context().Value(app.ContextKeyUser).(models.UserWithRoles)
 				// If the context is expected, check if it is set
 				assert.Equal(t, tt.expectCtx, ok)
 			})

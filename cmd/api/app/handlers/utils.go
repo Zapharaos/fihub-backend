@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/handlers/render"
 	"github.com/Zapharaos/fihub-backend/internal/app"
-	"github.com/Zapharaos/fihub-backend/internal/users"
+	"github.com/Zapharaos/fihub-backend/internal/models"
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 	"github.com/spf13/viper"
@@ -22,7 +22,7 @@ import (
 // Utils defines the interface for handler utility functions
 type Utils interface {
 	CheckPermission(w http.ResponseWriter, r *http.Request, permission string) bool
-	GetUserFromContext(r *http.Request) (users.UserWithRoles, bool)
+	GetUserFromContext(r *http.Request) (models.UserWithRoles, bool)
 	ParseParamString(w http.ResponseWriter, r *http.Request, key string) (string, bool)
 	ParseParamUUID(w http.ResponseWriter, r *http.Request, key string) (uuid.UUID, bool)
 	ParseParamLanguage(w http.ResponseWriter, r *http.Request) language.Tag
@@ -84,16 +84,16 @@ func (u *utils) CheckPermission(w http.ResponseWriter, r *http.Request, permissi
 }
 
 // GetUserFromContext extract the logged user from the request context
-func (u *utils) GetUserFromContext(r *http.Request) (users.UserWithRoles, bool) {
+func (u *utils) GetUserFromContext(r *http.Request) (models.UserWithRoles, bool) {
 	_user := r.Context().Value(app.ContextKeyUser)
 	if _user == nil {
 		zap.L().Warn("No context user provided")
-		return users.UserWithRoles{}, false
+		return models.UserWithRoles{}, false
 	}
-	user, ok := _user.(users.UserWithRoles)
+	user, ok := _user.(models.UserWithRoles)
 	if !ok {
 		zap.L().Warn("Invalid user type in context")
-		return users.UserWithRoles{}, false
+		return models.UserWithRoles{}, false
 	}
 	return user, true
 }

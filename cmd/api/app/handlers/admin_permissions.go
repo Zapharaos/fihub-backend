@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/handlers/render"
+	"github.com/Zapharaos/fihub-backend/internal/models"
 	"github.com/Zapharaos/fihub-backend/internal/users/permissions"
 	"go.uber.org/zap"
 	"net/http"
@@ -20,7 +21,7 @@ import (
 //	@Param			permission	body	permissions.Permission	true	"permission (json)"
 //	@Security		Bearer
 //	@Success		200	{object}	permissions.Permission	"permission"
-//	@Failure		400	{object}	render.ErrorResponse	"Bad Request"
+//	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/permissions [post]
@@ -29,7 +30,7 @@ func CreatePermission(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var permission permissions.Permission
+	var permission models.Permission
 	err := json.NewDecoder(r.Body).Decode(&permission)
 	if err != nil {
 		zap.L().Warn("Permission json decode", zap.Error(err))
@@ -75,7 +76,7 @@ func CreatePermission(w http.ResponseWriter, r *http.Request) {
 //	@Param			id	path	string	true	"permission id"
 //	@Security		Bearer
 //	@Success		200	{object}	permissions.Permission	"permission"
-//	@Failure		400	{object}	render.ErrorResponse	"Bad Request"
+//	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		404	{string}	string					"Not Found"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
@@ -142,7 +143,7 @@ func GetPermissions(w http.ResponseWriter, r *http.Request) {
 //	@Param			permission	body	permissions.Permission	true	"permission (json)"
 //	@Security		Bearer
 //	@Success		200	{object}	permissions.Permission	"permission"
-//	@Failure		400	{object}	render.ErrorResponse	"Bad Request"
+//	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/permissions/{id} [put]
@@ -152,7 +153,7 @@ func UpdatePermission(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var permission permissions.Permission
+	var permission models.Permission
 	err := json.NewDecoder(r.Body).Decode(&permission)
 	if err != nil {
 		zap.L().Warn("Permission json decode", zap.Error(err))
@@ -198,7 +199,7 @@ func UpdatePermission(w http.ResponseWriter, r *http.Request) {
 //	@Param			id	path	string	true	"permission ID"
 //	@Security		Bearer
 //	@Success		200	{string}	string					"status OK"
-//	@Failure		400	{object}	render.ErrorResponse	"Bad Request"
+//	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/permissions/{id} [delete]

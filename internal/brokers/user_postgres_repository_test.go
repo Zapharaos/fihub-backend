@@ -3,6 +3,7 @@ package brokers_test
 import (
 	"errors"
 	"github.com/Zapharaos/fihub-backend/internal/brokers"
+	"github.com/Zapharaos/fihub-backend/internal/models"
 	"github.com/Zapharaos/fihub-backend/test"
 	"github.com/google/uuid"
 	sqlxmock "github.com/zhashkevych/go-sqlxmock"
@@ -43,7 +44,7 @@ func TestUserPostgresRepository_Create(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mockSetup()
-			err := brokers.R().U().Create(brokers.User{})
+			err := brokers.R().U().Create(models.BrokerUser{})
 			if (err != nil) != tt.expectErr {
 				t.Errorf("Create() error = %v, expectErr %v", err, tt.expectErr)
 			}
@@ -83,7 +84,7 @@ func TestUserPostgresRepository_Delete(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mockSetup()
-			err := brokers.R().U().Delete(brokers.User{})
+			err := brokers.R().U().Delete(models.BrokerUser{})
 			if (err != nil) != tt.expectErr {
 				t.Errorf("Delete() error = %v, expectErr %v", err, tt.expectErr)
 			}
@@ -101,7 +102,7 @@ func TestUserPostgresRepository_Exists(t *testing.T) {
 
 	tests := []struct {
 		name         string
-		user         brokers.User
+		user         models.BrokerUser
 		mockSetup    func()
 		expectErr    bool
 		expectExists bool
@@ -115,7 +116,7 @@ func TestUserPostgresRepository_Exists(t *testing.T) {
 			expectExists: false,
 		},
 		{
-			name: "User broker exists",
+			name: "BrokerUser broker exists",
 			mockSetup: func() {
 				rows := sqlxmock.NewRows([]string{"user_id", "broker_id"}).AddRow(uuid.New(), uuid.New())
 				sqlxMock.Mock.ExpectQuery("SELECT").WillReturnRows(rows)
@@ -124,7 +125,7 @@ func TestUserPostgresRepository_Exists(t *testing.T) {
 			expectExists: true,
 		},
 		{
-			name: "User broker does not exist",
+			name: "BrokerUser broker does not exist",
 			mockSetup: func() {
 				rows := sqlxmock.NewRows([]string{"user_id", "broker_id"})
 				sqlxMock.Mock.ExpectQuery("SELECT").WillReturnRows(rows)
@@ -137,7 +138,7 @@ func TestUserPostgresRepository_Exists(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mockSetup()
-			exists, err := brokers.R().U().Exists(brokers.User{})
+			exists, err := brokers.R().U().Exists(models.BrokerUser{})
 			if (err != nil) != tt.expectErr {
 				t.Errorf("Exists() error = %v, expectErr %v", err, tt.expectErr)
 			}

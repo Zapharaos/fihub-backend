@@ -12,7 +12,7 @@ package mocks
 import (
 	reflect "reflect"
 
-	roles "github.com/Zapharaos/fihub-backend/internal/users/roles"
+	models "github.com/Zapharaos/fihub-backend/internal/models"
 	uuid "github.com/google/uuid"
 	gomock "go.uber.org/mock/gomock"
 )
@@ -42,7 +42,7 @@ func (m *RolesRepository) EXPECT() *RolesRepositoryMockRecorder {
 }
 
 // Create mocks base method.
-func (m *RolesRepository) Create(role roles.Role, permissionUUIDs []uuid.UUID) (uuid.UUID, error) {
+func (m *RolesRepository) Create(role models.Role, permissionUUIDs []uuid.UUID) (uuid.UUID, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Create", role, permissionUUIDs)
 	ret0, _ := ret[0].(uuid.UUID)
@@ -71,10 +71,10 @@ func (mr *RolesRepositoryMockRecorder) Delete(uuid any) *gomock.Call {
 }
 
 // Get mocks base method.
-func (m *RolesRepository) Get(uuid uuid.UUID) (roles.Role, bool, error) {
+func (m *RolesRepository) Get(uuid uuid.UUID) (models.Role, bool, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Get", uuid)
-	ret0, _ := ret[0].(roles.Role)
+	ret0, _ := ret[0].(models.Role)
 	ret1, _ := ret[1].(bool)
 	ret2, _ := ret[2].(error)
 	return ret0, ret1, ret2
@@ -87,10 +87,10 @@ func (mr *RolesRepositoryMockRecorder) Get(uuid any) *gomock.Call {
 }
 
 // GetAll mocks base method.
-func (m *RolesRepository) GetAll() ([]roles.Role, error) {
+func (m *RolesRepository) GetAll() ([]models.Role, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetAll")
-	ret0, _ := ret[0].([]roles.Role)
+	ret0, _ := ret[0].([]models.Role)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -102,10 +102,10 @@ func (mr *RolesRepositoryMockRecorder) GetAll() *gomock.Call {
 }
 
 // GetAllWithPermissions mocks base method.
-func (m *RolesRepository) GetAllWithPermissions() (roles.RolesWithPermissions, error) {
+func (m *RolesRepository) GetAllWithPermissions() (models.RolesWithPermissions, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetAllWithPermissions")
-	ret0, _ := ret[0].(roles.RolesWithPermissions)
+	ret0, _ := ret[0].(models.RolesWithPermissions)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -117,10 +117,10 @@ func (mr *RolesRepositoryMockRecorder) GetAllWithPermissions() *gomock.Call {
 }
 
 // GetByName mocks base method.
-func (m *RolesRepository) GetByName(name string) (roles.Role, bool, error) {
+func (m *RolesRepository) GetByName(name string) (models.Role, bool, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetByName", name)
-	ret0, _ := ret[0].(roles.Role)
+	ret0, _ := ret[0].(models.Role)
 	ret1, _ := ret[1].(bool)
 	ret2, _ := ret[2].(error)
 	return ret0, ret1, ret2
@@ -133,10 +133,10 @@ func (mr *RolesRepositoryMockRecorder) GetByName(name any) *gomock.Call {
 }
 
 // GetRolesByUserId mocks base method.
-func (m *RolesRepository) GetRolesByUserId(userUUID uuid.UUID) ([]roles.Role, error) {
+func (m *RolesRepository) GetRolesByUserId(userUUID uuid.UUID) ([]models.Role, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetRolesByUserId", userUUID)
-	ret0, _ := ret[0].([]roles.Role)
+	ret0, _ := ret[0].([]models.Role)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -148,10 +148,10 @@ func (mr *RolesRepositoryMockRecorder) GetRolesByUserId(userUUID any) *gomock.Ca
 }
 
 // GetWithPermissions mocks base method.
-func (m *RolesRepository) GetWithPermissions(uuid uuid.UUID) (roles.RoleWithPermissions, bool, error) {
+func (m *RolesRepository) GetWithPermissions(uuid uuid.UUID) (models.RoleWithPermissions, bool, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetWithPermissions", uuid)
-	ret0, _ := ret[0].(roles.RoleWithPermissions)
+	ret0, _ := ret[0].(models.RoleWithPermissions)
 	ret1, _ := ret[1].(bool)
 	ret2, _ := ret[2].(error)
 	return ret0, ret1, ret2
@@ -178,7 +178,7 @@ func (mr *RolesRepositoryMockRecorder) SetRolePermissions(roleUUID, permissionUU
 }
 
 // Update mocks base method.
-func (m *RolesRepository) Update(role roles.Role, permissionUUIDs []uuid.UUID) error {
+func (m *RolesRepository) Update(role models.Role, permissionUUIDs []uuid.UUID) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Update", role, permissionUUIDs)
 	ret0, _ := ret[0].(error)

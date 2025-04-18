@@ -1,6 +1,7 @@
 package permissions
 
 import (
+	"github.com/Zapharaos/fihub-backend/internal/models"
 	"github.com/Zapharaos/fihub-backend/internal/utils"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
@@ -22,7 +23,7 @@ func NewPostgresRepository(dbClient *sqlx.DB) Repository {
 }
 
 // Get search and returns a Permission from the repository by its id
-func (r *PostgresRepository) Get(permissionUUID uuid.UUID) (Permission, bool, error) {
+func (r *PostgresRepository) Get(permissionUUID uuid.UUID) (models.Permission, bool, error) {
 	// Prepare query
 	query := `SELECT *
 			  FROM permissions as p
@@ -34,7 +35,7 @@ func (r *PostgresRepository) Get(permissionUUID uuid.UUID) (Permission, bool, er
 	// Execute query
 	rows, err := r.conn.NamedQuery(query, params)
 	if err != nil {
-		return Permission{}, false, err
+		return models.Permission{}, false, err
 	}
 	defer rows.Close()
 
@@ -42,7 +43,7 @@ func (r *PostgresRepository) Get(permissionUUID uuid.UUID) (Permission, bool, er
 }
 
 // Create creates a new Permission in the repository
-func (r *PostgresRepository) Create(permission Permission) (uuid.UUID, error) {
+func (r *PostgresRepository) Create(permission models.Permission) (uuid.UUID, error) {
 
 	newUUID := uuid.New()
 
@@ -66,7 +67,7 @@ func (r *PostgresRepository) Create(permission Permission) (uuid.UUID, error) {
 }
 
 // Update updates a Permission in the repository
-func (r *PostgresRepository) Update(permission Permission) error {
+func (r *PostgresRepository) Update(permission models.Permission) error {
 	// Prepare query
 	query := `UPDATE permissions as p
 			  SET value = :value, scope = :scope, description = :description
@@ -106,7 +107,7 @@ func (r *PostgresRepository) Delete(uuid uuid.UUID) error {
 }
 
 // GetAll returns all User Permissions in the repository
-func (r *PostgresRepository) GetAll() ([]Permission, error) {
+func (r *PostgresRepository) GetAll() ([]models.Permission, error) {
 	// Prepare query
 	query := `SELECT *
 			  FROM permissions`
@@ -122,7 +123,7 @@ func (r *PostgresRepository) GetAll() ([]Permission, error) {
 }
 
 // GetAllByRoleId returns all Permissions for a given Role
-func (r *PostgresRepository) GetAllByRoleId(roleUUID uuid.UUID) ([]Permission, error) {
+func (r *PostgresRepository) GetAllByRoleId(roleUUID uuid.UUID) ([]models.Permission, error) {
 	// Prepare query
 	query := `SELECT p.id, p.value, p.scope, p.description
 			  FROM permissions as p
@@ -143,7 +144,7 @@ func (r *PostgresRepository) GetAllByRoleId(roleUUID uuid.UUID) ([]Permission, e
 }
 
 // GetAllForUser returns all Permissions for a given User
-func (r *PostgresRepository) GetAllForUser(userUUID uuid.UUID) ([]Permission, error) {
+func (r *PostgresRepository) GetAllForUser(userUUID uuid.UUID) ([]models.Permission, error) {
 	// Prepare query
 	query := `SELECT p.id, p.value, p.scope, p.description
 			  FROM permissions as p
@@ -165,8 +166,8 @@ func (r *PostgresRepository) GetAllForUser(userUUID uuid.UUID) ([]Permission, er
 }
 
 // Scan scans the retrieved data from the database and returns a Permission
-func (r *PostgresRepository) Scan(rows *sqlx.Rows) (Permission, error) {
-	var permission Permission
+func (r *PostgresRepository) Scan(rows *sqlx.Rows) (models.Permission, error) {
+	var permission models.Permission
 	err := rows.Scan(
 		&permission.Id,
 		&permission.Value,
@@ -174,7 +175,7 @@ func (r *PostgresRepository) Scan(rows *sqlx.Rows) (Permission, error) {
 		&permission.Description,
 	)
 	if err != nil {
-		return Permission{}, err
+		return models.Permission{}, err
 	}
 	return permission, nil
 }

@@ -1,4 +1,4 @@
-package brokers
+package models
 
 import (
 	"errors"
@@ -10,19 +10,21 @@ var (
 	errImageDataRequired = errors.New("data-required")
 )
 
-// Image represents an image associated with a Broker
-type Image struct {
+const (
+	ImageNameMinLength = 3
+	ImageNameMaxLength = 100
+)
+
+// BrokerImage represents an image associated with a Broker
+type BrokerImage struct {
 	ID       uuid.UUID `json:"id"`
 	BrokerID uuid.UUID `json:"broker_id"`
 	Name     string    `json:"name"`
 	Data     []byte    `json:"-"`
 }
 
-const ImageNameMinLength = 3
-const ImageNameMaxLength = 100
-
-// IsValid checks if the Image is valid
-func (i Image) IsValid() (bool, error) {
+// IsValid checks if the BrokerImage is valid
+func (i BrokerImage) IsValid() (bool, error) {
 	if i.BrokerID == uuid.Nil {
 		return false, errBrokerIdRequired
 	}

@@ -6,6 +6,7 @@ import (
 	"errors"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/handlers/render"
 	"github.com/Zapharaos/fihub-backend/internal/app"
+	"github.com/Zapharaos/fihub-backend/internal/models"
 	"github.com/Zapharaos/fihub-backend/internal/users"
 	"github.com/Zapharaos/fihub-backend/internal/utils"
 	"github.com/golang-jwt/jwt/v5"
@@ -70,12 +71,12 @@ func New(checks int8, config Config) *Auth {
 //	@Param			user	body	users.UserWithPassword	true	"login & user (json)"
 //	@Security		Bearer
 //	@Success		200	{object}	auth.JwtToken			"event"
-//	@Failure		400	{object}	render.ErrorResponse	"Bad Request"
+//	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/auth/token [post]
 func (a *Auth) GetToken(w http.ResponseWriter, r *http.Request) {
-	var userCredentials users.UserWithPassword
+	var userCredentials models.UserWithPassword
 
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
@@ -114,7 +115,7 @@ func (a *Auth) GetToken(w http.ResponseWriter, r *http.Request) {
 }
 
 // GenerateToken generate a JWT token for a specific user
-func (a *Auth) GenerateToken(user users.User) (JwtToken, error) {
+func (a *Auth) GenerateToken(user models.User) (JwtToken, error) {
 	claims := &jwt.MapClaims{
 		"exp": jwt.NewNumericDate(time.Now().Add(time.Hour * 12)),
 		"iat": jwt.NewNumericDate(time.Now()),

@@ -10,7 +10,7 @@
 package mocks
 
 import (
-	users "github.com/Zapharaos/fihub-backend/internal/users"
+	users "github.com/Zapharaos/fihub-backend/internal/models"
 	http "net/http"
 	reflect "reflect"
 

@@ -12,7 +12,7 @@ package mocks
 import (
 	reflect "reflect"
 
-	users "github.com/Zapharaos/fihub-backend/internal/users"
+	models "github.com/Zapharaos/fihub-backend/internal/models"
 	uuid "github.com/google/uuid"
 	gomock "go.uber.org/mock/gomock"
 )
@@ -56,10 +56,10 @@ func (mr *UsersRepositoryMockRecorder) AddUsersRole(userUUIDs, id any) *gomock.C
 }
 
 // Authenticate mocks base method.
-func (m *UsersRepository) Authenticate(email, password string) (users.User, bool, error) {
+func (m *UsersRepository) Authenticate(email, password string) (models.User, bool, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Authenticate", email, password)
-	ret0, _ := ret[0].(users.User)
+	ret0, _ := ret[0].(models.User)
 	ret1, _ := ret[1].(bool)
 	ret2, _ := ret[2].(error)
 	return ret0, ret1, ret2
@@ -72,7 +72,7 @@ func (mr *UsersRepositoryMockRecorder) Authenticate(email, password any) *gomock
 }
 
 // Create mocks base method.
-func (m *UsersRepository) Create(user users.UserWithPassword) (uuid.UUID, error) {
+func (m *UsersRepository) Create(user models.UserWithPassword) (uuid.UUID, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Create", user)
 	ret0, _ := ret[0].(uuid.UUID)
@@ -116,10 +116,10 @@ func (mr *UsersRepositoryMockRecorder) Exists(email any) *gomock.Call {
 }
 
 // Get mocks base method.
-func (m *UsersRepository) Get(userID uuid.UUID) (users.User, bool, error) {
+func (m *UsersRepository) Get(userID uuid.UUID) (models.User, bool, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Get", userID)
-	ret0, _ := ret[0].(users.User)
+	ret0, _ := ret[0].(models.User)
 	ret1, _ := ret[1].(bool)
 	ret2, _ := ret[2].(error)
 	return ret0, ret1, ret2
@@ -132,10 +132,10 @@ func (mr *UsersRepositoryMockRecorder) Get(userID any) *gomock.Call {
 }
 
 // GetAllWithRoles mocks base method.
-func (m *UsersRepository) GetAllWithRoles() ([]users.UserWithRoles, error) {
+func (m *UsersRepository) GetAllWithRoles() ([]models.UserWithRoles, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetAllWithRoles")
-	ret0, _ := ret[0].([]users.UserWithRoles)
+	ret0, _ := ret[0].([]models.UserWithRoles)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -147,10 +147,10 @@ func (mr *UsersRepositoryMockRecorder) GetAllWithRoles() *gomock.Call {
 }
 
 // GetByEmail mocks base method.
-func (m *UsersRepository) GetByEmail(email string) (users.User, bool, error) {
+func (m *UsersRepository) GetByEmail(email string) (models.User, bool, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetByEmail", email)
-	ret0, _ := ret[0].(users.User)
+	ret0, _ := ret[0].(models.User)
 	ret1, _ := ret[1].(bool)
 	ret2, _ := ret[2].(error)
 	return ret0, ret1, ret2
@@ -163,10 +163,10 @@ func (mr *UsersRepositoryMockRecorder) GetByEmail(email any) *gomock.Call {
 }
 
 // GetUsersByRoleID mocks base method.
-func (m *UsersRepository) GetUsersByRoleID(roleUUID uuid.UUID) ([]users.User, error) {
+func (m *UsersRepository) GetUsersByRoleID(roleUUID uuid.UUID) ([]models.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetUsersByRoleID", roleUUID)
-	ret0, _ := ret[0].([]users.User)
+	ret0, _ := ret[0].([]models.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -178,10 +178,10 @@ func (mr *UsersRepositoryMockRecorder) GetUsersByRoleID(roleUUID any) *gomock.Ca
 }
 
 // GetWithRoles mocks base method.
-func (m *UsersRepository) GetWithRoles(userID uuid.UUID) (users.UserWithRoles, error) {
+func (m *UsersRepository) GetWithRoles(userID uuid.UUID) (models.UserWithRoles, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetWithRoles", userID)
-	ret0, _ := ret[0].(users.UserWithRoles)
+	ret0, _ := ret[0].(models.UserWithRoles)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -221,7 +221,7 @@ func (mr *UsersRepositoryMockRecorder) SetUserRoles(userUUID, roleUUIDs any) *go
 }
 
 // Update mocks base method.
-func (m *UsersRepository) Update(user users.User) error {
+func (m *UsersRepository) Update(user models.User) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Update", user)
 	ret0, _ := ret[0].(error)
@@ -235,7 +235,7 @@ func (mr *UsersRepositoryMockRecorder) Update(user any) *gomock.Call {
 }
 
 // UpdateWithPassword mocks base method.
-func (m *UsersRepository) UpdateWithPassword(user users.UserWithPassword) error {
+func (m *UsersRepository) UpdateWithPassword(user models.UserWithPassword) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateWithPassword", user)
 	ret0, _ := ret[0].(error)
@@ -249,7 +249,7 @@ func (mr *UsersRepositoryMockRecorder) UpdateWithPassword(user any) *gomock.Call
 }
 
 // UpdateWithRoles mocks base method.
-func (m *UsersRepository) UpdateWithRoles(user users.UserWithRoles, roleUUIDs []uuid.UUID) error {
+func (m *UsersRepository) UpdateWithRoles(user models.UserWithRoles, roleUUIDs []uuid.UUID) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateWithRoles", user, roleUUIDs)
 	ret0, _ := ret[0].(error)

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/handlers/render"
 	"github.com/Zapharaos/fihub-backend/internal/brokers"
+	"github.com/Zapharaos/fihub-backend/internal/models"
 	"go.uber.org/zap"
 	"net/http"
 )
@@ -21,7 +22,7 @@ import (
 //	@Param			broker	body	brokers.Broker	true	"broker (json)"
 //	@Security		Bearer
 //	@Success		200	{object}	brokers.Broker			"broker"
-//	@Failure		400	{object}	render.ErrorResponse	"Bad Request"
+//	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/brokers [post]
 func CreateBroker(w http.ResponseWriter, r *http.Request) {
@@ -31,7 +32,7 @@ func CreateBroker(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Parse request body
-	var broker brokers.Broker
+	var broker models.Broker
 	err := json.NewDecoder(r.Body).Decode(&broker)
 	if err != nil {
 		zap.L().Warn("Broker json decode", zap.Error(err))
@@ -94,7 +95,7 @@ func CreateBroker(w http.ResponseWriter, r *http.Request) {
 //	@Param			id	path	string	true	"broker id"
 //	@Security		Bearer
 //	@Success		200	{object}	brokers.Broker			"broker"
-//	@Failure		400	{object}	render.ErrorResponse	"Bad Request"
+//	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		404	{object}	render.ErrorResponse	"Not Found"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/brokers/{id} [get]
@@ -135,7 +136,7 @@ func GetBroker(w http.ResponseWriter, r *http.Request) {
 //	@Param			broker		body	brokers.Broker			true	"broker (json)"
 //	@Security		Bearer
 //	@Success		200	{object}	brokers.Broker			"broker"
-//	@Failure		400	{object}	render.ErrorResponse	"Bad Request"
+//	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		404	{object}	render.ErrorResponse	"Not Found"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/brokers/{id} [put]
@@ -152,7 +153,7 @@ func UpdateBroker(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Parse request body
-	var broker brokers.Broker
+	var broker models.Broker
 	err := json.NewDecoder(r.Body).Decode(&broker)
 	if err != nil {
 		zap.L().Warn("Broker json decode", zap.Error(err))
@@ -233,7 +234,7 @@ func UpdateBroker(w http.ResponseWriter, r *http.Request) {
 //	@Param			id	path	string	true	"broker ID"
 //	@Security		Bearer
 //	@Success		200	{object}	string					"Status OK"
-//	@Failure		400	{object}	render.ErrorResponse	"Bad Request"
+//	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		404	{object}	render.ErrorResponse	"Not Found"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/brokers/{id} [delete]
@@ -294,7 +295,7 @@ func GetBrokers(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var (
-		result []brokers.Broker
+		result []models.Broker
 		err    error
 	)
 

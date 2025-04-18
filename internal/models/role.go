@@ -1,8 +1,7 @@
-package roles
+package models
 
 import (
 	"errors"
-	"github.com/Zapharaos/fihub-backend/internal/users/permissions"
 	"github.com/google/uuid"
 )
 
@@ -35,7 +34,7 @@ func (r Role) IsValid() (bool, error) {
 // RoleWithPermissions represents a Role with its permissions.Permissions
 type RoleWithPermissions struct {
 	Role
-	Permissions permissions.Permissions `json:"permissions"`
+	Permissions Permissions `json:"permissions"`
 }
 
 // RolesWithPermissions represents a list of RoleWithPermissions

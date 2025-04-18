@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/handlers/render"
+	"github.com/Zapharaos/fihub-backend/internal/models"
 	"github.com/Zapharaos/fihub-backend/internal/users"
 	"github.com/Zapharaos/fihub-backend/internal/users/password"
 	"github.com/Zapharaos/fihub-backend/pkg/email"
@@ -20,23 +21,23 @@ import (
 //
 //	@Id				CreatePasswordResetRequest
 //
-//	@Summary		Request a password reset
+//	@Summary		PasswordRequest a password reset
 //	@Description	Requests a password reset for the user with the provided email.
 //	@Tags			Auth
 //	@Accept			json
 //	@Produce		json
 //	@Param			lang	query	string					false	"Language code"
-//	@Param			request	body	password.InputRequest	true	"request (json)"
-//	@Success		200	{object}	password.ResponseRequest	"Request"
-//	@Failure		400	{object}	render.ErrorResponse		"Bad Request"
+//	@Param			request	body	password.PasswordInputRequest	true	"request (json)"
+//	@Success		200	{object}	password.PasswordResponseRequest	"PasswordRequest"
+//	@Failure		400	{object}	render.ErrorResponse		"Bad PasswordRequest"
 //	@Failure		500	{object}	render.ErrorResponse		"Internal Server Error"
 //	@Router			/api/v1/auth/password [post]
 func CreatePasswordResetRequest(w http.ResponseWriter, r *http.Request) {
 	// Parse request body
-	var inputRequest password.InputRequest
+	var inputRequest models.PasswordInputRequest
 	err := json.NewDecoder(r.Body).Decode(&inputRequest)
 	if err != nil {
-		zap.L().Warn("Request json decode", zap.Error(err))
+		zap.L().Warn("PasswordRequest json decode", zap.Error(err))
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -71,7 +72,7 @@ func CreatePasswordResetRequest(w http.ResponseWriter, r *http.Request) {
 		}
 
 		zap.L().Warn("ResetPassword already exists", zap.Error(err))
-		render.JSON(w, r, password.ResponseRequest{
+		render.JSON(w, r, models.PasswordResponseRequest{
 			Error:     "request-active",
 			ExpiresAt: expiresAt,
 			UserID:    user.ID,
@@ -80,7 +81,7 @@ func CreatePasswordResetRequest(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Create request
-	request, duration := password.InitRequest(user.ID)
+	request, duration := models.InitPasswordRequest(user.ID)
 
 	// Store request
 	result, err := password.R().Create(request)
@@ -154,7 +155,7 @@ func CreatePasswordResetRequest(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Return user ID and expires_at in JSON response
-	render.JSON(w, r, password.ResponseRequest{
+	render.JSON(w, r, models.PasswordResponseRequest{
 		ExpiresAt: result.ExpiresAt,
 		UserID:    user.ID,
 	})
@@ -172,7 +173,7 @@ func CreatePasswordResetRequest(w http.ResponseWriter, r *http.Request) {
 //	@Param			id		path	string	true	"User ID"
 //	@Param			token	path	string	true	"token"
 //	@Success		200	{string}	string	"request_id"
-//	@Failure		400	{object}	render.ErrorResponse	"Bad Request"
+//	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/auth/password/{id}/{token} [get]
 func GetPasswordResetRequestID(w http.ResponseWriter, r *http.Request) {
@@ -216,7 +217,7 @@ func GetPasswordResetRequestID(w http.ResponseWriter, r *http.Request) {
 //	@Param			password		body	users.UserInputPassword	true	"password (json)"
 //	@Security		Bearer
 //	@Success		200	{string}	string					"status OK"
-//	@Failure		400	{object}	render.ErrorResponse	"Bad Request"
+//	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/auth/password/{id}/{request_id} [put]
 func ResetPassword(w http.ResponseWriter, r *http.Request) {
@@ -239,7 +240,7 @@ func ResetPassword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Parse request body
-	var userPassword users.UserInputPassword
+	var userPassword models.UserInputPassword
 	err = json.NewDecoder(r.Body).Decode(&userPassword)
 	if err != nil {
 		zap.L().Warn("Reset json decode", zap.Error(err))

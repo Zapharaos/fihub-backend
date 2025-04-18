@@ -1,4 +1,4 @@
-package brokers
+package models
 
 import (
 	"github.com/google/uuid"
@@ -7,23 +7,23 @@ import (
 	"testing"
 )
 
-// TestBrokerImage_IsValid tests the IsValid method of the Image struct
+// TestBrokerImage_IsValid tests the IsValid method of the BrokerImage struct
 func TestBrokerImage_IsValid(t *testing.T) {
 	// Define valid values
 	validUUID := uuid.New()
-	validName := "Valid Image Name"
+	validName := "Valid BrokerImage Name"
 	validData := []byte{1, 2, 3}
 
 	// Define test cases
 	tests := []struct {
-		name     string // Test case name
-		image    Image  // Image instance to test
-		expected bool   // Expected result
-		err      error  // Expected error
+		name     string      // Test case name
+		image    BrokerImage // BrokerImage instance to test
+		expected bool        // Expected result
+		err      error       // Expected error
 	}{
 		{
 			name: "valid image",
-			image: Image{
+			image: BrokerImage{
 				BrokerID: validUUID,
 				Name:     validName,
 				Data:     validData,
@@ -33,7 +33,7 @@ func TestBrokerImage_IsValid(t *testing.T) {
 		},
 		{
 			name: "missing broker ID",
-			image: Image{
+			image: BrokerImage{
 				BrokerID: uuid.Nil,
 				Name:     validName,
 				Data:     validData,
@@ -43,7 +43,7 @@ func TestBrokerImage_IsValid(t *testing.T) {
 		},
 		{
 			name: "invalid image name (too short)",
-			image: Image{
+			image: BrokerImage{
 				BrokerID: validUUID,
 				Name:     strings.Repeat("a", ImageNameMinLength-1),
 				Data:     validData,
@@ -53,7 +53,7 @@ func TestBrokerImage_IsValid(t *testing.T) {
 		},
 		{
 			name: "invalid image name (too long)",
-			image: Image{
+			image: BrokerImage{
 				BrokerID: uuid.New(),
 				Name:     strings.Repeat("a", ImageNameMaxLength+1),
 				Data:     validData,
@@ -63,7 +63,7 @@ func TestBrokerImage_IsValid(t *testing.T) {
 		},
 		{
 			name: "missing image data",
-			image: Image{
+			image: BrokerImage{
 				BrokerID: uuid.New(),
 				Name:     validName,
 				Data:     []byte{},

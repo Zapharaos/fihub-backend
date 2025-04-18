@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/handlers"
+	"github.com/Zapharaos/fihub-backend/internal/models"
 	"github.com/Zapharaos/fihub-backend/internal/users/permissions"
 	"github.com/Zapharaos/fihub-backend/test/mocks"
 	"github.com/google/uuid"
@@ -88,7 +89,7 @@ func TestCreatePermission(t *testing.T) {
 				handlers.ReplaceGlobals(m)
 				p := mocks.NewPermissionsRepository(ctrl)
 				p.EXPECT().Create(gomock.Any()).Return(uuid.New(), nil)
-				p.EXPECT().Get(gomock.Any()).Return(permissions.Permission{}, false, errors.New("error"))
+				p.EXPECT().Get(gomock.Any()).Return(models.Permission{}, false, errors.New("error"))
 				permissions.ReplaceGlobals(p)
 			},
 			expectedStatus: http.StatusInternalServerError,
@@ -102,7 +103,7 @@ func TestCreatePermission(t *testing.T) {
 				handlers.ReplaceGlobals(m)
 				p := mocks.NewPermissionsRepository(ctrl)
 				p.EXPECT().Create(gomock.Any()).Return(uuid.New(), nil)
-				p.EXPECT().Get(gomock.Any()).Return(permissions.Permission{}, false, nil)
+				p.EXPECT().Get(gomock.Any()).Return(models.Permission{}, false, nil)
 				permissions.ReplaceGlobals(p)
 			},
 			expectedStatus: http.StatusInternalServerError,
@@ -116,7 +117,7 @@ func TestCreatePermission(t *testing.T) {
 				handlers.ReplaceGlobals(m)
 				p := mocks.NewPermissionsRepository(ctrl)
 				p.EXPECT().Create(gomock.Any()).Return(uuid.New(), nil)
-				p.EXPECT().Get(gomock.Any()).Return(permissions.Permission{}, true, nil)
+				p.EXPECT().Get(gomock.Any()).Return(models.Permission{}, true, nil)
 				permissions.ReplaceGlobals(p)
 			},
 			expectedStatus: http.StatusOK,
@@ -191,7 +192,7 @@ func TestGetPermission(t *testing.T) {
 				)
 				handlers.ReplaceGlobals(m)
 				p := mocks.NewPermissionsRepository(ctrl)
-				p.EXPECT().Get(gomock.Any()).Return(permissions.Permission{}, false, errors.New("error"))
+				p.EXPECT().Get(gomock.Any()).Return(models.Permission{}, false, errors.New("error"))
 				permissions.ReplaceGlobals(p)
 			},
 			expectedStatus: http.StatusInternalServerError,
@@ -206,7 +207,7 @@ func TestGetPermission(t *testing.T) {
 				)
 				handlers.ReplaceGlobals(m)
 				p := mocks.NewPermissionsRepository(ctrl)
-				p.EXPECT().Get(gomock.Any()).Return(permissions.Permission{}, false, nil)
+				p.EXPECT().Get(gomock.Any()).Return(models.Permission{}, false, nil)
 				permissions.ReplaceGlobals(p)
 			},
 			expectedStatus: http.StatusNotFound,
@@ -221,7 +222,7 @@ func TestGetPermission(t *testing.T) {
 				)
 				handlers.ReplaceGlobals(m)
 				p := mocks.NewPermissionsRepository(ctrl)
-				p.EXPECT().Get(gomock.Any()).Return(permissions.Permission{}, true, nil)
+				p.EXPECT().Get(gomock.Any()).Return(models.Permission{}, true, nil)
 				permissions.ReplaceGlobals(p)
 			},
 			expectedStatus: http.StatusOK,
@@ -292,7 +293,7 @@ func TestGetPermissions(t *testing.T) {
 				)
 				handlers.ReplaceGlobals(m)
 				p := mocks.NewPermissionsRepository(ctrl)
-				p.EXPECT().GetAll().Return([]permissions.Permission{}, nil)
+				p.EXPECT().GetAll().Return([]models.Permission{}, nil)
 				permissions.ReplaceGlobals(p)
 			},
 			expectedStatus: http.StatusOK,
@@ -422,7 +423,7 @@ func TestUpdatePermission(t *testing.T) {
 				handlers.ReplaceGlobals(m)
 				p := mocks.NewPermissionsRepository(ctrl)
 				p.EXPECT().Update(gomock.Any()).Return(nil)
-				p.EXPECT().Get(gomock.Any()).Return(permissions.Permission{}, false, errors.New("error"))
+				p.EXPECT().Get(gomock.Any()).Return(models.Permission{}, false, errors.New("error"))
 				permissions.ReplaceGlobals(p)
 			},
 			expectedStatus: http.StatusInternalServerError,
@@ -439,7 +440,7 @@ func TestUpdatePermission(t *testing.T) {
 				handlers.ReplaceGlobals(m)
 				p := mocks.NewPermissionsRepository(ctrl)
 				p.EXPECT().Update(gomock.Any()).Return(nil)
-				p.EXPECT().Get(gomock.Any()).Return(permissions.Permission{}, false, nil)
+				p.EXPECT().Get(gomock.Any()).Return(models.Permission{}, false, nil)
 				permissions.ReplaceGlobals(p)
 			},
 			expectedStatus: http.StatusInternalServerError,
@@ -456,7 +457,7 @@ func TestUpdatePermission(t *testing.T) {
 				handlers.ReplaceGlobals(m)
 				p := mocks.NewPermissionsRepository(ctrl)
 				p.EXPECT().Update(gomock.Any()).Return(nil)
-				p.EXPECT().Get(gomock.Any()).Return(permissions.Permission{}, true, nil)
+				p.EXPECT().Get(gomock.Any()).Return(models.Permission{}, true, nil)
 				permissions.ReplaceGlobals(p)
 			},
 			expectedStatus: http.StatusOK,

@@ -1,6 +1,7 @@
 package transaction
 
 import (
+	"github.com/Zapharaos/fihub-backend/internal/models"
 	"github.com/Zapharaos/fihub-backend/internal/utils"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
@@ -21,7 +22,7 @@ func NewPostgresRepository(dbClient *sqlx.DB) Repository {
 }
 
 // Create use to create a Transaction
-func (r PostgresRepository) Create(transactionInput TransactionInput) (uuid.UUID, error) {
+func (r PostgresRepository) Create(transactionInput models.TransactionInput) (uuid.UUID, error) {
 
 	// Execute query
 	row := r.conn.QueryRow(""+
@@ -41,7 +42,7 @@ func (r PostgresRepository) Create(transactionInput TransactionInput) (uuid.UUID
 }
 
 // Get use to retrieve a Transaction by its id
-func (r PostgresRepository) Get(transactionID uuid.UUID) (Transaction, bool, error) {
+func (r PostgresRepository) Get(transactionID uuid.UUID) (models.Transaction, bool, error) {
 
 	// Prepare query
 	query := `SELECT t.id, t.user_id, b.id, b.name, b.image_id, t.date, t.transaction_type, t.asset, t.quantity, t.price, t.price_unit, t.fee
@@ -55,7 +56,7 @@ func (r PostgresRepository) Get(transactionID uuid.UUID) (Transaction, bool, err
 	// Execute query
 	rows, err := r.conn.NamedQuery(query, params)
 	if err != nil {
-		return Transaction{}, false, err
+		return models.Transaction{}, false, err
 	}
 	defer rows.Close()
 
@@ -63,7 +64,7 @@ func (r PostgresRepository) Get(transactionID uuid.UUID) (Transaction, bool, err
 }
 
 // Update use to update a Transaction
-func (r PostgresRepository) Update(transactionInput TransactionInput) error {
+func (r PostgresRepository) Update(transactionInput models.TransactionInput) error {
 	// Prepare query
 	query := `UPDATE transactions
 			  SET broker_id = :broker_id,
@@ -97,7 +98,7 @@ func (r PostgresRepository) Update(transactionInput TransactionInput) error {
 }
 
 // Delete use to delete a Transaction
-func (r PostgresRepository) Delete(transaction Transaction) error {
+func (r PostgresRepository) Delete(transaction models.Transaction) error {
 	// Prepare query
 	query := `DELETE FROM transactions as t WHERE t.id = :id`
 	params := map[string]interface{}{
@@ -134,7 +135,7 @@ func (r PostgresRepository) Exists(transactionID uuid.UUID, userID uuid.UUID) (b
 }
 
 // GetAll use to retrieve all Transactions
-func (r PostgresRepository) GetAll(userID uuid.UUID) ([]Transaction, error) {
+func (r PostgresRepository) GetAll(userID uuid.UUID) ([]models.Transaction, error) {
 
 	// Prepare query
 	query := `SELECT t.id, t.user_id, b.id, b.name, b.image_id, t.date, t.transaction_type, t.asset, t.quantity, t.price, t.price_unit, t.fee
@@ -155,8 +156,8 @@ func (r PostgresRepository) GetAll(userID uuid.UUID) ([]Transaction, error) {
 	return utils.ScanAll(rows, r.Scan)
 }
 
-func (r PostgresRepository) Scan(rows *sqlx.Rows) (Transaction, error) {
-	var transaction Transaction
+func (r PostgresRepository) Scan(rows *sqlx.Rows) (models.Transaction, error) {
+	var transaction models.Transaction
 	err := rows.Scan(
 		&transaction.ID,
 		&transaction.UserID,
@@ -172,7 +173,7 @@ func (r PostgresRepository) Scan(rows *sqlx.Rows) (Transaction, error) {
 		&transaction.Fee,
 	)
 	if err != nil {
-		return Transaction{}, err
+		return models.Transaction{}, err
 	}
 
 	return transaction, nil

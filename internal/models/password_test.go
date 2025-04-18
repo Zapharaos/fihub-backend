@@ -1,4 +1,4 @@
-package password
+package models
 
 import (
 	"github.com/google/uuid"
@@ -8,14 +8,14 @@ import (
 	"time"
 )
 
-// TestInitRequest tests the InitRequest function
+// TestInitRequest tests the InitPasswordRequest function
 func TestInitRequest(t *testing.T) {
 	// Mock the viper configuration
 	viper.Set("OTP_DURATION", 15*time.Minute)
 	viper.Set("OTP_LENGTH", 6)
 
 	userID := uuid.New()
-	request, duration := InitRequest(userID)
+	request, duration := InitPasswordRequest(userID)
 
 	assert.NotNil(t, request.ID)
 	assert.Equal(t, userID, request.UserID)

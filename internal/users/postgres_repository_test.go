@@ -2,6 +2,7 @@ package users_test
 
 import (
 	"errors"
+	"github.com/Zapharaos/fihub-backend/internal/models"
 	"github.com/Zapharaos/fihub-backend/internal/users"
 	"github.com/Zapharaos/fihub-backend/test"
 	"github.com/google/uuid"
@@ -21,13 +22,13 @@ func TestPostgresRepository_Create(t *testing.T) {
 
 	tests := []struct {
 		name      string
-		user      users.UserWithPassword
+		user      models.UserWithPassword
 		mockSetup func()
 		expectErr bool
 	}{
 		{
 			name: "Fail user creation",
-			user: users.UserWithPassword{User: users.User{Email: "test@example.com"}, Password: "password"},
+			user: models.UserWithPassword{User: models.User{Email: "test@example.com"}, Password: "password"},
 			mockSetup: func() {
 				sqlxMock.Mock.ExpectQuery("INSERT INTO Users").WillReturnError(errors.New("error"))
 			},
@@ -35,7 +36,7 @@ func TestPostgresRepository_Create(t *testing.T) {
 		},
 		{
 			name: "Create user",
-			user: users.UserWithPassword{User: users.User{Email: "test@example.com"}, Password: "password"},
+			user: models.UserWithPassword{User: models.User{Email: "test@example.com"}, Password: "password"},
 			mockSetup: func() {
 				rows := sqlxmock.NewRows([]string{"id"}).AddRow(uuid.New())
 				sqlxMock.Mock.ExpectQuery("INSERT INTO Users").WillReturnRows(rows)
@@ -274,13 +275,13 @@ func TestPostgresRepository_Update(t *testing.T) {
 
 	tests := []struct {
 		name      string
-		user      users.User
+		user      models.User
 		mockSetup func()
 		expectErr bool
 	}{
 		{
 			name: "Fail user update",
-			user: users.User{ID: uuid.New(), Email: "test@example.com"},
+			user: models.User{ID: uuid.New(), Email: "test@example.com"},
 			mockSetup: func() {
 				sqlxMock.Mock.ExpectExec("UPDATE Users").WillReturnError(errors.New("error"))
 			},
@@ -288,7 +289,7 @@ func TestPostgresRepository_Update(t *testing.T) {
 		},
 		{
 			name: "Update user",
-			user: users.User{ID: uuid.New(), Email: "test@example.com"},
+			user: models.User{ID: uuid.New(), Email: "test@example.com"},
 			mockSetup: func() {
 				sqlxMock.Mock.ExpectExec("UPDATE Users").WillReturnResult(sqlxmock.NewResult(1, 1))
 			},
@@ -317,13 +318,13 @@ func TestPostgresRepository_UpdateWithPassword(t *testing.T) {
 
 	tests := []struct {
 		name      string
-		user      users.UserWithPassword
+		user      models.UserWithPassword
 		mockSetup func()
 		expectErr bool
 	}{
 		{
 			name: "Fail user update with password",
-			user: users.UserWithPassword{User: users.User{ID: uuid.New(), Email: "test@example.com"}, Password: "newpassword"},
+			user: models.UserWithPassword{User: models.User{ID: uuid.New(), Email: "test@example.com"}, Password: "newpassword"},
 			mockSetup: func() {
 				sqlxMock.Mock.ExpectExec("UPDATE Users").WillReturnError(errors.New("error"))
 			},
@@ -331,7 +332,7 @@ func TestPostgresRepository_UpdateWithPassword(t *testing.T) {
 		},
 		{
 			name: "Update user with password",
-			user: users.UserWithPassword{User: users.User{ID: uuid.New(), Email: "test@example.com"}, Password: "newpassword"},
+			user: models.UserWithPassword{User: models.User{ID: uuid.New(), Email: "test@example.com"}, Password: "newpassword"},
 			mockSetup: func() {
 				sqlxMock.Mock.ExpectExec("UPDATE Users").WillReturnResult(sqlxmock.NewResult(1, 1))
 			},
@@ -537,14 +538,14 @@ func TestPostgresRepository_UpdateWithRoles(t *testing.T) {
 
 	tests := []struct {
 		name      string
-		user      users.UserWithRoles
+		user      models.UserWithRoles
 		roleUUIDs []uuid.UUID
 		mockSetup func()
 		expectErr bool
 	}{
 		{
 			name:      "Fail user update with roles",
-			user:      users.UserWithRoles{User: users.User{ID: uuid.New(), Email: "test@example.com"}},
+			user:      models.UserWithRoles{User: models.User{ID: uuid.New(), Email: "test@example.com"}},
 			roleUUIDs: []uuid.UUID{uuid.New()},
 			mockSetup: func() {
 				sqlxMock.Mock.ExpectBegin()
@@ -555,7 +556,7 @@ func TestPostgresRepository_UpdateWithRoles(t *testing.T) {
 		},
 		{
 			name:      "Update user with roles",
-			user:      users.UserWithRoles{User: users.User{ID: uuid.New(), Email: "test@example.com"}},
+			user:      models.UserWithRoles{User: models.User{ID: uuid.New(), Email: "test@example.com"}},
 			roleUUIDs: []uuid.UUID{uuid.New()},
 			mockSetup: func() {
 				sqlxMock.Mock.ExpectBegin()

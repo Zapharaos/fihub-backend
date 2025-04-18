@@ -3,6 +3,7 @@ package password
 import (
 	"database/sql"
 	"errors"
+	"github.com/Zapharaos/fihub-backend/internal/models"
 	"github.com/Zapharaos/fihub-backend/internal/utils"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
@@ -24,7 +25,7 @@ func NewPostgresRepository(dbClient *sqlx.DB) Repository {
 	return repo
 }
 
-func (p PostgresRepository) Create(request Request) (Request, error) {
+func (p PostgresRepository) Create(request models.PasswordRequest) (models.PasswordRequest, error) {
 	// Prepare query
 	query := `INSERT INTO password_reset_tokens (user_id, token, expires_at)
 				VALUES (:user_id, :token, :expires_at)
@@ -38,7 +39,7 @@ func (p PostgresRepository) Create(request Request) (Request, error) {
 	// Execute query
 	rows, err := p.conn.NamedQuery(query, params)
 	if err != nil {
-		return Request{}, err
+		return models.PasswordRequest{}, err
 	}
 	defer rows.Close()
 
@@ -143,8 +144,8 @@ func (p PostgresRepository) ValidForUser(userID uuid.UUID) (bool, error) {
 	return rows.Next(), nil
 }
 
-func (p PostgresRepository) Scan(rows *sqlx.Rows) (Request, error) {
-	var request Request
+func (p PostgresRepository) Scan(rows *sqlx.Rows) (models.PasswordRequest, error) {
+	var request models.PasswordRequest
 	err := rows.Scan(
 		&request.ID,
 		&request.UserID,
@@ -153,7 +154,7 @@ func (p PostgresRepository) Scan(rows *sqlx.Rows) (Request, error) {
 		&request.CreatedAt,
 	)
 	if err != nil {
-		return Request{}, err
+		return models.PasswordRequest{}, err
 	}
 
 	return request, nil

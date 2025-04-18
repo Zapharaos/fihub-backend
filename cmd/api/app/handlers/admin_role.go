@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/handlers/render"
+	"github.com/Zapharaos/fihub-backend/internal/models"
 	"github.com/Zapharaos/fihub-backend/internal/users"
 	"github.com/Zapharaos/fihub-backend/internal/users/permissions"
 	"github.com/Zapharaos/fihub-backend/internal/users/roles"
@@ -25,7 +26,7 @@ import (
 //	@Param			role	body	roles.RoleWithPermissions	true	"role (json)"
 //	@Security		Bearer
 //	@Success		200	{object}	roles.RoleWithPermissions				"role"
-//	@Failure		400	{object}	render.ErrorResponse	"Bad Request"
+//	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/roles [post]
@@ -34,7 +35,7 @@ func CreateRole(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var role roles.RoleWithPermissions
+	var role models.RoleWithPermissions
 	err := json.NewDecoder(r.Body).Decode(&role)
 	if err != nil {
 		zap.L().Warn("Role json decode", zap.Error(err))
@@ -95,7 +96,7 @@ func CreateRole(w http.ResponseWriter, r *http.Request) {
 //	@Param			id	path	string	true	"role id"
 //	@Security		Bearer
 //	@Success		200	{object}	roles.RoleWithPermissions "role"
-//	@Failure		400	{object}	render.ErrorResponse	"Bad Request"
+//	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		404	{string}	string					"Role not found"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
@@ -132,7 +133,7 @@ func GetRole(w http.ResponseWriter, r *http.Request) {
 //	@Produce		json
 //	@Security		Bearer
 //	@Success		200	{array}		roles.RoleWithPermissions				"list of roles"
-//	@Failure		400	{object}	render.ErrorResponse	"Bad Request"
+//	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/roles [get]
@@ -163,7 +164,7 @@ func GetRoles(w http.ResponseWriter, r *http.Request) {
 //	@Param			role	body	roles.RoleWithPermissions	true	"role (json)"
 //	@Security		Bearer
 //	@Success		200	{object}	roles.RoleWithPermissions				"role"
-//	@Failure		400	{object}	render.ErrorResponse	"Bad Request"
+//	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/roles/{id} [put]
@@ -173,7 +174,7 @@ func UpdateRole(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var role roles.RoleWithPermissions
+	var role models.RoleWithPermissions
 	err := json.NewDecoder(r.Body).Decode(&role)
 	if err != nil {
 		zap.L().Warn("Role json decode", zap.Error(err))
@@ -234,7 +235,7 @@ func UpdateRole(w http.ResponseWriter, r *http.Request) {
 //	@Param			id	path	string	true	"role ID"
 //	@Security		Bearer
 //	@Success		200	{string}	string					"status OK"
-//	@Failure		400	{object}	render.ErrorResponse	"Bad Request"
+//	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/roles/{id} [delete]
@@ -264,7 +265,7 @@ func DeleteRole(w http.ResponseWriter, r *http.Request) {
 //	@Param			id	path	string	true	"role ID"
 //	@Security		Bearer
 //	@Success		200	{array}		permissions.Permission	"list of permissions"
-//	@Failure		400	{object}	render.ErrorResponse	"Bad Request"
+//	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/roles/{id}/permissions [get]
@@ -296,7 +297,7 @@ func GetRolePermissions(w http.ResponseWriter, r *http.Request) {
 //	@Param			role	body	permissions.Permissions	true	"List of permissions (json)"
 //	@Security		Bearer
 //	@Success		200	{object}	roles.RoleWithPermissions	"role"
-//	@Failure		400	{object}	render.ErrorResponse		"Bad Request"
+//	@Failure		400	{object}	render.ErrorResponse		"Bad PasswordRequest"
 //	@Failure		401	{string}	string						"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse		"Internal Server Error"
 //	@Router			/api/v1/roles/{id}/permissions [put]
@@ -306,7 +307,7 @@ func SetRolePermissions(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var perms permissions.Permissions
+	var perms models.Permissions
 	err := json.NewDecoder(r.Body).Decode(&perms)
 	if err != nil {
 		zap.L().Warn("Permissions json decode", zap.Error(err))
@@ -341,7 +342,7 @@ func SetRolePermissions(w http.ResponseWriter, r *http.Request) {
 //	@Param			id	path	string	true	"role ID"
 //	@Security		Bearer
 //	@Success		200	{array}		users.User				"list of users"
-//	@Failure		400	{object}	render.ErrorResponse	"Bad Request"
+//	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/roles/{id}/users [get]
@@ -373,7 +374,7 @@ func GetRoleUsers(w http.ResponseWriter, r *http.Request) {
 //	@Param			role	body	[]string	true	"List of user UUIDs (json)"
 //	@Security		Bearer
 //	@Success		200	{string}	string					"status OK"
-//	@Failure		400	{object}	render.ErrorResponse	"Bad Request"
+//	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/roles/{id}/users [put]
@@ -418,7 +419,7 @@ func PutUsersRole(w http.ResponseWriter, r *http.Request) {
 //	@Param			role	body	[]string	true	"List of user UUIDs (json)"
 //	@Security		Bearer
 //	@Success		200	{string}	string					"status OK"
-//	@Failure		400	{object}	render.ErrorResponse	"Bad Request"
+//	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/roles/{id}/users [delete]

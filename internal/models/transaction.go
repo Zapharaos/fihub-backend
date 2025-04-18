@@ -1,8 +1,7 @@
-package transaction
+package models
 
 import (
 	"errors"
-	"github.com/Zapharaos/fihub-backend/internal/brokers"
 	gentransaction "github.com/Zapharaos/fihub-backend/protogen/transaction"
 	"github.com/google/uuid"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -46,7 +45,7 @@ type TransactionInput struct {
 type Transaction struct {
 	ID        uuid.UUID       `json:"id"`
 	UserID    uuid.UUID       `json:"user_id"`
-	Broker    brokers.Broker  `json:"broker"`
+	Broker    Broker          `json:"broker"`
 	Date      time.Time       `json:"date"`
 	Type      TransactionType `json:"transaction_type"`
 	Asset     string          `json:"asset"`
@@ -150,7 +149,7 @@ func FromGenTransaction(t *gentransaction.Transaction) Transaction {
 	return Transaction{
 		ID:        uuid.MustParse(t.Id),
 		UserID:    uuid.MustParse(t.UserId),
-		Broker:    brokers.Broker{ID: uuid.MustParse(t.BrokerId)},
+		Broker:    Broker{ID: uuid.MustParse(t.BrokerId)},
 		Date:      t.Date.AsTime(),
 		Type:      TransactionType(t.TransactionType.String()),
 		Asset:     t.Asset,

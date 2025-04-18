@@ -3,6 +3,7 @@ package handlers
 import (
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/handlers/render"
 	"github.com/Zapharaos/fihub-backend/internal/brokers"
+	"github.com/Zapharaos/fihub-backend/internal/models"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"net/http"
@@ -20,8 +21,8 @@ import (
 //	@Param			id		path		string	true	"broker ID"
 //	@Param			file	formData	file	true	"image file"
 //	@Security		Bearer
-//	@Success		200	{object}	brokers.Image		"broker image"
-//	@Failure		400	{object}	render.ErrorResponse	"Bad Request"
+//	@Success		200	{object}	brokers.BrokerImage		"broker image"
+//	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/brokers/{id}/image [post]
 func CreateBrokerImage(w http.ResponseWriter, r *http.Request) {
@@ -43,7 +44,7 @@ func CreateBrokerImage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Create the broker image
-	brokerImageInput := brokers.Image{
+	brokerImageInput := models.BrokerImage{
 		ID:       uuid.New(),
 		BrokerID: brokerID,
 		Name:     name,
@@ -117,7 +118,7 @@ func CreateBrokerImage(w http.ResponseWriter, r *http.Request) {
 //	@Param			image_id	path	string	true	"image ID"
 //	@Security		Bearer
 //	@Success		200	{file}		file					"image"
-//	@Failure		400	{object}	render.ErrorResponse	"Bad Request"
+//	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		404	{object}	render.ErrorResponse	"Not Found"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/brokers/{id}/image/{image_id} [get]
@@ -135,7 +136,7 @@ func GetBrokerImage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if !found {
-		zap.L().Warn("Image does not exist", zap.String("image_id", imageID.String()))
+		zap.L().Warn("BrokerImage does not exist", zap.String("image_id", imageID.String()))
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
@@ -165,8 +166,8 @@ func GetBrokerImage(w http.ResponseWriter, r *http.Request) {
 //	@Param			image_id	path		string	true	"image ID"
 //	@Param			file		formData	file	true	"image file"
 //	@Security		Bearer
-//	@Success		200	{object}	brokers.Image		"broker image"
-//	@Failure		400	{object}	render.ErrorResponse	"Bad Request"
+//	@Success		200	{object}	brokers.BrokerImage		"broker image"
+//	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		404	{object}	render.ErrorResponse	"Not Found"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/brokers/{id}/image/{image_id} [put]
@@ -189,7 +190,7 @@ func UpdateBrokerImage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Create the broker image
-	brokerImageInput := brokers.Image{
+	brokerImageInput := models.BrokerImage{
 		ID:       imageID,
 		BrokerID: brokerID,
 		Name:     name,
@@ -253,7 +254,7 @@ func UpdateBrokerImage(w http.ResponseWriter, r *http.Request) {
 //	@Param			image_id	path	string	true	"image ID"
 //	@Security		Bearer
 //	@Success		200	{object}	string					"OK"`
-//	@Failure		400	{object}	render.ErrorResponse	"Bad Request"
+//	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		404	{object}	render.ErrorResponse	"Not Found"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/brokers/{id}/image/{image_id} [delete]

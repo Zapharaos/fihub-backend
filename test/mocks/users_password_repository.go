@@ -13,7 +13,7 @@ import (
 	reflect "reflect"
 	time "time"
 
-	password "github.com/Zapharaos/fihub-backend/internal/users/password"
+	models "github.com/Zapharaos/fihub-backend/internal/models"
 	uuid "github.com/google/uuid"
 	gomock "go.uber.org/mock/gomock"
 )
@@ -43,10 +43,10 @@ func (m *UsersPasswordRepository) EXPECT() *UsersPasswordRepositoryMockRecorder 
 }
 
 // Create mocks base method.
-func (m *UsersPasswordRepository) Create(request password.Request) (password.Request, error) {
+func (m *UsersPasswordRepository) Create(request models.PasswordRequest) (models.PasswordRequest, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Create", request)
-	ret0, _ := ret[0].(password.Request)
+	ret0, _ := ret[0].(models.PasswordRequest)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

@@ -7,7 +7,7 @@ import (
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/handlers"
 	"github.com/Zapharaos/fihub-backend/cmd/transaction/app/transaction"
 	"github.com/Zapharaos/fihub-backend/internal/brokers"
-	"github.com/Zapharaos/fihub-backend/internal/users"
+	"github.com/Zapharaos/fihub-backend/internal/models"
 	"github.com/Zapharaos/fihub-backend/test/mocks"
 	"github.com/google/uuid"
 	"github.com/spf13/viper"
@@ -22,13 +22,13 @@ import (
 // TestCreateTransaction tests the CreateTransaction handler
 func TestCreateTransaction(t *testing.T) {
 	// Define request bodies
-	invalidRequest := transaction.TransactionInput{}
+	invalidRequest := models.TransactionInput{}
 	invalidRequestBody, _ := json.Marshal(invalidRequest)
-	validRequest := transaction.TransactionInput{
+	validRequest := models.TransactionInput{
 		ID:       uuid.New(),
 		BrokerID: uuid.New(),
 		Date:     time.Now().AddDate(-1, 0, 0), // 1 year in the past
-		Type:     transaction.BUY,
+		Type:     models.BUY,
 		Asset:    "asset",
 		Quantity: 1,
 		Price:    1,
@@ -47,7 +47,7 @@ func TestCreateTransaction(t *testing.T) {
 			name: "fails to retrieve user from context",
 			mockSetup: func(ctrl *gomock.Controller) {
 				h := mocks.NewMockUtils(ctrl)
-				h.EXPECT().GetUserFromContext(gomock.Any()).Return(users.UserWithRoles{}, false)
+				h.EXPECT().GetUserFromContext(gomock.Any()).Return(models.UserWithRoles{}, false)
 				handlers.ReplaceGlobals(h)
 				bu := mocks.NewBrokerUserRepository(ctrl)
 				bu.EXPECT().Exists(gomock.Any()).Times(0)
@@ -60,7 +60,7 @@ func TestCreateTransaction(t *testing.T) {
 			body: []byte("invalid json"),
 			mockSetup: func(ctrl *gomock.Controller) {
 				h := mocks.NewMockUtils(ctrl)
-				h.EXPECT().GetUserFromContext(gomock.Any()).Return(users.UserWithRoles{}, true)
+				h.EXPECT().GetUserFromContext(gomock.Any()).Return(models.UserWithRoles{}, true)
 				handlers.ReplaceGlobals(h)
 				bu := mocks.NewBrokerUserRepository(ctrl)
 				bu.EXPECT().Exists(gomock.Any()).Times(0)
@@ -73,7 +73,7 @@ func TestCreateTransaction(t *testing.T) {
 			body: invalidRequestBody,
 			mockSetup: func(ctrl *gomock.Controller) {
 				h := mocks.NewMockUtils(ctrl)
-				h.EXPECT().GetUserFromContext(gomock.Any()).Return(users.UserWithRoles{}, true)
+				h.EXPECT().GetUserFromContext(gomock.Any()).Return(models.UserWithRoles{}, true)
 				handlers.ReplaceGlobals(h)
 				bu := mocks.NewBrokerUserRepository(ctrl)
 				bu.EXPECT().Exists(gomock.Any()).Times(0)
@@ -86,7 +86,7 @@ func TestCreateTransaction(t *testing.T) {
 			body: validRequestBody,
 			mockSetup: func(ctrl *gomock.Controller) {
 				h := mocks.NewMockUtils(ctrl)
-				h.EXPECT().GetUserFromContext(gomock.Any()).Return(users.UserWithRoles{}, true)
+				h.EXPECT().GetUserFromContext(gomock.Any()).Return(models.UserWithRoles{}, true)
 				handlers.ReplaceGlobals(h)
 				bu := mocks.NewBrokerUserRepository(ctrl)
 				bu.EXPECT().Exists(gomock.Any()).Return(false, errors.New("error"))
@@ -99,7 +99,7 @@ func TestCreateTransaction(t *testing.T) {
 			body: validRequestBody,
 			mockSetup: func(ctrl *gomock.Controller) {
 				h := mocks.NewMockUtils(ctrl)
-				h.EXPECT().GetUserFromContext(gomock.Any()).Return(users.UserWithRoles{}, true)
+				h.EXPECT().GetUserFromContext(gomock.Any()).Return(models.UserWithRoles{}, true)
 				handlers.ReplaceGlobals(h)
 				bu := mocks.NewBrokerUserRepository(ctrl)
 				bu.EXPECT().Exists(gomock.Any()).Return(false, nil)
@@ -112,7 +112,7 @@ func TestCreateTransaction(t *testing.T) {
 			body: validRequestBody,
 			mockSetup: func(ctrl *gomock.Controller) {
 				h := mocks.NewMockUtils(ctrl)
-				h.EXPECT().GetUserFromContext(gomock.Any()).Return(users.UserWithRoles{}, true)
+				h.EXPECT().GetUserFromContext(gomock.Any()).Return(models.UserWithRoles{}, true)
 				handlers.ReplaceGlobals(h)
 				bu := mocks.NewBrokerUserRepository(ctrl)
 				bu.EXPECT().Exists(gomock.Any()).Return(true, nil)
@@ -129,14 +129,14 @@ func TestCreateTransaction(t *testing.T) {
 			body: validRequestBody,
 			mockSetup: func(ctrl *gomock.Controller) {
 				h := mocks.NewMockUtils(ctrl)
-				h.EXPECT().GetUserFromContext(gomock.Any()).Return(users.UserWithRoles{}, true)
+				h.EXPECT().GetUserFromContext(gomock.Any()).Return(models.UserWithRoles{}, true)
 				handlers.ReplaceGlobals(h)
 				bu := mocks.NewBrokerUserRepository(ctrl)
 				bu.EXPECT().Exists(gomock.Any()).Return(true, nil)
 				brokers.ReplaceGlobals(brokers.NewRepository(nil, bu, nil))
 				tr := mocks.NewTransactionsRepository(ctrl)
 				tr.EXPECT().Create(gomock.Any()).Return(uuid.New(), nil)
-				tr.EXPECT().Get(gomock.Any()).Return(transaction.Transaction{}, false, errors.New("error"))
+				tr.EXPECT().Get(gomock.Any()).Return(models.Transaction{}, false, errors.New("error"))
 				transaction.ReplaceGlobals(tr)
 			},
 			expectedStatus: http.StatusInternalServerError,
@@ -146,14 +146,14 @@ func TestCreateTransaction(t *testing.T) {
 			body: validRequestBody,
 			mockSetup: func(ctrl *gomock.Controller) {
 				h := mocks.NewMockUtils(ctrl)
-				h.EXPECT().GetUserFromContext(gomock.Any()).Return(users.UserWithRoles{}, true)
+				h.EXPECT().GetUserFromContext(gomock.Any()).Return(models.UserWithRoles{}, true)
 				handlers.ReplaceGlobals(h)
 				bu := mocks.NewBrokerUserRepository(ctrl)
 				bu.EXPECT().Exists(gomock.Any()).Return(true, nil)
 				brokers.ReplaceGlobals(brokers.NewRepository(nil, bu, nil))
 				tr := mocks.NewTransactionsRepository(ctrl)
 				tr.EXPECT().Create(gomock.Any()).Return(uuid.New(), nil)
-				tr.EXPECT().Get(gomock.Any()).Return(transaction.Transaction{}, false, nil)
+				tr.EXPECT().Get(gomock.Any()).Return(models.Transaction{}, false, nil)
 				transaction.ReplaceGlobals(tr)
 			},
 			expectedStatus: http.StatusInternalServerError,
@@ -163,14 +163,14 @@ func TestCreateTransaction(t *testing.T) {
 			body: validRequestBody,
 			mockSetup: func(ctrl *gomock.Controller) {
 				h := mocks.NewMockUtils(ctrl)
-				h.EXPECT().GetUserFromContext(gomock.Any()).Return(users.UserWithRoles{}, true)
+				h.EXPECT().GetUserFromContext(gomock.Any()).Return(models.UserWithRoles{}, true)
 				handlers.ReplaceGlobals(h)
 				bu := mocks.NewBrokerUserRepository(ctrl)
 				bu.EXPECT().Exists(gomock.Any()).Return(true, nil)
 				brokers.ReplaceGlobals(brokers.NewRepository(nil, bu, nil))
 				tr := mocks.NewTransactionsRepository(ctrl)
 				tr.EXPECT().Create(gomock.Any()).Return(uuid.New(), nil)
-				tr.EXPECT().Get(gomock.Any()).Return(transaction.Transaction{}, true, nil)
+				tr.EXPECT().Get(gomock.Any()).Return(models.Transaction{}, true, nil)
 				transaction.ReplaceGlobals(tr)
 			},
 			expectedStatus: http.StatusOK,
@@ -226,7 +226,7 @@ func TestGetTransaction(t *testing.T) {
 				h.EXPECT().GetUserFromContext(gomock.Any()).Times(0)
 				handlers.ReplaceGlobals(h)
 				tr := mocks.NewTransactionsRepository(ctrl)
-				tr.EXPECT().Get(gomock.Any()).Return(transaction.Transaction{}, false, errors.New("error"))
+				tr.EXPECT().Get(gomock.Any()).Return(models.Transaction{}, false, errors.New("error"))
 				transaction.ReplaceGlobals(tr)
 			},
 			expectedStatus: http.StatusInternalServerError,
@@ -239,7 +239,7 @@ func TestGetTransaction(t *testing.T) {
 				h.EXPECT().GetUserFromContext(gomock.Any()).Times(0)
 				handlers.ReplaceGlobals(h)
 				tr := mocks.NewTransactionsRepository(ctrl)
-				tr.EXPECT().Get(gomock.Any()).Return(transaction.Transaction{}, false, nil)
+				tr.EXPECT().Get(gomock.Any()).Return(models.Transaction{}, false, nil)
 				transaction.ReplaceGlobals(tr)
 			},
 			expectedStatus: http.StatusNotFound,
@@ -249,10 +249,10 @@ func TestGetTransaction(t *testing.T) {
 			mockSetup: func(ctrl *gomock.Controller) {
 				h := mocks.NewMockUtils(ctrl)
 				h.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), gomock.Any()).Return(uuid.New(), true)
-				h.EXPECT().GetUserFromContext(gomock.Any()).Return(users.UserWithRoles{}, false)
+				h.EXPECT().GetUserFromContext(gomock.Any()).Return(models.UserWithRoles{}, false)
 				handlers.ReplaceGlobals(h)
 				tr := mocks.NewTransactionsRepository(ctrl)
-				tr.EXPECT().Get(gomock.Any()).Return(transaction.Transaction{}, true, nil)
+				tr.EXPECT().Get(gomock.Any()).Return(models.Transaction{}, true, nil)
 				transaction.ReplaceGlobals(tr)
 			},
 			expectedStatus: http.StatusUnauthorized,
@@ -262,10 +262,10 @@ func TestGetTransaction(t *testing.T) {
 			mockSetup: func(ctrl *gomock.Controller) {
 				h := mocks.NewMockUtils(ctrl)
 				h.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), gomock.Any()).Return(uuid.New(), true)
-				h.EXPECT().GetUserFromContext(gomock.Any()).Return(users.UserWithRoles{}, true)
+				h.EXPECT().GetUserFromContext(gomock.Any()).Return(models.UserWithRoles{}, true)
 				handlers.ReplaceGlobals(h)
 				tr := mocks.NewTransactionsRepository(ctrl)
-				tr.EXPECT().Get(gomock.Any()).Return(transaction.Transaction{UserID: uuid.New()}, true, nil)
+				tr.EXPECT().Get(gomock.Any()).Return(models.Transaction{UserID: uuid.New()}, true, nil)
 				transaction.ReplaceGlobals(tr)
 			},
 			expectedStatus: http.StatusUnauthorized,
@@ -275,10 +275,10 @@ func TestGetTransaction(t *testing.T) {
 			mockSetup: func(ctrl *gomock.Controller) {
 				h := mocks.NewMockUtils(ctrl)
 				h.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), gomock.Any()).Return(uuid.New(), true)
-				h.EXPECT().GetUserFromContext(gomock.Any()).Return(users.UserWithRoles{}, true)
+				h.EXPECT().GetUserFromContext(gomock.Any()).Return(models.UserWithRoles{}, true)
 				handlers.ReplaceGlobals(h)
 				tr := mocks.NewTransactionsRepository(ctrl)
-				tr.EXPECT().Get(gomock.Any()).Return(transaction.Transaction{}, true, nil)
+				tr.EXPECT().Get(gomock.Any()).Return(models.Transaction{}, true, nil)
 				transaction.ReplaceGlobals(tr)
 			},
 			expectedStatus: http.StatusOK,
@@ -309,13 +309,13 @@ func TestGetTransaction(t *testing.T) {
 // TestUpdateTransaction tests the UpdateTransaction handler
 func TestUpdateTransaction(t *testing.T) {
 	// Define request bodies
-	invalidRequest := transaction.TransactionInput{}
+	invalidRequest := models.TransactionInput{}
 	invalidRequestBody, _ := json.Marshal(invalidRequest)
-	validRequest := transaction.TransactionInput{
+	validRequest := models.TransactionInput{
 		ID:       uuid.New(),
 		BrokerID: uuid.New(),
 		Date:     time.Now().AddDate(-1, 0, 0), // 1 year in the past
-		Type:     transaction.BUY,
+		Type:     models.BUY,
 		Asset:    "asset",
 		Quantity: 1,
 		Price:    1,
@@ -345,7 +345,7 @@ func TestUpdateTransaction(t *testing.T) {
 			mockSetup: func(ctrl *gomock.Controller) {
 				h := mocks.NewMockUtils(ctrl)
 				h.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), gomock.Any()).Return(uuid.Nil, true)
-				h.EXPECT().GetUserFromContext(gomock.Any()).Return(users.UserWithRoles{}, false)
+				h.EXPECT().GetUserFromContext(gomock.Any()).Return(models.UserWithRoles{}, false)
 				handlers.ReplaceGlobals(h)
 				tr := mocks.NewTransactionsRepository(ctrl)
 				tr.EXPECT().Get(gomock.Any()).Times(0)
@@ -359,7 +359,7 @@ func TestUpdateTransaction(t *testing.T) {
 			mockSetup: func(ctrl *gomock.Controller) {
 				h := mocks.NewMockUtils(ctrl)
 				h.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), gomock.Any()).Return(uuid.Nil, true)
-				h.EXPECT().GetUserFromContext(gomock.Any()).Return(users.UserWithRoles{}, true)
+				h.EXPECT().GetUserFromContext(gomock.Any()).Return(models.UserWithRoles{}, true)
 				handlers.ReplaceGlobals(h)
 				tr := mocks.NewTransactionsRepository(ctrl)
 				tr.EXPECT().Get(gomock.Any()).Times(0)
@@ -373,7 +373,7 @@ func TestUpdateTransaction(t *testing.T) {
 			mockSetup: func(ctrl *gomock.Controller) {
 				h := mocks.NewMockUtils(ctrl)
 				h.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), gomock.Any()).Return(uuid.Nil, true)
-				h.EXPECT().GetUserFromContext(gomock.Any()).Return(users.UserWithRoles{}, true)
+				h.EXPECT().GetUserFromContext(gomock.Any()).Return(models.UserWithRoles{}, true)
 				handlers.ReplaceGlobals(h)
 				tr := mocks.NewTransactionsRepository(ctrl)
 				tr.EXPECT().Get(gomock.Any()).Times(0)
@@ -387,10 +387,10 @@ func TestUpdateTransaction(t *testing.T) {
 			mockSetup: func(ctrl *gomock.Controller) {
 				h := mocks.NewMockUtils(ctrl)
 				h.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), gomock.Any()).Return(uuid.Nil, true)
-				h.EXPECT().GetUserFromContext(gomock.Any()).Return(users.UserWithRoles{}, true)
+				h.EXPECT().GetUserFromContext(gomock.Any()).Return(models.UserWithRoles{}, true)
 				handlers.ReplaceGlobals(h)
 				tr := mocks.NewTransactionsRepository(ctrl)
-				tr.EXPECT().Get(gomock.Any()).Return(transaction.Transaction{}, false, errors.New("error"))
+				tr.EXPECT().Get(gomock.Any()).Return(models.Transaction{}, false, errors.New("error"))
 				transaction.ReplaceGlobals(tr)
 				bu := mocks.NewBrokerUserRepository(ctrl)
 				bu.EXPECT().Exists(gomock.Any()).Times(0)
@@ -404,10 +404,10 @@ func TestUpdateTransaction(t *testing.T) {
 			mockSetup: func(ctrl *gomock.Controller) {
 				h := mocks.NewMockUtils(ctrl)
 				h.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), gomock.Any()).Return(uuid.Nil, true)
-				h.EXPECT().GetUserFromContext(gomock.Any()).Return(users.UserWithRoles{}, true)
+				h.EXPECT().GetUserFromContext(gomock.Any()).Return(models.UserWithRoles{}, true)
 				handlers.ReplaceGlobals(h)
 				tr := mocks.NewTransactionsRepository(ctrl)
-				tr.EXPECT().Get(gomock.Any()).Return(transaction.Transaction{}, false, nil)
+				tr.EXPECT().Get(gomock.Any()).Return(models.Transaction{}, false, nil)
 				transaction.ReplaceGlobals(tr)
 				bu := mocks.NewBrokerUserRepository(ctrl)
 				bu.EXPECT().Exists(gomock.Any()).Times(0)
@@ -421,10 +421,10 @@ func TestUpdateTransaction(t *testing.T) {
 			mockSetup: func(ctrl *gomock.Controller) {
 				h := mocks.NewMockUtils(ctrl)
 				h.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), gomock.Any()).Return(uuid.Nil, true)
-				h.EXPECT().GetUserFromContext(gomock.Any()).Return(users.UserWithRoles{}, true)
+				h.EXPECT().GetUserFromContext(gomock.Any()).Return(models.UserWithRoles{}, true)
 				handlers.ReplaceGlobals(h)
 				tr := mocks.NewTransactionsRepository(ctrl)
-				tr.EXPECT().Get(gomock.Any()).Return(transaction.Transaction{UserID: uuid.New()}, true, nil)
+				tr.EXPECT().Get(gomock.Any()).Return(models.Transaction{UserID: uuid.New()}, true, nil)
 				transaction.ReplaceGlobals(tr)
 				bu := mocks.NewBrokerUserRepository(ctrl)
 				bu.EXPECT().Exists(gomock.Any()).Times(0)
@@ -438,10 +438,10 @@ func TestUpdateTransaction(t *testing.T) {
 			mockSetup: func(ctrl *gomock.Controller) {
 				h := mocks.NewMockUtils(ctrl)
 				h.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), gomock.Any()).Return(uuid.Nil, true)
-				h.EXPECT().GetUserFromContext(gomock.Any()).Return(users.UserWithRoles{}, true)
+				h.EXPECT().GetUserFromContext(gomock.Any()).Return(models.UserWithRoles{}, true)
 				handlers.ReplaceGlobals(h)
 				tr := mocks.NewTransactionsRepository(ctrl)
-				tr.EXPECT().Get(gomock.Any()).Return(transaction.Transaction{}, true, nil)
+				tr.EXPECT().Get(gomock.Any()).Return(models.Transaction{}, true, nil)
 				tr.EXPECT().Update(gomock.Any()).Times(0)
 				transaction.ReplaceGlobals(tr)
 				bu := mocks.NewBrokerUserRepository(ctrl)
@@ -456,10 +456,10 @@ func TestUpdateTransaction(t *testing.T) {
 			mockSetup: func(ctrl *gomock.Controller) {
 				h := mocks.NewMockUtils(ctrl)
 				h.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), gomock.Any()).Return(uuid.Nil, true)
-				h.EXPECT().GetUserFromContext(gomock.Any()).Return(users.UserWithRoles{}, true)
+				h.EXPECT().GetUserFromContext(gomock.Any()).Return(models.UserWithRoles{}, true)
 				handlers.ReplaceGlobals(h)
 				tr := mocks.NewTransactionsRepository(ctrl)
-				tr.EXPECT().Get(gomock.Any()).Return(transaction.Transaction{}, true, nil)
+				tr.EXPECT().Get(gomock.Any()).Return(models.Transaction{}, true, nil)
 				tr.EXPECT().Update(gomock.Any()).Times(0)
 				transaction.ReplaceGlobals(tr)
 				bu := mocks.NewBrokerUserRepository(ctrl)
@@ -474,10 +474,10 @@ func TestUpdateTransaction(t *testing.T) {
 			mockSetup: func(ctrl *gomock.Controller) {
 				h := mocks.NewMockUtils(ctrl)
 				h.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), gomock.Any()).Return(uuid.Nil, true)
-				h.EXPECT().GetUserFromContext(gomock.Any()).Return(users.UserWithRoles{}, true)
+				h.EXPECT().GetUserFromContext(gomock.Any()).Return(models.UserWithRoles{}, true)
 				handlers.ReplaceGlobals(h)
 				tr := mocks.NewTransactionsRepository(ctrl)
-				tr.EXPECT().Get(gomock.Any()).Return(transaction.Transaction{}, true, nil)
+				tr.EXPECT().Get(gomock.Any()).Return(models.Transaction{}, true, nil)
 				tr.EXPECT().Update(gomock.Any()).Return(errors.New("error"))
 				tr.EXPECT().Get(gomock.Any()).Times(0)
 				transaction.ReplaceGlobals(tr)
@@ -493,12 +493,12 @@ func TestUpdateTransaction(t *testing.T) {
 			mockSetup: func(ctrl *gomock.Controller) {
 				h := mocks.NewMockUtils(ctrl)
 				h.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), gomock.Any()).Return(uuid.Nil, true)
-				h.EXPECT().GetUserFromContext(gomock.Any()).Return(users.UserWithRoles{}, true)
+				h.EXPECT().GetUserFromContext(gomock.Any()).Return(models.UserWithRoles{}, true)
 				handlers.ReplaceGlobals(h)
 				tr := mocks.NewTransactionsRepository(ctrl)
-				tr.EXPECT().Get(gomock.Any()).Return(transaction.Transaction{}, true, nil)
+				tr.EXPECT().Get(gomock.Any()).Return(models.Transaction{}, true, nil)
 				tr.EXPECT().Update(gomock.Any()).Return(nil)
-				tr.EXPECT().Get(gomock.Any()).Return(transaction.Transaction{}, false, errors.New("error"))
+				tr.EXPECT().Get(gomock.Any()).Return(models.Transaction{}, false, errors.New("error"))
 				transaction.ReplaceGlobals(tr)
 				bu := mocks.NewBrokerUserRepository(ctrl)
 				bu.EXPECT().Exists(gomock.Any()).Return(true, nil)
@@ -512,12 +512,12 @@ func TestUpdateTransaction(t *testing.T) {
 			mockSetup: func(ctrl *gomock.Controller) {
 				h := mocks.NewMockUtils(ctrl)
 				h.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), gomock.Any()).Return(uuid.Nil, true)
-				h.EXPECT().GetUserFromContext(gomock.Any()).Return(users.UserWithRoles{}, true)
+				h.EXPECT().GetUserFromContext(gomock.Any()).Return(models.UserWithRoles{}, true)
 				handlers.ReplaceGlobals(h)
 				tr := mocks.NewTransactionsRepository(ctrl)
-				tr.EXPECT().Get(gomock.Any()).Return(transaction.Transaction{}, true, nil)
+				tr.EXPECT().Get(gomock.Any()).Return(models.Transaction{}, true, nil)
 				tr.EXPECT().Update(gomock.Any()).Return(nil)
-				tr.EXPECT().Get(gomock.Any()).Return(transaction.Transaction{}, false, nil)
+				tr.EXPECT().Get(gomock.Any()).Return(models.Transaction{}, false, nil)
 				transaction.ReplaceGlobals(tr)
 				bu := mocks.NewBrokerUserRepository(ctrl)
 				bu.EXPECT().Exists(gomock.Any()).Return(true, nil)
@@ -531,10 +531,10 @@ func TestUpdateTransaction(t *testing.T) {
 			mockSetup: func(ctrl *gomock.Controller) {
 				h := mocks.NewMockUtils(ctrl)
 				h.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), gomock.Any()).Return(uuid.Nil, true)
-				h.EXPECT().GetUserFromContext(gomock.Any()).Return(users.UserWithRoles{}, true)
+				h.EXPECT().GetUserFromContext(gomock.Any()).Return(models.UserWithRoles{}, true)
 				handlers.ReplaceGlobals(h)
 				tr := mocks.NewTransactionsRepository(ctrl)
-				tr.EXPECT().Get(gomock.Any()).Return(transaction.Transaction{}, true, nil).Times(2)
+				tr.EXPECT().Get(gomock.Any()).Return(models.Transaction{}, true, nil).Times(2)
 				tr.EXPECT().Update(gomock.Any()).Return(nil)
 				transaction.ReplaceGlobals(tr)
 				bu := mocks.NewBrokerUserRepository(ctrl)
@@ -589,7 +589,7 @@ func TestDeleteTransaction(t *testing.T) {
 			mockSetup: func(ctrl *gomock.Controller) {
 				h := mocks.NewMockUtils(ctrl)
 				h.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), gomock.Any()).Return(uuid.Nil, true)
-				h.EXPECT().GetUserFromContext(gomock.Any()).Return(users.UserWithRoles{}, false)
+				h.EXPECT().GetUserFromContext(gomock.Any()).Return(models.UserWithRoles{}, false)
 				handlers.ReplaceGlobals(h)
 				tr := mocks.NewTransactionsRepository(ctrl)
 				tr.EXPECT().Get(gomock.Any()).Times(0)
@@ -602,10 +602,10 @@ func TestDeleteTransaction(t *testing.T) {
 			mockSetup: func(ctrl *gomock.Controller) {
 				h := mocks.NewMockUtils(ctrl)
 				h.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), gomock.Any()).Return(uuid.Nil, true)
-				h.EXPECT().GetUserFromContext(gomock.Any()).Return(users.UserWithRoles{}, true)
+				h.EXPECT().GetUserFromContext(gomock.Any()).Return(models.UserWithRoles{}, true)
 				handlers.ReplaceGlobals(h)
 				tr := mocks.NewTransactionsRepository(ctrl)
-				tr.EXPECT().Get(gomock.Any()).Return(transaction.Transaction{}, false, errors.New("error"))
+				tr.EXPECT().Get(gomock.Any()).Return(models.Transaction{}, false, errors.New("error"))
 				tr.EXPECT().Delete(gomock.Any()).Times(0)
 				transaction.ReplaceGlobals(tr)
 			},
@@ -616,10 +616,10 @@ func TestDeleteTransaction(t *testing.T) {
 			mockSetup: func(ctrl *gomock.Controller) {
 				h := mocks.NewMockUtils(ctrl)
 				h.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), gomock.Any()).Return(uuid.Nil, true)
-				h.EXPECT().GetUserFromContext(gomock.Any()).Return(users.UserWithRoles{}, true)
+				h.EXPECT().GetUserFromContext(gomock.Any()).Return(models.UserWithRoles{}, true)
 				handlers.ReplaceGlobals(h)
 				tr := mocks.NewTransactionsRepository(ctrl)
-				tr.EXPECT().Get(gomock.Any()).Return(transaction.Transaction{}, false, nil)
+				tr.EXPECT().Get(gomock.Any()).Return(models.Transaction{}, false, nil)
 				tr.EXPECT().Delete(gomock.Any()).Times(0)
 				transaction.ReplaceGlobals(tr)
 			},
@@ -630,10 +630,10 @@ func TestDeleteTransaction(t *testing.T) {
 			mockSetup: func(ctrl *gomock.Controller) {
 				h := mocks.NewMockUtils(ctrl)
 				h.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), gomock.Any()).Return(uuid.Nil, true)
-				h.EXPECT().GetUserFromContext(gomock.Any()).Return(users.UserWithRoles{}, true)
+				h.EXPECT().GetUserFromContext(gomock.Any()).Return(models.UserWithRoles{}, true)
 				handlers.ReplaceGlobals(h)
 				tr := mocks.NewTransactionsRepository(ctrl)
-				tr.EXPECT().Get(gomock.Any()).Return(transaction.Transaction{UserID: uuid.New()}, true, nil)
+				tr.EXPECT().Get(gomock.Any()).Return(models.Transaction{UserID: uuid.New()}, true, nil)
 				tr.EXPECT().Delete(gomock.Any()).Times(0)
 				transaction.ReplaceGlobals(tr)
 			},
@@ -644,10 +644,10 @@ func TestDeleteTransaction(t *testing.T) {
 			mockSetup: func(ctrl *gomock.Controller) {
 				h := mocks.NewMockUtils(ctrl)
 				h.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), gomock.Any()).Return(uuid.Nil, true)
-				h.EXPECT().GetUserFromContext(gomock.Any()).Return(users.UserWithRoles{}, true)
+				h.EXPECT().GetUserFromContext(gomock.Any()).Return(models.UserWithRoles{}, true)
 				handlers.ReplaceGlobals(h)
 				tr := mocks.NewTransactionsRepository(ctrl)
-				tr.EXPECT().Get(gomock.Any()).Return(transaction.Transaction{}, true, nil)
+				tr.EXPECT().Get(gomock.Any()).Return(models.Transaction{}, true, nil)
 				tr.EXPECT().Delete(gomock.Any()).Return(errors.New("error"))
 				transaction.ReplaceGlobals(tr)
 			},
@@ -658,10 +658,10 @@ func TestDeleteTransaction(t *testing.T) {
 			mockSetup: func(ctrl *gomock.Controller) {
 				h := mocks.NewMockUtils(ctrl)
 				h.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), gomock.Any()).Return(uuid.Nil, true)
-				h.EXPECT().GetUserFromContext(gomock.Any()).Return(users.UserWithRoles{}, true)
+				h.EXPECT().GetUserFromContext(gomock.Any()).Return(models.UserWithRoles{}, true)
 				handlers.ReplaceGlobals(h)
 				tr := mocks.NewTransactionsRepository(ctrl)
-				tr.EXPECT().Get(gomock.Any()).Return(transaction.Transaction{}, true, nil)
+				tr.EXPECT().Get(gomock.Any()).Return(models.Transaction{}, true, nil)
 				tr.EXPECT().Delete(gomock.Any()).Return(nil)
 				transaction.ReplaceGlobals(tr)
 			},
@@ -702,7 +702,7 @@ func TestGetTransactions(t *testing.T) {
 			name: "fails to retrieve user from context",
 			mockSetup: func(ctrl *gomock.Controller) {
 				h := mocks.NewMockUtils(ctrl)
-				h.EXPECT().GetUserFromContext(gomock.Any()).Return(users.UserWithRoles{}, false)
+				h.EXPECT().GetUserFromContext(gomock.Any()).Return(models.UserWithRoles{}, false)
 				handlers.ReplaceGlobals(h)
 				tr := mocks.NewTransactionsRepository(ctrl)
 				tr.EXPECT().GetAll(gomock.Any()).Times(0)
@@ -714,10 +714,10 @@ func TestGetTransactions(t *testing.T) {
 			name: "fails to retrieve all user transactions",
 			mockSetup: func(ctrl *gomock.Controller) {
 				h := mocks.NewMockUtils(ctrl)
-				h.EXPECT().GetUserFromContext(gomock.Any()).Return(users.UserWithRoles{}, true)
+				h.EXPECT().GetUserFromContext(gomock.Any()).Return(models.UserWithRoles{}, true)
 				handlers.ReplaceGlobals(h)
 				tr := mocks.NewTransactionsRepository(ctrl)
-				tr.EXPECT().GetAll(gomock.Any()).Return([]transaction.Transaction{}, errors.New("error"))
+				tr.EXPECT().GetAll(gomock.Any()).Return([]models.Transaction{}, errors.New("error"))
 				transaction.ReplaceGlobals(tr)
 			},
 			expectedStatus: http.StatusInternalServerError,
@@ -726,10 +726,10 @@ func TestGetTransactions(t *testing.T) {
 			name: "succeeded",
 			mockSetup: func(ctrl *gomock.Controller) {
 				h := mocks.NewMockUtils(ctrl)
-				h.EXPECT().GetUserFromContext(gomock.Any()).Return(users.UserWithRoles{}, true)
+				h.EXPECT().GetUserFromContext(gomock.Any()).Return(models.UserWithRoles{}, true)
 				handlers.ReplaceGlobals(h)
 				tr := mocks.NewTransactionsRepository(ctrl)
-				tr.EXPECT().GetAll(gomock.Any()).Return([]transaction.Transaction{}, nil)
+				tr.EXPECT().GetAll(gomock.Any()).Return([]models.Transaction{}, nil)
 				transaction.ReplaceGlobals(tr)
 			},
 			expectedStatus: http.StatusOK,

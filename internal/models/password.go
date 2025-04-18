@@ -1,4 +1,4 @@
-package password
+package models
 
 import (
 	"github.com/Zapharaos/fihub-backend/internal/utils"
@@ -7,18 +7,18 @@ import (
 	"time"
 )
 
-// ResponseRequest represents the response for a password reset request
-type ResponseRequest struct {
+// PasswordResponseRequest represents the response for a password reset request
+type PasswordResponseRequest struct {
 	Error     string    `json:"error,omitempty"`
 	ExpiresAt time.Time `json:"expires_at,omitempty"`
 	UserID    uuid.UUID `json:"user_id"`
 }
 
-type InputRequest struct {
+type PasswordInputRequest struct {
 	Email string `json:"email"`
 }
 
-type Request struct {
+type PasswordRequest struct {
 	ID        uuid.UUID `json:"id"`
 	UserID    uuid.UUID `json:"user_id"`
 	Token     string    `json:"token"`
@@ -26,12 +26,12 @@ type Request struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-func InitRequest(userID uuid.UUID) (Request, time.Duration) {
+func InitPasswordRequest(userID uuid.UUID) (PasswordRequest, time.Duration) {
 	duration := viper.GetDuration("OTP_DURATION")
 	if duration == 0 {
 		duration = 15 * time.Minute
 	}
-	return Request{
+	return PasswordRequest{
 		ID:        uuid.New(),
 		UserID:    userID,
 		Token:     utils.RandDigitString(viper.GetInt("OTP_LENGTH")),

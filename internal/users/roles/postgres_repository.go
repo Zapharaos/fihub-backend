@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"github.com/Zapharaos/fihub-backend/internal/users/permissions"
+	"github.com/Zapharaos/fihub-backend/internal/models"
 	"github.com/Zapharaos/fihub-backend/internal/utils"
 	"go.uber.org/zap"
 
@@ -28,7 +28,7 @@ func NewPostgresRepository(dbClient *sqlx.DB) Repository {
 }
 
 // Get search and returns a Role from the repository by its id
-func (r *PostgresRepository) Get(roleUUID uuid.UUID) (Role, bool, error) {
+func (r *PostgresRepository) Get(roleUUID uuid.UUID) (models.Role, bool, error) {
 	// Prepare query
 	query := `SELECT *
 			  FROM roles as r
@@ -40,7 +40,7 @@ func (r *PostgresRepository) Get(roleUUID uuid.UUID) (Role, bool, error) {
 	// Execute query
 	rows, err := r.conn.NamedQuery(query, params)
 	if err != nil {
-		return Role{}, false, err
+		return models.Role{}, false, err
 	}
 	defer rows.Close()
 
@@ -48,7 +48,7 @@ func (r *PostgresRepository) Get(roleUUID uuid.UUID) (Role, bool, error) {
 }
 
 // GetByName search and returns a Role from the repository by its name
-func (r *PostgresRepository) GetByName(name string) (Role, bool, error) {
+func (r *PostgresRepository) GetByName(name string) (models.Role, bool, error) {
 	// Prepare query
 	query := `SELECT *
 			  FROM roles as r
@@ -60,7 +60,7 @@ func (r *PostgresRepository) GetByName(name string) (Role, bool, error) {
 	// Execute query
 	rows, err := r.conn.NamedQuery(query, params)
 	if err != nil {
-		return Role{}, false, err
+		return models.Role{}, false, err
 	}
 	defer rows.Close()
 
@@ -68,7 +68,7 @@ func (r *PostgresRepository) GetByName(name string) (Role, bool, error) {
 }
 
 // Create creates a new Role in the repository
-func (r *PostgresRepository) Create(role Role, permissionUUIDs []uuid.UUID) (uuid.UUID, error) {
+func (r *PostgresRepository) Create(role models.Role, permissionUUIDs []uuid.UUID) (uuid.UUID, error) {
 
 	roleUUID := uuid.New()
 
@@ -131,7 +131,7 @@ func (r *PostgresRepository) Create(role Role, permissionUUIDs []uuid.UUID) (uui
 }
 
 // Update updates a Role in the repository
-func (r *PostgresRepository) Update(role Role, permissionUUIDs []uuid.UUID) error {
+func (r *PostgresRepository) Update(role models.Role, permissionUUIDs []uuid.UUID) error {
 	// Start transaction
 	ctx := context.Background()
 	tx, err := r.conn.BeginTx(ctx, nil)
@@ -220,7 +220,7 @@ func (r *PostgresRepository) Delete(uuid uuid.UUID) error {
 }
 
 // GetAll returns all Roles in the repository
-func (r *PostgresRepository) GetAll() ([]Role, error) {
+func (r *PostgresRepository) GetAll() ([]models.Role, error) {
 	// Prepare query
 	query := `SELECT *
 			  FROM roles`
@@ -236,7 +236,7 @@ func (r *PostgresRepository) GetAll() ([]Role, error) {
 }
 
 // GetWithPermissions returns a Role in the repository with its permissions
-func (r *PostgresRepository) GetWithPermissions(uuid uuid.UUID) (RoleWithPermissions, bool, error) {
+func (r *PostgresRepository) GetWithPermissions(uuid uuid.UUID) (models.RoleWithPermissions, bool, error) {
 	// Prepare query
 	query := `SELECT r.id, r.name, p.id, p.value, p.scope, p.description
 			  FROM roles as r
@@ -250,7 +250,7 @@ func (r *PostgresRepository) GetWithPermissions(uuid uuid.UUID) (RoleWithPermiss
 	// Execute query
 	rows, err := r.conn.NamedQuery(query, params)
 	if err != nil {
-		return RoleWithPermissions{}, false, err
+		return models.RoleWithPermissions{}, false, err
 	}
 	defer rows.Close()
 
@@ -258,7 +258,7 @@ func (r *PostgresRepository) GetWithPermissions(uuid uuid.UUID) (RoleWithPermiss
 }
 
 // GetAllWithPermissions returns all Roles in the repository with their permissions
-func (r *PostgresRepository) GetAllWithPermissions() (RolesWithPermissions, error) {
+func (r *PostgresRepository) GetAllWithPermissions() (models.RolesWithPermissions, error) {
 	// Prepare query
 	query := `SELECT r.id, r.name, p.id, p.value, p.scope, p.description
 			  FROM roles as r
@@ -277,7 +277,7 @@ func (r *PostgresRepository) GetAllWithPermissions() (RolesWithPermissions, erro
 }
 
 // GetRolesByUserId returns all the roles of a user in the repository
-func (r *PostgresRepository) GetRolesByUserId(userUUID uuid.UUID) ([]Role, error) {
+func (r *PostgresRepository) GetRolesByUserId(userUUID uuid.UUID) ([]models.Role, error) {
 	// Prepare query
 	query := `SELECT r.id, r.name
 			  FROM roles as r
@@ -359,23 +359,23 @@ func (r *PostgresRepository) SetRolePermissions(roleUUID uuid.UUID, permissionUU
 }
 
 // Scan scans the current row of the given rows and returns a Role
-func (r *PostgresRepository) Scan(rows *sqlx.Rows) (Role, error) {
-	var role Role
+func (r *PostgresRepository) Scan(rows *sqlx.Rows) (models.Role, error) {
+	var role models.Role
 	err := rows.Scan(
 		&role.Id,
 		&role.Name,
 	)
 	if err != nil {
-		return Role{}, err
+		return models.Role{}, err
 	}
 	return role, nil
 }
 
 // ScanWithPermissions scans the current row of the given rows and returns a RoleWithPermissions
-func (r *PostgresRepository) ScanWithPermissions(rows *sqlx.Rows) (RoleWithPermissions, error) {
+func (r *PostgresRepository) ScanWithPermissions(rows *sqlx.Rows) (models.RoleWithPermissions, error) {
 
-	var role RoleWithPermissions
-	var permission permissions.Permission
+	var role models.RoleWithPermissions
+	var permission models.Permission
 	var pValue sql.NullString
 	var pScope sql.NullString
 	var pDescription sql.NullString
@@ -391,7 +391,7 @@ func (r *PostgresRepository) ScanWithPermissions(rows *sqlx.Rows) (RoleWithPermi
 
 	// Check if there is an error
 	if err != nil {
-		return RoleWithPermissions{}, err
+		return models.RoleWithPermissions{}, err
 	}
 
 	// If role exists, add it to the user
@@ -406,15 +406,15 @@ func (r *PostgresRepository) ScanWithPermissions(rows *sqlx.Rows) (RoleWithPermi
 }
 
 // ScanAllWithPermissions scans all rows of the given rows and returns a list of RoleWithPermissions
-func (r *PostgresRepository) ScanAllWithPermissions(rows *sqlx.Rows) (RolesWithPermissions, error) {
-	var roles RolesWithPermissions
+func (r *PostgresRepository) ScanAllWithPermissions(rows *sqlx.Rows) (models.RolesWithPermissions, error) {
+	var roles models.RolesWithPermissions
 	rolesMap := make(map[uuid.UUID]int)
 
 	for rows.Next() {
 		// One row is a role with one single permission
 		role, err := r.ScanWithPermissions(rows)
 		if err != nil {
-			return RolesWithPermissions{}, err
+			return models.RolesWithPermissions{}, err
 		}
 
 		// Retrieve role from map if exists

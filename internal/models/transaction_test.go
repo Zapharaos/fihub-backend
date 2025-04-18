@@ -1,4 +1,4 @@
-package transaction
+package models
 
 import (
 	"github.com/google/uuid"

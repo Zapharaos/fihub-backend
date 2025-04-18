@@ -1,8 +1,7 @@
-package users
+package models
 
 import (
 	"errors"
-	"github.com/Zapharaos/fihub-backend/internal/users/roles"
 	"github.com/Zapharaos/fihub-backend/pkg/email"
 	"github.com/google/uuid"
 	"time"
@@ -44,7 +43,7 @@ type UserWithPassword struct {
 // UserWithRoles extends User with a roles field for authorization purposes
 type UserWithRoles struct {
 	User
-	Roles roles.RolesWithPermissions `json:"roles"`
+	Roles RolesWithPermissions `json:"roles"`
 }
 
 // User represents a User entity in the system

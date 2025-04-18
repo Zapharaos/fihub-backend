@@ -1,6 +1,7 @@
 package transaction
 
 import (
+	"github.com/Zapharaos/fihub-backend/internal/models"
 	"github.com/google/uuid"
 	"sync"
 )
@@ -9,12 +10,12 @@ import (
 // (in-memory map, sql database, in-memory cache, file system, ...)
 // It allows standard CRUD operation on Transaction
 type Repository interface {
-	Create(transactionInput TransactionInput) (uuid.UUID, error)
-	Get(transactionID uuid.UUID) (Transaction, bool, error)
-	Update(transactionInput TransactionInput) error
-	Delete(transaction Transaction) error
+	Create(transactionInput models.TransactionInput) (uuid.UUID, error)
+	Get(transactionID uuid.UUID) (models.Transaction, bool, error)
+	Update(transactionInput models.TransactionInput) error
+	Delete(transaction models.Transaction) error
 	Exists(transactionID uuid.UUID, userID uuid.UUID) (bool, error)
-	GetAll(userID uuid.UUID) ([]Transaction, error)
+	GetAll(userID uuid.UUID) ([]models.Transaction, error)
 }
 
 var (

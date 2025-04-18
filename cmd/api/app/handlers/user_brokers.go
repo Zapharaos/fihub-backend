@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/handlers/render"
 	"github.com/Zapharaos/fihub-backend/internal/brokers"
+	"github.com/Zapharaos/fihub-backend/internal/models"
 	"go.uber.org/zap"
 	"net/http"
 )
@@ -15,13 +16,13 @@ import (
 //
 //	@Summary		Create a new user broker
 //	@Description	Create a new user broker.
-//	@Tags			User
+//	@Tags			BrokerUser
 //	@Accept			json
 //	@Produce		json
-//	@Param			userBroker	body	brokers.UserInput	true	"userBroker (json)"
+//	@Param			userBroker	body	brokers.BrokerUserInput	true	"userBroker (json)"
 //	@Security		Bearer
-//	@Success		200	{array}		brokers.User		"Updated list of user brokers"
-//	@Failure		400	{object}	render.ErrorResponse	"Bad Request"
+//	@Success		200	{array}		brokers.BrokerUser		"Updated list of user brokers"
+//	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/users/brokers [post]
@@ -35,22 +36,22 @@ func CreateUserBroker(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Parse request body
-	var userBrokerInput brokers.UserInput
+	var userBrokerInput models.BrokerUserInput
 	err := json.NewDecoder(r.Body).Decode(&userBrokerInput)
 	if err != nil {
-		zap.L().Warn("User json decode", zap.Error(err))
+		zap.L().Warn("BrokerUser json decode", zap.Error(err))
 		render.BadRequest(w, r, err)
 		return
 	}
 
 	// Validate user
 	if ok, err := userBrokerInput.IsValid(); !ok {
-		zap.L().Warn("User is not valid", zap.Error(err))
+		zap.L().Warn("BrokerUser is not valid", zap.Error(err))
 		render.BadRequest(w, r, err)
 		return
 	}
 
-	// Convert to User
+	// Convert to BrokerUser
 	userBroker := userBrokerInput.ToUser()
 	userBroker.UserID = user.ID
 
@@ -84,7 +85,7 @@ func CreateUserBroker(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if exists {
-		zap.L().Warn("User already exists", zap.String("BrokerID", userBroker.Broker.ID.String()))
+		zap.L().Warn("BrokerUser already exists", zap.String("BrokerID", userBroker.Broker.ID.String()))
 		render.BadRequest(w, r, fmt.Errorf("broker-used"))
 		return
 	}
@@ -105,7 +106,7 @@ func CreateUserBroker(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if len(userBrockers) == 0 {
-		zap.L().Error("User broker not found after creation", zap.String("uuid", user.ID.String()))
+		zap.L().Error("BrokerUser broker not found after creation", zap.String("uuid", user.ID.String()))
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -119,12 +120,12 @@ func CreateUserBroker(w http.ResponseWriter, r *http.Request) {
 //
 //	@Summary		Delete a user broker
 //	@Description	Delete a user broker.
-//	@Tags			User
+//	@Tags			BrokerUser
 //	@Produce		json
 //	@Param			id	path	string	true	"broker ID"
 //	@Security		Bearer
 //	@Success		200	{array}		string					"Status OK"
-//	@Failure		400	{object}	render.ErrorResponse	"Bad Request"
+//	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/users/brokers/{id} [delete]
@@ -143,9 +144,9 @@ func DeleteUserBroker(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Build userBroker
-	userBroker := brokers.User{
+	userBroker := models.BrokerUser{
 		UserID: user.ID,
-		Broker: brokers.Broker{ID: brokerID},
+		Broker: models.Broker{ID: brokerID},
 	}
 
 	// Verify userBroker existence
@@ -156,7 +157,7 @@ func DeleteUserBroker(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if !exists {
-		zap.L().Warn("User not found",
+		zap.L().Warn("BrokerUser not found",
 			zap.String("UserID", user.ID.String()),
 			zap.String("BrokerID", brokerID.String()))
 		w.WriteHeader(http.StatusBadRequest)
@@ -180,10 +181,10 @@ func DeleteUserBroker(w http.ResponseWriter, r *http.Request) {
 //
 //	@Summary		Get all user's brokers
 //	@Description	Gets a list of all user's brokers.
-//	@Tags			User
+//	@Tags			BrokerUser
 //	@Produce		json
 //	@Security		Bearer
-//	@Success		200	{array}		brokers.User		"List of brokers"
+//	@Success		200	{array}		brokers.BrokerUser		"List of brokers"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/users/brokers [get]

@@ -1,6 +1,7 @@
 package password
 
 import (
+	"github.com/Zapharaos/fihub-backend/internal/models"
 	"github.com/google/uuid"
 	"sync"
 	"time"
@@ -10,7 +11,7 @@ import (
 // (in-memory map, sql database, in-memory cache, file system, ...)
 // It allows standard CRUD operation on Users
 type Repository interface {
-	Create(request Request) (Request, error)
+	Create(request models.PasswordRequest) (models.PasswordRequest, error)
 	GetRequestID(userID uuid.UUID, token string) (uuid.UUID, error)
 	GetExpiresAt(userID uuid.UUID) (time.Time, error)
 	Delete(requestID uuid.UUID) error

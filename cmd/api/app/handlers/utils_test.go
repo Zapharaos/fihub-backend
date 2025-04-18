@@ -5,9 +5,7 @@ import (
 	"context"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/handlers"
 	"github.com/Zapharaos/fihub-backend/internal/app"
-	"github.com/Zapharaos/fihub-backend/internal/users"
-	"github.com/Zapharaos/fihub-backend/internal/users/permissions"
-	"github.com/Zapharaos/fihub-backend/internal/users/roles"
+	"github.com/Zapharaos/fihub-backend/internal/models"
 	"github.com/Zapharaos/fihub-backend/test/mocks"
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
@@ -30,7 +28,7 @@ func TestCheckPermission(t *testing.T) {
 	// Define the test cases
 	tests := []struct {
 		name         string
-		contextUser  users.UserWithRoles
+		contextUser  models.UserWithRoles
 		contextOk    bool
 		permission   string
 		expectOK     bool
@@ -38,7 +36,7 @@ func TestCheckPermission(t *testing.T) {
 	}{
 		{
 			name:         "fail to retrieve user from context",
-			contextUser:  users.UserWithRoles{},
+			contextUser:  models.UserWithRoles{},
 			contextOk:    false,
 			permission:   "some-permission",
 			expectOK:     false,
@@ -46,7 +44,7 @@ func TestCheckPermission(t *testing.T) {
 		},
 		{
 			name:         "user does not have roles",
-			contextUser:  users.UserWithRoles{Roles: roles.RolesWithPermissions{}},
+			contextUser:  models.UserWithRoles{Roles: models.RolesWithPermissions{}},
 			contextOk:    true,
 			permission:   "some-permission",
 			expectOK:     false,
@@ -54,8 +52,8 @@ func TestCheckPermission(t *testing.T) {
 		},
 		{
 			name: "user does not have permission",
-			contextUser: users.UserWithRoles{Roles: roles.RolesWithPermissions{
-				{Permissions: permissions.Permissions{}},
+			contextUser: models.UserWithRoles{Roles: models.RolesWithPermissions{
+				{Permissions: models.Permissions{}},
 			}},
 			contextOk:    true,
 			permission:   "some-permission",
@@ -64,8 +62,8 @@ func TestCheckPermission(t *testing.T) {
 		},
 		{
 			name: "user has permission",
-			contextUser: users.UserWithRoles{Roles: roles.RolesWithPermissions{
-				{Permissions: permissions.Permissions{permissions.Permission{Value: "valid-permission"}}},
+			contextUser: models.UserWithRoles{Roles: models.RolesWithPermissions{
+				{Permissions: models.Permissions{models.Permission{Value: "valid-permission"}}},
 			}},
 			contextOk:    true,
 			permission:   "valid-permission",
@@ -102,8 +100,8 @@ func TestCheckPermission(t *testing.T) {
 // TestGetUserFromContext tests the GetUserFromContext function
 func TestGetUserFromContext(t *testing.T) {
 	// Define valid user data
-	user := users.UserWithRoles{
-		User: users.User{
+	user := models.UserWithRoles{
+		User: models.User{
 			ID: uuid.New(),
 		},
 	}
@@ -116,7 +114,7 @@ func TestGetUserFromContext(t *testing.T) {
 		name       string
 		context    context.Context
 		expectOK   bool
-		expectUser users.UserWithRoles
+		expectUser models.UserWithRoles
 	}{
 		{
 			name:     "no context",

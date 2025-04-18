@@ -1,8 +1,6 @@
-package users
+package models
 
 import (
-	"github.com/Zapharaos/fihub-backend/internal/users/permissions"
-	"github.com/Zapharaos/fihub-backend/internal/users/roles"
 	"github.com/stretchr/testify/assert"
 	"strings"
 	"testing"
@@ -382,9 +380,9 @@ func TestHasPermission(t *testing.T) {
 // createUserWithPermission creates a UserWithRoles instance with a single permission
 func createUserWithPermission(permission string) UserWithRoles {
 	return UserWithRoles{
-		Roles: roles.RolesWithPermissions{
+		Roles: RolesWithPermissions{
 			{
-				Permissions: permissions.Permissions{
+				Permissions: Permissions{
 					{Value: permission},
 				},
 			},

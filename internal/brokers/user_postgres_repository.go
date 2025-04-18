@@ -1,6 +1,7 @@
 package brokers
 
 import (
+	"github.com/Zapharaos/fihub-backend/internal/models"
 	"github.com/Zapharaos/fihub-backend/internal/utils"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
@@ -20,8 +21,8 @@ func NewUserPostgresRepository(dbClient *sqlx.DB) UserRepository {
 	return repo
 }
 
-// Create use to create a User
-func (r *UserPostgresRepository) Create(userBroker User) error {
+// Create use to create a BrokerUser
+func (r *UserPostgresRepository) Create(userBroker models.BrokerUser) error {
 	// Prepare query
 	query := `INSERT INTO user_brokers (user_id, broker_id)
 				VALUES (:user_id, :broker_id)`
@@ -39,8 +40,8 @@ func (r *UserPostgresRepository) Create(userBroker User) error {
 	return nil
 }
 
-// Delete use to delete a User
-func (r *UserPostgresRepository) Delete(userBroker User) error {
+// Delete use to delete a BrokerUser
+func (r *UserPostgresRepository) Delete(userBroker models.BrokerUser) error {
 	// Prepare query
 	query := `DELETE FROM user_brokers as ub
 			  WHERE ub.user_id = :user_id AND ub.broker_id = :broker_id`
@@ -58,8 +59,8 @@ func (r *UserPostgresRepository) Delete(userBroker User) error {
 	return utils.CheckRowAffected(result, 1)
 }
 
-// Exists use to check if a User exists
-func (r *UserPostgresRepository) Exists(userBroker User) (bool, error) {
+// Exists use to check if a BrokerUser exists
+func (r *UserPostgresRepository) Exists(userBroker models.BrokerUser) (bool, error) {
 	// Prepare query
 	query := `SELECT *
 			  FROM user_brokers as ub
@@ -79,8 +80,8 @@ func (r *UserPostgresRepository) Exists(userBroker User) (bool, error) {
 	return rows.Next(), nil
 }
 
-// GetAll use to get all Broker for a User
-func (r *UserPostgresRepository) GetAll(userID uuid.UUID) ([]User, error) {
+// GetAll use to get all Broker for a BrokerUser
+func (r *UserPostgresRepository) GetAll(userID uuid.UUID) ([]models.BrokerUser, error) {
 	// Prepare query
 	query := `SELECT b.id, b.name, b.image_id
 			  FROM user_brokers as ub
@@ -100,15 +101,15 @@ func (r *UserPostgresRepository) GetAll(userID uuid.UUID) ([]User, error) {
 	return utils.ScanAll(rows, r.Scan)
 }
 
-func (r *UserPostgresRepository) Scan(rows *sqlx.Rows) (User, error) {
-	var userBroker User
+func (r *UserPostgresRepository) Scan(rows *sqlx.Rows) (models.BrokerUser, error) {
+	var userBroker models.BrokerUser
 	err := rows.Scan(
 		&userBroker.Broker.ID,
 		&userBroker.Broker.Name,
 		&userBroker.Broker.ImageID,
 	)
 	if err != nil {
-		return User{}, err
+		return models.BrokerUser{}, err
 	}
 
 	return userBroker, nil

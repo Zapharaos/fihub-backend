@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/handlers"
+	"github.com/Zapharaos/fihub-backend/internal/models"
 	"github.com/Zapharaos/fihub-backend/internal/users"
 	"github.com/Zapharaos/fihub-backend/internal/users/permissions"
 	"github.com/Zapharaos/fihub-backend/internal/users/roles"
@@ -23,32 +24,32 @@ func TestCreateRole(t *testing.T) {
 	// Declare the data
 	pRoleCreate := "admin.roles.create"
 	pRolePermUpdate := "admin.roles.permissions.update"
-	permission := permissions.Permission{
+	permission := models.Permission{
 		Id: uuid.Nil,
 	}
-	role := roles.RoleWithPermissions{
-		Role: roles.Role{
+	role := models.RoleWithPermissions{
+		Role: models.Role{
 			Id:   uuid.Nil,
 			Name: "admin",
 		},
-		Permissions: permissions.Permissions{
+		Permissions: models.Permissions{
 			permission,
 		},
 	}
 	roleBody, _ := json.Marshal(role)
-	roleInvalid := roles.RoleWithPermissions{
-		Role: roles.Role{
+	roleInvalid := models.RoleWithPermissions{
+		Role: models.Role{
 			Name: "",
 		},
-		Permissions: permissions.Permissions{},
+		Permissions: models.Permissions{},
 	}
 	roleInvalidBody, _ := json.Marshal(roleInvalid)
-	invalidRolePerms := roles.RoleWithPermissions{
-		Role: roles.Role{
+	invalidRolePerms := models.RoleWithPermissions{
+		Role: models.Role{
 			Id:   uuid.Nil,
 			Name: "admin",
 		},
-		Permissions: make([]permissions.Permission, permissions.LimitMaxPermissions+1),
+		Permissions: make([]models.Permission, models.LimitMaxPermissions+1),
 	}
 	invalidRolePermsBody, _ := json.Marshal(invalidRolePerms)
 
@@ -127,7 +128,7 @@ func TestCreateRole(t *testing.T) {
 				handlers.ReplaceGlobals(m)
 				r := mocks.NewRolesRepository(ctrl)
 				r.EXPECT().Create(gomock.Any(), gomock.Any()).Return(uuid.New(), nil)
-				r.EXPECT().GetWithPermissions(gomock.Any()).Return(roles.RoleWithPermissions{}, false, errors.New("error"))
+				r.EXPECT().GetWithPermissions(gomock.Any()).Return(models.RoleWithPermissions{}, false, errors.New("error"))
 				roles.ReplaceGlobals(r)
 			},
 			expectedStatus: http.StatusInternalServerError,
@@ -142,7 +143,7 @@ func TestCreateRole(t *testing.T) {
 				handlers.ReplaceGlobals(m)
 				r := mocks.NewRolesRepository(ctrl)
 				r.EXPECT().Create(gomock.Any(), gomock.Any()).Return(uuid.New(), nil)
-				r.EXPECT().GetWithPermissions(gomock.Any()).Return(roles.RoleWithPermissions{}, false, nil)
+				r.EXPECT().GetWithPermissions(gomock.Any()).Return(models.RoleWithPermissions{}, false, nil)
 				roles.ReplaceGlobals(r)
 			},
 			expectedStatus: http.StatusInternalServerError,
@@ -157,7 +158,7 @@ func TestCreateRole(t *testing.T) {
 				handlers.ReplaceGlobals(m)
 				r := mocks.NewRolesRepository(ctrl)
 				r.EXPECT().Create(gomock.Any(), gomock.Any()).Return(uuid.New(), nil)
-				r.EXPECT().GetWithPermissions(gomock.Any()).Return(roles.RoleWithPermissions{}, true, nil)
+				r.EXPECT().GetWithPermissions(gomock.Any()).Return(models.RoleWithPermissions{}, true, nil)
 				roles.ReplaceGlobals(r)
 			},
 			expectedStatus: http.StatusOK,
@@ -233,7 +234,7 @@ func TestGetRole(t *testing.T) {
 				)
 				handlers.ReplaceGlobals(m)
 				r := mocks.NewRolesRepository(ctrl)
-				r.EXPECT().GetWithPermissions(gomock.Any()).Return(roles.RoleWithPermissions{}, false, errors.New("error"))
+				r.EXPECT().GetWithPermissions(gomock.Any()).Return(models.RoleWithPermissions{}, false, errors.New("error"))
 				roles.ReplaceGlobals(r)
 			},
 			expectedStatus: http.StatusInternalServerError,
@@ -248,7 +249,7 @@ func TestGetRole(t *testing.T) {
 				)
 				handlers.ReplaceGlobals(m)
 				r := mocks.NewRolesRepository(ctrl)
-				r.EXPECT().GetWithPermissions(gomock.Any()).Return(roles.RoleWithPermissions{}, false, nil)
+				r.EXPECT().GetWithPermissions(gomock.Any()).Return(models.RoleWithPermissions{}, false, nil)
 				roles.ReplaceGlobals(r)
 			},
 			expectedStatus: http.StatusNotFound,
@@ -263,7 +264,7 @@ func TestGetRole(t *testing.T) {
 				)
 				handlers.ReplaceGlobals(m)
 				r := mocks.NewRolesRepository(ctrl)
-				r.EXPECT().GetWithPermissions(gomock.Any()).Return(roles.RoleWithPermissions{}, true, nil)
+				r.EXPECT().GetWithPermissions(gomock.Any()).Return(models.RoleWithPermissions{}, true, nil)
 				roles.ReplaceGlobals(r)
 			},
 			expectedStatus: http.StatusOK,
@@ -319,7 +320,7 @@ func TestGetRoles(t *testing.T) {
 				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(true)
 				handlers.ReplaceGlobals(m)
 				r := mocks.NewRolesRepository(ctrl)
-				r.EXPECT().GetAllWithPermissions().Return(roles.RolesWithPermissions{}, errors.New("error"))
+				r.EXPECT().GetAllWithPermissions().Return(models.RolesWithPermissions{}, errors.New("error"))
 				roles.ReplaceGlobals(r)
 			},
 			expectedStatus: http.StatusInternalServerError,
@@ -331,7 +332,7 @@ func TestGetRoles(t *testing.T) {
 				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(true)
 				handlers.ReplaceGlobals(m)
 				r := mocks.NewRolesRepository(ctrl)
-				r.EXPECT().GetAllWithPermissions().Return([]roles.RoleWithPermissions{}, nil)
+				r.EXPECT().GetAllWithPermissions().Return([]models.RoleWithPermissions{}, nil)
 				roles.ReplaceGlobals(r)
 			},
 			expectedStatus: http.StatusOK,
@@ -365,32 +366,32 @@ func TestUpdateRole(t *testing.T) {
 	// Declare the data
 	pRoleUpdate := "admin.roles.update"
 	pRolePermUpdate := "admin.roles.permissions.update"
-	permission := permissions.Permission{
+	permission := models.Permission{
 		Id: uuid.Nil,
 	}
-	role := roles.RoleWithPermissions{
-		Role: roles.Role{
+	role := models.RoleWithPermissions{
+		Role: models.Role{
 			Id:   uuid.Nil,
 			Name: "admin",
 		},
-		Permissions: permissions.Permissions{
+		Permissions: models.Permissions{
 			permission,
 		},
 	}
 	roleBody, _ := json.Marshal(role)
-	roleInvalid := roles.RoleWithPermissions{
-		Role: roles.Role{
+	roleInvalid := models.RoleWithPermissions{
+		Role: models.Role{
 			Name: "",
 		},
-		Permissions: permissions.Permissions{},
+		Permissions: models.Permissions{},
 	}
 	roleInvalidBody, _ := json.Marshal(roleInvalid)
-	invalidRolePerms := roles.RoleWithPermissions{
-		Role: roles.Role{
+	invalidRolePerms := models.RoleWithPermissions{
+		Role: models.Role{
 			Id:   uuid.Nil,
 			Name: "admin",
 		},
-		Permissions: make([]permissions.Permission, permissions.LimitMaxPermissions+1),
+		Permissions: make([]models.Permission, models.LimitMaxPermissions+1),
 	}
 	invalidRolePermsBody, _ := json.Marshal(invalidRolePerms)
 
@@ -485,7 +486,7 @@ func TestUpdateRole(t *testing.T) {
 				handlers.ReplaceGlobals(m)
 				r := mocks.NewRolesRepository(ctrl)
 				r.EXPECT().Update(gomock.Any(), gomock.Any()).Return(nil)
-				r.EXPECT().GetWithPermissions(gomock.Any()).Return(roles.RoleWithPermissions{}, false, errors.New("error"))
+				r.EXPECT().GetWithPermissions(gomock.Any()).Return(models.RoleWithPermissions{}, false, errors.New("error"))
 				roles.ReplaceGlobals(r)
 			},
 			expectedStatus: http.StatusInternalServerError,
@@ -501,7 +502,7 @@ func TestUpdateRole(t *testing.T) {
 				handlers.ReplaceGlobals(m)
 				r := mocks.NewRolesRepository(ctrl)
 				r.EXPECT().Update(gomock.Any(), gomock.Any()).Return(nil)
-				r.EXPECT().GetWithPermissions(gomock.Any()).Return(roles.RoleWithPermissions{}, false, nil)
+				r.EXPECT().GetWithPermissions(gomock.Any()).Return(models.RoleWithPermissions{}, false, nil)
 				roles.ReplaceGlobals(r)
 			},
 			expectedStatus: http.StatusInternalServerError,
@@ -517,7 +518,7 @@ func TestUpdateRole(t *testing.T) {
 				handlers.ReplaceGlobals(m)
 				r := mocks.NewRolesRepository(ctrl)
 				r.EXPECT().Update(gomock.Any(), gomock.Any()).Return(nil)
-				r.EXPECT().GetWithPermissions(gomock.Any()).Return(roles.RoleWithPermissions{}, true, nil)
+				r.EXPECT().GetWithPermissions(gomock.Any()).Return(models.RoleWithPermissions{}, true, nil)
 				roles.ReplaceGlobals(r)
 			},
 			expectedStatus: http.StatusOK,
@@ -680,7 +681,7 @@ func TestGetRolePermissions(t *testing.T) {
 				)
 				handlers.ReplaceGlobals(m)
 				p := mocks.NewPermissionsRepository(ctrl)
-				p.EXPECT().GetAllByRoleId(gomock.Any()).Return(permissions.Permissions{}, errors.New("error"))
+				p.EXPECT().GetAllByRoleId(gomock.Any()).Return(models.Permissions{}, errors.New("error"))
 				permissions.ReplaceGlobals(p)
 			},
 			expectedStatus: http.StatusInternalServerError,
@@ -695,7 +696,7 @@ func TestGetRolePermissions(t *testing.T) {
 				)
 				handlers.ReplaceGlobals(m)
 				p := mocks.NewPermissionsRepository(ctrl)
-				p.EXPECT().GetAllByRoleId(gomock.Any()).Return(permissions.Permissions{}, nil)
+				p.EXPECT().GetAllByRoleId(gomock.Any()).Return(models.Permissions{}, nil)
 				permissions.ReplaceGlobals(p)
 			},
 			expectedStatus: http.StatusOK,
@@ -727,11 +728,11 @@ func TestGetRolePermissions(t *testing.T) {
 // TestSetRolePermissions tests the SetRolePermissions handler
 func TestSetRolePermissions(t *testing.T) {
 	// Declare the data
-	validPerms := permissions.Permissions{
-		permissions.Permission{Id: uuid.New()},
+	validPerms := models.Permissions{
+		models.Permission{Id: uuid.New()},
 	}
 	validPermsBody, _ := json.Marshal(validPerms)
-	invalidPerms := make([]permissions.Permission, permissions.LimitMaxPermissions+1)
+	invalidPerms := make([]models.Permission, models.LimitMaxPermissions+1)
 	invalidPermsBody, _ := json.Marshal(invalidPerms)
 
 	// Define the test cases
@@ -889,7 +890,7 @@ func TestGetRoleUsers(t *testing.T) {
 				)
 				handlers.ReplaceGlobals(m)
 				u := mocks.NewUsersRepository(ctrl)
-				u.EXPECT().GetUsersByRoleID(gomock.Any()).Return([]users.User{}, errors.New("error"))
+				u.EXPECT().GetUsersByRoleID(gomock.Any()).Return([]models.User{}, errors.New("error"))
 				users.ReplaceGlobals(u)
 			},
 			expectedStatus: http.StatusInternalServerError,
@@ -904,7 +905,7 @@ func TestGetRoleUsers(t *testing.T) {
 				)
 				handlers.ReplaceGlobals(m)
 				u := mocks.NewUsersRepository(ctrl)
-				u.EXPECT().GetUsersByRoleID(gomock.Any()).Return([]users.User{}, nil)
+				u.EXPECT().GetUsersByRoleID(gomock.Any()).Return([]models.User{}, nil)
 				users.ReplaceGlobals(u)
 			},
 			expectedStatus: http.StatusOK,

@@ -1,6 +1,7 @@
 package brokers
 
 import (
+	"github.com/Zapharaos/fihub-backend/internal/models"
 	"github.com/Zapharaos/fihub-backend/internal/utils"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
@@ -20,8 +21,8 @@ func NewImagePostgresRepository(dbClient *sqlx.DB) ImageRepository {
 	return repo
 }
 
-// Create creates a new Image in the repository
-func (r *ImagePostgresRepository) Create(brokerImage Image) error {
+// Create creates a new BrokerImage in the repository
+func (r *ImagePostgresRepository) Create(brokerImage models.BrokerImage) error {
 
 	// Prepare query
 	query := `INSERT INTO broker_image (id, broker_id, name, data)
@@ -42,8 +43,8 @@ func (r *ImagePostgresRepository) Create(brokerImage Image) error {
 	return nil
 }
 
-// Get searches and returns an Image from the repository by its id
-func (r *ImagePostgresRepository) Get(brokerImageID uuid.UUID) (Image, bool, error) {
+// Get searches and returns an BrokerImage from the repository by its id
+func (r *ImagePostgresRepository) Get(brokerImageID uuid.UUID) (models.BrokerImage, bool, error) {
 	// Prepare query
 	query := `SELECT *
 			  FROM broker_image as bi
@@ -55,15 +56,15 @@ func (r *ImagePostgresRepository) Get(brokerImageID uuid.UUID) (Image, bool, err
 	// Execute query
 	rows, err := r.conn.NamedQuery(query, params)
 	if err != nil {
-		return Image{}, false, err
+		return models.BrokerImage{}, false, err
 	}
 	defer rows.Close()
 
 	return utils.ScanFirst(rows, r.Scan)
 }
 
-// Update updates an Image in the repository
-func (r *ImagePostgresRepository) Update(brokerImage Image) error {
+// Update updates an BrokerImage in the repository
+func (r *ImagePostgresRepository) Update(brokerImage models.BrokerImage) error {
 	// Prepare query
 	query := `UPDATE broker_image as bi
 			  SET broker_id = :broker_id, name = :name, data = :data
@@ -84,7 +85,7 @@ func (r *ImagePostgresRepository) Update(brokerImage Image) error {
 	return utils.CheckRowAffected(result, 1)
 }
 
-// Delete deletes an Image from the repository
+// Delete deletes an BrokerImage from the repository
 func (r *ImagePostgresRepository) Delete(brokerImageID uuid.UUID) error {
 	// Prepare query
 	query := `DELETE FROM broker_image as bi
@@ -102,7 +103,7 @@ func (r *ImagePostgresRepository) Delete(brokerImageID uuid.UUID) error {
 	return utils.CheckRowAffected(result, 1)
 }
 
-// Exists checks if an Image exists in the repository
+// Exists checks if an BrokerImage exists in the repository
 func (r *ImagePostgresRepository) Exists(brokerID uuid.UUID, brokerImageID uuid.UUID) (bool, error) {
 	// Prepare query
 	query := `SELECT *
@@ -123,8 +124,8 @@ func (r *ImagePostgresRepository) Exists(brokerID uuid.UUID, brokerImageID uuid.
 	return rows.Next(), nil
 }
 
-func (r *ImagePostgresRepository) Scan(rows *sqlx.Rows) (Image, error) {
-	var brokerImage Image
+func (r *ImagePostgresRepository) Scan(rows *sqlx.Rows) (models.BrokerImage, error) {
+	var brokerImage models.BrokerImage
 	err := rows.Scan(
 		&brokerImage.ID,
 		&brokerImage.BrokerID,
@@ -132,7 +133,7 @@ func (r *ImagePostgresRepository) Scan(rows *sqlx.Rows) (Image, error) {
 		&brokerImage.Data,
 	)
 	if err != nil {
-		return Image{}, err
+		return models.BrokerImage{}, err
 	}
 
 	return brokerImage, nil

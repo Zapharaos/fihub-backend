@@ -12,7 +12,7 @@ package mocks
 import (
 	reflect "reflect"
 
-	brokers "github.com/Zapharaos/fihub-backend/internal/brokers"
+	models "github.com/Zapharaos/fihub-backend/internal/models"
 	uuid "github.com/google/uuid"
 	gomock "go.uber.org/mock/gomock"
 )
@@ -42,7 +42,7 @@ func (m *BrokerRepository) EXPECT() *BrokerRepositoryMockRecorder {
 }
 
 // Create mocks base method.
-func (m *BrokerRepository) Create(broker brokers.Broker) (uuid.UUID, error) {
+func (m *BrokerRepository) Create(broker models.Broker) (uuid.UUID, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Create", broker)
 	ret0, _ := ret[0].(uuid.UUID)
@@ -115,10 +115,10 @@ func (mr *BrokerRepositoryMockRecorder) ExistsByName(name any) *gomock.Call {
 }
 
 // Get mocks base method.
-func (m *BrokerRepository) Get(id uuid.UUID) (brokers.Broker, bool, error) {
+func (m *BrokerRepository) Get(id uuid.UUID) (models.Broker, bool, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Get", id)
-	ret0, _ := ret[0].(brokers.Broker)
+	ret0, _ := ret[0].(models.Broker)
 	ret1, _ := ret[1].(bool)
 	ret2, _ := ret[2].(error)
 	return ret0, ret1, ret2
@@ -131,10 +131,10 @@ func (mr *BrokerRepositoryMockRecorder) Get(id any) *gomock.Call {
 }
 
 // GetAll mocks base method.
-func (m *BrokerRepository) GetAll() ([]brokers.Broker, error) {
+func (m *BrokerRepository) GetAll() ([]models.Broker, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetAll")
-	ret0, _ := ret[0].([]brokers.Broker)
+	ret0, _ := ret[0].([]models.Broker)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -146,10 +146,10 @@ func (mr *BrokerRepositoryMockRecorder) GetAll() *gomock.Call {
 }
 
 // GetAllEnabled mocks base method.
-func (m *BrokerRepository) GetAllEnabled() ([]brokers.Broker, error) {
+func (m *BrokerRepository) GetAllEnabled() ([]models.Broker, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetAllEnabled")
-	ret0, _ := ret[0].([]brokers.Broker)
+	ret0, _ := ret[0].([]models.Broker)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -190,7 +190,7 @@ func (mr *BrokerRepositoryMockRecorder) SetImage(id, imageId any) *gomock.Call {
 }
 
 // Update mocks base method.
-func (m *BrokerRepository) Update(broker brokers.Broker) error {
+func (m *BrokerRepository) Update(broker models.Broker) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Update", broker)
 	ret0, _ := ret[0].(error)

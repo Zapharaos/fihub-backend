@@ -1,4 +1,4 @@
-package brokers
+package models
 
 import (
 	"github.com/google/uuid"
@@ -6,18 +6,18 @@ import (
 	"testing"
 )
 
-// TestUserBrokerInput_IsValid tests the IsValid method of the UserInput struct
+// TestUserBrokerInput_IsValid tests the IsValid method of the BrokerUserInput struct
 func TestUserBrokerInput_IsValid(t *testing.T) {
 	// Define test cases
 	tests := []struct {
-		name     string    // Test case name
-		input    UserInput // UserInput instance to test
-		expected bool      // Expected result
-		err      error     // Expected error
+		name     string          // Test case name
+		input    BrokerUserInput // BrokerUserInput instance to test
+		expected bool            // Expected result
+		err      error           // Expected error
 	}{
 		{
 			name: "valid input",
-			input: UserInput{
+			input: BrokerUserInput{
 				BrokerID: uuid.New().String(),
 			},
 			expected: true,
@@ -25,7 +25,7 @@ func TestUserBrokerInput_IsValid(t *testing.T) {
 		},
 		{
 			name: "invalid BrokerID",
-			input: UserInput{
+			input: BrokerUserInput{
 				BrokerID: "invalid-uuid",
 			},
 			expected: false,
@@ -43,14 +43,14 @@ func TestUserBrokerInput_IsValid(t *testing.T) {
 	}
 }
 
-// TestUserBrokerInput_ToUserBroker tests the ToUser method of the UserInput struct
+// TestUserBrokerInput_ToUserBroker tests the ToUser method of the BrokerUserInput struct
 func TestUserBrokerInput_ToUserBroker(t *testing.T) {
 	brokerID := uuid.New()
-	input := UserInput{
+	input := BrokerUserInput{
 		BrokerID: brokerID.String(),
 	}
 
-	expected := User{
+	expected := BrokerUser{
 		Broker: Broker{ID: brokerID},
 	}
 

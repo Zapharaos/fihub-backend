@@ -2,6 +2,7 @@ package permissions_test
 
 import (
 	"errors"
+	"github.com/Zapharaos/fihub-backend/internal/models"
 	"github.com/Zapharaos/fihub-backend/internal/users/permissions"
 	"github.com/Zapharaos/fihub-backend/test"
 	"github.com/google/uuid"
@@ -71,13 +72,13 @@ func TestPostgresRepository_Create(t *testing.T) {
 
 	tests := []struct {
 		name       string
-		permission permissions.Permission
+		permission models.Permission
 		mockSetup  func()
 		expectErr  bool
 	}{
 		{
 			name:       "Fail permission creation",
-			permission: permissions.Permission{},
+			permission: models.Permission{},
 			mockSetup: func() {
 				sqlxMock.Mock.ExpectQuery("INSERT INTO permissions").WillReturnError(errors.New("error"))
 			},
@@ -85,7 +86,7 @@ func TestPostgresRepository_Create(t *testing.T) {
 		},
 		{
 			name:       "Create permission",
-			permission: permissions.Permission{},
+			permission: models.Permission{},
 			mockSetup: func() {
 				sqlxMock.Mock.ExpectQuery("INSERT INTO permissions").WillReturnRows(sqlxmock.NewRows([]string{"id"}).AddRow(uuid.New()))
 			},
@@ -114,7 +115,7 @@ func TestPostgresRepository_Update(t *testing.T) {
 
 	tests := []struct {
 		name       string
-		permission permissions.Permission
+		permission models.Permission
 		mockSetup  func()
 		expectErr  bool
 	}{

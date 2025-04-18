@@ -3,6 +3,7 @@ package users_test
 import (
 	"errors"
 	"fmt"
+	"github.com/Zapharaos/fihub-backend/internal/models"
 	"github.com/Zapharaos/fihub-backend/internal/users"
 	"github.com/Zapharaos/fihub-backend/internal/users/permissions"
 	"github.com/Zapharaos/fihub-backend/internal/users/roles"
@@ -16,16 +17,16 @@ import (
 // TestLoadUserRoles tests the LoadUserRoles function
 func TestLoadUserRoles(t *testing.T) {
 	// Define test data
-	role := roles.Role{Id: uuid.New(), Name: "admin"}
-	perm := permissions.Permission{Id: uuid.New(), Value: "read", Scope: "scope"}
-	perms := []permissions.Permission{perm, perm, perm}
+	role := models.Role{Id: uuid.New(), Name: "admin"}
+	perm := models.Permission{Id: uuid.New(), Value: "read", Scope: "scope"}
+	perms := []models.Permission{perm, perm, perm}
 
 	// Define test cases
 	tests := []struct {
-		name      string                     // Test case name
-		mockSetup func(*gomock.Controller)   // Mock setup function
-		expected  roles.RolesWithPermissions // Expected result
-		error     error                      // Expected error
+		name      string                      // Test case name
+		mockSetup func(*gomock.Controller)    // Mock setup function
+		expected  models.RolesWithPermissions // Expected result
+		error     error                       // Expected error
 	}{
 		{
 			name: "can't retrieve roles",
@@ -43,40 +44,40 @@ func TestLoadUserRoles(t *testing.T) {
 			name: "user has no roles",
 			mockSetup: func(ctrl *gomock.Controller) {
 				r := mocks.NewRolesRepository(ctrl)
-				r.EXPECT().GetRolesByUserId(gomock.Any()).Return([]roles.Role{}, nil)
+				r.EXPECT().GetRolesByUserId(gomock.Any()).Return([]models.Role{}, nil)
 				roles.ReplaceGlobals(r)
 				p := mocks.NewPermissionsRepository(ctrl)
 				p.EXPECT().GetAllByRoleId(gomock.Any()).Times(0)
 				permissions.ReplaceGlobals(p)
 			},
-			expected: make(roles.RolesWithPermissions, 0),
+			expected: make(models.RolesWithPermissions, 0),
 			error:    nil,
 		},
 		{
 			name: "user has one role but can't retrieve permissions",
 			mockSetup: func(ctrl *gomock.Controller) {
 				r := mocks.NewRolesRepository(ctrl)
-				r.EXPECT().GetRolesByUserId(gomock.Any()).Return([]roles.Role{role}, nil)
+				r.EXPECT().GetRolesByUserId(gomock.Any()).Return([]models.Role{role}, nil)
 				roles.ReplaceGlobals(r)
 				p := mocks.NewPermissionsRepository(ctrl)
 				p.EXPECT().GetAllByRoleId(gomock.Any()).Return(nil, errors.New("error"))
 				permissions.ReplaceGlobals(p)
 			},
-			expected: roles.RolesWithPermissions(nil),
+			expected: models.RolesWithPermissions(nil),
 			error:    fmt.Errorf("error"),
 		},
 		{
 			name: "user has one role without permissions",
 			mockSetup: func(ctrl *gomock.Controller) {
 				r := mocks.NewRolesRepository(ctrl)
-				r.EXPECT().GetRolesByUserId(gomock.Any()).Return([]roles.Role{role}, nil)
+				r.EXPECT().GetRolesByUserId(gomock.Any()).Return([]models.Role{role}, nil)
 				roles.ReplaceGlobals(r)
 				p := mocks.NewPermissionsRepository(ctrl)
-				p.EXPECT().GetAllByRoleId(gomock.Any()).Return([]permissions.Permission{}, nil)
+				p.EXPECT().GetAllByRoleId(gomock.Any()).Return([]models.Permission{}, nil)
 				permissions.ReplaceGlobals(p)
 			},
-			expected: roles.RolesWithPermissions{
-				roles.RoleWithPermissions{Role: role, Permissions: make([]permissions.Permission, 0)},
+			expected: models.RolesWithPermissions{
+				models.RoleWithPermissions{Role: role, Permissions: make([]models.Permission, 0)},
 			},
 			error: nil,
 		},
@@ -84,16 +85,16 @@ func TestLoadUserRoles(t *testing.T) {
 			name: "user has multiple roles with multiple permissions",
 			mockSetup: func(ctrl *gomock.Controller) {
 				r := mocks.NewRolesRepository(ctrl)
-				r.EXPECT().GetRolesByUserId(gomock.Any()).Return([]roles.Role{role, role, role}, nil)
+				r.EXPECT().GetRolesByUserId(gomock.Any()).Return([]models.Role{role, role, role}, nil)
 				roles.ReplaceGlobals(r)
 				p := mocks.NewPermissionsRepository(ctrl)
 				p.EXPECT().GetAllByRoleId(gomock.Any()).Return(perms, nil).Times(3)
 				permissions.ReplaceGlobals(p)
 			},
-			expected: roles.RolesWithPermissions{
-				roles.RoleWithPermissions{Role: role, Permissions: perms},
-				roles.RoleWithPermissions{Role: role, Permissions: perms},
-				roles.RoleWithPermissions{Role: role, Permissions: perms},
+			expected: models.RolesWithPermissions{
+				models.RoleWithPermissions{Role: role, Permissions: perms},
+				models.RoleWithPermissions{Role: role, Permissions: perms},
+				models.RoleWithPermissions{Role: role, Permissions: perms},
 			},
 			error: nil,
 		},
@@ -125,17 +126,17 @@ func TestLoadUserRoles(t *testing.T) {
 // TestLoadFullUser tests the LoadFullUser function
 func TestLoadFullUser(t *testing.T) {
 	// Define test data
-	user := users.User{ID: uuid.New()}
-	role := roles.Role{Id: uuid.New(), Name: "admin"}
-	perm := permissions.Permission{Id: uuid.New(), Value: "read", Scope: "scope"}
-	perms := []permissions.Permission{perm, perm, perm}
-	roleWP := roles.RoleWithPermissions{Role: role, Permissions: perms}
+	user := models.User{ID: uuid.New()}
+	role := models.Role{Id: uuid.New(), Name: "admin"}
+	perm := models.Permission{Id: uuid.New(), Value: "read", Scope: "scope"}
+	perms := []models.Permission{perm, perm, perm}
+	roleWP := models.RoleWithPermissions{Role: role, Permissions: perms}
 
 	// Define test cases
 	tests := []struct {
 		name      string                   // Test case name
 		mockSetup func(*gomock.Controller) // Mock setup function
-		expected  *users.UserWithRoles     // Expected result
+		expected  *models.UserWithRoles    // Expected result
 		found     bool                     // Expected found
 		error     error                    // Expected error
 	}{
@@ -143,7 +144,7 @@ func TestLoadFullUser(t *testing.T) {
 			name: "can't retrieve user",
 			mockSetup: func(ctrl *gomock.Controller) {
 				u := mocks.NewUsersRepository(ctrl)
-				u.EXPECT().Get(gomock.Any()).Return(users.User{}, false, errors.New("error"))
+				u.EXPECT().Get(gomock.Any()).Return(models.User{}, false, errors.New("error"))
 				users.ReplaceGlobals(u)
 				r := mocks.NewRolesRepository(ctrl)
 				r.EXPECT().GetRolesByUserId(gomock.Any()).Times(0)
@@ -160,7 +161,7 @@ func TestLoadFullUser(t *testing.T) {
 			name: "user not found",
 			mockSetup: func(ctrl *gomock.Controller) {
 				u := mocks.NewUsersRepository(ctrl)
-				u.EXPECT().Get(gomock.Any()).Return(users.User{}, false, nil)
+				u.EXPECT().Get(gomock.Any()).Return(models.User{}, false, nil)
 				users.ReplaceGlobals(u)
 				r := mocks.NewRolesRepository(ctrl)
 				r.EXPECT().GetRolesByUserId(gomock.Any()).Times(0)
@@ -180,13 +181,13 @@ func TestLoadFullUser(t *testing.T) {
 				u.EXPECT().Get(gomock.Any()).Return(user, true, nil)
 				users.ReplaceGlobals(u)
 				r := mocks.NewRolesRepository(ctrl)
-				r.EXPECT().GetRolesByUserId(gomock.Any()).Return([]roles.Role{}, errors.New("error"))
+				r.EXPECT().GetRolesByUserId(gomock.Any()).Return([]models.Role{}, errors.New("error"))
 				roles.ReplaceGlobals(r)
 				p := mocks.NewPermissionsRepository(ctrl)
 				p.EXPECT().GetAllByRoleId(gomock.Any()).Times(0)
 				permissions.ReplaceGlobals(p)
 			},
-			expected: (*users.UserWithRoles)(nil),
+			expected: (*models.UserWithRoles)(nil),
 			found:    false,
 			error:    fmt.Errorf("error"),
 		},
@@ -197,14 +198,14 @@ func TestLoadFullUser(t *testing.T) {
 				u.EXPECT().Get(gomock.Any()).Return(user, true, nil)
 				users.ReplaceGlobals(u)
 				r := mocks.NewRolesRepository(ctrl)
-				r.EXPECT().GetRolesByUserId(gomock.Any()).Return([]roles.Role{role, role, role}, nil)
+				r.EXPECT().GetRolesByUserId(gomock.Any()).Return([]models.Role{role, role, role}, nil)
 				roles.ReplaceGlobals(r)
 				p := mocks.NewPermissionsRepository(ctrl)
 				p.EXPECT().GetAllByRoleId(gomock.Any()).Return(perms, nil).Times(3)
 				permissions.ReplaceGlobals(p)
 			},
-			expected: &users.UserWithRoles{
-				User: user, Roles: roles.RolesWithPermissions{
+			expected: &models.UserWithRoles{
+				User: user, Roles: models.RolesWithPermissions{
 					roleWP, roleWP, roleWP,
 				},
 			},

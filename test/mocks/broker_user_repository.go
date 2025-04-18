@@ -12,7 +12,7 @@ package mocks
 import (
 	reflect "reflect"
 
-	brokers "github.com/Zapharaos/fihub-backend/internal/brokers"
+	models "github.com/Zapharaos/fihub-backend/internal/models"
 	uuid "github.com/google/uuid"
 	gomock "go.uber.org/mock/gomock"
 )
@@ -42,7 +42,7 @@ func (m *BrokerUserRepository) EXPECT() *BrokerUserRepositoryMockRecorder {
 }
 
 // Create mocks base method.
-func (m *BrokerUserRepository) Create(userBroker brokers.User) error {
+func (m *BrokerUserRepository) Create(userBroker models.BrokerUser) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Create", userBroker)
 	ret0, _ := ret[0].(error)
@@ -56,7 +56,7 @@ func (mr *BrokerUserRepositoryMockRecorder) Create(userBroker any) *gomock.Call 
 }
 
 // Delete mocks base method.
-func (m *BrokerUserRepository) Delete(userBroker brokers.User) error {
+func (m *BrokerUserRepository) Delete(userBroker models.BrokerUser) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Delete", userBroker)
 	ret0, _ := ret[0].(error)
@@ -70,7 +70,7 @@ func (mr *BrokerUserRepositoryMockRecorder) Delete(userBroker any) *gomock.Call 
 }
 
 // Exists mocks base method.
-func (m *BrokerUserRepository) Exists(userBroker brokers.User) (bool, error) {
+func (m *BrokerUserRepository) Exists(userBroker models.BrokerUser) (bool, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Exists", userBroker)
 	ret0, _ := ret[0].(bool)
@@ -85,10 +85,10 @@ func (mr *BrokerUserRepositoryMockRecorder) Exists(userBroker any) *gomock.Call 
 }
 
 // GetAll mocks base method.
-func (m *BrokerUserRepository) GetAll(userID uuid.UUID) ([]brokers.User, error) {
+func (m *BrokerUserRepository) GetAll(userID uuid.UUID) ([]models.BrokerUser, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetAll", userID)
-	ret0, _ := ret[0].([]brokers.User)
+	ret0, _ := ret[0].([]models.BrokerUser)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

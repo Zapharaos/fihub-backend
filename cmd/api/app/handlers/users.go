@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/handlers/render"
+	"github.com/Zapharaos/fihub-backend/internal/models"
 	"github.com/Zapharaos/fihub-backend/internal/users"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
@@ -22,12 +23,12 @@ import (
 //	@Param			user	body	users.UserInputCreate	true	"user (json)"
 //	@Security		Bearer
 //	@Success		200	{object}	users.User				"user"
-//	@Failure		400	{object}	render.ErrorResponse	"Bad Request"
+//	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/users [post]
 func CreateUser(w http.ResponseWriter, r *http.Request) {
 	// Parse request body
-	var userInputCreate users.UserInputCreate
+	var userInputCreate models.UserInputCreate
 	err := json.NewDecoder(r.Body).Decode(&userInputCreate)
 	if err != nil {
 		zap.L().Warn("User json decode", zap.Error(err))
@@ -92,7 +93,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 //	@Produce		json
 //	@Security		Bearer
 //	@Success		200	{object}	users.UserWithRoles		"user"
-//	@Failure		400	{string}	string					"Bad Request"
+//	@Failure		400	{string}	string					"Bad PasswordRequest"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/users/me [get]
@@ -119,7 +120,7 @@ func GetUserSelf(w http.ResponseWriter, r *http.Request) {
 //	@Param			user	body	users.User	true	"user (json)"
 //	@Security		Bearer
 //	@Success		200	{object}	users.User				"user"
-//	@Failure		400	{object}	render.ErrorResponse	"Bad Request"
+//	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/users/me [put]
@@ -132,7 +133,7 @@ func UpdateUserSelf(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Parse request body
-	var user users.User
+	var user models.User
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
 		zap.L().Warn("User json decode", zap.Error(err))
@@ -186,7 +187,7 @@ func UpdateUserSelf(w http.ResponseWriter, r *http.Request) {
 //	@Param			password	body	users.UserInputPassword	true	"password (json)"
 //	@Security		Bearer
 //	@Success		200	{string}	string					"status OK"
-//	@Failure		400	{object}	render.ErrorResponse	"Bad Request"
+//	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/users/me/password [put]
@@ -199,7 +200,7 @@ func ChangeUserPassword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Parse request body
-	var userPassword users.UserInputPassword
+	var userPassword models.UserInputPassword
 	err := json.NewDecoder(r.Body).Decode(&userPassword)
 	if err != nil {
 		zap.L().Warn("User json decode", zap.Error(err))
@@ -270,7 +271,7 @@ func DeleteUserSelf(w http.ResponseWriter, r *http.Request) {
 //	@Param			id	path	string	true	"user ID"
 //	@Security		Bearer
 //	@Success		200	{object}	users.UserWithRoles		"user"
-//	@Failure		400	{object}	render.ErrorResponse	"Bad Request"
+//	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		404	{string}	string					"User not found"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
@@ -281,7 +282,7 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var user users.UserWithRoles
+	var user models.UserWithRoles
 	var found bool
 	var err error
 
@@ -326,7 +327,7 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 //	@Param			user	body	users.UserWithRoles	true	"user (json)"
 //	@Security		Bearer
 //	@Success		200	{object}	users.UserWithRoles		"user"
-//	@Failure		400	{object}	render.ErrorResponse	"Bad Request"
+//	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/users/{id} [put]
@@ -336,7 +337,7 @@ func SetUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var user users.UserWithRoles
+	var user models.UserWithRoles
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
 		zap.L().Warn("User json decode", zap.Error(err))
@@ -369,7 +370,7 @@ func SetUser(w http.ResponseWriter, r *http.Request) {
 //	@Param			user	body	users.UserWithRoles	true	"user (json)"
 //	@Security		Bearer
 //	@Success		200	{object}	users.UserWithRoles		"user"
-//	@Failure		400	{object}	render.ErrorResponse	"Bad Request"
+//	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/users/{id}/roles [put]
@@ -379,7 +380,7 @@ func SetUserRoles(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var user users.UserWithRoles
+	var user models.UserWithRoles
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
 		zap.L().Warn("User json decode", zap.Error(err))
@@ -414,7 +415,7 @@ func SetUserRoles(w http.ResponseWriter, r *http.Request) {
 //	@Param			id	path	string	true	"user ID"
 //	@Security		Bearer
 //	@Success		200	{array}		roles.RoleWithPermissions	"list of roles"
-//	@Failure		400	{object}	render.ErrorResponse		"Bad Request"
+//	@Failure		400	{object}	render.ErrorResponse		"Bad PasswordRequest"
 //	@Failure		401	{string}	string						"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse		"Internal Server Error"
 //	@Router			/api/v1/users/{id}/roles [get]

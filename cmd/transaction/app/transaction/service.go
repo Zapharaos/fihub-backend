@@ -2,6 +2,7 @@ package transaction
 
 import (
 	"context"
+	"github.com/Zapharaos/fihub-backend/internal/models"
 	"github.com/Zapharaos/fihub-backend/protogen/transaction"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
@@ -37,11 +38,11 @@ func (s *Service) CreateTransaction(ctx context.Context, req *transaction.Create
 	}
 
 	// Construct the transaction input object
-	transactionInput := TransactionInput{
+	transactionInput := models.TransactionInput{
 		UserID:    userID,
 		BrokerID:  brokerID,
 		Date:      req.GetDate().AsTime(),
-		Type:      TransactionType(req.GetTransactionType()),
+		Type:      models.TransactionType(req.GetTransactionType()),
 		Asset:     req.GetAsset(),
 		Quantity:  req.GetQuantity(),
 		Price:     req.GetPrice(),
@@ -173,12 +174,12 @@ func (s *Service) UpdateTransaction(ctx context.Context, req *transaction.Update
 	}
 
 	// Construct the transaction input object
-	transactionInput := TransactionInput{
+	transactionInput := models.TransactionInput{
 		ID:        transactionID,
 		UserID:    userID,
 		BrokerID:  brokerID,
 		Date:      req.GetDate().AsTime(),
-		Type:      TransactionType(req.GetTransactionType()),
+		Type:      models.TransactionType(req.GetTransactionType()),
 		Asset:     req.GetAsset(),
 		Quantity:  req.GetQuantity(),
 		Price:     req.GetPrice(),
@@ -268,7 +269,7 @@ func (s *Service) DeleteTransaction(ctx context.Context, req *transaction.Delete
 	}
 
 	// Remove transaction
-	err = R().Delete(Transaction{ID: transactionID, UserID: userID})
+	err = R().Delete(models.Transaction{ID: transactionID, UserID: userID})
 	if err != nil {
 		zap.L().Error("Cannot remove transaction", zap.String("uuid", transactionID.String()), zap.Error(err))
 		return &transaction.DeleteTransactionResponse{}, status.Error(codes.Internal, "Failed to remove transaction")

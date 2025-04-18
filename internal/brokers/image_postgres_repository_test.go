@@ -3,6 +3,7 @@ package brokers_test
 import (
 	"errors"
 	"github.com/Zapharaos/fihub-backend/internal/brokers"
+	"github.com/Zapharaos/fihub-backend/internal/models"
 	"github.com/Zapharaos/fihub-backend/test"
 	"github.com/google/uuid"
 	sqlxmock "github.com/zhashkevych/go-sqlxmock"
@@ -42,7 +43,7 @@ func TestImagePostgresRepository_Create(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mockSetup()
-			err := brokers.R().I().Create(brokers.Image{})
+			err := brokers.R().I().Create(models.BrokerImage{})
 			if (err != nil) != tt.expectErr {
 				t.Errorf("Create() error = %v, expectErr %v", err, tt.expectErr)
 			}
@@ -131,7 +132,7 @@ func TestImagePostgresRepository_Update(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mockSetup()
-			err := brokers.R().I().Update(brokers.Image{})
+			err := brokers.R().I().Update(models.BrokerImage{})
 			if (err != nil) != tt.expectErr {
 				t.Errorf("Update() error = %v, expectErr %v", err, tt.expectErr)
 			}
@@ -206,7 +207,7 @@ func TestImagePostgresRepository_Exists(t *testing.T) {
 			expectExists: false,
 		},
 		{
-			name:     "Image exists",
+			name:     "BrokerImage exists",
 			brokerID: uuid.New(),
 			imageID:  uuid.New(),
 			mockSetup: func() {
@@ -217,7 +218,7 @@ func TestImagePostgresRepository_Exists(t *testing.T) {
 			expectExists: true,
 		},
 		{
-			name:     "Image does not exist",
+			name:     "BrokerImage does not exist",
 			brokerID: uuid.New(),
 			imageID:  uuid.New(),
 			mockSetup: func() {

@@ -2,6 +2,7 @@ package users
 
 import (
 	"errors"
+	"github.com/Zapharaos/fihub-backend/internal/models"
 	"github.com/Zapharaos/fihub-backend/internal/users/permissions"
 	"github.com/Zapharaos/fihub-backend/internal/users/roles"
 	"github.com/google/uuid"
@@ -13,7 +14,7 @@ var (
 )
 
 // LoadFullUser loads the roles from the database
-func LoadFullUser(userId uuid.UUID) (*UserWithRoles, bool, error) {
+func LoadFullUser(userId uuid.UUID) (*models.UserWithRoles, bool, error) {
 	user, ok, err := R().Get(userId)
 	if err != nil {
 		return nil, false, err
@@ -27,21 +28,21 @@ func LoadFullUser(userId uuid.UUID) (*UserWithRoles, bool, error) {
 		return nil, false, err
 	}
 
-	return &UserWithRoles{
+	return &models.UserWithRoles{
 		User:  user,
 		Roles: fullRoles,
 	}, true, nil
 }
 
 // LoadUserRoles loads the roles from the database
-func LoadUserRoles(userId uuid.UUID) (roles.RolesWithPermissions, error) {
+func LoadUserRoles(userId uuid.UUID) (models.RolesWithPermissions, error) {
 	userRoles, err := roles.R().GetRolesByUserId(userId)
 	if err != nil {
 		zap.L().Error("GetUserRoles.GetRolesByUserId", zap.Error(err))
 		return nil, err
 	}
 
-	userRolesWithPermissions := make(roles.RolesWithPermissions, 0)
+	userRolesWithPermissions := make(models.RolesWithPermissions, 0)
 
 	for _, role := range userRoles {
 		perms, err := permissions.R().GetAllByRoleId(role.Id)
@@ -49,7 +50,7 @@ func LoadUserRoles(userId uuid.UUID) (roles.RolesWithPermissions, error) {
 			zap.L().Error("GetUserRoles.GetAllByRoleId", zap.Error(err))
 			return nil, err
 		}
-		userRolesWithPermissions = append(userRolesWithPermissions, roles.RoleWithPermissions{
+		userRolesWithPermissions = append(userRolesWithPermissions, models.RoleWithPermissions{
 			Role:        role,
 			Permissions: perms,
 		})

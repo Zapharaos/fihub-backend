@@ -3,6 +3,7 @@ package password_test
 import (
 	"database/sql"
 	"errors"
+	"github.com/Zapharaos/fihub-backend/internal/models"
 	"github.com/Zapharaos/fihub-backend/internal/users/password"
 	"github.com/Zapharaos/fihub-backend/test"
 	"github.com/google/uuid"
@@ -21,13 +22,13 @@ func TestPostgresRepository_Create(t *testing.T) {
 
 	tests := []struct {
 		name      string
-		request   password.Request
+		request   models.PasswordRequest
 		mockSetup func()
 		expectErr bool
 	}{
 		{
 			name:    "Fail request creation",
-			request: password.Request{},
+			request: models.PasswordRequest{},
 			mockSetup: func() {
 				sqlxMock.Mock.ExpectQuery("INSERT INTO password_reset_tokens").WillReturnError(errors.New("error"))
 			},
@@ -35,7 +36,7 @@ func TestPostgresRepository_Create(t *testing.T) {
 		},
 		{
 			name:    "Create request",
-			request: password.Request{},
+			request: models.PasswordRequest{},
 			mockSetup: func() {
 				rows := sqlxmock.NewRows([]string{"id", "user_id", "token", "expires_at", "created_at"}).
 					AddRow(uuid.New(), uuid.New(), "token", time.Now().Add(1*time.Hour), time.Now())

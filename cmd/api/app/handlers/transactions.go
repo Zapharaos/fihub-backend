@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/clients"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/handlers/render"
-	"github.com/Zapharaos/fihub-backend/cmd/transaction/app/transaction"
 	"github.com/Zapharaos/fihub-backend/internal/brokers"
+	"github.com/Zapharaos/fihub-backend/internal/models"
 	gentransaction "github.com/Zapharaos/fihub-backend/protogen/transaction"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
@@ -29,7 +29,7 @@ import (
 // @Param 				transaction body 	transactions.TransactionInput true 	"transaction (json)"
 // @Security 			Bearer
 // @Success 			200 {object} 		transactions.Transaction 		"transaction"
-// @Failure 			400 {object} 		render.ErrorResponse 			"Bad Request"
+// @Failure 			400 {object} 		render.ErrorResponse 			"Bad PasswordRequest"
 // @Failure 			401 {string} 		string 							"Permission denied"
 // @Failure 			500 {object} 		render.ErrorResponse 			"Internal Server Error"
 // @Router /api/v1/transactions [post]
@@ -43,7 +43,7 @@ func CreateTransaction(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Parse request body to TransactionInput
-	var transactionInput transaction.TransactionInput
+	var transactionInput models.TransactionInput
 	err := json.NewDecoder(r.Body).Decode(&transactionInput)
 	if err != nil {
 		zap.L().Warn("Transaction json decode", zap.Error(err))
@@ -52,14 +52,14 @@ func CreateTransaction(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// check if userBroker exists
-	exists, err := brokers.R().U().Exists(brokers.User{UserID: user.ID, Broker: brokers.Broker{ID: transactionInput.BrokerID}})
+	exists, err := brokers.R().U().Exists(models.BrokerUser{UserID: user.ID, Broker: models.Broker{ID: transactionInput.BrokerID}})
 	if err != nil {
 		zap.L().Error("Check userBroker exists", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	if !exists {
-		zap.L().Warn("User not found")
+		zap.L().Warn("BrokerUser not found")
 		render.BadRequest(w, r, fmt.Errorf("broker-invalid"))
 		return
 	}
@@ -101,7 +101,7 @@ func CreateTransaction(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Map gRPC response to Transaction
-	render.JSON(w, r, transaction.FromGenTransaction(response.Transaction))
+	render.JSON(w, r, models.FromGenTransaction(response.Transaction))
 }
 
 // GetTransaction godoc
@@ -116,7 +116,7 @@ func CreateTransaction(w http.ResponseWriter, r *http.Request) {
 // @Param 			id path 		string true 				"transaction id"
 // @Security 		Bearer
 // @Success 		200 {object} 	transactions.Transaction 	"transaction"
-// @Failure 		400 {object} 	render.ErrorResponse 		"Bad Request"
+// @Failure 		400 {object} 	render.ErrorResponse 		"Bad PasswordRequest"
 // @Failure 		401 {string} 	string 						"Permission denied"
 // @Failure 		404 {object} 	render.ErrorResponse 		"Not Found"
 // @Failure 		500 {object} 	render.ErrorResponse 		"Internal Server Error"
@@ -153,7 +153,7 @@ func GetTransaction(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Map gRPC response to Transaction
-	t := transaction.FromGenTransaction(response.Transaction)
+	t := models.FromGenTransaction(response.Transaction)
 
 	// Verify that the transaction belongs to the user
 	user, ok := U().GetUserFromContext(r)
@@ -183,7 +183,7 @@ func GetTransaction(w http.ResponseWriter, r *http.Request) {
 // @Param 			transaction body transactions.Transaction true "transaction (json)"
 // @Security 		Bearer
 // @Success 		200 {object} 	transactions.Transaction 	"transaction"
-// @Failure 		400 {object} 	render.ErrorResponse 		"Bad Request"
+// @Failure 		400 {object} 	render.ErrorResponse 		"Bad PasswordRequest"
 // @Failure 		401 {string} 	string 						"Permission denied"
 // @Failure			404	{object}	render.ErrorResponse		"Not Found"
 // @Failure 		500 {object} 	render.ErrorResponse 		"Internal Server Error"
@@ -204,7 +204,7 @@ func UpdateTransaction(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Parse request body
-	var transactionInput transaction.TransactionInput
+	var transactionInput models.TransactionInput
 	err := json.NewDecoder(r.Body).Decode(&transactionInput)
 	if err != nil {
 		zap.L().Warn("Transaction json decode", zap.Error(err))
@@ -220,14 +220,14 @@ func UpdateTransaction(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Verify that the userBroker exists
-	exists, err := brokers.R().U().Exists(brokers.User{UserID: user.ID, Broker: brokers.Broker{ID: transactionInput.BrokerID}})
+	exists, err := brokers.R().U().Exists(models.BrokerUser{UserID: user.ID, Broker: models.Broker{ID: transactionInput.BrokerID}})
 	if err != nil {
 		zap.L().Error("Check userBroker exists", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	if !exists {
-		zap.L().Warn("User not found")
+		zap.L().Warn("BrokerUser not found")
 		render.BadRequest(w, r, fmt.Errorf("broker-invalid"))
 		return
 	}
@@ -270,7 +270,7 @@ func UpdateTransaction(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Map gRPC response to Transaction
-	render.JSON(w, r, transaction.FromGenTransaction(response.Transaction))
+	render.JSON(w, r, models.FromGenTransaction(response.Transaction))
 }
 
 // DeleteTransaction godoc
@@ -285,7 +285,7 @@ func UpdateTransaction(w http.ResponseWriter, r *http.Request) {
 // @Param 			id path 		string true 			"transaction ID"
 // @Security 		Bearer
 // @Success 		200 {array} 	string 					"Status OK"
-// @Failure 		400 {object} 	render.ErrorResponse 	"Bad Request"
+// @Failure 		400 {object} 	render.ErrorResponse 	"Bad PasswordRequest"
 // @Failure 		401 {string} 	string 					"Permission denied"
 // @Failure			404	{object}	render.ErrorResponse	"Not Found"
 // @Failure 		500 {object} 	render.ErrorResponse 	"Internal Server Error"
@@ -381,9 +381,9 @@ func GetTransactions(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Map gRPC response to Transaction array
-	t := make([]transaction.Transaction, len(response.Transactions))
+	t := make([]models.Transaction, len(response.Transactions))
 	for i, genTransaction := range response.Transactions {
-		t[i] = transaction.FromGenTransaction(genTransaction)
+		t[i] = models.FromGenTransaction(genTransaction)
 	}
 
 	render.JSON(w, r, t)
