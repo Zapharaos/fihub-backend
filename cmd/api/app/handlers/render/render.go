@@ -3,6 +3,8 @@ package render
 import (
 	"encoding/json"
 	"go.uber.org/zap"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"net/http"
 )
 
@@ -84,4 +86,24 @@ func NotFound(w http.ResponseWriter, r *http.Request, err error) {
 // Count returns an HTTP status 200 with a JSON object containing the count (CountResponse)
 func Count(w http.ResponseWriter, r *http.Request, count int64) {
 	JSON(w, r, CountResponse{Count: count})
+}
+
+// ErrorCodesCodeToHttpCode converts gRPC error codes to HTTP status codes
+func ErrorCodesCodeToHttpCode(w http.ResponseWriter, r *http.Request, err error) {
+	if s, ok := status.FromError(err); ok {
+		switch s.Code() {
+		case codes.InvalidArgument:
+			BadRequest(w, r, err)
+			return
+		case codes.NotFound:
+			w.WriteHeader(http.StatusNotFound)
+			return
+		case codes.PermissionDenied:
+			w.WriteHeader(http.StatusUnauthorized)
+		case codes.Internal:
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+	}
+	w.WriteHeader(http.StatusInternalServerError)
 }

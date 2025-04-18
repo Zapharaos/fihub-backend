@@ -1,8 +1,9 @@
-package transaction_test
+package repositories_test
 
 import (
 	"errors"
-	"github.com/Zapharaos/fihub-backend/cmd/transaction/app/transaction"
+	"github.com/Zapharaos/fihub-backend/cmd/transaction/app/repositories"
+	"github.com/Zapharaos/fihub-backend/internal/models"
 	"github.com/Zapharaos/fihub-backend/test"
 	"github.com/google/uuid"
 	sqlxmock "github.com/zhashkevych/go-sqlxmock"
@@ -16,18 +17,18 @@ func TestPostgresRepository_Create(t *testing.T) {
 	sqlxMock.CreateFullTestSqlx(t)
 	defer sqlxMock.CleanTestSqlx()
 
-	transaction.ReplaceGlobals(transaction.NewPostgresRepository(sqlxMock.DB))
+	repositories.ReplaceGlobals(repositories.NewPostgresRepository(sqlxMock.DB))
 
 	tests := []struct {
 		name        string
-		transaction TransactionInput
+		transaction models.TransactionInput
 		mockSetup   func()
 		expectErr   bool
 	}{
 
 		{
 			name:        "Fail transaction creation",
-			transaction: TransactionInput{},
+			transaction: models.TransactionInput{},
 			mockSetup: func() {
 				rows := sqlxmock.NewRows([]string{"id"})
 				sqlxMock.Mock.ExpectQuery("INSERT INTO transactions").WillReturnRows(rows)
@@ -36,7 +37,7 @@ func TestPostgresRepository_Create(t *testing.T) {
 		},
 		{
 			name:        "Create transaction",
-			transaction: TransactionInput{},
+			transaction: models.TransactionInput{},
 			mockSetup: func() {
 				rows := sqlxmock.NewRows([]string{"id"}).AddRow(uuid.New())
 				sqlxMock.Mock.ExpectQuery("INSERT INTO transactions").WillReturnRows(rows)
@@ -48,7 +49,7 @@ func TestPostgresRepository_Create(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mockSetup()
-			_, err := transaction.R().Create(tt.transaction)
+			_, err := repositories.R().Create(tt.transaction)
 			if (err != nil) != tt.expectErr {
 				t.Errorf("Get() error new = %v, expectErr %v", err, tt.expectErr)
 				return
@@ -63,7 +64,7 @@ func TestPostgresRepository_Get(t *testing.T) {
 	sqlxMock.CreateFullTestSqlx(t)
 	defer sqlxMock.CleanTestSqlx()
 
-	transaction.ReplaceGlobals(transaction.NewPostgresRepository(sqlxMock.DB))
+	repositories.ReplaceGlobals(repositories.NewPostgresRepository(sqlxMock.DB))
 
 	tests := []struct {
 		name          string
@@ -97,7 +98,7 @@ func TestPostgresRepository_Get(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mockSetup()
-			_, found, err := transaction.R().Get(tt.transactionID)
+			_, found, err := repositories.R().Get(tt.transactionID)
 			if (err != nil) != tt.expectErr {
 				t.Errorf("Get() error = %v, expectErr %v", err, tt.expectErr)
 				return
@@ -115,11 +116,11 @@ func TestPostgresRepository_Update(t *testing.T) {
 	sqlxMock.CreateFullTestSqlx(t)
 	defer sqlxMock.CleanTestSqlx()
 
-	transaction.ReplaceGlobals(transaction.NewPostgresRepository(sqlxMock.DB))
+	repositories.ReplaceGlobals(repositories.NewPostgresRepository(sqlxMock.DB))
 
 	tests := []struct {
 		name        string
-		transaction TransactionInput
+		transaction models.TransactionInput
 		mockSetup   func()
 		expectErr   bool
 	}{
@@ -142,7 +143,7 @@ func TestPostgresRepository_Update(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mockSetup()
-			err := transaction.R().Update(TransactionInput{})
+			err := repositories.R().Update(models.TransactionInput{})
 			if (err != nil) != tt.expectErr {
 				t.Errorf("Update() error = %v, expectErr %v", err, tt.expectErr)
 			}
@@ -156,11 +157,11 @@ func TestPostgresRepository_Delete(t *testing.T) {
 	sqlxMock.CreateFullTestSqlx(t)
 	defer sqlxMock.CleanTestSqlx()
 
-	transaction.ReplaceGlobals(transaction.NewPostgresRepository(sqlxMock.DB))
+	repositories.ReplaceGlobals(repositories.NewPostgresRepository(sqlxMock.DB))
 
 	tests := []struct {
 		name        string
-		transaction Transaction
+		transaction models.Transaction
 		mockSetup   func()
 		expectErr   bool
 	}{
@@ -183,7 +184,7 @@ func TestPostgresRepository_Delete(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mockSetup()
-			err := transaction.R().Delete(Transaction{})
+			err := repositories.R().Delete(models.Transaction{})
 			if (err != nil) != tt.expectErr {
 				t.Errorf("Delete() error = %v, expectErr %v", err, tt.expectErr)
 			}
@@ -197,7 +198,7 @@ func TestPostgresRepository_Exists(t *testing.T) {
 	sqlxMock.CreateFullTestSqlx(t)
 	defer sqlxMock.CleanTestSqlx()
 
-	transaction.ReplaceGlobals(transaction.NewPostgresRepository(sqlxMock.DB))
+	repositories.ReplaceGlobals(repositories.NewPostgresRepository(sqlxMock.DB))
 
 	tests := []struct {
 		name          string
@@ -244,7 +245,7 @@ func TestPostgresRepository_Exists(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mockSetup()
-			exists, err := transaction.R().Exists(tt.transactionID, tt.userID)
+			exists, err := repositories.R().Exists(tt.transactionID, tt.userID)
 			if (err != nil) != tt.expectErr {
 				t.Errorf("Exists() error = %v, expectErr %v", err, tt.expectErr)
 			}
@@ -261,7 +262,7 @@ func TestPostgresRepository_GetAll(t *testing.T) {
 	sqlxMock.CreateFullTestSqlx(t)
 	defer sqlxMock.CleanTestSqlx()
 
-	transaction.ReplaceGlobals(transaction.NewPostgresRepository(sqlxMock.DB))
+	repositories.ReplaceGlobals(repositories.NewPostgresRepository(sqlxMock.DB))
 
 	tests := []struct {
 		name        string
@@ -296,7 +297,7 @@ func TestPostgresRepository_GetAll(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mockSetup()
-			transactions, err := transaction.R().GetAll(tt.userID)
+			transactions, err := repositories.R().GetAll(tt.userID)
 			if (err != nil) != tt.expectErr {
 				t.Errorf("GetAll() error = %v, expectErr %v", err, tt.expectErr)
 				return

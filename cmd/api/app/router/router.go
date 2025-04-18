@@ -204,7 +204,7 @@ func buildProtectedRoutes(a *auth.Auth) func(r chi.Router) {
 		// Transactions : retrieving userID through context
 		r.Route("/transactions", func(r chi.Router) {
 			r.Post("/", handlers.CreateTransaction)
-			r.Get("/", handlers.GetTransactions)
+			r.Get("/", handlers.ListTransactions)
 
 			r.Route("/{id}", func(r chi.Router) {
 				r.Get("/", handlers.GetTransaction)

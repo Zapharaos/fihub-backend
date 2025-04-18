@@ -1,7 +1,6 @@
 package app
 
 import (
-	"github.com/Zapharaos/fihub-backend/cmd/transaction/app/transaction"
 	"github.com/Zapharaos/fihub-backend/internal/brokers"
 	"github.com/Zapharaos/fihub-backend/internal/database"
 	"github.com/Zapharaos/fihub-backend/internal/users"
@@ -38,7 +37,7 @@ func TestInitPostgres(t *testing.T) {
 	defer sqlxMock.Close()
 
 	// Call initPostgres function with the mock connection
-	initPostgres(sqlxMock)
+	InitPostgres(sqlxMock)
 
 	// Assertions to verify repositories initialization
 	assert.NotNil(t, users.R(), "Users repository should be initialized")
@@ -46,5 +45,4 @@ func TestInitPostgres(t *testing.T) {
 	assert.NotNil(t, roles.R(), "Roles repository should be initialized")
 	assert.NotNil(t, permissions.R(), "Permissions repository should be initialized")
 	assert.NotNil(t, brokers.R(), "Brokers repository should be initialized")
-	assert.NotNil(t, transaction.R(), "Transactions repository should be initialized")
 }

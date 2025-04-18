@@ -25,7 +25,7 @@ func TestHealthCheckHandler(t *testing.T) {
 	m.EXPECT().CheckHealth(gomock.Any(), gomock.Any()).Return(&health.HealthResponse{
 		IsHealthy: true,
 	}, nil)
-	clients.ReplaceGlobals(clients.NewClients(m))
+	clients.ReplaceGlobals(clients.NewClients(m, nil))
 
 	// Call the HealthCheckHandler function
 	HealthCheckHandler(w, r)

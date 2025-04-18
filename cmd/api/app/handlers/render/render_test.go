@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/stretchr/testify/assert"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -254,4 +256,69 @@ func TestCount(t *testing.T) {
 	}
 
 	assert.Equal(t, count, response.Count)
+}
+
+// TestErrorCodesCodeToHttpCode tests the ErrorCodesCodeToHttpCode function
+func TestErrorCodesCodeToHttpCode(t *testing.T) {
+	// Define test cases
+	tests := []struct {
+		name           string
+		statusCode     codes.Code
+		expectedStatus int
+	}{
+		{
+			name:           "InvalidArgument",
+			statusCode:     codes.InvalidArgument,
+			expectedStatus: http.StatusBadRequest,
+		},
+		{
+			name:           "NotFound",
+			statusCode:     codes.NotFound,
+			expectedStatus: http.StatusNotFound,
+		},
+		{
+			name:           "PermissionDenied",
+			statusCode:     codes.PermissionDenied,
+			expectedStatus: http.StatusUnauthorized,
+		},
+		{
+			name:           "Internal",
+			statusCode:     codes.Internal,
+			expectedStatus: http.StatusInternalServerError,
+		},
+		{
+			name:           "Unimplemented",
+			statusCode:     codes.Unimplemented,
+			expectedStatus: http.StatusInternalServerError, // Fallback case
+		},
+	}
+
+	// Run the tests
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Create a new recorder
+			w := httptest.NewRecorder()
+			r := httptest.NewRequest("GET", "/", nil)
+
+			// Create a status error with the specified code
+			err := status.Error(tt.statusCode, "test error")
+
+			// Call the function
+			ErrorCodesCodeToHttpCode(w, r, err)
+			resp := w.Result()
+			defer resp.Body.Close()
+
+			// Check the response
+			assert.Equal(t, tt.expectedStatus, resp.StatusCode)
+
+			// For BadRequest, we should also check the error response
+			if tt.statusCode == codes.InvalidArgument {
+				var response ErrorResponse
+				err := json.NewDecoder(resp.Body).Decode(&response)
+				assert.NoError(t, err)
+				assert.Equal(t, TitleBadRequest, response.Title)
+				assert.Contains(t, response.Message, "test error")
+			}
+		})
+	}
 }

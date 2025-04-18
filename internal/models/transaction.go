@@ -2,7 +2,7 @@ package models
 
 import (
 	"errors"
-	gentransaction "github.com/Zapharaos/fihub-backend/protogen/transaction"
+	"github.com/Zapharaos/fihub-backend/protogen/transaction"
 	"github.com/google/uuid"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"time"
@@ -116,20 +116,20 @@ func (t *TransactionInput) IsValid() (bool, error) {
 }
 
 // ToGenTransactionType converts a TransactionType to a gentransaction.TransactionType
-func (t TransactionType) ToGenTransactionType() gentransaction.TransactionType {
+func (t TransactionType) ToGenTransactionType() transaction.TransactionType {
 	switch t {
 	case BUY:
-		return gentransaction.TransactionType_BUY
+		return transaction.TransactionType_BUY
 	case SELL:
-		return gentransaction.TransactionType_SELL
+		return transaction.TransactionType_SELL
 	default:
-		return gentransaction.TransactionType_TRANSACTION_TYPE_UNSPECIFIED
+		return transaction.TransactionType_TRANSACTION_TYPE_UNSPECIFIED
 	}
 }
 
 // ToGenTransaction converts a Transaction to a gentransaction.Transaction
-func (t Transaction) ToGenTransaction() *gentransaction.Transaction {
-	return &gentransaction.Transaction{
+func (t Transaction) ToGenTransaction() *transaction.Transaction {
+	return &transaction.Transaction{
 		Id:              t.ID.String(),
 		UserId:          t.UserID.String(),
 		BrokerId:        t.Broker.ID.String(),
@@ -143,13 +143,38 @@ func (t Transaction) ToGenTransaction() *gentransaction.Transaction {
 	}
 }
 
+// FromGenTransactionType converts a transaction.TransactionType to a TransactionType
+func FromGenTransactionType(t transaction.TransactionType) TransactionType {
+	switch t {
+	case transaction.TransactionType_BUY:
+		return BUY
+	case transaction.TransactionType_SELL:
+		return SELL
+	default:
+		return ""
+	}
+}
+
 // FromGenTransaction converts a gentransaction.Transaction to a Transaction
-func FromGenTransaction(t *gentransaction.Transaction) Transaction {
+func FromGenTransaction(t *transaction.Transaction) Transaction {
 	// TODO : do not return Broker type here, only ID
+	id, err := uuid.Parse(t.Id)
+	if err != nil {
+		return Transaction{}
+	}
+	userId, err := uuid.Parse(t.UserId)
+	if err != nil {
+		return Transaction{}
+	}
+	brokerId, err := uuid.Parse(t.BrokerId)
+	if err != nil {
+		return Transaction{}
+	}
+
 	return Transaction{
-		ID:        uuid.MustParse(t.Id),
-		UserID:    uuid.MustParse(t.UserId),
-		Broker:    Broker{ID: uuid.MustParse(t.BrokerId)},
+		ID:        id,
+		UserID:    userId,
+		Broker:    Broker{ID: brokerId},
 		Date:      t.Date.AsTime(),
 		Type:      TransactionType(t.TransactionType.String()),
 		Asset:     t.Asset,

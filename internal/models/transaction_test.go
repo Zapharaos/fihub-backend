@@ -1,8 +1,10 @@
 package models
 
 import (
+	"github.com/Zapharaos/fihub-backend/protogen/transaction"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	"testing"
 	"time"
 )
@@ -200,4 +202,138 @@ func TestTransactionInputIsValid(t *testing.T) {
 			assert.Equal(t, tt.expected, valid)
 		})
 	}
+}
+
+// TestToGenTransactionType tests the ToGenTransactionType method of TransactionType
+func TestToGenTransactionType(t *testing.T) {
+	// Define test cases
+	tests := []struct {
+		name     string
+		input    TransactionType
+		expected transaction.TransactionType
+	}{
+		{"BUY to gen", BUY, transaction.TransactionType_BUY},
+		{"SELL to gen", SELL, transaction.TransactionType_SELL},
+		{"Invalid to gen", TransactionType("INVALID"), transaction.TransactionType_TRANSACTION_TYPE_UNSPECIFIED},
+	}
+
+	// Run tests
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := tt.input.ToGenTransactionType()
+			assert.Equal(t, tt.expected, result)
+		})
+	}
+}
+
+// TestToGenTransaction tests the ToGenTransaction method of Transaction
+func TestToGenTransaction(t *testing.T) {
+	// Create test UUIDs
+	id := uuid.New()
+	userId := uuid.New()
+	brokerId := uuid.New()
+	testDate := time.Date(2023, 5, 15, 10, 30, 0, 0, time.UTC)
+
+	// Define test case
+	tr := Transaction{
+		ID:        id,
+		UserID:    userId,
+		Broker:    Broker{ID: brokerId},
+		Date:      testDate,
+		Type:      BUY,
+		Asset:     "asset",
+		Quantity:  10.5,
+		Price:     150.75,
+		PriceUnit: 14.36,
+		Fee:       1.99,
+	}
+
+	// Convert to gen transaction
+	result := tr.ToGenTransaction()
+
+	// Assert results
+	assert.Equal(t, id.String(), result.Id)
+	assert.Equal(t, userId.String(), result.UserId)
+	assert.Equal(t, brokerId.String(), result.BrokerId)
+	assert.Equal(t, testDate.Unix(), result.Date.AsTime().Unix())
+	assert.Equal(t, transaction.TransactionType_BUY, result.TransactionType)
+	assert.Equal(t, "asset", result.Asset)
+	assert.Equal(t, 10.5, result.Quantity)
+	assert.Equal(t, 150.75, result.Price)
+	assert.Equal(t, 14.36, result.PriceUnit)
+	assert.Equal(t, 1.99, result.Fee)
+}
+
+// TestFromGenTransactionType tests the FromGenTransactionType function
+func TestFromGenTransactionType(t *testing.T) {
+	// Define test cases
+	tests := []struct {
+		name     string
+		input    transaction.TransactionType
+		expected TransactionType
+	}{
+		{"BUY from gen", transaction.TransactionType_BUY, BUY},
+		{"SELL from gen", transaction.TransactionType_SELL, SELL},
+		{"Unspecified from gen", transaction.TransactionType_TRANSACTION_TYPE_UNSPECIFIED, TransactionType("")},
+	}
+
+	// Run tests
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := FromGenTransactionType(tt.input)
+			assert.Equal(t, tt.expected, result)
+		})
+	}
+}
+
+// TestFromGenTransaction tests the FromGenTransaction function
+func TestFromGenTransaction(t *testing.T) {
+	// Create test UUIDs as strings
+	idStr := uuid.New().String()
+	userIdStr := uuid.New().String()
+	brokerIdStr := uuid.New().String()
+	id, _ := uuid.Parse(idStr)
+	userId, _ := uuid.Parse(userIdStr)
+	brokerId, _ := uuid.Parse(brokerIdStr)
+
+	testDate := time.Date(2023, 5, 15, 10, 30, 0, 0, time.UTC)
+
+	// Create a gen transaction
+	genTransaction := &transaction.Transaction{
+		Id:              idStr,
+		UserId:          userIdStr,
+		BrokerId:        brokerIdStr,
+		Date:            timestamppb.New(testDate),
+		TransactionType: transaction.TransactionType_SELL,
+		Asset:           "TSLA",
+		Quantity:        5.25,
+		Price:           200.50,
+		PriceUnit:       38.19,
+		Fee:             2.75,
+	}
+
+	// Convert from gen transaction
+	result := FromGenTransaction(genTransaction)
+
+	// Assert results
+	assert.Equal(t, id, result.ID)
+	assert.Equal(t, userId, result.UserID)
+	assert.Equal(t, brokerId, result.Broker.ID)
+	assert.Equal(t, testDate.Unix(), result.Date.Unix())
+	assert.Equal(t, SELL, result.Type)
+	assert.Equal(t, "TSLA", result.Asset)
+	assert.Equal(t, 5.25, result.Quantity)
+	assert.Equal(t, 200.50, result.Price)
+	assert.Equal(t, 38.19, result.PriceUnit)
+	assert.Equal(t, 2.75, result.Fee)
+
+	// Test with invalid UUIDs
+	invalidGenTransaction := &transaction.Transaction{
+		Id:       "invalid-uuid",
+		UserId:   userIdStr,
+		BrokerId: brokerIdStr,
+	}
+
+	invalidResult := FromGenTransaction(invalidGenTransaction)
+	assert.Equal(t, Transaction{}, invalidResult)
 }

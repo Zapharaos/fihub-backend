@@ -8,7 +8,7 @@ import (
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/handlers/render"
 	"github.com/Zapharaos/fihub-backend/internal/brokers"
 	"github.com/Zapharaos/fihub-backend/internal/models"
-	gentransaction "github.com/Zapharaos/fihub-backend/protogen/transaction"
+	"github.com/Zapharaos/fihub-backend/protogen/transaction"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -65,7 +65,7 @@ func CreateTransaction(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Map TransactionInput to gRPC ValidateTransactionRequest
-	transactionRequest := &gentransaction.CreateTransactionRequest{
+	transactionRequest := &transaction.CreateTransactionRequest{
 		UserId:          user.ID.String(),
 		BrokerId:        transactionInput.BrokerID.String(),
 		Date:            timestamppb.New(transactionInput.Date),
@@ -83,20 +83,7 @@ func CreateTransaction(w http.ResponseWriter, r *http.Request) {
 	response, err := clients.C().Transaction().CreateTransaction(ctx, transactionRequest)
 	if err != nil {
 		zap.L().Error("Create transaction", zap.Error(err))
-		if s, ok := status.FromError(err); ok {
-			switch s.Code() {
-			case codes.InvalidArgument:
-				render.BadRequest(w, r, err)
-				return
-			case codes.NotFound:
-				w.WriteHeader(http.StatusNotFound)
-				return
-			case codes.Internal:
-				w.WriteHeader(http.StatusInternalServerError)
-				return
-			}
-		}
-		w.WriteHeader(http.StatusInternalServerError)
+		render.ErrorCodesCodeToHttpCode(w, r, err)
 		return
 	}
 
@@ -133,34 +120,26 @@ func GetTransaction(w http.ResponseWriter, r *http.Request) {
 	defer cancel()
 
 	// Retrieve the transaction
-	response, err := clients.C().Transaction().GetTransaction(ctx, &gentransaction.GetTransactionRequest{
+	response, err := clients.C().Transaction().GetTransaction(ctx, &transaction.GetTransactionRequest{
 		TransactionId: transactionID.String(),
 	})
 	if err != nil {
 		zap.L().Error("Get transaction", zap.Error(err))
-		if s, ok := status.FromError(err); ok {
-			switch s.Code() {
-			case codes.NotFound:
-				w.WriteHeader(http.StatusNotFound)
-				return
-			case codes.Internal:
-				w.WriteHeader(http.StatusInternalServerError)
-				return
-			}
-		}
-		w.WriteHeader(http.StatusInternalServerError)
+		render.ErrorCodesCodeToHttpCode(w, r, err)
+		return
+	}
+
+	// Get the authenticated user from the context
+	user, ok := U().GetUserFromContext(r)
+	if !ok {
+		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
 	// Map gRPC response to Transaction
 	t := models.FromGenTransaction(response.Transaction)
 
-	// Verify that the transaction belongs to the user
-	user, ok := U().GetUserFromContext(r)
-	if !ok {
-		w.WriteHeader(http.StatusUnauthorized)
-		return
-	}
+	// Check if the transaction belongs to the user
 	if t.UserID != user.ID {
 		zap.L().Warn("Transaction does not belong to user", zap.String("uuid", transactionID.String()))
 		w.WriteHeader(http.StatusUnauthorized)
@@ -212,13 +191,6 @@ func UpdateTransaction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Validate the transaction
-	if valid, err := transactionInput.IsValid(); !valid {
-		zap.L().Warn("Transaction is not valid", zap.Error(err))
-		render.BadRequest(w, r, err)
-		return
-	}
-
 	// Verify that the userBroker exists
 	exists, err := brokers.R().U().Exists(models.BrokerUser{UserID: user.ID, Broker: models.Broker{ID: transactionInput.BrokerID}})
 	if err != nil {
@@ -233,7 +205,7 @@ func UpdateTransaction(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Map TransactionInput to gRPC ValidateTransactionRequest
-	transactionRequest := &gentransaction.UpdateTransactionRequest{
+	transactionRequest := &transaction.UpdateTransactionRequest{
 		TransactionId:   transactionID.String(),
 		UserId:          user.ID.String(),
 		BrokerId:        transactionInput.BrokerID.String(),
@@ -309,37 +281,24 @@ func DeleteTransaction(w http.ResponseWriter, r *http.Request) {
 	defer cancel()
 
 	// Retrieve the transaction
-	_, err := clients.C().Transaction().DeleteTransaction(ctx, &gentransaction.DeleteTransactionRequest{
+	_, err := clients.C().Transaction().DeleteTransaction(ctx, &transaction.DeleteTransactionRequest{
 		TransactionId: transactionID.String(),
 		UserId:        user.ID.String(),
 	})
 	if err != nil {
 		zap.L().Error("Delete transaction", zap.Error(err))
-		if s, ok := status.FromError(err); ok {
-			switch s.Code() {
-			case codes.NotFound:
-				w.WriteHeader(http.StatusNotFound)
-				return
-			case codes.PermissionDenied:
-				w.WriteHeader(http.StatusUnauthorized)
-				return
-			case codes.Internal:
-				w.WriteHeader(http.StatusInternalServerError)
-				return
-			}
-		}
-		w.WriteHeader(http.StatusInternalServerError)
+		render.ErrorCodesCodeToHttpCode(w, r, err)
 		return
 	}
 
 	render.OK(w, r)
 }
 
-// GetTransactions godoc
+// ListTransactions godoc
 //
 // @Id 				GetTransactions
 //
-// @Summary 		Get all transactions
+// @Summary 		List all transactions
 // @Description 	Gets a list of all transactions.
 // @Tags 			Transactions
 // @Produce 		json
@@ -348,7 +307,7 @@ func DeleteTransaction(w http.ResponseWriter, r *http.Request) {
 // @Failure 		401 {string} 	string 						"Permission denied"
 // @Failure 		500 {object} 	render.ErrorResponse 		"Internal Server Error"
 // @Router /api/v1/transactions [get]
-func GetTransactions(w http.ResponseWriter, r *http.Request) {
+func ListTransactions(w http.ResponseWriter, r *http.Request) {
 
 	// Get the authenticated user from the context
 	user, ok := U().GetUserFromContext(r)
@@ -361,22 +320,12 @@ func GetTransactions(w http.ResponseWriter, r *http.Request) {
 	defer cancel()
 
 	// Retrieve the transaction
-	response, err := clients.C().Transaction().ListTransactions(ctx, &gentransaction.ListTransactionsRequest{
+	response, err := clients.C().Transaction().ListTransactions(ctx, &transaction.ListTransactionsRequest{
 		UserId: user.ID.String(),
 	})
 	if err != nil {
 		zap.L().Error("List transactions", zap.Error(err))
-		if s, ok := status.FromError(err); ok {
-			switch s.Code() {
-			case codes.NotFound:
-				w.WriteHeader(http.StatusNotFound)
-				return
-			case codes.Internal:
-				w.WriteHeader(http.StatusInternalServerError)
-				return
-			}
-		}
-		w.WriteHeader(http.StatusInternalServerError)
+		render.ErrorCodesCodeToHttpCode(w, r, err)
 		return
 	}
 

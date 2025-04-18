@@ -10,8 +10,8 @@ import (
 	"github.com/Zapharaos/fihub-backend/internal/database"
 	"github.com/Zapharaos/fihub-backend/pkg/email"
 	"github.com/Zapharaos/fihub-backend/pkg/translation"
-	genhealth "github.com/Zapharaos/fihub-backend/protogen/health"
-	gentransaction "github.com/Zapharaos/fihub-backend/protogen/transaction"
+	"github.com/Zapharaos/fihub-backend/protogen/health"
+	"github.com/Zapharaos/fihub-backend/protogen/transaction"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 	"golang.org/x/text/language"
@@ -108,14 +108,14 @@ func main() {
 
 // initGrpcClients initializes the gRPC clients for the application.
 func initGrpcClients() {
-	// Connect to the gRPC health microservice
-	healthConn, err := grpc.NewClient("health:"+viper.GetString("HEALTH_MICROSERVICE_PORT"), grpc.WithTransportCredentials(insecure.NewCredentials()))
+	// Connect to the gRPC service microservice
+	healthConn, err := grpc.NewClient("service:"+viper.GetString("HEALTH_MICROSERVICE_PORT"), grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
-		zap.L().Fatal("Failed to connect to health gRPC service", zap.Error(err))
+		zap.L().Fatal("Failed to connect to service gRPC service", zap.Error(err))
 	} else {
-		zap.L().Info("Connected to health gRPC service", zap.String("address", healthConn.Target()))
+		zap.L().Info("Connected to service gRPC service", zap.String("address", healthConn.Target()))
 	}
-	healthClient := genhealth.NewHealthServiceClient(healthConn)
+	healthClient := health.NewHealthServiceClient(healthConn)
 
 	// Connect to the gRPC transaction microservice
 	transactionConn, err := grpc.NewClient("transaction:"+viper.GetString("TRANSACTION_MICROSERVICE_PORT"), grpc.WithTransportCredentials(insecure.NewCredentials()))
@@ -124,7 +124,7 @@ func initGrpcClients() {
 	} else {
 		zap.L().Info("Connected to transaction gRPC service", zap.String("address", transactionConn.Target()))
 	}
-	transactionClient := gentransaction.NewTransactionServiceClient(transactionConn)
+	transactionClient := transaction.NewTransactionServiceClient(transactionConn)
 
 	// Initialize the gRPC clients
 	clients.ReplaceGlobals(clients.NewClients(healthClient, transactionClient))

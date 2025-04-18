@@ -29,6 +29,11 @@ go install github.com/pressly/goose/v3/cmd/goose@latest
 go install github.com/swaggo/swag/cmd/swag@latest
 ```
 
+- Gomock is used to generate mocks. Install it with the following command:
+```bash
+go install go.uber.org/mock/mockgen@latest
+```
+
 ## Development
 
 ### Configuration

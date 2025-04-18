@@ -34,7 +34,7 @@ func TestNewRouter(t *testing.T) {
 	m.EXPECT().CheckHealth(gomock.Any(), gomock.Any()).Return(&health.HealthResponse{
 		IsHealthy: true,
 	}, nil)
-	clients.ReplaceGlobals(clients.NewClients(m))
+	clients.ReplaceGlobals(clients.NewClients(m, nil))
 
 	// Test health check route
 	apiBasePath := viper.GetString("API_BASE_PATH")

@@ -1,4 +1,4 @@
-package transaction
+package repositories
 
 import (
 	"github.com/Zapharaos/fihub-backend/internal/models"

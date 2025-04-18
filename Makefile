@@ -64,7 +64,7 @@ debug-bd:
 # Mock commands
 mocks:
 	go generate ./cmd/api/app/clients/mockgen.go
-	go generate ./cmd/transaction/app/transaction/mockgen.go
+	go generate ./cmd/transaction/app/repositories/mockgen.go
 	go generate ./internal/brokers/mockgen.go
 	go generate ./internal/users/mockgen.go
 

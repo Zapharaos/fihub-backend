@@ -1,4 +1,4 @@
-package health
+package service
 
 import (
 	"context"
@@ -14,9 +14,9 @@ type Service struct {
 // CheckHealth implements the CheckHealth RPC method.
 func (h *Service) CheckHealth(ctx context.Context, req *health.HealthRequest) (*health.HealthResponse, error) {
 
-	zap.L().Info("Checking health", zap.String("service_name", req.ServiceName))
+	zap.L().Info("Checking service", zap.String("service_name", req.ServiceName))
 
-	// Example logic for health check
+	// Example logic for service check
 	if req.ServiceName == "" {
 		zap.L().Error("Service name is required")
 		return &health.HealthResponse{
