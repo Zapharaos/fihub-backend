@@ -22,6 +22,10 @@ build:
 build-plain:
 	$(DOCKER_COMPOSE) $(BUILD) --progress=plain
 
+# Run Docker only for databases
+db:
+	$(DOCKER_COMPOSE) -f $(DOCKER_FILE) up $(DETACHED) postgres
+
 # Run Docker for production
 prod:
 	$(DOCKER_COMPOSE) -f $(DOCKER_FILE) $(UP)
@@ -47,19 +51,6 @@ dev-b:
 
 dev-bd:
 	$(DOCKER_COMPOSE) -f $(DOCKER_FILE) -f docker-compose.dev.yml $(UP) $(BUILD_FLAG) $(DETACHED)
-
-# Run Docker for debugging
-debug:
-	$(DOCKER_COMPOSE) -f $(DOCKER_FILE) -f docker-compose.dev.yml -f docker-compose.debug.yml $(UP)
-
-debug-d:
-	$(DOCKER_COMPOSE) -f $(DOCKER_FILE) -f docker-compose.dev.yml -f docker-compose.debug.yml $(UP) $(DETACHED)
-
-debug-b:
-	$(DOCKER_COMPOSE) -f $(DOCKER_FILE) -f docker-compose.dev.yml -f docker-compose.debug.yml $(UP) $(BUILD_FLAG)
-
-debug-bd:
-	$(DOCKER_COMPOSE) -f $(DOCKER_FILE) -f docker-compose.dev.yml -f docker-compose.debug.yml $(UP) $(BUILD_FLAG) $(DETACHED)
 
 # Mock commands
 mocks:
@@ -88,8 +79,9 @@ swagger-gen:
 # Help command to display usage
 help:
 	@echo "Usage:"
-	@echo "  make build               \- Build all services"
-	@echo "  make build-plain         \- Build all services with plain progress"
+	@echo "  make build               \- Build all Docker services"
+	@echo "  make build-plain         \- Build all Docker services with plain progress"
+	@echo "  make db         	      \- Run Docker only database services"
 	@echo "  make prod                \- Run Docker in production mode"
 	@echo "  make prod-d              \- Run Docker in production mode detached"
 	@echo "  make prod-b              \- Run Docker in production mode with build"
@@ -98,10 +90,6 @@ help:
 	@echo "  make dev-d               \- Run Docker in development mode detached"
 	@echo "  make dev-b               \- Run Docker in development mode with build"
 	@echo "  make dev-bd              \- Run Docker in development mode with build and detached"
-	@echo "  make debug               \- Run Docker in debug mode"
-	@echo "  make debug-d             \- Run Docker in debug mode detached"
-	@echo "  make debug-b             \- Run Docker in debug mode with build"
-	@echo "  make debug-bd            \- Run Docker in debug mode with build and detached"
 	@echo "  make mocks           	  \- Generate mocks for the project"
 	@echo "  make proto-gen           \- Generate Go code from proto files"
 	@echo "  make swagger             \- Generate and serve Swagger documentation"

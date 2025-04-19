@@ -1,5 +1,5 @@
 ![GitHub Release](https://img.shields.io/github/v/release/zapharaos/fihub-backend)
-<a href="https://github.com/go-goyave/goyave/actions"><img src="https://github.com/go-goyave/goyave/workflows/CI/badge.svg" alt="Build Status"/></a>
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/zapharaos/fihub-backend/golang.yml)
 [![codecov](https://codecov.io/gh/Zapharaos/fihub-backend/graph/badge.svg?token=BL7YP0GTK9)](https://codecov.io/gh/Zapharaos/fihub-backend)
 
 ![GitHub License](https://img.shields.io/github/license/zapharaos/fihub-backend)
@@ -36,15 +36,15 @@ go install go.uber.org/mock/mockgen@latest
 
 ## Development
 
-### Configuration
+### Running with Docker
+
+This project is using Docker. Get started [here](https://www.docker.com/get-started).
+
+#### Configuration
 
 - Create a `.env` file to override any variables from `config/fihub-backend.toml` that you need.
 - Please note that each variable you wish to override must have the `FIHUB_` prefix.
 - Don't forget to override the `FIHUB_APP_ENV` variable to `development`.
-
-### Docker
-
-This project is using Docker. Get started [here](https://www.docker.com/get-started).
 
 #### Build
 
@@ -54,9 +54,16 @@ make build
 make build-plain # build with verbose output progress=plain
 ```
 
+#### Databases
+
+If you only need to run the databases, you can use the following command:
+```bash
+make db
+```
+
 #### Start
 
-To start the project, you can use either of the following commands:
+To start the whole project, you can use either of the following commands:
 ```bash
 make dev
 make dev-d # detached mode
@@ -66,19 +73,39 @@ make dev-bd # detached & build on top
 
 Includes [Air](https://github.com/air-verse/air) for hot-reloading.
 
-#### Debug
+### Running without Docker
 
-To debug the project, you can use either of the following commands:
+#### Databases
+
+We recommend you to look into the [Running with Docker - Databases](#databases) section above to run only the required databases for debugging.
+
+#### IDE - GoLand (recommended)
+
+We recommend you to use GoLand as it is more convenient, especially for debugging. See [Run/debug configuration](https://www.jetbrains.com/help/go/run-debug-configuration.html).
+
+- Start by creating a new `Go build` configuration.
+- Set the `Package path` to `github.com/Zapharaos/fihub-backend/cmd/api`.
+  - If you want to run another service, simply change `api` to the service you want to run.
+- Enable `Run after build`.
+- Set the `Working directory` to the root of the project `fihub-backend`.
+- Add `Environment variables` to override any config variables that you need.
+
+Note regarding environment variables:
+- Any service might require different environment variable, so please check the `config/fihub-<service>.toml` file to see which one you need to set.
+- Please note that each variable you wish to override must have the `FIHUB_` prefix.
+- Don't forget to override the `FIHUB_APP_ENV` variable to `development`.
+
+#### Command line (not recommended)
+
+You can run the `api` with the following command:
 ```bash
-make debug
-make debug-d # detached mode
-make debug-b # build on top
-make debug-bd # detached & build on top
-```
+FIHUB_APP_ENV=development go run ./cmd/api
+````
 
-Includes [Delve](https://github.com/go-delve/delve) for debugging on top of Air.
-
-When using JetBrains Goland, learn how to attach the debugger to a Go process that is running in a Docker container [here](https://www.jetbrains.com/help/go/attach-to-running-go-processes-with-debugger.html#attach-to-a-process-in-the-docker-container).
+- If you want to run another service, simply change `api` to the service you want to run.
+- Any service might require different environment variable, so please check the `config/fihub-<service>.toml` file to see which one you need to set.
+- Please note that each variable you wish to override must have the `FIHUB_` prefix.
+- Don't forget to override the `FIHUB_APP_ENV` variable to `development`.
 
 ### Generation
 
