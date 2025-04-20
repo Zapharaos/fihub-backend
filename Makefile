@@ -12,9 +12,6 @@ BUILD_FLAG = --build
 SWAGGER_FILE = docs/swagger.yaml
 SWAGGER_UI_PORT = 80
 
-# Proto variables
-PROTO_GEN_PATH = protogen/
-
 # Build services
 build:
 	$(DOCKER_COMPOSE) $(BUILD)
@@ -61,7 +58,7 @@ mocks:
 
 # Proto commands
 proto-gen:
-	protoc --go_out=$(PROTO_GEN_PATH) --go-grpc_out=$(PROTO_GEN_PATH) ./proto/*.proto
+	protoc --go_out=./ --go-grpc_out=./ ./proto/*.proto
 
 # Swagger commands
 swagger: swagger-init swagger-ui swagger-gen

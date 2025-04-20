@@ -2,7 +2,7 @@ package service
 
 import (
 	"context"
-	"github.com/Zapharaos/fihub-backend/protogen/health"
+	"github.com/Zapharaos/fihub-backend/protogen"
 	"testing"
 )
 
@@ -12,16 +12,16 @@ func TestCheckHealth(t *testing.T) {
 
 	tests := []struct {
 		name        string
-		request     *health.HealthRequest
-		expected    *health.HealthResponse
+		request     *protogen.HealthRequest
+		expected    *protogen.HealthResponse
 		expectError bool
 	}{
 		{
 			name: "Valid service name",
-			request: &health.HealthRequest{
+			request: &protogen.HealthRequest{
 				ServiceName: "TestService",
 			},
-			expected: &health.HealthResponse{
+			expected: &protogen.HealthResponse{
 				IsHealthy: true,
 				Message:   "Service is healthy",
 			},
@@ -29,10 +29,10 @@ func TestCheckHealth(t *testing.T) {
 		},
 		{
 			name: "Empty service name",
-			request: &health.HealthRequest{
+			request: &protogen.HealthRequest{
 				ServiceName: "",
 			},
-			expected: &health.HealthResponse{
+			expected: &protogen.HealthResponse{
 				IsHealthy: false,
 				Message:   "Service name is required",
 			},

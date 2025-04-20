@@ -68,15 +68,30 @@ CORS_ALLOWED_ORIGIN = "https://*,http://*"
 # Default value: "50001"
 HEALTH_MICROSERVICE_PORT = "50001"
 
+# Specify the host for the Health microservice
+# Use "health" when running through Docker, "localhost" otherwise
+# Default value: "health"
+HEALTH_MICROSERVICE_HOST = "health"
+
 # Specify the port for the Broker microservice
 # This port is used to run the gRPC BrokerService
 # Default value: "50003"
 BROKER_MICROSERVICE_PORT = "50003"
 
+# Specify the host for the Broker microservice
+# Use "broker" when running through Docker, "localhost" otherwise
+# Default value: "postgres"
+BROKER_MICROSERVICE_HOST = "broker"
+
 # Specify the port for the Transaction microservice
 # This port is used to run the gRPC TransactionService
 # Default value: "50004"
 TRANSACTION_MICROSERVICE_PORT = "50004"
+
+# Specify the host for the Transaction microservice
+# Use "transaction" when running through Docker, "localhost" otherwise
+# Default value: "transaction"
+TRANSACTION_MICROSERVICE_HOST = "transaction"
 
 # Specify the PostgreSQL username
 # Used to authenticate with the PostgreSQL database

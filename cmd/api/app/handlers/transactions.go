@@ -8,13 +8,12 @@ import (
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/handlers/render"
 	"github.com/Zapharaos/fihub-backend/internal/brokers"
 	"github.com/Zapharaos/fihub-backend/internal/models"
-	"github.com/Zapharaos/fihub-backend/protogen/transaction"
+	"github.com/Zapharaos/fihub-backend/protogen"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"net/http"
-	"time"
 )
 
 // CreateTransaction 	godoc
@@ -65,7 +64,7 @@ func CreateTransaction(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Map TransactionInput to gRPC ValidateTransactionRequest
-	transactionRequest := &transaction.CreateTransactionRequest{
+	transactionRequest := &protogen.CreateTransactionRequest{
 		UserId:          user.ID.String(),
 		BrokerId:        transactionInput.BrokerID.String(),
 		Date:            timestamppb.New(transactionInput.Date),
@@ -76,7 +75,7 @@ func CreateTransaction(w http.ResponseWriter, r *http.Request) {
 		Fee:             transactionInput.Fee,
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
 	// Create the transaction
@@ -116,11 +115,11 @@ func GetTransaction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
 	// Retrieve the transaction
-	response, err := clients.C().Transaction().GetTransaction(ctx, &transaction.GetTransactionRequest{
+	response, err := clients.C().Transaction().GetTransaction(ctx, &protogen.GetTransactionRequest{
 		TransactionId: transactionID.String(),
 	})
 	if err != nil {
@@ -205,7 +204,7 @@ func UpdateTransaction(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Map TransactionInput to gRPC ValidateTransactionRequest
-	transactionRequest := &transaction.UpdateTransactionRequest{
+	transactionRequest := &protogen.UpdateTransactionRequest{
 		TransactionId:   transactionID.String(),
 		UserId:          user.ID.String(),
 		BrokerId:        transactionInput.BrokerID.String(),
@@ -217,7 +216,7 @@ func UpdateTransaction(w http.ResponseWriter, r *http.Request) {
 		Fee:             transactionInput.Fee,
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
 	// Create the transaction
@@ -277,11 +276,11 @@ func DeleteTransaction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
 	// Retrieve the transaction
-	_, err := clients.C().Transaction().DeleteTransaction(ctx, &transaction.DeleteTransactionRequest{
+	_, err := clients.C().Transaction().DeleteTransaction(ctx, &protogen.DeleteTransactionRequest{
 		TransactionId: transactionID.String(),
 		UserId:        user.ID.String(),
 	})
@@ -316,11 +315,13 @@ func ListTransactions(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
 	// Retrieve the transaction
-	response, err := clients.C().Transaction().ListTransactions(ctx, &transaction.ListTransactionsRequest{
+	c := clients.C().Transaction()
+	// List transactions
+	response, err := c.ListTransactions(ctx, &protogen.ListTransactionsRequest{
 		UserId: user.ID.String(),
 	})
 	if err != nil {

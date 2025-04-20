@@ -30,8 +30,7 @@ func TestPostgresRepository_Create(t *testing.T) {
 			name:        "Fail transaction creation",
 			transaction: models.TransactionInput{},
 			mockSetup: func() {
-				rows := sqlxmock.NewRows([]string{"id"})
-				sqlxMock.Mock.ExpectQuery("INSERT INTO transactions").WillReturnRows(rows)
+				sqlxMock.Mock.ExpectQuery("INSERT INTO transactions").WillReturnError(errors.New("error"))
 			},
 			expectErr: true,
 		},

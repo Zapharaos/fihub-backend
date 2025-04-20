@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/clients"
-	"github.com/Zapharaos/fihub-backend/protogen/health"
+	"github.com/Zapharaos/fihub-backend/protogen"
 	"github.com/Zapharaos/fihub-backend/test/mocks"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
@@ -22,7 +22,7 @@ func TestHealthCheckHandler(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	m := mocks.NewHealthServiceClient(ctrl)
-	m.EXPECT().CheckHealth(gomock.Any(), gomock.Any()).Return(&health.HealthResponse{
+	m.EXPECT().CheckHealth(gomock.Any(), gomock.Any()).Return(&protogen.HealthResponse{
 		IsHealthy: true,
 	}, nil)
 	clients.ReplaceGlobals(clients.NewClients(m, nil))

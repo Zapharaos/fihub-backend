@@ -1,7 +1,7 @@
 package models
 
 import (
-	"github.com/Zapharaos/fihub-backend/protogen/transaction"
+	"github.com/Zapharaos/fihub-backend/protogen"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -210,11 +210,11 @@ func TestToGenTransactionType(t *testing.T) {
 	tests := []struct {
 		name     string
 		input    TransactionType
-		expected transaction.TransactionType
+		expected protogen.TransactionType
 	}{
-		{"BUY to gen", BUY, transaction.TransactionType_BUY},
-		{"SELL to gen", SELL, transaction.TransactionType_SELL},
-		{"Invalid to gen", TransactionType("INVALID"), transaction.TransactionType_TRANSACTION_TYPE_UNSPECIFIED},
+		{"BUY to gen", BUY, protogen.TransactionType_BUY},
+		{"SELL to gen", SELL, protogen.TransactionType_SELL},
+		{"Invalid to gen", TransactionType("INVALID"), protogen.TransactionType_TRANSACTION_TYPE_UNSPECIFIED},
 	}
 
 	// Run tests
@@ -256,7 +256,7 @@ func TestToGenTransaction(t *testing.T) {
 	assert.Equal(t, userId.String(), result.UserId)
 	assert.Equal(t, brokerId.String(), result.BrokerId)
 	assert.Equal(t, testDate.Unix(), result.Date.AsTime().Unix())
-	assert.Equal(t, transaction.TransactionType_BUY, result.TransactionType)
+	assert.Equal(t, protogen.TransactionType_BUY, result.TransactionType)
 	assert.Equal(t, "asset", result.Asset)
 	assert.Equal(t, 10.5, result.Quantity)
 	assert.Equal(t, 150.75, result.Price)
@@ -269,12 +269,12 @@ func TestFromGenTransactionType(t *testing.T) {
 	// Define test cases
 	tests := []struct {
 		name     string
-		input    transaction.TransactionType
+		input    protogen.TransactionType
 		expected TransactionType
 	}{
-		{"BUY from gen", transaction.TransactionType_BUY, BUY},
-		{"SELL from gen", transaction.TransactionType_SELL, SELL},
-		{"Unspecified from gen", transaction.TransactionType_TRANSACTION_TYPE_UNSPECIFIED, TransactionType("")},
+		{"BUY from gen", protogen.TransactionType_BUY, BUY},
+		{"SELL from gen", protogen.TransactionType_SELL, SELL},
+		{"Unspecified from gen", protogen.TransactionType_TRANSACTION_TYPE_UNSPECIFIED, TransactionType("")},
 	}
 
 	// Run tests
@@ -299,12 +299,12 @@ func TestFromGenTransaction(t *testing.T) {
 	testDate := time.Date(2023, 5, 15, 10, 30, 0, 0, time.UTC)
 
 	// Create a gen transaction
-	genTransaction := &transaction.Transaction{
+	genTransaction := &protogen.Transaction{
 		Id:              idStr,
 		UserId:          userIdStr,
 		BrokerId:        brokerIdStr,
 		Date:            timestamppb.New(testDate),
-		TransactionType: transaction.TransactionType_SELL,
+		TransactionType: protogen.TransactionType_SELL,
 		Asset:           "TSLA",
 		Quantity:        5.25,
 		Price:           200.50,
@@ -328,7 +328,7 @@ func TestFromGenTransaction(t *testing.T) {
 	assert.Equal(t, 2.75, result.Fee)
 
 	// Test with invalid UUIDs
-	invalidGenTransaction := &transaction.Transaction{
+	invalidGenTransaction := &protogen.Transaction{
 		Id:       "invalid-uuid",
 		UserId:   userIdStr,
 		BrokerId: brokerIdStr,

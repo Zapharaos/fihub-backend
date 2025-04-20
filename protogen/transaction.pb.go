@@ -4,7 +4,7 @@
 // 	protoc        v6.30.2
 // source: proto/transaction.proto
 
-package transaction
+package protogen
 
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -173,6 +173,7 @@ func (x *CreateTransactionRequest) GetFee() float64 {
 	return 0
 }
 
+// Response message for creating a transaction
 type CreateTransactionResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Transaction   *Transaction           `protobuf:"bytes,1,opt,name=transaction,proto3" json:"transaction,omitempty"`
@@ -820,7 +821,8 @@ const file_proto_transaction_proto_rawDesc = "" +
 	"\x0eGetTransaction\x12\".transaction.GetTransactionRequest\x1a#.transaction.GetTransactionResponse\x12b\n" +
 	"\x11UpdateTransaction\x12%.transaction.UpdateTransactionRequest\x1a&.transaction.UpdateTransactionResponse\x12b\n" +
 	"\x11DeleteTransaction\x12%.transaction.DeleteTransactionRequest\x1a&.transaction.DeleteTransactionResponse\x12_\n" +
-	"\x10ListTransactions\x12$.transaction.ListTransactionsRequest\x1a%.transaction.ListTransactionsResponseB\x0fZ\r./transactionb\x06proto3"
+	"\x10ListTransactions\x12$.transaction.ListTransactionsRequest\x1a%.transaction.ListTransactionsResponseB\fZ\n" +
+	"./protogenb\x06proto3"
 
 var (
 	file_proto_transaction_proto_rawDescOnce sync.Once

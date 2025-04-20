@@ -2,7 +2,7 @@ package models
 
 import (
 	"errors"
-	"github.com/Zapharaos/fihub-backend/protogen/transaction"
+	"github.com/Zapharaos/fihub-backend/protogen"
 	"github.com/google/uuid"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"time"
@@ -116,20 +116,20 @@ func (t *TransactionInput) IsValid() (bool, error) {
 }
 
 // ToGenTransactionType converts a TransactionType to a gentransaction.TransactionType
-func (t TransactionType) ToGenTransactionType() transaction.TransactionType {
+func (t TransactionType) ToGenTransactionType() protogen.TransactionType {
 	switch t {
 	case BUY:
-		return transaction.TransactionType_BUY
+		return protogen.TransactionType_BUY
 	case SELL:
-		return transaction.TransactionType_SELL
+		return protogen.TransactionType_SELL
 	default:
-		return transaction.TransactionType_TRANSACTION_TYPE_UNSPECIFIED
+		return protogen.TransactionType_TRANSACTION_TYPE_UNSPECIFIED
 	}
 }
 
 // ToGenTransaction converts a Transaction to a gentransaction.Transaction
-func (t Transaction) ToGenTransaction() *transaction.Transaction {
-	return &transaction.Transaction{
+func (t Transaction) ToGenTransaction() *protogen.Transaction {
+	return &protogen.Transaction{
 		Id:              t.ID.String(),
 		UserId:          t.UserID.String(),
 		BrokerId:        t.Broker.ID.String(),
@@ -144,11 +144,11 @@ func (t Transaction) ToGenTransaction() *transaction.Transaction {
 }
 
 // FromGenTransactionType converts a transaction.TransactionType to a TransactionType
-func FromGenTransactionType(t transaction.TransactionType) TransactionType {
+func FromGenTransactionType(t protogen.TransactionType) TransactionType {
 	switch t {
-	case transaction.TransactionType_BUY:
+	case protogen.TransactionType_BUY:
 		return BUY
-	case transaction.TransactionType_SELL:
+	case protogen.TransactionType_SELL:
 		return SELL
 	default:
 		return ""
@@ -156,7 +156,7 @@ func FromGenTransactionType(t transaction.TransactionType) TransactionType {
 }
 
 // FromGenTransaction converts a gentransaction.Transaction to a Transaction
-func FromGenTransaction(t *transaction.Transaction) Transaction {
+func FromGenTransaction(t *protogen.Transaction) Transaction {
 	// TODO : do not return Broker type here, only ID
 	id, err := uuid.Parse(t.Id)
 	if err != nil {

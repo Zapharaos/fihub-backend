@@ -4,7 +4,7 @@
 // - protoc             v6.30.2
 // source: proto/transaction.proto
 
-package transaction
+package protogen
 
 import (
 	context "context"

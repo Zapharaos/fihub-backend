@@ -4,7 +4,7 @@
 // 	protoc        v6.30.2
 // source: proto/health.proto
 
-package health
+package protogen
 
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -129,8 +129,8 @@ const file_proto_health_proto_rawDesc = "" +
 	"is_healthy\x18\x01 \x01(\bR\tisHealthy\x12\x18\n" +
 	"\amessage\x18\x02 \x01(\tR\amessage2M\n" +
 	"\rHealthService\x12<\n" +
-	"\vCheckHealth\x12\x15.health.HealthRequest\x1a\x16.health.HealthResponseB\n" +
-	"Z\b./healthb\x06proto3"
+	"\vCheckHealth\x12\x15.health.HealthRequest\x1a\x16.health.HealthResponseB\fZ\n" +
+	"./protogenb\x06proto3"
 
 var (
 	file_proto_health_proto_rawDescOnce sync.Once

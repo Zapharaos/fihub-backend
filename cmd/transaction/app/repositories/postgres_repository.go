@@ -24,18 +24,39 @@ func NewPostgresRepository(dbClient *sqlx.DB) Repository {
 // Create use to create a Transaction
 func (r PostgresRepository) Create(transactionInput models.TransactionInput) (uuid.UUID, error) {
 
+	// Prepare query
+	query := `INSERT INTO transactions (id, user_id, broker_id, date, transaction_type, asset, quantity, price, price_unit, fee)
+			  VALUES (:id, :user_id, :broker_id, :date, :transaction_type, :asset, :quantity, :price, :price_unit, :fee)
+			  RETURNING id`
+
+	// Create parameter map
+	params := map[string]interface{}{
+		"id":               uuid.New(),
+		"user_id":          transactionInput.UserID,
+		"broker_id":        transactionInput.BrokerID,
+		"date":             transactionInput.Date,
+		"transaction_type": transactionInput.Type,
+		"asset":            transactionInput.Asset,
+		"quantity":         transactionInput.Quantity,
+		"price":            transactionInput.Price,
+		"price_unit":       transactionInput.PriceUnit,
+		"fee":              transactionInput.Fee,
+	}
+
 	// Execute query
-	row := r.conn.QueryRow(""+
-		"INSERT INTO transactions (id, user_id, broker_id, date, transaction_type, asset, quantity, price, price_unit, fee)"+
-		"VALUES (:id, :user_id, :broker_id, :date, :transaction_type, :asset, :quantity, :price, :price_unit, :fee)"+
-		"RETURNING id",
-		uuid.New(), transactionInput.UserID, transactionInput.BrokerID, transactionInput.Date, transactionInput.Type,
-		transactionInput.Asset, transactionInput.Quantity, transactionInput.Price, transactionInput.PriceUnit, transactionInput.Fee)
+	rows, err := r.conn.NamedQuery(query, params)
+	if err != nil {
+		return uuid.Nil, err
+	}
+	defer rows.Close()
 
 	// Retrieve the created transaction ID
 	var id uuid.UUID
-	if err := row.Scan(&id); err != nil {
-		return uuid.Nil, err
+	if rows.Next() {
+		if err := rows.Scan(&id); err != nil {
+			return uuid.Nil, err
+		}
+		return id, nil
 	}
 
 	return id, nil

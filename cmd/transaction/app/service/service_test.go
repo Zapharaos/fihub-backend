@@ -5,7 +5,7 @@ import (
 	"errors"
 	"github.com/Zapharaos/fihub-backend/cmd/transaction/app/repositories"
 	"github.com/Zapharaos/fihub-backend/internal/models"
-	"github.com/Zapharaos/fihub-backend/protogen/transaction"
+	"github.com/Zapharaos/fihub-backend/protogen"
 	"github.com/Zapharaos/fihub-backend/test/mocks"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
@@ -25,11 +25,11 @@ func TestCreateTransaction(t *testing.T) {
 	userID := uuid.New()
 	brokerID := uuid.New()
 	date := timestamppb.New(time.Now().AddDate(-1, 0, 0)) // 1 year in the past
-	request := &transaction.CreateTransactionRequest{
+	request := &protogen.CreateTransactionRequest{
 		UserId:          userID.String(),
 		BrokerId:        brokerID.String(),
 		Date:            date,
-		TransactionType: transaction.TransactionType_BUY,
+		TransactionType: protogen.TransactionType_BUY,
 		Asset:           "asset",
 		Quantity:        1,
 		Price:           1,
@@ -40,8 +40,8 @@ func TestCreateTransaction(t *testing.T) {
 	tests := []struct {
 		name            string
 		mockSetup       func(ctrl *gomock.Controller)
-		request         *transaction.CreateTransactionRequest
-		expected        *transaction.CreateTransactionResponse
+		request         *protogen.CreateTransactionRequest
+		expected        *protogen.CreateTransactionResponse
 		expectedErrCode codes.Code
 	}{
 		{
@@ -52,7 +52,7 @@ func TestCreateTransaction(t *testing.T) {
 				repositories.ReplaceGlobals(tr)
 			},
 			request: nil,
-			expected: &transaction.CreateTransactionResponse{
+			expected: &protogen.CreateTransactionResponse{
 				Transaction: nil,
 			},
 			expectedErrCode: codes.InvalidArgument,
@@ -64,10 +64,10 @@ func TestCreateTransaction(t *testing.T) {
 				tr.EXPECT().Get(gomock.Any()).Times(0)
 				repositories.ReplaceGlobals(tr)
 			},
-			request: &transaction.CreateTransactionRequest{
+			request: &protogen.CreateTransactionRequest{
 				UserId: "bad-uuid",
 			},
-			expected: &transaction.CreateTransactionResponse{
+			expected: &protogen.CreateTransactionResponse{
 				Transaction: nil,
 			},
 			expectedErrCode: codes.InvalidArgument,
@@ -79,12 +79,12 @@ func TestCreateTransaction(t *testing.T) {
 				tr.EXPECT().Get(gomock.Any()).Times(0)
 				repositories.ReplaceGlobals(tr)
 			},
-			request: &transaction.CreateTransactionRequest{
+			request: &protogen.CreateTransactionRequest{
 				UserId:          userID.String(),
 				BrokerId:        brokerID.String(),
-				TransactionType: transaction.TransactionType_TRANSACTION_TYPE_UNSPECIFIED,
+				TransactionType: protogen.TransactionType_TRANSACTION_TYPE_UNSPECIFIED,
 			},
-			expected: &transaction.CreateTransactionResponse{
+			expected: &protogen.CreateTransactionResponse{
 				Transaction: nil,
 			},
 			expectedErrCode: codes.InvalidArgument,
@@ -98,7 +98,7 @@ func TestCreateTransaction(t *testing.T) {
 				repositories.ReplaceGlobals(tr)
 			},
 			request: request,
-			expected: &transaction.CreateTransactionResponse{
+			expected: &protogen.CreateTransactionResponse{
 				Transaction: nil,
 			},
 			expectedErrCode: codes.Internal,
@@ -112,7 +112,7 @@ func TestCreateTransaction(t *testing.T) {
 				repositories.ReplaceGlobals(tr)
 			},
 			request: request,
-			expected: &transaction.CreateTransactionResponse{
+			expected: &protogen.CreateTransactionResponse{
 				Transaction: nil,
 			},
 			expectedErrCode: codes.Internal,
@@ -126,7 +126,7 @@ func TestCreateTransaction(t *testing.T) {
 				repositories.ReplaceGlobals(tr)
 			},
 			request: request,
-			expected: &transaction.CreateTransactionResponse{
+			expected: &protogen.CreateTransactionResponse{
 				Transaction: nil,
 			},
 			expectedErrCode: codes.NotFound,
@@ -140,8 +140,8 @@ func TestCreateTransaction(t *testing.T) {
 				repositories.ReplaceGlobals(tr)
 			},
 			request: request,
-			expected: &transaction.CreateTransactionResponse{
-				Transaction: &transaction.Transaction{},
+			expected: &protogen.CreateTransactionResponse{
+				Transaction: &protogen.Transaction{},
 			},
 			expectedErrCode: codes.OK,
 		},
@@ -185,7 +185,7 @@ func TestGetTransaction(t *testing.T) {
 
 	// Define request data
 	transactionID := uuid.New()
-	request := &transaction.GetTransactionRequest{
+	request := &protogen.GetTransactionRequest{
 		TransactionId: transactionID.String(),
 	}
 
@@ -193,8 +193,8 @@ func TestGetTransaction(t *testing.T) {
 	tests := []struct {
 		name            string
 		mockSetup       func(ctrl *gomock.Controller)
-		request         *transaction.GetTransactionRequest
-		expected        *transaction.GetTransactionResponse
+		request         *protogen.GetTransactionRequest
+		expected        *protogen.GetTransactionResponse
 		expectedErrCode codes.Code
 	}{
 		{
@@ -205,7 +205,7 @@ func TestGetTransaction(t *testing.T) {
 				repositories.ReplaceGlobals(tr)
 			},
 			request: nil,
-			expected: &transaction.GetTransactionResponse{
+			expected: &protogen.GetTransactionResponse{
 				Transaction: nil,
 			},
 			expectedErrCode: codes.InvalidArgument,
@@ -217,10 +217,10 @@ func TestGetTransaction(t *testing.T) {
 				tr.EXPECT().Get(gomock.Any()).Times(0)
 				repositories.ReplaceGlobals(tr)
 			},
-			request: &transaction.GetTransactionRequest{
+			request: &protogen.GetTransactionRequest{
 				TransactionId: "bad-uuid",
 			},
-			expected: &transaction.GetTransactionResponse{
+			expected: &protogen.GetTransactionResponse{
 				Transaction: nil,
 			},
 			expectedErrCode: codes.InvalidArgument,
@@ -233,7 +233,7 @@ func TestGetTransaction(t *testing.T) {
 				repositories.ReplaceGlobals(tr)
 			},
 			request: request,
-			expected: &transaction.GetTransactionResponse{
+			expected: &protogen.GetTransactionResponse{
 				Transaction: nil,
 			},
 			expectedErrCode: codes.Internal,
@@ -246,7 +246,7 @@ func TestGetTransaction(t *testing.T) {
 				repositories.ReplaceGlobals(tr)
 			},
 			request: request,
-			expected: &transaction.GetTransactionResponse{
+			expected: &protogen.GetTransactionResponse{
 				Transaction: nil,
 			},
 			expectedErrCode: codes.NotFound,
@@ -261,8 +261,8 @@ func TestGetTransaction(t *testing.T) {
 				repositories.ReplaceGlobals(tr)
 			},
 			request: request,
-			expected: &transaction.GetTransactionResponse{
-				Transaction: &transaction.Transaction{
+			expected: &protogen.GetTransactionResponse{
+				Transaction: &protogen.Transaction{
 					Id: transactionID.String(),
 				},
 			},
@@ -309,7 +309,7 @@ func TestListTransactions(t *testing.T) {
 
 	// Define request data
 	userID := uuid.New()
-	request := &transaction.ListTransactionsRequest{
+	request := &protogen.ListTransactionsRequest{
 		UserId: userID.String(),
 	}
 
@@ -317,8 +317,8 @@ func TestListTransactions(t *testing.T) {
 	tests := []struct {
 		name            string
 		mockSetup       func(ctrl *gomock.Controller)
-		request         *transaction.ListTransactionsRequest
-		expected        *transaction.ListTransactionsResponse
+		request         *protogen.ListTransactionsRequest
+		expected        *protogen.ListTransactionsResponse
 		expectedErrCode codes.Code
 	}{
 		{
@@ -329,7 +329,7 @@ func TestListTransactions(t *testing.T) {
 				repositories.ReplaceGlobals(tr)
 			},
 			request: nil,
-			expected: &transaction.ListTransactionsResponse{
+			expected: &protogen.ListTransactionsResponse{
 				Transactions: nil,
 			},
 			expectedErrCode: codes.InvalidArgument,
@@ -341,10 +341,10 @@ func TestListTransactions(t *testing.T) {
 				tr.EXPECT().GetAll(gomock.Any()).Times(0)
 				repositories.ReplaceGlobals(tr)
 			},
-			request: &transaction.ListTransactionsRequest{
+			request: &protogen.ListTransactionsRequest{
 				UserId: "bad-uuid",
 			},
-			expected: &transaction.ListTransactionsResponse{
+			expected: &protogen.ListTransactionsResponse{
 				Transactions: nil,
 			},
 			expectedErrCode: codes.InvalidArgument,
@@ -357,7 +357,7 @@ func TestListTransactions(t *testing.T) {
 				repositories.ReplaceGlobals(tr)
 			},
 			request: request,
-			expected: &transaction.ListTransactionsResponse{
+			expected: &protogen.ListTransactionsResponse{
 				Transactions: nil,
 			},
 			expectedErrCode: codes.Internal,
@@ -374,8 +374,8 @@ func TestListTransactions(t *testing.T) {
 				repositories.ReplaceGlobals(tr)
 			},
 			request: request,
-			expected: &transaction.ListTransactionsResponse{
-				Transactions: []*transaction.Transaction{
+			expected: &protogen.ListTransactionsResponse{
+				Transactions: []*protogen.Transaction{
 					{UserId: userID.String()},
 					{UserId: userID.String()},
 					{UserId: userID.String()},
@@ -428,12 +428,12 @@ func TestUpdateTransaction(t *testing.T) {
 	userID := uuid.New()
 	brokerID := uuid.New()
 	date := timestamppb.New(time.Now().AddDate(-1, 0, 0)) // 1 year in the past
-	request := &transaction.UpdateTransactionRequest{
+	request := &protogen.UpdateTransactionRequest{
 		TransactionId:   transactionID.String(),
 		UserId:          userID.String(),
 		BrokerId:        brokerID.String(),
 		Date:            date,
-		TransactionType: transaction.TransactionType_BUY,
+		TransactionType: protogen.TransactionType_BUY,
 		Asset:           "asset",
 		Quantity:        1,
 		Price:           1,
@@ -444,8 +444,8 @@ func TestUpdateTransaction(t *testing.T) {
 	tests := []struct {
 		name            string
 		mockSetup       func(ctrl *gomock.Controller)
-		request         *transaction.UpdateTransactionRequest
-		expected        *transaction.UpdateTransactionResponse
+		request         *protogen.UpdateTransactionRequest
+		expected        *protogen.UpdateTransactionResponse
 		expectedErrCode codes.Code
 	}{
 		{
@@ -465,7 +465,7 @@ func TestUpdateTransaction(t *testing.T) {
 				tr.EXPECT().Get(gomock.Any()).Times(0)
 				repositories.ReplaceGlobals(tr)
 			},
-			request: &transaction.UpdateTransactionRequest{
+			request: &protogen.UpdateTransactionRequest{
 				UserId: "bad-uuid",
 			},
 			expectedErrCode: codes.InvalidArgument,
@@ -477,13 +477,13 @@ func TestUpdateTransaction(t *testing.T) {
 				tr.EXPECT().Get(gomock.Any()).Times(0)
 				repositories.ReplaceGlobals(tr)
 			},
-			request: &transaction.UpdateTransactionRequest{
+			request: &protogen.UpdateTransactionRequest{
 				TransactionId:   transactionID.String(),
 				UserId:          userID.String(),
 				BrokerId:        brokerID.String(),
-				TransactionType: transaction.TransactionType_TRANSACTION_TYPE_UNSPECIFIED,
+				TransactionType: protogen.TransactionType_TRANSACTION_TYPE_UNSPECIFIED,
 			},
-			expected: &transaction.UpdateTransactionResponse{
+			expected: &protogen.UpdateTransactionResponse{
 				Transaction: nil,
 			},
 			expectedErrCode: codes.InvalidArgument,
@@ -569,8 +569,8 @@ func TestUpdateTransaction(t *testing.T) {
 				repositories.ReplaceGlobals(tr)
 			},
 			request: request,
-			expected: &transaction.UpdateTransactionResponse{
-				Transaction: &transaction.Transaction{
+			expected: &protogen.UpdateTransactionResponse{
+				Transaction: &protogen.Transaction{
 					Price: request.Price + 1,
 				},
 			},
@@ -617,7 +617,7 @@ func TestDeleteTransaction(t *testing.T) {
 	// Define request data
 	userID := uuid.New()
 	transactionID := uuid.New()
-	request := &transaction.DeleteTransactionRequest{
+	request := &protogen.DeleteTransactionRequest{
 		UserId:        userID.String(),
 		TransactionId: transactionID.String(),
 	}
@@ -626,7 +626,7 @@ func TestDeleteTransaction(t *testing.T) {
 	tests := []struct {
 		name            string
 		mockSetup       func(ctrl *gomock.Controller)
-		request         *transaction.DeleteTransactionRequest
+		request         *protogen.DeleteTransactionRequest
 		expectedErrCode codes.Code
 	}{
 		{
@@ -646,7 +646,7 @@ func TestDeleteTransaction(t *testing.T) {
 				tr.EXPECT().Get(gomock.Any()).Times(0)
 				repositories.ReplaceGlobals(tr)
 			},
-			request: &transaction.DeleteTransactionRequest{
+			request: &protogen.DeleteTransactionRequest{
 				UserId: "bad-uuid",
 			},
 			expectedErrCode: codes.InvalidArgument,

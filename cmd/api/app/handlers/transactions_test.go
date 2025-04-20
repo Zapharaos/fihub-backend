@@ -8,7 +8,7 @@ import (
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/handlers"
 	"github.com/Zapharaos/fihub-backend/internal/brokers"
 	"github.com/Zapharaos/fihub-backend/internal/models"
-	"github.com/Zapharaos/fihub-backend/protogen/transaction"
+	"github.com/Zapharaos/fihub-backend/protogen"
 	"github.com/Zapharaos/fihub-backend/test/mocks"
 	"github.com/google/uuid"
 	"github.com/spf13/viper"
@@ -129,8 +129,8 @@ func TestCreateTransaction(t *testing.T) {
 				brokers.ReplaceGlobals(brokers.NewRepository(nil, bu, nil))
 				tc := mocks.NewTransactionServiceClient(ctrl)
 				tc.EXPECT().CreateTransaction(gomock.Any(), gomock.Any()).Return(
-					&transaction.CreateTransactionResponse{
-						Transaction: &transaction.Transaction{
+					&protogen.CreateTransactionResponse{
+						Transaction: &protogen.Transaction{
 							Id:       uuid.New().String(),
 							UserId:   uuid.New().String(),
 							BrokerId: uuid.New().String(),
@@ -233,8 +233,8 @@ func TestGetTransaction(t *testing.T) {
 				handlers.ReplaceGlobals(h)
 				tc := mocks.NewTransactionServiceClient(ctrl)
 				tc.EXPECT().GetTransaction(gomock.Any(), gomock.Any()).Return(
-					&transaction.GetTransactionResponse{
-						Transaction: &transaction.Transaction{
+					&protogen.GetTransactionResponse{
+						Transaction: &protogen.Transaction{
 							Id:       uuid.New().String(),
 							UserId:   uuid.New().String(),
 							BrokerId: uuid.New().String(),
@@ -257,8 +257,8 @@ func TestGetTransaction(t *testing.T) {
 				handlers.ReplaceGlobals(h)
 				tc := mocks.NewTransactionServiceClient(ctrl)
 				tc.EXPECT().GetTransaction(gomock.Any(), gomock.Any()).Return(
-					&transaction.GetTransactionResponse{
-						Transaction: &transaction.Transaction{
+					&protogen.GetTransactionResponse{
+						Transaction: &protogen.Transaction{
 							Id:       uuid.New().String(),
 							UserId:   userId.String(),
 							BrokerId: uuid.New().String(),
@@ -415,8 +415,8 @@ func TestUpdateTransaction(t *testing.T) {
 				brokers.ReplaceGlobals(brokers.NewRepository(nil, bu, nil))
 				tc := mocks.NewTransactionServiceClient(ctrl)
 				tc.EXPECT().UpdateTransaction(gomock.Any(), gomock.Any()).Return(
-					&transaction.UpdateTransactionResponse{
-						Transaction: &transaction.Transaction{
+					&protogen.UpdateTransactionResponse{
+						Transaction: &protogen.Transaction{
 							Id:       uuid.New().String(),
 							UserId:   uuid.New().String(),
 							BrokerId: uuid.New().String(),
@@ -489,7 +489,7 @@ func TestDeleteTransaction(t *testing.T) {
 				handlers.ReplaceGlobals(h)
 				tc := mocks.NewTransactionServiceClient(ctrl)
 				tc.EXPECT().DeleteTransaction(gomock.Any(), gomock.Any()).Return(
-					&transaction.DeleteTransactionResponse{},
+					&protogen.DeleteTransactionResponse{},
 					status.Error(codes.Unknown, "error"))
 				clients.ReplaceGlobals(clients.NewClients(nil, tc))
 			},
@@ -504,7 +504,7 @@ func TestDeleteTransaction(t *testing.T) {
 				handlers.ReplaceGlobals(h)
 				tc := mocks.NewTransactionServiceClient(ctrl)
 				tc.EXPECT().DeleteTransaction(gomock.Any(), gomock.Any()).Return(
-					&transaction.DeleteTransactionResponse{}, nil)
+					&protogen.DeleteTransactionResponse{}, nil)
 				clients.ReplaceGlobals(clients.NewClients(nil, tc))
 			},
 			expectedStatus: http.StatusOK,
@@ -571,7 +571,7 @@ func TestListTransactions(t *testing.T) {
 				h.EXPECT().GetUserFromContext(gomock.Any()).Return(models.UserWithRoles{}, true)
 				handlers.ReplaceGlobals(h)
 				tc := mocks.NewTransactionServiceClient(ctrl)
-				tc.EXPECT().ListTransactions(gomock.Any(), gomock.Any()).Return(&transaction.ListTransactionsResponse{}, nil)
+				tc.EXPECT().ListTransactions(gomock.Any(), gomock.Any()).Return(&protogen.ListTransactionsResponse{}, nil)
 				clients.ReplaceGlobals(clients.NewClients(nil, tc))
 			},
 			expectedStatus: http.StatusOK,

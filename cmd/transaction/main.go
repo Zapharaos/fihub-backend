@@ -5,7 +5,7 @@ import (
 	"github.com/Zapharaos/fihub-backend/cmd/transaction/app/service"
 	"github.com/Zapharaos/fihub-backend/internal/app"
 	"github.com/Zapharaos/fihub-backend/internal/database"
-	"github.com/Zapharaos/fihub-backend/protogen/transaction"
+	"github.com/Zapharaos/fihub-backend/protogen"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
@@ -39,7 +39,7 @@ func main() {
 	s := grpc.NewServer()
 
 	// Register your gRPC service here
-	transaction.RegisterTransactionServiceServer(s, &service.Service{})
+	protogen.RegisterTransactionServiceServer(s, &service.Service{})
 
 	zap.L().Info("gRPC Transaction microservice is running on port : " + port)
 	if err := s.Serve(lis); err != nil {

@@ -10,8 +10,7 @@ import (
 	"github.com/Zapharaos/fihub-backend/internal/database"
 	"github.com/Zapharaos/fihub-backend/pkg/email"
 	"github.com/Zapharaos/fihub-backend/pkg/translation"
-	"github.com/Zapharaos/fihub-backend/protogen/health"
-	"github.com/Zapharaos/fihub-backend/protogen/transaction"
+	"github.com/Zapharaos/fihub-backend/protogen"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 	"golang.org/x/text/language"
@@ -109,22 +108,26 @@ func main() {
 // initGrpcClients initializes the gRPC clients for the application.
 func initGrpcClients() {
 	// Connect to the gRPC service microservice
-	healthConn, err := grpc.NewClient("service:"+viper.GetString("HEALTH_MICROSERVICE_PORT"), grpc.WithTransportCredentials(insecure.NewCredentials()))
+	healthHost := viper.GetString("HEALTH_MICROSERVICE_HOST")
+	healthPort := viper.GetString("HEALTH_MICROSERVICE_PORT")
+	healthConn, err := grpc.NewClient(healthHost+":"+healthPort, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
-		zap.L().Fatal("Failed to connect to service gRPC service", zap.Error(err))
+		zap.L().Fatal("Failed to connect to health gRPC service", zap.Error(err))
 	} else {
-		zap.L().Info("Connected to service gRPC service", zap.String("address", healthConn.Target()))
+		zap.L().Info("Connected to health gRPC service", zap.String("address", healthConn.Target()))
 	}
-	healthClient := health.NewHealthServiceClient(healthConn)
+	healthClient := protogen.NewHealthServiceClient(healthConn)
 
 	// Connect to the gRPC transaction microservice
-	transactionConn, err := grpc.NewClient("transaction:"+viper.GetString("TRANSACTION_MICROSERVICE_PORT"), grpc.WithTransportCredentials(insecure.NewCredentials()))
+	transactionHost := viper.GetString("TRANSACTION_MICROSERVICE_HOST")
+	transactionPort := viper.GetString("TRANSACTION_MICROSERVICE_PORT")
+	transactionConn, err := grpc.NewClient(transactionHost+":"+transactionPort, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		zap.L().Fatal("Failed to connect to Transaction gRPC service", zap.Error(err))
 	} else {
 		zap.L().Info("Connected to transaction gRPC service", zap.String("address", transactionConn.Target()))
 	}
-	transactionClient := transaction.NewTransactionServiceClient(transactionConn)
+	transactionClient := protogen.NewTransactionServiceClient(transactionConn)
 
 	// Initialize the gRPC clients
 	clients.ReplaceGlobals(clients.NewClients(healthClient, transactionClient))

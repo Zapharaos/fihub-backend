@@ -1,27 +1,26 @@
 package clients
 
 import (
-	"github.com/Zapharaos/fihub-backend/protogen/health"
-	"github.com/Zapharaos/fihub-backend/protogen/transaction"
+	"github.com/Zapharaos/fihub-backend/protogen"
 )
 
 type Clients struct {
-	health      health.HealthServiceClient
-	transaction transaction.TransactionServiceClient
+	health      protogen.HealthServiceClient
+	transaction protogen.TransactionServiceClient
 }
 
-func NewClients(health health.HealthServiceClient, transaction transaction.TransactionServiceClient) Clients {
+func NewClients(health protogen.HealthServiceClient, transaction protogen.TransactionServiceClient) Clients {
 	return Clients{
 		health:      health,
 		transaction: transaction,
 	}
 }
 
-func (c Clients) Health() health.HealthServiceClient {
+func (c Clients) Health() protogen.HealthServiceClient {
 	return c.health
 }
 
-func (c Clients) Transaction() transaction.TransactionServiceClient {
+func (c Clients) Transaction() protogen.TransactionServiceClient {
 	return c.transaction
 }
 
