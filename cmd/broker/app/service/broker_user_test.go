@@ -374,7 +374,7 @@ func TestGetUserBrokers(t *testing.T) {
 
 	// Define request data
 	userID := uuid.New()
-	request := &protogen.GetUserBrokersRequest{
+	request := &protogen.ListUserBrokersRequest{
 		UserId: userID.String(),
 	}
 
@@ -382,8 +382,8 @@ func TestGetUserBrokers(t *testing.T) {
 	tests := []struct {
 		name            string
 		mockSetup       func(ctrl *gomock.Controller)
-		request         *protogen.GetUserBrokersRequest
-		expected        *protogen.GetUserBrokersResponse
+		request         *protogen.ListUserBrokersRequest
+		expected        *protogen.ListUserBrokersResponse
 		expectedErrCode codes.Code
 	}{
 		{
@@ -394,7 +394,7 @@ func TestGetUserBrokers(t *testing.T) {
 				repositories.ReplaceGlobals(repositories.NewRepository(nil, bu, nil))
 			},
 			request:         nil,
-			expected:        &protogen.GetUserBrokersResponse{},
+			expected:        &protogen.ListUserBrokersResponse{},
 			expectedErrCode: codes.InvalidArgument,
 		},
 		{
@@ -404,10 +404,10 @@ func TestGetUserBrokers(t *testing.T) {
 				bu.EXPECT().GetAll(gomock.Any()).Times(0)
 				repositories.ReplaceGlobals(repositories.NewRepository(nil, bu, nil))
 			},
-			request: &protogen.GetUserBrokersRequest{
+			request: &protogen.ListUserBrokersRequest{
 				UserId: "bad-uuid",
 			},
-			expected:        &protogen.GetUserBrokersResponse{},
+			expected:        &protogen.ListUserBrokersResponse{},
 			expectedErrCode: codes.InvalidArgument,
 		},
 		{
@@ -418,7 +418,7 @@ func TestGetUserBrokers(t *testing.T) {
 				repositories.ReplaceGlobals(repositories.NewRepository(nil, bu, nil))
 			},
 			request:         request,
-			expected:        &protogen.GetUserBrokersResponse{},
+			expected:        &protogen.ListUserBrokersResponse{},
 			expectedErrCode: codes.Internal,
 		},
 		{
@@ -429,7 +429,7 @@ func TestGetUserBrokers(t *testing.T) {
 				repositories.ReplaceGlobals(repositories.NewRepository(nil, bu, nil))
 			},
 			request:         request,
-			expected:        &protogen.GetUserBrokersResponse{},
+			expected:        &protogen.ListUserBrokersResponse{},
 			expectedErrCode: codes.OK,
 		},
 	}

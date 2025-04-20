@@ -190,8 +190,8 @@ func TestDeleteUserBroker(t *testing.T) {
 	}
 }
 
-// TestGetUserBrokers tests the GetUserBrokers handler
-func TestGetUserBrokers(t *testing.T) {
+// TestListUserBrokers tests the ListUserBrokers handler
+func TestListUserBrokers(t *testing.T) {
 	// Test cases
 	tests := []struct {
 		name           string
@@ -205,7 +205,7 @@ func TestGetUserBrokers(t *testing.T) {
 				m.EXPECT().GetUserFromContext(gomock.Any()).Return(models.UserWithRoles{}, false)
 				handlers.ReplaceGlobals(m)
 				bc := mocks.NewBrokerServiceClient(ctrl)
-				bc.EXPECT().GetUserBrokers(gomock.Any(), gomock.Any()).Times(0)
+				bc.EXPECT().ListUserBrokers(gomock.Any(), gomock.Any()).Times(0)
 				clients.ReplaceGlobals(clients.NewClients(nil, bc, nil))
 			},
 			expectedStatus: http.StatusUnauthorized,
@@ -217,7 +217,7 @@ func TestGetUserBrokers(t *testing.T) {
 				m.EXPECT().GetUserFromContext(gomock.Any()).Return(models.UserWithRoles{}, true)
 				handlers.ReplaceGlobals(m)
 				bc := mocks.NewBrokerServiceClient(ctrl)
-				bc.EXPECT().GetUserBrokers(gomock.Any(), gomock.Any()).Return(nil, status.Error(codes.Unknown, "error"))
+				bc.EXPECT().ListUserBrokers(gomock.Any(), gomock.Any()).Return(nil, status.Error(codes.Unknown, "error"))
 				clients.ReplaceGlobals(clients.NewClients(nil, bc, nil))
 			},
 			expectedStatus: http.StatusInternalServerError,
@@ -229,7 +229,7 @@ func TestGetUserBrokers(t *testing.T) {
 				m.EXPECT().GetUserFromContext(gomock.Any()).Return(models.UserWithRoles{}, true)
 				handlers.ReplaceGlobals(m)
 				bc := mocks.NewBrokerServiceClient(ctrl)
-				bc.EXPECT().GetUserBrokers(gomock.Any(), gomock.Any()).Return(&protogen.GetUserBrokersResponse{
+				bc.EXPECT().ListUserBrokers(gomock.Any(), gomock.Any()).Return(&protogen.ListUserBrokersResponse{
 					UserBrokers: []*protogen.BrokerUser{},
 				}, nil)
 				clients.ReplaceGlobals(clients.NewClients(nil, bc, nil))
@@ -250,7 +250,7 @@ func TestGetUserBrokers(t *testing.T) {
 			tt.mockSetup(ctrl)
 			defer ctrl.Finish()
 
-			handlers.GetUserBrokers(w, r)
+			handlers.ListUserBrokers(w, r)
 			response := w.Result()
 			defer response.Body.Close()
 

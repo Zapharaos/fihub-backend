@@ -1,11 +1,12 @@
 package handlers
 
 import (
+	"context"
 	"encoding/json"
-	"errors"
+	"github.com/Zapharaos/fihub-backend/cmd/api/app/clients"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/handlers/render"
-	"github.com/Zapharaos/fihub-backend/cmd/broker/app/repositories"
 	"github.com/Zapharaos/fihub-backend/internal/models"
+	"github.com/Zapharaos/fihub-backend/protogen"
 	"go.uber.org/zap"
 	"net/http"
 )
@@ -40,48 +41,24 @@ func CreateBroker(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Validate the broker
-	if valid, err := broker.IsValid(); !valid {
-		zap.L().Warn("Broker is not valid", zap.Error(err))
-		render.BadRequest(w, r, err)
-		return
+	// Create gRPC protogen.CreateBrokerRequest
+	brokerUserRequest := &protogen.CreateBrokerRequest{
+		Name:     broker.Name,
+		Disabled: broker.Disabled,
 	}
 
-	// Verify that the broker does not already exist
-	exists, err := repositories.R().B().ExistsByName(broker.Name)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	// Create the Broker
+	response, err := clients.C().Broker().CreateBroker(ctx, brokerUserRequest)
 	if err != nil {
-		zap.L().Error("Check broker exists", zap.Error(err))
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	if exists {
-		zap.L().Warn("Broker already exists", zap.String("Name", broker.Name))
-		render.BadRequest(w, r, errors.New("name-used"))
+		zap.L().Error("Create Broker", zap.Error(err))
+		render.ErrorCodesCodeToHttpCode(w, r, err)
 		return
 	}
 
-	// Create the broker
-	brokerID, err := repositories.R().B().Create(broker)
-	if err != nil {
-		zap.L().Warn("Create broker", zap.Error(err))
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	// Get the broker from the database
-	broker, found, err := repositories.R().B().Get(brokerID)
-	if err != nil {
-		zap.L().Error("Cannot get broker", zap.String("uuid", brokerID.String()), zap.Error(err))
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	if !found {
-		zap.L().Error("Broker not found after creation", zap.String("uuid", brokerID.String()))
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	render.JSON(w, r, broker)
+	render.JSON(w, r, models.FromProtogenBroker(response.Broker))
 }
 
 // GetBroker godoc
@@ -107,20 +84,23 @@ func GetBroker(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Get the broker from the database
-	broker, found, err := repositories.R().B().Get(brokerID)
-	if err != nil {
-		zap.L().Error("Cannot get broker", zap.String("uuid", brokerID.String()), zap.Error(err))
-		w.WriteHeader(http.StatusInternalServerError)
-		return
+	// Create gRPC protogen.GetBrokerRequest
+	brokerUserRequest := &protogen.GetBrokerRequest{
+		Id: brokerID.String(),
 	}
-	if !found {
-		zap.L().Error("Broker not found", zap.String("uuid", brokerID.String()))
-		w.WriteHeader(http.StatusNotFound)
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	// Get the Broker
+	response, err := clients.C().Broker().GetBroker(ctx, brokerUserRequest)
+	if err != nil {
+		zap.L().Error("Create Broker", zap.Error(err))
+		render.ErrorCodesCodeToHttpCode(w, r, err)
 		return
 	}
 
-	render.JSON(w, r, broker)
+	render.JSON(w, r, models.FromProtogenBroker(response.Broker))
 }
 
 // UpdateBroker godoc
@@ -161,66 +141,25 @@ func UpdateBroker(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	broker.ID = brokerID
-
-	// Validate the broker
-	if valid, err := broker.IsValid(); !valid {
-		zap.L().Warn("Broker is not valid", zap.Error(err))
-		render.BadRequest(w, r, err)
-		return
+	// Create gRPC protogen.UpdateBrokerRequest
+	brokerUserRequest := &protogen.UpdateBrokerRequest{
+		Id:       brokerID.String(),
+		Name:     broker.Name,
+		Disabled: broker.Disabled,
 	}
 
-	// Retrieve the broker from the database and verify its existence
-	oldBroker, found, err := repositories.R().B().Get(brokerID)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	// Update the Broker
+	response, err := clients.C().Broker().UpdateBroker(ctx, brokerUserRequest)
 	if err != nil {
-		zap.L().Error("Cannot get broker", zap.String("uuid", brokerID.String()), zap.Error(err))
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	if !found {
-		zap.L().Error("Broker not found", zap.String("uuid", brokerID.String()))
-		w.WriteHeader(http.StatusNotFound)
+		zap.L().Error("Update Broker", zap.Error(err))
+		render.ErrorCodesCodeToHttpCode(w, r, err)
 		return
 	}
 
-	// Check if the broker name has changed
-	if oldBroker.Name != broker.Name {
-		// Verify that the broker name is not already used
-		exists, err := repositories.R().B().ExistsByName(broker.Name)
-		if err != nil {
-			zap.L().Error("Check broker name exists", zap.Error(err))
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-		if exists {
-			zap.L().Warn("Broker name already used", zap.String("Name", broker.Name))
-			render.BadRequest(w, r, errors.New("name-used"))
-			return
-		}
-	}
-
-	// Update the broker
-	err = repositories.R().B().Update(broker)
-	if err != nil {
-		zap.L().Warn("Update broker", zap.Error(err))
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	// Get the broker from the database
-	broker, found, err = repositories.R().B().Get(brokerID)
-	if err != nil {
-		zap.L().Error("Cannot get broker", zap.String("uuid", brokerID.String()), zap.Error(err))
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	if !found {
-		zap.L().Error("Broker not found after update", zap.String("uuid", brokerID.String()))
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	render.JSON(w, r, broker)
+	render.JSON(w, r, models.FromProtogenBroker(response.Broker))
 }
 
 // DeleteBroker godoc
@@ -250,33 +189,28 @@ func DeleteBroker(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Verify that the broker exists
-	exists, err := repositories.R().B().Exists(brokerID)
-	if err != nil {
-		zap.L().Error("Check broker exists", zap.Error(err))
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	if !exists {
-		zap.L().Warn("Broker not found", zap.String("BrokerID", brokerID.String()))
-		w.WriteHeader(http.StatusNotFound)
-		return
+	// Create gRPC protogen.DeleteBrokerRequest
+	brokerUserRequest := &protogen.DeleteBrokerRequest{
+		Id: brokerID.String(),
 	}
 
-	// Delete the broker
-	err = repositories.R().B().Delete(brokerID)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	// Delete the Broker
+	_, err := clients.C().Broker().DeleteBroker(ctx, brokerUserRequest)
 	if err != nil {
-		zap.L().Warn("Delete broker", zap.Error(err))
-		w.WriteHeader(http.StatusInternalServerError)
+		zap.L().Error("Delete Broker", zap.Error(err))
+		render.ErrorCodesCodeToHttpCode(w, r, err)
 		return
 	}
 
 	render.OK(w, r)
 }
 
-// GetBrokers godoc
+// ListBrokers godoc
 //
-//	@Id				GetBrokers
+//	@Id				ListBrokers
 //
 //	@Summary		Get all brokers
 //	@Description	Gets a list of all brokers.
@@ -287,29 +221,34 @@ func DeleteBroker(w http.ResponseWriter, r *http.Request) {
 //	@Success		200	{array}		models.Broker			"list of brokers"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/brokers [get]
-func GetBrokers(w http.ResponseWriter, r *http.Request) {
+func ListBrokers(w http.ResponseWriter, r *http.Request) {
 
 	enabled, ok := U().ParseParamBool(w, r, "enabled")
 	if !ok {
 		return
 	}
 
-	var (
-		result []models.Broker
-		err    error
-	)
-
-	// Check if the query parameter is set to true
-	if enabled {
-		result, err = repositories.R().B().GetAllEnabled()
-	} else {
-		result, err = repositories.R().B().GetAll()
+	// Create gRPC protogen.ListBrokersRequest
+	brokerUserRequest := &protogen.ListBrokersRequest{
+		EnabledOnly: enabled,
 	}
 
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	// List the Broker
+	response, err := clients.C().Broker().ListBrokers(ctx, brokerUserRequest)
 	if err != nil {
-		render.Error(w, r, err, "Get brokers")
+		zap.L().Error("List Broker", zap.Error(err))
+		render.ErrorCodesCodeToHttpCode(w, r, err)
 		return
 	}
 
-	render.JSON(w, r, result)
+	// Map gRPC response to Brokers array
+	brokers := make([]models.Broker, len(response.Brokers))
+	for i, protogenBroker := range response.Brokers {
+		brokers[i] = models.FromProtogenBroker(protogenBroker)
+	}
+
+	render.JSON(w, r, brokers)
 }

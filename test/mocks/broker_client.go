@@ -42,6 +42,26 @@ func (m *BrokerServiceClient) EXPECT() *BrokerServiceClientMockRecorder {
 	return m.recorder
 }
 
+// CreateBroker mocks base method.
+func (m *BrokerServiceClient) CreateBroker(ctx context.Context, in *protogen.CreateBrokerRequest, opts ...grpc.CallOption) (*protogen.CreateBrokerResponse, error) {
+	m.ctrl.T.Helper()
+	varargs := []any{ctx, in}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "CreateBroker", varargs...)
+	ret0, _ := ret[0].(*protogen.CreateBrokerResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateBroker indicates an expected call of CreateBroker.
+func (mr *BrokerServiceClientMockRecorder) CreateBroker(ctx, in any, opts ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]any{ctx, in}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateBroker", reflect.TypeOf((*BrokerServiceClient)(nil).CreateBroker), varargs...)
+}
+
 // CreateBrokerImage mocks base method.
 func (m *BrokerServiceClient) CreateBrokerImage(ctx context.Context, in *protogen.CreateBrokerImageRequest, opts ...grpc.CallOption) (*protogen.CreateBrokerImageResponse, error) {
 	m.ctrl.T.Helper()
@@ -80,6 +100,26 @@ func (mr *BrokerServiceClientMockRecorder) CreateBrokerUser(ctx, in any, opts ..
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]any{ctx, in}, opts...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateBrokerUser", reflect.TypeOf((*BrokerServiceClient)(nil).CreateBrokerUser), varargs...)
+}
+
+// DeleteBroker mocks base method.
+func (m *BrokerServiceClient) DeleteBroker(ctx context.Context, in *protogen.DeleteBrokerRequest, opts ...grpc.CallOption) (*protogen.DeleteBrokerResponse, error) {
+	m.ctrl.T.Helper()
+	varargs := []any{ctx, in}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "DeleteBroker", varargs...)
+	ret0, _ := ret[0].(*protogen.DeleteBrokerResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DeleteBroker indicates an expected call of DeleteBroker.
+func (mr *BrokerServiceClientMockRecorder) DeleteBroker(ctx, in any, opts ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]any{ctx, in}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteBroker", reflect.TypeOf((*BrokerServiceClient)(nil).DeleteBroker), varargs...)
 }
 
 // DeleteBrokerImage mocks base method.
@@ -122,6 +162,26 @@ func (mr *BrokerServiceClientMockRecorder) DeleteBrokerUser(ctx, in any, opts ..
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteBrokerUser", reflect.TypeOf((*BrokerServiceClient)(nil).DeleteBrokerUser), varargs...)
 }
 
+// GetBroker mocks base method.
+func (m *BrokerServiceClient) GetBroker(ctx context.Context, in *protogen.GetBrokerRequest, opts ...grpc.CallOption) (*protogen.GetBrokerResponse, error) {
+	m.ctrl.T.Helper()
+	varargs := []any{ctx, in}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "GetBroker", varargs...)
+	ret0, _ := ret[0].(*protogen.GetBrokerResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetBroker indicates an expected call of GetBroker.
+func (mr *BrokerServiceClientMockRecorder) GetBroker(ctx, in any, opts ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]any{ctx, in}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBroker", reflect.TypeOf((*BrokerServiceClient)(nil).GetBroker), varargs...)
+}
+
 // GetBrokerImage mocks base method.
 func (m *BrokerServiceClient) GetBrokerImage(ctx context.Context, in *protogen.GetBrokerImageRequest, opts ...grpc.CallOption) (*protogen.GetBrokerImageResponse, error) {
 	m.ctrl.T.Helper()
@@ -142,24 +202,64 @@ func (mr *BrokerServiceClientMockRecorder) GetBrokerImage(ctx, in any, opts ...a
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBrokerImage", reflect.TypeOf((*BrokerServiceClient)(nil).GetBrokerImage), varargs...)
 }
 
-// GetUserBrokers mocks base method.
-func (m *BrokerServiceClient) GetUserBrokers(ctx context.Context, in *protogen.GetUserBrokersRequest, opts ...grpc.CallOption) (*protogen.GetUserBrokersResponse, error) {
+// ListBrokers mocks base method.
+func (m *BrokerServiceClient) ListBrokers(ctx context.Context, in *protogen.ListBrokersRequest, opts ...grpc.CallOption) (*protogen.ListBrokersResponse, error) {
 	m.ctrl.T.Helper()
 	varargs := []any{ctx, in}
 	for _, a := range opts {
 		varargs = append(varargs, a)
 	}
-	ret := m.ctrl.Call(m, "GetUserBrokers", varargs...)
-	ret0, _ := ret[0].(*protogen.GetUserBrokersResponse)
+	ret := m.ctrl.Call(m, "ListBrokers", varargs...)
+	ret0, _ := ret[0].(*protogen.ListBrokersResponse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetUserBrokers indicates an expected call of GetUserBrokers.
-func (mr *BrokerServiceClientMockRecorder) GetUserBrokers(ctx, in any, opts ...any) *gomock.Call {
+// ListBrokers indicates an expected call of ListBrokers.
+func (mr *BrokerServiceClientMockRecorder) ListBrokers(ctx, in any, opts ...any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]any{ctx, in}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserBrokers", reflect.TypeOf((*BrokerServiceClient)(nil).GetUserBrokers), varargs...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListBrokers", reflect.TypeOf((*BrokerServiceClient)(nil).ListBrokers), varargs...)
+}
+
+// ListUserBrokers mocks base method.
+func (m *BrokerServiceClient) ListUserBrokers(ctx context.Context, in *protogen.ListUserBrokersRequest, opts ...grpc.CallOption) (*protogen.ListUserBrokersResponse, error) {
+	m.ctrl.T.Helper()
+	varargs := []any{ctx, in}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "ListUserBrokers", varargs...)
+	ret0, _ := ret[0].(*protogen.ListUserBrokersResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListUserBrokers indicates an expected call of ListUserBrokers.
+func (mr *BrokerServiceClientMockRecorder) ListUserBrokers(ctx, in any, opts ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]any{ctx, in}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListUserBrokers", reflect.TypeOf((*BrokerServiceClient)(nil).ListUserBrokers), varargs...)
+}
+
+// UpdateBroker mocks base method.
+func (m *BrokerServiceClient) UpdateBroker(ctx context.Context, in *protogen.UpdateBrokerRequest, opts ...grpc.CallOption) (*protogen.UpdateBrokerResponse, error) {
+	m.ctrl.T.Helper()
+	varargs := []any{ctx, in}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "UpdateBroker", varargs...)
+	ret0, _ := ret[0].(*protogen.UpdateBrokerResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateBroker indicates an expected call of UpdateBroker.
+func (mr *BrokerServiceClientMockRecorder) UpdateBroker(ctx, in any, opts ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]any{ctx, in}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateBroker", reflect.TypeOf((*BrokerServiceClient)(nil).UpdateBroker), varargs...)
 }
 
 // UpdateBrokerImage mocks base method.
@@ -206,6 +306,21 @@ func (m *MockBrokerServiceServer) EXPECT() *MockBrokerServiceServerMockRecorder 
 	return m.recorder
 }
 
+// CreateBroker mocks base method.
+func (m *MockBrokerServiceServer) CreateBroker(arg0 context.Context, arg1 *protogen.CreateBrokerRequest) (*protogen.CreateBrokerResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateBroker", arg0, arg1)
+	ret0, _ := ret[0].(*protogen.CreateBrokerResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateBroker indicates an expected call of CreateBroker.
+func (mr *MockBrokerServiceServerMockRecorder) CreateBroker(arg0, arg1 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateBroker", reflect.TypeOf((*MockBrokerServiceServer)(nil).CreateBroker), arg0, arg1)
+}
+
 // CreateBrokerImage mocks base method.
 func (m *MockBrokerServiceServer) CreateBrokerImage(arg0 context.Context, arg1 *protogen.CreateBrokerImageRequest) (*protogen.CreateBrokerImageResponse, error) {
 	m.ctrl.T.Helper()
@@ -234,6 +349,21 @@ func (m *MockBrokerServiceServer) CreateBrokerUser(arg0 context.Context, arg1 *p
 func (mr *MockBrokerServiceServerMockRecorder) CreateBrokerUser(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateBrokerUser", reflect.TypeOf((*MockBrokerServiceServer)(nil).CreateBrokerUser), arg0, arg1)
+}
+
+// DeleteBroker mocks base method.
+func (m *MockBrokerServiceServer) DeleteBroker(arg0 context.Context, arg1 *protogen.DeleteBrokerRequest) (*protogen.DeleteBrokerResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteBroker", arg0, arg1)
+	ret0, _ := ret[0].(*protogen.DeleteBrokerResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DeleteBroker indicates an expected call of DeleteBroker.
+func (mr *MockBrokerServiceServerMockRecorder) DeleteBroker(arg0, arg1 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteBroker", reflect.TypeOf((*MockBrokerServiceServer)(nil).DeleteBroker), arg0, arg1)
 }
 
 // DeleteBrokerImage mocks base method.
@@ -266,6 +396,21 @@ func (mr *MockBrokerServiceServerMockRecorder) DeleteBrokerUser(arg0, arg1 any) 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteBrokerUser", reflect.TypeOf((*MockBrokerServiceServer)(nil).DeleteBrokerUser), arg0, arg1)
 }
 
+// GetBroker mocks base method.
+func (m *MockBrokerServiceServer) GetBroker(arg0 context.Context, arg1 *protogen.GetBrokerRequest) (*protogen.GetBrokerResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetBroker", arg0, arg1)
+	ret0, _ := ret[0].(*protogen.GetBrokerResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetBroker indicates an expected call of GetBroker.
+func (mr *MockBrokerServiceServerMockRecorder) GetBroker(arg0, arg1 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBroker", reflect.TypeOf((*MockBrokerServiceServer)(nil).GetBroker), arg0, arg1)
+}
+
 // GetBrokerImage mocks base method.
 func (m *MockBrokerServiceServer) GetBrokerImage(arg0 context.Context, arg1 *protogen.GetBrokerImageRequest) (*protogen.GetBrokerImageResponse, error) {
 	m.ctrl.T.Helper()
@@ -281,19 +426,49 @@ func (mr *MockBrokerServiceServerMockRecorder) GetBrokerImage(arg0, arg1 any) *g
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBrokerImage", reflect.TypeOf((*MockBrokerServiceServer)(nil).GetBrokerImage), arg0, arg1)
 }
 
-// GetUserBrokers mocks base method.
-func (m *MockBrokerServiceServer) GetUserBrokers(arg0 context.Context, arg1 *protogen.GetUserBrokersRequest) (*protogen.GetUserBrokersResponse, error) {
+// ListBrokers mocks base method.
+func (m *MockBrokerServiceServer) ListBrokers(arg0 context.Context, arg1 *protogen.ListBrokersRequest) (*protogen.ListBrokersResponse, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetUserBrokers", arg0, arg1)
-	ret0, _ := ret[0].(*protogen.GetUserBrokersResponse)
+	ret := m.ctrl.Call(m, "ListBrokers", arg0, arg1)
+	ret0, _ := ret[0].(*protogen.ListBrokersResponse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetUserBrokers indicates an expected call of GetUserBrokers.
-func (mr *MockBrokerServiceServerMockRecorder) GetUserBrokers(arg0, arg1 any) *gomock.Call {
+// ListBrokers indicates an expected call of ListBrokers.
+func (mr *MockBrokerServiceServerMockRecorder) ListBrokers(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserBrokers", reflect.TypeOf((*MockBrokerServiceServer)(nil).GetUserBrokers), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListBrokers", reflect.TypeOf((*MockBrokerServiceServer)(nil).ListBrokers), arg0, arg1)
+}
+
+// ListUserBrokers mocks base method.
+func (m *MockBrokerServiceServer) ListUserBrokers(arg0 context.Context, arg1 *protogen.ListUserBrokersRequest) (*protogen.ListUserBrokersResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListUserBrokers", arg0, arg1)
+	ret0, _ := ret[0].(*protogen.ListUserBrokersResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListUserBrokers indicates an expected call of ListUserBrokers.
+func (mr *MockBrokerServiceServerMockRecorder) ListUserBrokers(arg0, arg1 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListUserBrokers", reflect.TypeOf((*MockBrokerServiceServer)(nil).ListUserBrokers), arg0, arg1)
+}
+
+// UpdateBroker mocks base method.
+func (m *MockBrokerServiceServer) UpdateBroker(arg0 context.Context, arg1 *protogen.UpdateBrokerRequest) (*protogen.UpdateBrokerResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateBroker", arg0, arg1)
+	ret0, _ := ret[0].(*protogen.UpdateBrokerResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateBroker indicates an expected call of UpdateBroker.
+func (mr *MockBrokerServiceServerMockRecorder) UpdateBroker(arg0, arg1 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateBroker", reflect.TypeOf((*MockBrokerServiceServer)(nil).UpdateBroker), arg0, arg1)
 }
 
 // UpdateBrokerImage mocks base method.

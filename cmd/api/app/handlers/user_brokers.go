@@ -119,9 +119,9 @@ func DeleteUserBroker(w http.ResponseWriter, r *http.Request) {
 	render.OK(w, r)
 }
 
-// GetUserBrokers godoc
+// ListUserBrokers godoc
 //
-//	@Id				GetUserBrokers
+//	@Id				ListUserBrokers
 //
 //	@Summary		Get all user's brokers
 //	@Description	Gets a list of all user's brokers.
@@ -132,7 +132,7 @@ func DeleteUserBroker(w http.ResponseWriter, r *http.Request) {
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/users/brokers [get]
-func GetUserBrokers(w http.ResponseWriter, r *http.Request) {
+func ListUserBrokers(w http.ResponseWriter, r *http.Request) {
 
 	// Get the authenticated user from the context
 	user, ok := U().GetUserFromContext(r)
@@ -142,7 +142,7 @@ func GetUserBrokers(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Map props to gRPC protogen.GetUserBrokersRequest
-	brokerUserRequest := &protogen.GetUserBrokersRequest{
+	brokerUserRequest := &protogen.ListUserBrokersRequest{
 		UserId: user.ID.String(),
 	}
 
@@ -150,7 +150,7 @@ func GetUserBrokers(w http.ResponseWriter, r *http.Request) {
 	defer cancel()
 
 	// Get the userBrokers
-	response, err := clients.C().Broker().GetUserBrokers(ctx, brokerUserRequest)
+	response, err := clients.C().Broker().ListUserBrokers(ctx, brokerUserRequest)
 	if err != nil {
 		zap.L().Error("Get BrokerUsers", zap.Error(err))
 		render.ErrorCodesCodeToHttpCode(w, r, err)

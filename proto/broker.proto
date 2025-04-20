@@ -5,10 +5,17 @@ package broker;
 option go_package = "./protogen";
 
 service BrokerService {
+	// Broker management
+	rpc CreateBroker(CreateBrokerRequest) returns (CreateBrokerResponse);
+	rpc GetBroker(GetBrokerRequest) returns (GetBrokerResponse);
+	rpc UpdateBroker(UpdateBrokerRequest) returns (UpdateBrokerResponse);
+	rpc DeleteBroker(DeleteBrokerRequest) returns (DeleteBrokerResponse);
+	rpc ListBrokers(ListBrokersRequest) returns (ListBrokersResponse);
+
 	// Broker user management
 	rpc CreateBrokerUser(CreateBrokerUserRequest) returns (CreateBrokerUserResponse);
 	rpc DeleteBrokerUser(DeleteBrokerUserRequest) returns (DeleteBrokerUserResponse);
-	rpc GetUserBrokers(GetUserBrokersRequest) returns (GetUserBrokersResponse);
+	rpc ListUserBrokers(ListUserBrokersRequest) returns (ListUserBrokersResponse);
 
 	// Image management
 	rpc CreateBrokerImage(CreateBrokerImageRequest) returns (CreateBrokerImageResponse);
@@ -17,11 +24,57 @@ service BrokerService {
 	rpc DeleteBrokerImage(DeleteBrokerImageRequest) returns (DeleteBrokerImageResponse);
 }
 
+// Broker
+
 message Broker {
 	string id = 1;
 	string name = 2;
 	string image_id = 3;
 	bool disabled = 4;
+}
+
+message CreateBrokerRequest {
+	string name = 1;
+	bool disabled = 3;
+}
+
+message CreateBrokerResponse {
+	Broker broker = 1;
+}
+
+message GetBrokerRequest {
+	string id = 1;
+}
+
+message GetBrokerResponse {
+	Broker broker = 1;
+}
+
+message UpdateBrokerRequest {
+	string id = 1;
+	string name = 2;
+	string image_id = 3;
+	bool disabled = 4;
+}
+
+message UpdateBrokerResponse {
+	Broker broker = 1;
+}
+
+message DeleteBrokerRequest {
+	string id = 1;
+}
+
+message DeleteBrokerResponse {
+	bool success = 1;
+}
+
+message ListBrokersRequest {
+	bool enabled_only = 1;
+}
+
+message ListBrokersResponse {
+	repeated Broker brokers = 1;
 }
 
 // Broker user
@@ -49,11 +102,11 @@ message DeleteBrokerUserResponse {
 	bool success = 1;
 }
 
-message GetUserBrokersRequest {
+message ListUserBrokersRequest {
 	string user_id = 1;
 }
 
-message GetUserBrokersResponse {
+message ListUserBrokersResponse {
 	repeated BrokerUser user_brokers = 1;
 }
 

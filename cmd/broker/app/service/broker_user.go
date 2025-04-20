@@ -11,8 +11,6 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-// TODO : service tests
-// TODO : handler tests
 // TODO : replace other handlers calls to broker repositories with gRPC calls
 // TODO : remove broker repositories from internal/app singletons
 
@@ -170,20 +168,20 @@ func (h *Service) DeleteBrokerUser(ctx context.Context, req *protogen.DeleteBrok
 }
 
 // GetUserBrokers implements the GetUserBrokers RPC method.
-func (h *Service) GetUserBrokers(ctx context.Context, req *protogen.GetUserBrokersRequest) (*protogen.GetUserBrokersResponse, error) {
+func (h *Service) GetUserBrokers(ctx context.Context, req *protogen.ListUserBrokersRequest) (*protogen.ListUserBrokersResponse, error) {
 	// Parse the user ID from the request
 	userID, err := uuid.Parse(req.GetUserId())
 	if err != nil {
 		// Log the error and return an invalid response
 		zap.L().Error("Invalid user ID", zap.String("user_id", req.GetUserId()), zap.Error(err))
-		return &protogen.GetUserBrokersResponse{}, status.Error(codes.InvalidArgument, "Invalid user ID")
+		return &protogen.ListUserBrokersResponse{}, status.Error(codes.InvalidArgument, "Invalid user ID")
 	}
 
 	// Get userBrokers back from database
 	userBrokers, err := repositories.R().U().GetAll(userID)
 	if err != nil {
 		zap.L().Error("Cannot get user brokers", zap.String("uuid", userID.String()), zap.Error(err))
-		return &protogen.GetUserBrokersResponse{}, status.Error(codes.Internal, err.Error())
+		return &protogen.ListUserBrokersResponse{}, status.Error(codes.Internal, err.Error())
 	}
 
 	// Convert userBrokers to gRPC format
@@ -192,7 +190,7 @@ func (h *Service) GetUserBrokers(ctx context.Context, req *protogen.GetUserBroke
 		list[i] = item.ToProtogenBrokerUser()
 	}
 
-	return &protogen.GetUserBrokersResponse{
+	return &protogen.ListUserBrokersResponse{
 		UserBrokers: list,
 	}, nil
 }
