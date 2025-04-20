@@ -38,7 +38,7 @@ func main() {
 
 	s := grpc.NewServer()
 
-	// Register your gRPC service here
+	// Register gRPC service
 	protogen.RegisterTransactionServiceServer(s, &service.Service{})
 
 	zap.L().Info("gRPC Transaction microservice is running on port : " + port)

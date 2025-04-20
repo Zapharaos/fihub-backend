@@ -46,6 +46,23 @@ services:
     networks:
       - backend
 
+  broker:
+    build:
+      context: .
+      dockerfile: cmd/broker/Dockerfile
+      target: production
+    restart: unless-stopped
+    ports:
+      - "50003:50003"
+    env_file:
+      - .env
+    depends_on:
+      - api
+    volumes:
+      - ./:/app
+    networks:
+      - backend
+
   transaction:
     build:
       context: .

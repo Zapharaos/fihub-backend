@@ -101,7 +101,7 @@ func CreateUserBroker(w http.ResponseWriter, r *http.Request) {
 	// Get userBrockers back from database
 	userBrockers, err := brokers.R().U().GetAll(user.ID)
 	if err != nil {
-		zap.L().Error("Cannot get user brockers", zap.String("uuid", user.ID.String()), zap.Error(err))
+		zap.L().Error("Cannot get user brokers", zap.String("uuid", user.ID.String()), zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -167,7 +167,7 @@ func DeleteUserBroker(w http.ResponseWriter, r *http.Request) {
 	// Remove broker
 	err = brokers.R().U().Delete(userBroker)
 	if err != nil {
-		zap.L().Error("Cannot remove user brocker", zap.String("uuid", user.ID.String()), zap.Error(err))
+		zap.L().Error("Cannot remove user broker", zap.String("uuid", user.ID.String()), zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -200,7 +200,7 @@ func GetUserBrokers(w http.ResponseWriter, r *http.Request) {
 	// Get userBrockers back from database
 	userBrockers, err := brokers.R().U().GetAll(user.ID)
 	if err != nil {
-		zap.L().Error("Cannot get user brockers", zap.String("uuid", user.ID.String()), zap.Error(err))
+		zap.L().Error("Cannot get user brokers", zap.String("uuid", user.ID.String()), zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}

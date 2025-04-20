@@ -6,18 +6,24 @@ import (
 
 type Clients struct {
 	health      protogen.HealthServiceClient
+	broker      protogen.BrokerServiceClient
 	transaction protogen.TransactionServiceClient
 }
 
-func NewClients(health protogen.HealthServiceClient, transaction protogen.TransactionServiceClient) Clients {
+func NewClients(health protogen.HealthServiceClient, broker protogen.BrokerServiceClient, transaction protogen.TransactionServiceClient) Clients {
 	return Clients{
 		health:      health,
+		broker:      broker,
 		transaction: transaction,
 	}
 }
 
 func (c Clients) Health() protogen.HealthServiceClient {
 	return c.health
+}
+
+func (c Clients) Broker() protogen.BrokerServiceClient {
+	return c.broker
 }
 
 func (c Clients) Transaction() protogen.TransactionServiceClient {

@@ -8,6 +8,10 @@ services:
     build:
       target: development
 
+  broker:
+    build:
+      target: development
+
   transaction:
     build:
       target: development

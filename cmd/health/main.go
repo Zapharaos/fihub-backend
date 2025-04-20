@@ -30,7 +30,7 @@ func main() {
 
 	s := grpc.NewServer()
 
-	// Register your gRPC service here
+	// Register gRPC service
 	protogen.RegisterHealthServiceServer(s, &service.Service{})
 
 	zap.L().Info("gRPC Health microservice is running on port : " + port)

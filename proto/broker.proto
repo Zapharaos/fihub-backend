@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package broker;
+
+option go_package = "./protogen";
+
+service BrokerService {
+	rpc TODO(TodoRequest) returns (TodoResponse);
+}
+
+message TodoRequest {
+}
+
+message TodoResponse {
+}
