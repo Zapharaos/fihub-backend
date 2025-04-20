@@ -43,7 +43,7 @@ func (s *Service) CreateTransaction(ctx context.Context, req *protogen.CreateTra
 		UserID:    userID,
 		BrokerID:  brokerID,
 		Date:      req.GetDate().AsTime(),
-		Type:      models.FromGenTransactionType(req.GetTransactionType()),
+		Type:      models.FromProtogenTransactionType(req.GetTransactionType()),
 		Asset:     req.GetAsset(),
 		Quantity:  req.GetQuantity(),
 		Price:     req.GetPrice(),
@@ -87,7 +87,7 @@ func (s *Service) CreateTransaction(ctx context.Context, req *protogen.CreateTra
 
 	// Return the created transaction
 	return &protogen.CreateTransactionResponse{
-		Transaction: t.ToGenTransaction(),
+		Transaction: t.ToProtogenTransaction(),
 	}, nil
 }
 
@@ -119,7 +119,7 @@ func (s *Service) GetTransaction(ctx context.Context, req *protogen.GetTransacti
 
 	// Return the transaction
 	return &protogen.GetTransactionResponse{
-		Transaction: t.ToGenTransaction(),
+		Transaction: t.ToProtogenTransaction(),
 	}, nil
 }
 
@@ -147,7 +147,7 @@ func (s *Service) ListTransactions(ctx context.Context, req *protogen.ListTransa
 	// Convert transactions to gRPC format
 	list := make([]*protogen.Transaction, len(t))
 	for i, item := range t {
-		list[i] = item.ToGenTransaction()
+		list[i] = item.ToProtogenTransaction()
 	}
 
 	// Return the list of transactions
@@ -195,7 +195,7 @@ func (s *Service) UpdateTransaction(ctx context.Context, req *protogen.UpdateTra
 		UserID:    userID,
 		BrokerID:  brokerID,
 		Date:      req.GetDate().AsTime(),
-		Type:      models.FromGenTransactionType(req.GetTransactionType()),
+		Type:      models.FromProtogenTransactionType(req.GetTransactionType()),
 		Asset:     req.GetAsset(),
 		Quantity:  req.GetQuantity(),
 		Price:     req.GetPrice(),
@@ -260,7 +260,7 @@ func (s *Service) UpdateTransaction(ctx context.Context, req *protogen.UpdateTra
 
 	// Return the created transaction
 	return &protogen.UpdateTransactionResponse{
-		Transaction: t.ToGenTransaction(),
+		Transaction: t.ToProtogenTransaction(),
 	}, nil
 }
 

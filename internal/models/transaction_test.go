@@ -204,7 +204,7 @@ func TestTransactionInputIsValid(t *testing.T) {
 	}
 }
 
-// TestToGenTransactionType tests the ToGenTransactionType method of TransactionType
+// TestToGenTransactionType tests the ToProtogenTransactionType method of TransactionType
 func TestToGenTransactionType(t *testing.T) {
 	// Define test cases
 	tests := []struct {
@@ -220,13 +220,13 @@ func TestToGenTransactionType(t *testing.T) {
 	// Run tests
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := tt.input.ToGenTransactionType()
+			result := tt.input.ToProtogenTransactionType()
 			assert.Equal(t, tt.expected, result)
 		})
 	}
 }
 
-// TestToGenTransaction tests the ToGenTransaction method of Transaction
+// TestToGenTransaction tests the ToProtogenTransaction method of Transaction
 func TestToGenTransaction(t *testing.T) {
 	// Create test UUIDs
 	id := uuid.New()
@@ -249,7 +249,7 @@ func TestToGenTransaction(t *testing.T) {
 	}
 
 	// Convert to gen transaction
-	result := tr.ToGenTransaction()
+	result := tr.ToProtogenTransaction()
 
 	// Assert results
 	assert.Equal(t, id.String(), result.Id)
@@ -264,7 +264,7 @@ func TestToGenTransaction(t *testing.T) {
 	assert.Equal(t, 1.99, result.Fee)
 }
 
-// TestFromGenTransactionType tests the FromGenTransactionType function
+// TestFromGenTransactionType tests the FromProtogenTransactionType function
 func TestFromGenTransactionType(t *testing.T) {
 	// Define test cases
 	tests := []struct {
@@ -280,13 +280,13 @@ func TestFromGenTransactionType(t *testing.T) {
 	// Run tests
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := FromGenTransactionType(tt.input)
+			result := FromProtogenTransactionType(tt.input)
 			assert.Equal(t, tt.expected, result)
 		})
 	}
 }
 
-// TestFromGenTransaction tests the FromGenTransaction function
+// TestFromGenTransaction tests the FromProtogenTransaction function
 func TestFromGenTransaction(t *testing.T) {
 	// Create test UUIDs as strings
 	idStr := uuid.New().String()
@@ -313,7 +313,7 @@ func TestFromGenTransaction(t *testing.T) {
 	}
 
 	// Convert from gen transaction
-	result := FromGenTransaction(genTransaction)
+	result := FromProtogenTransaction(genTransaction)
 
 	// Assert results
 	assert.Equal(t, id, result.ID)
@@ -334,6 +334,6 @@ func TestFromGenTransaction(t *testing.T) {
 		BrokerId: brokerIdStr,
 	}
 
-	invalidResult := FromGenTransaction(invalidGenTransaction)
+	invalidResult := FromProtogenTransaction(invalidGenTransaction)
 	assert.Equal(t, Transaction{}, invalidResult)
 }

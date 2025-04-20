@@ -115,8 +115,8 @@ func (t *TransactionInput) IsValid() (bool, error) {
 	return true, nil
 }
 
-// ToGenTransactionType converts a TransactionType to a gentransaction.TransactionType
-func (t TransactionType) ToGenTransactionType() protogen.TransactionType {
+// ToProtogenTransactionType converts a TransactionType to a protogen.TransactionType
+func (t TransactionType) ToProtogenTransactionType() protogen.TransactionType {
 	switch t {
 	case BUY:
 		return protogen.TransactionType_BUY
@@ -127,14 +127,14 @@ func (t TransactionType) ToGenTransactionType() protogen.TransactionType {
 	}
 }
 
-// ToGenTransaction converts a Transaction to a gentransaction.Transaction
-func (t Transaction) ToGenTransaction() *protogen.Transaction {
+// ToProtogenTransaction converts a Transaction to a protogen.Transaction
+func (t Transaction) ToProtogenTransaction() *protogen.Transaction {
 	return &protogen.Transaction{
 		Id:              t.ID.String(),
 		UserId:          t.UserID.String(),
 		BrokerId:        t.Broker.ID.String(),
 		Date:            timestamppb.New(t.Date),
-		TransactionType: t.Type.ToGenTransactionType(),
+		TransactionType: t.Type.ToProtogenTransactionType(),
 		Asset:           t.Asset,
 		Quantity:        t.Quantity,
 		Price:           t.Price,
@@ -143,8 +143,8 @@ func (t Transaction) ToGenTransaction() *protogen.Transaction {
 	}
 }
 
-// FromGenTransactionType converts a transaction.TransactionType to a TransactionType
-func FromGenTransactionType(t protogen.TransactionType) TransactionType {
+// FromProtogenTransactionType converts a protogen.TransactionType to a TransactionType
+func FromProtogenTransactionType(t protogen.TransactionType) TransactionType {
 	switch t {
 	case protogen.TransactionType_BUY:
 		return BUY
@@ -155,9 +155,8 @@ func FromGenTransactionType(t protogen.TransactionType) TransactionType {
 	}
 }
 
-// FromGenTransaction converts a gentransaction.Transaction to a Transaction
-func FromGenTransaction(t *protogen.Transaction) Transaction {
-	// TODO : do not return Broker type here, only ID
+// FromProtogenTransaction converts a protogen.Transaction to a Transaction
+func FromProtogenTransaction(t *protogen.Transaction) Transaction {
 	id, err := uuid.Parse(t.Id)
 	if err != nil {
 		return Transaction{}
@@ -172,9 +171,11 @@ func FromGenTransaction(t *protogen.Transaction) Transaction {
 	}
 
 	return Transaction{
-		ID:        id,
-		UserID:    userId,
-		Broker:    Broker{ID: brokerId},
+		ID:     id,
+		UserID: userId,
+		Broker: Broker{
+			ID: brokerId,
+		},
 		Date:      t.Date.AsTime(),
 		Type:      TransactionType(t.TransactionType.String()),
 		Asset:     t.Asset,

@@ -68,7 +68,7 @@ func CreateTransaction(w http.ResponseWriter, r *http.Request) {
 		UserId:          user.ID.String(),
 		BrokerId:        transactionInput.BrokerID.String(),
 		Date:            timestamppb.New(transactionInput.Date),
-		TransactionType: transactionInput.Type.ToGenTransactionType(),
+		TransactionType: transactionInput.Type.ToProtogenTransactionType(),
 		Asset:           transactionInput.Asset,
 		Quantity:        transactionInput.Quantity,
 		Price:           transactionInput.Price,
@@ -87,7 +87,24 @@ func CreateTransaction(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Map gRPC response to Transaction
-	render.JSON(w, r, models.FromGenTransaction(response.Transaction))
+	transaction := models.FromProtogenTransaction(response.Transaction)
+
+	// Retrieve broker object
+	broker, found, err := brokers.R().B().Get(transaction.Broker.ID)
+	if err != nil {
+		zap.L().Error("Cannot get broker", zap.String("uuid", transaction.Broker.ID.String()), zap.Error(err))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	if !found {
+		zap.L().Error("Broker not found", zap.String("uuid", transaction.Broker.ID.String()))
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	// Put the broker object in the transaction
+	transaction.Broker = broker
+	render.JSON(w, r, transaction)
 }
 
 // GetTransaction godoc
@@ -136,16 +153,31 @@ func GetTransaction(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Map gRPC response to Transaction
-	t := models.FromGenTransaction(response.Transaction)
+	transaction := models.FromProtogenTransaction(response.Transaction)
 
 	// Check if the transaction belongs to the user
-	if t.UserID != user.ID {
+	if transaction.UserID != user.ID {
 		zap.L().Warn("Transaction does not belong to user", zap.String("uuid", transactionID.String()))
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
-	render.JSON(w, r, t)
+	// Retrieve broker object
+	broker, found, err := brokers.R().B().Get(transaction.Broker.ID)
+	if err != nil {
+		zap.L().Error("Cannot get broker", zap.String("uuid", transaction.Broker.ID.String()), zap.Error(err))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	if !found {
+		zap.L().Error("Broker not found", zap.String("uuid", transaction.Broker.ID.String()))
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	// Put the broker object in the transaction
+	transaction.Broker = broker
+	render.JSON(w, r, transaction)
 }
 
 // UpdateTransaction godoc
@@ -209,7 +241,7 @@ func UpdateTransaction(w http.ResponseWriter, r *http.Request) {
 		UserId:          user.ID.String(),
 		BrokerId:        transactionInput.BrokerID.String(),
 		Date:            timestamppb.New(transactionInput.Date),
-		TransactionType: transactionInput.Type.ToGenTransactionType(),
+		TransactionType: transactionInput.Type.ToProtogenTransactionType(),
 		Asset:           transactionInput.Asset,
 		Quantity:        transactionInput.Quantity,
 		Price:           transactionInput.Price,
@@ -241,7 +273,24 @@ func UpdateTransaction(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Map gRPC response to Transaction
-	render.JSON(w, r, models.FromGenTransaction(response.Transaction))
+	transaction := models.FromProtogenTransaction(response.Transaction)
+
+	// Retrieve broker object
+	broker, found, err := brokers.R().B().Get(transaction.Broker.ID)
+	if err != nil {
+		zap.L().Error("Cannot get broker", zap.String("uuid", transaction.Broker.ID.String()), zap.Error(err))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	if !found {
+		zap.L().Error("Broker not found", zap.String("uuid", transaction.Broker.ID.String()))
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	// Put the broker object in the transaction
+	transaction.Broker = broker
+	render.JSON(w, r, transaction)
 }
 
 // DeleteTransaction godoc
@@ -318,10 +367,8 @@ func ListTransactions(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	// Retrieve the transaction
-	c := clients.C().Transaction()
 	// List transactions
-	response, err := c.ListTransactions(ctx, &protogen.ListTransactionsRequest{
+	response, err := clients.C().Transaction().ListTransactions(ctx, &protogen.ListTransactionsRequest{
 		UserId: user.ID.String(),
 	})
 	if err != nil {
@@ -330,10 +377,26 @@ func ListTransactions(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Retrieve all existing brokers
+	brokersAll, err := brokers.R().B().GetAll()
+	if err != nil {
+		zap.L().Error("Cannot get brokers", zap.Error(err))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	// Create a map of brokers indexed by broker ID for faster lookup
+	brokersMap := make(map[string]models.Broker)
+	for _, b := range brokersAll {
+		brokersMap[b.ID.String()] = b
+	}
+
 	// Map gRPC response to Transaction array
 	t := make([]models.Transaction, len(response.Transactions))
-	for i, genTransaction := range response.Transactions {
-		t[i] = models.FromGenTransaction(genTransaction)
+	for i, protogenTransaction := range response.Transactions {
+		transaction := models.FromProtogenTransaction(protogenTransaction)
+		transaction.Broker = brokersMap[transaction.Broker.ID.String()]
+		t[i] = transaction
 	}
 
 	render.JSON(w, r, t)
