@@ -1,6 +1,7 @@
 package models
 
 import (
+	"github.com/Zapharaos/fihub-backend/protogen"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"strings"
@@ -81,4 +82,54 @@ func TestBrokerImage_IsValid(t *testing.T) {
 			assert.Equal(t, tt.err, err)
 		})
 	}
+}
+
+// TestBrokerImage_ToProtogenBrokerImage tests the ToProtogenBrokerImage method
+func TestBrokerImage_ToProtogenBrokerImage(t *testing.T) {
+	// Create a test BrokerImage
+	id := uuid.New()
+	brokerID := uuid.New()
+	name := "Test Image"
+	data := []byte{1, 2, 3, 4, 5}
+
+	brokerImage := BrokerImage{
+		ID:       id,
+		BrokerID: brokerID,
+		Name:     name,
+		Data:     data,
+	}
+
+	// Convert to protogen
+	protoBrokerImage := brokerImage.ToProtogenBrokerImage()
+
+	// Verify conversion was correct
+	assert.Equal(t, id.String(), protoBrokerImage.Id)
+	assert.Equal(t, brokerID.String(), protoBrokerImage.BrokerId)
+	assert.Equal(t, name, protoBrokerImage.Name)
+	assert.Equal(t, data, protoBrokerImage.Data)
+}
+
+// TestFromProtogenBrokerImage tests the FromProtogenBrokerImage function
+func TestFromProtogenBrokerImage(t *testing.T) {
+	// Create a test protogen.BrokerImage
+	id := uuid.New().String()
+	brokerID := uuid.New().String()
+	name := "Test Protogen Image"
+	data := []byte{5, 4, 3, 2, 1}
+
+	protoBrokerImage := &protogen.BrokerImage{
+		Id:       id,
+		BrokerId: brokerID,
+		Name:     name,
+		Data:     data,
+	}
+
+	// Convert from protogen
+	brokerImage := FromProtogenBrokerImage(protoBrokerImage)
+
+	// Verify conversion was correct
+	assert.Equal(t, id, brokerImage.ID.String())
+	assert.Equal(t, brokerID, brokerImage.BrokerID.String())
+	assert.Equal(t, name, brokerImage.Name)
+	assert.Equal(t, data, brokerImage.Data)
 }

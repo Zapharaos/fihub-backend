@@ -5,9 +5,30 @@ package broker;
 option go_package = "./protogen";
 
 service BrokerService {
+	// Broker user management
 	rpc CreateBrokerUser(CreateBrokerUserRequest) returns (CreateBrokerUserResponse);
 	rpc DeleteBrokerUser(DeleteBrokerUserRequest) returns (DeleteBrokerUserResponse);
 	rpc GetUserBrokers(GetUserBrokersRequest) returns (GetUserBrokersResponse);
+
+	// Image management
+	rpc CreateBrokerImage(CreateBrokerImageRequest) returns (CreateBrokerImageResponse);
+	rpc GetBrokerImage(GetBrokerImageRequest) returns (GetBrokerImageResponse);
+	rpc UpdateBrokerImage(UpdateBrokerImageRequest) returns (UpdateBrokerImageResponse);
+	rpc DeleteBrokerImage(DeleteBrokerImageRequest) returns (DeleteBrokerImageResponse);
+}
+
+message Broker {
+	string id = 1;
+	string name = 2;
+	string image_id = 3;
+	bool disabled = 4;
+}
+
+// Broker user
+
+message BrokerUser {
+	string user_id = 2;
+	Broker broker = 4;
 }
 
 message CreateBrokerUserRequest {
@@ -36,14 +57,50 @@ message GetUserBrokersResponse {
 	repeated BrokerUser user_brokers = 1;
 }
 
-message BrokerUser {
-	string user_id = 2;
-	Broker broker = 4;
+// Broker image
+
+message BrokerImage {
+	string id = 1;
+	string broker_id = 2;
+	string name = 3;
+	bytes data = 4;
 }
 
-message Broker {
-	string id = 1;
+message CreateBrokerImageRequest {
+	string broker_id = 1;
 	string name = 2;
-	string image_id = 3;
-	bool disabled = 4;
+	bytes data = 3;
+}
+
+message CreateBrokerImageResponse {
+	BrokerImage image = 1;
+}
+
+message GetBrokerImageRequest {
+	string image_id = 1;
+}
+
+message GetBrokerImageResponse {
+	bytes data = 1;
+	string name = 2;
+}
+
+message UpdateBrokerImageRequest {
+	string image_id = 1;
+	string broker_id = 2;
+	string name = 3;
+	bytes data = 4;
+}
+
+message UpdateBrokerImageResponse {
+	BrokerImage image = 1;
+}
+
+message DeleteBrokerImageRequest {
+	string image_id = 1;
+	string broker_id = 2;
+}
+
+message DeleteBrokerImageResponse {
+	bool success = 1;
 }

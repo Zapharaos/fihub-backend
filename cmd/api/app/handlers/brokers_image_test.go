@@ -1,15 +1,17 @@
 package handlers_test
 
 import (
-	"errors"
+	"github.com/Zapharaos/fihub-backend/cmd/api/app/clients"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/handlers"
-	"github.com/Zapharaos/fihub-backend/cmd/broker/app/repositories"
 	"github.com/Zapharaos/fihub-backend/internal/models"
+	"github.com/Zapharaos/fihub-backend/protogen"
 	"github.com/Zapharaos/fihub-backend/test/mocks"
 	"github.com/google/uuid"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -57,110 +59,11 @@ func TestCreateBrokerImage(t *testing.T) {
 				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), gomock.Any()).Return(uuid.Nil, true)
 				m.EXPECT().ReadImage(gomock.Any(), gomock.Any()).Return(nil, "", false)
 				handlers.ReplaceGlobals(m)
-				bb := mocks.NewBrokerRepository(ctrl)
-				bb.EXPECT().HasImage(gomock.Any()).Times(0)
-				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
+				bc := mocks.NewBrokerServiceClient(ctrl)
+				bc.EXPECT().CreateBrokerImage(gomock.Any(), gomock.Any()).Times(0)
+				clients.ReplaceGlobals(clients.NewClients(nil, bc, nil))
 			},
 			expectedStatus: http.StatusOK, // should be StatusBadRequest, but not with mock
-		},
-		{
-			name: "fails at bad image input",
-			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(true)
-				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), gomock.Any()).Return(uuid.Nil, true)
-				m.EXPECT().ReadImage(gomock.Any(), gomock.Any()).Return(nil, "", true)
-				handlers.ReplaceGlobals(m)
-				bb := mocks.NewBrokerRepository(ctrl)
-				bb.EXPECT().HasImage(gomock.Any()).Times(0)
-				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
-			},
-			expectedStatus: http.StatusBadRequest,
-		},
-		{
-			name: "fails to verify broker image existence",
-			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(true)
-				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), gomock.Any()).Return(uuid.New(), true)
-				m.EXPECT().ReadImage(gomock.Any(), gomock.Any()).Return(fileData, fileName, true)
-				handlers.ReplaceGlobals(m)
-				bb := mocks.NewBrokerRepository(ctrl)
-				bb.EXPECT().HasImage(gomock.Any()).Return(true, errors.New("error"))
-				bi := mocks.NewBrokerImageRepository(ctrl)
-				bi.EXPECT().Create(gomock.Any()).Times(0)
-				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
-			},
-			expectedStatus: http.StatusInternalServerError,
-		},
-		{
-			name: "broker already has an image",
-			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(true)
-				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), gomock.Any()).Return(uuid.New(), true)
-				m.EXPECT().ReadImage(gomock.Any(), gomock.Any()).Return(fileData, fileName, true)
-				handlers.ReplaceGlobals(m)
-				bb := mocks.NewBrokerRepository(ctrl)
-				bb.EXPECT().HasImage(gomock.Any()).Return(true, nil)
-				bi := mocks.NewBrokerImageRepository(ctrl)
-				bi.EXPECT().Create(gomock.Any()).Times(0)
-				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
-			},
-			expectedStatus: http.StatusBadRequest,
-		},
-		{
-			name: "fails to create an image",
-			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(true)
-				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), gomock.Any()).Return(uuid.New(), true)
-				m.EXPECT().ReadImage(gomock.Any(), gomock.Any()).Return(fileData, fileName, true)
-				handlers.ReplaceGlobals(m)
-				bb := mocks.NewBrokerRepository(ctrl)
-				bb.EXPECT().HasImage(gomock.Any()).Return(false, nil)
-				bi := mocks.NewBrokerImageRepository(ctrl)
-				bi.EXPECT().Create(gomock.Any()).Return(errors.New("error"))
-				bi.EXPECT().Get(gomock.Any()).Times(0)
-				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, bi))
-			},
-			expectedStatus: http.StatusInternalServerError,
-		},
-		{
-			name: "fails to retrieve the broker image",
-			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(true)
-				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), gomock.Any()).Return(uuid.New(), true)
-				m.EXPECT().ReadImage(gomock.Any(), gomock.Any()).Return(fileData, fileName, true)
-				handlers.ReplaceGlobals(m)
-				bb := mocks.NewBrokerRepository(ctrl)
-				bb.EXPECT().HasImage(gomock.Any()).Return(false, nil)
-				bb.EXPECT().SetImage(gomock.Any(), gomock.Any()).Times(0)
-				bi := mocks.NewBrokerImageRepository(ctrl)
-				bi.EXPECT().Create(gomock.Any()).Return(nil)
-				bi.EXPECT().Get(gomock.Any()).Return(models.BrokerImage{}, false, errors.New("error"))
-				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, bi))
-			},
-			expectedStatus: http.StatusInternalServerError,
-		},
-		{
-			name: "fails to find the broker image",
-			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(true)
-				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), gomock.Any()).Return(uuid.New(), true)
-				m.EXPECT().ReadImage(gomock.Any(), gomock.Any()).Return(fileData, fileName, true)
-				handlers.ReplaceGlobals(m)
-				bb := mocks.NewBrokerRepository(ctrl)
-				bb.EXPECT().HasImage(gomock.Any()).Return(false, nil)
-				bb.EXPECT().SetImage(gomock.Any(), gomock.Any()).Times(0)
-				bi := mocks.NewBrokerImageRepository(ctrl)
-				bi.EXPECT().Create(gomock.Any()).Return(nil)
-				bi.EXPECT().Get(gomock.Any()).Return(models.BrokerImage{}, false, nil)
-				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, bi))
-			},
-			expectedStatus: http.StatusInternalServerError,
 		},
 		{
 			name: "fails to set the image to broker",
@@ -170,13 +73,9 @@ func TestCreateBrokerImage(t *testing.T) {
 				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), gomock.Any()).Return(uuid.New(), true)
 				m.EXPECT().ReadImage(gomock.Any(), gomock.Any()).Return(fileData, fileName, true)
 				handlers.ReplaceGlobals(m)
-				bb := mocks.NewBrokerRepository(ctrl)
-				bb.EXPECT().HasImage(gomock.Any()).Return(false, nil)
-				bb.EXPECT().SetImage(gomock.Any(), gomock.Any()).Return(errors.New("error"))
-				bi := mocks.NewBrokerImageRepository(ctrl)
-				bi.EXPECT().Create(gomock.Any()).Return(nil)
-				bi.EXPECT().Get(gomock.Any()).Return(models.BrokerImage{}, true, nil)
-				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, bi))
+				bc := mocks.NewBrokerServiceClient(ctrl)
+				bc.EXPECT().CreateBrokerImage(gomock.Any(), gomock.Any()).Return(nil, status.Error(codes.Unknown, "error"))
+				clients.ReplaceGlobals(clients.NewClients(nil, bc, nil))
 			},
 			expectedStatus: http.StatusInternalServerError,
 		},
@@ -188,13 +87,16 @@ func TestCreateBrokerImage(t *testing.T) {
 				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), gomock.Any()).Return(uuid.New(), true)
 				m.EXPECT().ReadImage(gomock.Any(), gomock.Any()).Return(fileData, fileName, true)
 				handlers.ReplaceGlobals(m)
-				bb := mocks.NewBrokerRepository(ctrl)
-				bb.EXPECT().HasImage(gomock.Any()).Return(false, nil)
-				bb.EXPECT().SetImage(gomock.Any(), gomock.Any()).Return(nil)
-				bi := mocks.NewBrokerImageRepository(ctrl)
-				bi.EXPECT().Create(gomock.Any()).Return(nil)
-				bi.EXPECT().Get(gomock.Any()).Return(models.BrokerImage{}, true, nil)
-				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, bi))
+				bc := mocks.NewBrokerServiceClient(ctrl)
+				bc.EXPECT().CreateBrokerImage(gomock.Any(), gomock.Any()).Return(&protogen.CreateBrokerImageResponse{
+					Image: &protogen.BrokerImage{
+						Id:       uuid.New().String(),
+						BrokerId: uuid.New().String(),
+						Name:     fileName,
+						Data:     fileData,
+					},
+				}, nil)
+				clients.ReplaceGlobals(clients.NewClients(nil, bc, nil))
 			},
 			expectedStatus: http.StatusOK,
 		},
@@ -235,9 +137,9 @@ func TestGetBrokerImage(t *testing.T) {
 				m := mocks.NewMockUtils(ctrl)
 				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), gomock.Any()).Return(uuid.Nil, false)
 				handlers.ReplaceGlobals(m)
-				bi := mocks.NewBrokerImageRepository(ctrl)
-				bi.EXPECT().Get(gomock.Any()).Times(0)
-				repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, bi))
+				bc := mocks.NewBrokerServiceClient(ctrl)
+				bc.EXPECT().GetBrokerImage(gomock.Any(), gomock.Any()).Times(0)
+				clients.ReplaceGlobals(clients.NewClients(nil, bc, nil))
 			},
 			expectedStatus: http.StatusOK, // should be StatusBadRequest, but not with mock
 		},
@@ -247,23 +149,11 @@ func TestGetBrokerImage(t *testing.T) {
 				m := mocks.NewMockUtils(ctrl)
 				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), gomock.Any()).Return(uuid.New(), true)
 				handlers.ReplaceGlobals(m)
-				bi := mocks.NewBrokerImageRepository(ctrl)
-				bi.EXPECT().Get(gomock.Any()).Return(models.BrokerImage{}, false, errors.New("error"))
-				repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, bi))
+				bc := mocks.NewBrokerServiceClient(ctrl)
+				bc.EXPECT().GetBrokerImage(gomock.Any(), gomock.Any()).Return(nil, status.Error(codes.Unknown, "error"))
+				clients.ReplaceGlobals(clients.NewClients(nil, bc, nil))
 			},
 			expectedStatus: http.StatusInternalServerError,
-		},
-		{
-			name: "fails to find broker image",
-			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), gomock.Any()).Return(uuid.New(), true)
-				handlers.ReplaceGlobals(m)
-				bi := mocks.NewBrokerImageRepository(ctrl)
-				bi.EXPECT().Get(gomock.Any()).Return(models.BrokerImage{}, false, nil)
-				repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, bi))
-			},
-			expectedStatus: http.StatusNotFound,
 		},
 		{
 			name: "succeeded",
@@ -271,9 +161,12 @@ func TestGetBrokerImage(t *testing.T) {
 				m := mocks.NewMockUtils(ctrl)
 				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), gomock.Any()).Return(uuid.New(), true)
 				handlers.ReplaceGlobals(m)
-				bi := mocks.NewBrokerImageRepository(ctrl)
-				bi.EXPECT().Get(gomock.Any()).Return(models.BrokerImage{Data: []byte{0x00, 0x01}}, true, nil)
-				repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, bi))
+				bc := mocks.NewBrokerServiceClient(ctrl)
+				bc.EXPECT().GetBrokerImage(gomock.Any(), gomock.Any()).Return(&protogen.GetBrokerImageResponse{
+					Name: "name",
+					Data: []byte{0x00, 0x01},
+				}, nil)
+				clients.ReplaceGlobals(clients.NewClients(nil, bc, nil))
 			},
 			expectedStatus: http.StatusOK,
 		},
@@ -341,55 +234,11 @@ func TestUpdateBrokerImage(t *testing.T) {
 				m.EXPECT().ParseUUIDPair(gomock.Any(), gomock.Any(), gomock.Any()).Return(uuid.New(), uuid.New(), true)
 				m.EXPECT().ReadImage(gomock.Any(), gomock.Any()).Return(nil, "", false)
 				handlers.ReplaceGlobals(m)
-				bi := mocks.NewBrokerImageRepository(ctrl)
-				bi.EXPECT().Exists(gomock.Any(), gomock.Any()).Times(0)
-				repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, bi))
+				bc := mocks.NewBrokerServiceClient(ctrl)
+				bc.EXPECT().UpdateBrokerImage(gomock.Any(), gomock.Any()).Times(0)
+				clients.ReplaceGlobals(clients.NewClients(nil, bc, nil))
 			},
 			expectedStatus: http.StatusOK, // should be StatusBadRequest, but not with mock
-		},
-		{
-			name: "image input is invalid",
-			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(true)
-				m.EXPECT().ParseUUIDPair(gomock.Any(), gomock.Any(), gomock.Any()).Return(uuid.New(), uuid.New(), true)
-				m.EXPECT().ReadImage(gomock.Any(), gomock.Any()).Return(nil, "", true)
-				handlers.ReplaceGlobals(m)
-				bi := mocks.NewBrokerImageRepository(ctrl)
-				bi.EXPECT().Exists(gomock.Any(), gomock.Any()).Times(0)
-				repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, bi))
-			},
-			expectedStatus: http.StatusBadRequest,
-		},
-		{
-			name: "fails to verify image broker existence",
-			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(true)
-				m.EXPECT().ParseUUIDPair(gomock.Any(), gomock.Any(), gomock.Any()).Return(uuid.New(), uuid.New(), true)
-				m.EXPECT().ReadImage(gomock.Any(), gomock.Any()).Return(fileData, fileName, true)
-				handlers.ReplaceGlobals(m)
-				bi := mocks.NewBrokerImageRepository(ctrl)
-				bi.EXPECT().Exists(gomock.Any(), gomock.Any()).Return(false, errors.New("error"))
-				bi.EXPECT().Update(gomock.Any()).Times(0)
-				repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, bi))
-			},
-			expectedStatus: http.StatusInternalServerError,
-		},
-		{
-			name: "fails to find image broker",
-			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(true)
-				m.EXPECT().ParseUUIDPair(gomock.Any(), gomock.Any(), gomock.Any()).Return(uuid.New(), uuid.New(), true)
-				m.EXPECT().ReadImage(gomock.Any(), gomock.Any()).Return(fileData, fileName, true)
-				handlers.ReplaceGlobals(m)
-				bi := mocks.NewBrokerImageRepository(ctrl)
-				bi.EXPECT().Exists(gomock.Any(), gomock.Any()).Return(false, nil)
-				bi.EXPECT().Update(gomock.Any()).Times(0)
-				repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, bi))
-			},
-			expectedStatus: http.StatusNotFound,
 		},
 		{
 			name: "fails to update image",
@@ -399,42 +248,9 @@ func TestUpdateBrokerImage(t *testing.T) {
 				m.EXPECT().ParseUUIDPair(gomock.Any(), gomock.Any(), gomock.Any()).Return(uuid.New(), uuid.New(), true)
 				m.EXPECT().ReadImage(gomock.Any(), gomock.Any()).Return(fileData, fileName, true)
 				handlers.ReplaceGlobals(m)
-				bi := mocks.NewBrokerImageRepository(ctrl)
-				bi.EXPECT().Exists(gomock.Any(), gomock.Any()).Return(true, nil)
-				bi.EXPECT().Update(gomock.Any()).Return(errors.New("error"))
-				repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, bi))
-			},
-			expectedStatus: http.StatusInternalServerError,
-		},
-		{
-			name: "fails to retrieve broker image",
-			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(true)
-				m.EXPECT().ParseUUIDPair(gomock.Any(), gomock.Any(), gomock.Any()).Return(uuid.New(), uuid.New(), true)
-				m.EXPECT().ReadImage(gomock.Any(), gomock.Any()).Return(fileData, fileName, true)
-				handlers.ReplaceGlobals(m)
-				bi := mocks.NewBrokerImageRepository(ctrl)
-				bi.EXPECT().Exists(gomock.Any(), gomock.Any()).Return(true, nil)
-				bi.EXPECT().Update(gomock.Any()).Return(nil)
-				bi.EXPECT().Get(gomock.Any()).Return(models.BrokerImage{}, false, errors.New("error"))
-				repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, bi))
-			},
-			expectedStatus: http.StatusInternalServerError,
-		},
-		{
-			name: "fails to find broker image",
-			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(true)
-				m.EXPECT().ParseUUIDPair(gomock.Any(), gomock.Any(), gomock.Any()).Return(uuid.New(), uuid.New(), true)
-				m.EXPECT().ReadImage(gomock.Any(), gomock.Any()).Return(fileData, fileName, true)
-				handlers.ReplaceGlobals(m)
-				bi := mocks.NewBrokerImageRepository(ctrl)
-				bi.EXPECT().Exists(gomock.Any(), gomock.Any()).Return(true, nil)
-				bi.EXPECT().Update(gomock.Any()).Return(nil)
-				bi.EXPECT().Get(gomock.Any()).Return(models.BrokerImage{}, false, nil)
-				repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, bi))
+				bc := mocks.NewBrokerServiceClient(ctrl)
+				bc.EXPECT().UpdateBrokerImage(gomock.Any(), gomock.Any()).Return(nil, status.Error(codes.Unknown, "error"))
+				clients.ReplaceGlobals(clients.NewClients(nil, bc, nil))
 			},
 			expectedStatus: http.StatusInternalServerError,
 		},
@@ -446,11 +262,16 @@ func TestUpdateBrokerImage(t *testing.T) {
 				m.EXPECT().ParseUUIDPair(gomock.Any(), gomock.Any(), gomock.Any()).Return(uuid.New(), uuid.New(), true)
 				m.EXPECT().ReadImage(gomock.Any(), gomock.Any()).Return(fileData, fileName, true)
 				handlers.ReplaceGlobals(m)
-				bi := mocks.NewBrokerImageRepository(ctrl)
-				bi.EXPECT().Exists(gomock.Any(), gomock.Any()).Return(true, nil)
-				bi.EXPECT().Update(gomock.Any()).Return(nil)
-				bi.EXPECT().Get(gomock.Any()).Return(models.BrokerImage{}, true, nil)
-				repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, bi))
+				bc := mocks.NewBrokerServiceClient(ctrl)
+				bc.EXPECT().UpdateBrokerImage(gomock.Any(), gomock.Any()).Return(&protogen.UpdateBrokerImageResponse{
+					Image: &protogen.BrokerImage{
+						Id:       uuid.New().String(),
+						BrokerId: uuid.New().String(),
+						Name:     fileName,
+						Data:     fileData,
+					},
+				}, nil)
+				clients.ReplaceGlobals(clients.NewClients(nil, bc, nil))
 			},
 			expectedStatus: http.StatusOK,
 		},
@@ -502,39 +323,11 @@ func TestDeleteBrokerImage(t *testing.T) {
 				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(true)
 				m.EXPECT().ParseUUIDPair(gomock.Any(), gomock.Any(), gomock.Any()).Return(uuid.Nil, uuid.Nil, false)
 				handlers.ReplaceGlobals(m)
-				bi := mocks.NewBrokerImageRepository(ctrl)
-				bi.EXPECT().Exists(gomock.Any(), gomock.Any()).Times(0)
-				repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, bi))
+				bc := mocks.NewBrokerServiceClient(ctrl)
+				bc.EXPECT().DeleteBrokerImage(gomock.Any(), gomock.Any()).Times(0)
+				clients.ReplaceGlobals(clients.NewClients(nil, bc, nil))
 			},
 			expectedStatus: http.StatusOK, // should be StatusBadRequest, but not with mock
-		},
-		{
-			name: "fails to verify the image broker existence",
-			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(true)
-				m.EXPECT().ParseUUIDPair(gomock.Any(), gomock.Any(), gomock.Any()).Return(uuid.Nil, uuid.Nil, true)
-				handlers.ReplaceGlobals(m)
-				bi := mocks.NewBrokerImageRepository(ctrl)
-				bi.EXPECT().Exists(gomock.Any(), gomock.Any()).Return(false, errors.New("error"))
-				bi.EXPECT().Delete(gomock.Any()).Times(0)
-				repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, bi))
-			},
-			expectedStatus: http.StatusInternalServerError,
-		},
-		{
-			name: "fails to find the image broker",
-			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(true)
-				m.EXPECT().ParseUUIDPair(gomock.Any(), gomock.Any(), gomock.Any()).Return(uuid.Nil, uuid.Nil, true)
-				handlers.ReplaceGlobals(m)
-				bi := mocks.NewBrokerImageRepository(ctrl)
-				bi.EXPECT().Exists(gomock.Any(), gomock.Any()).Return(false, nil)
-				bi.EXPECT().Delete(gomock.Any()).Times(0)
-				repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, bi))
-			},
-			expectedStatus: http.StatusNotFound,
 		},
 		{
 			name: "fails to delete the broker image",
@@ -543,10 +336,9 @@ func TestDeleteBrokerImage(t *testing.T) {
 				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(true)
 				m.EXPECT().ParseUUIDPair(gomock.Any(), gomock.Any(), gomock.Any()).Return(uuid.Nil, uuid.Nil, true)
 				handlers.ReplaceGlobals(m)
-				bi := mocks.NewBrokerImageRepository(ctrl)
-				bi.EXPECT().Exists(gomock.Any(), gomock.Any()).Return(true, nil)
-				bi.EXPECT().Delete(gomock.Any()).Return(errors.New("error"))
-				repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, bi))
+				bc := mocks.NewBrokerServiceClient(ctrl)
+				bc.EXPECT().DeleteBrokerImage(gomock.Any(), gomock.Any()).Return(nil, status.Error(codes.Unknown, "error"))
+				clients.ReplaceGlobals(clients.NewClients(nil, bc, nil))
 			},
 			expectedStatus: http.StatusInternalServerError,
 		},
@@ -557,10 +349,11 @@ func TestDeleteBrokerImage(t *testing.T) {
 				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(true)
 				m.EXPECT().ParseUUIDPair(gomock.Any(), gomock.Any(), gomock.Any()).Return(uuid.Nil, uuid.Nil, true)
 				handlers.ReplaceGlobals(m)
-				bi := mocks.NewBrokerImageRepository(ctrl)
-				bi.EXPECT().Exists(gomock.Any(), gomock.Any()).Return(true, nil)
-				bi.EXPECT().Delete(gomock.Any()).Return(nil)
-				repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, bi))
+				bc := mocks.NewBrokerServiceClient(ctrl)
+				bc.EXPECT().DeleteBrokerImage(gomock.Any(), gomock.Any()).Return(&protogen.DeleteBrokerImageResponse{
+					Success: true,
+				}, nil)
+				clients.ReplaceGlobals(clients.NewClients(nil, bc, nil))
 			},
 			expectedStatus: http.StatusOK,
 		},

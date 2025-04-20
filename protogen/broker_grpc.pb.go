@@ -19,18 +19,28 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	BrokerService_CreateBrokerUser_FullMethodName = "/broker.BrokerService/CreateBrokerUser"
-	BrokerService_DeleteBrokerUser_FullMethodName = "/broker.BrokerService/DeleteBrokerUser"
-	BrokerService_GetUserBrokers_FullMethodName   = "/broker.BrokerService/GetUserBrokers"
+	BrokerService_CreateBrokerUser_FullMethodName  = "/broker.BrokerService/CreateBrokerUser"
+	BrokerService_DeleteBrokerUser_FullMethodName  = "/broker.BrokerService/DeleteBrokerUser"
+	BrokerService_GetUserBrokers_FullMethodName    = "/broker.BrokerService/GetUserBrokers"
+	BrokerService_CreateBrokerImage_FullMethodName = "/broker.BrokerService/CreateBrokerImage"
+	BrokerService_GetBrokerImage_FullMethodName    = "/broker.BrokerService/GetBrokerImage"
+	BrokerService_UpdateBrokerImage_FullMethodName = "/broker.BrokerService/UpdateBrokerImage"
+	BrokerService_DeleteBrokerImage_FullMethodName = "/broker.BrokerService/DeleteBrokerImage"
 )
 
 // BrokerServiceClient is the client API for BrokerService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type BrokerServiceClient interface {
+	// Broker user management
 	CreateBrokerUser(ctx context.Context, in *CreateBrokerUserRequest, opts ...grpc.CallOption) (*CreateBrokerUserResponse, error)
 	DeleteBrokerUser(ctx context.Context, in *DeleteBrokerUserRequest, opts ...grpc.CallOption) (*DeleteBrokerUserResponse, error)
 	GetUserBrokers(ctx context.Context, in *GetUserBrokersRequest, opts ...grpc.CallOption) (*GetUserBrokersResponse, error)
+	// Image management
+	CreateBrokerImage(ctx context.Context, in *CreateBrokerImageRequest, opts ...grpc.CallOption) (*CreateBrokerImageResponse, error)
+	GetBrokerImage(ctx context.Context, in *GetBrokerImageRequest, opts ...grpc.CallOption) (*GetBrokerImageResponse, error)
+	UpdateBrokerImage(ctx context.Context, in *UpdateBrokerImageRequest, opts ...grpc.CallOption) (*UpdateBrokerImageResponse, error)
+	DeleteBrokerImage(ctx context.Context, in *DeleteBrokerImageRequest, opts ...grpc.CallOption) (*DeleteBrokerImageResponse, error)
 }
 
 type brokerServiceClient struct {
@@ -71,13 +81,59 @@ func (c *brokerServiceClient) GetUserBrokers(ctx context.Context, in *GetUserBro
 	return out, nil
 }
 
+func (c *brokerServiceClient) CreateBrokerImage(ctx context.Context, in *CreateBrokerImageRequest, opts ...grpc.CallOption) (*CreateBrokerImageResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateBrokerImageResponse)
+	err := c.cc.Invoke(ctx, BrokerService_CreateBrokerImage_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *brokerServiceClient) GetBrokerImage(ctx context.Context, in *GetBrokerImageRequest, opts ...grpc.CallOption) (*GetBrokerImageResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetBrokerImageResponse)
+	err := c.cc.Invoke(ctx, BrokerService_GetBrokerImage_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *brokerServiceClient) UpdateBrokerImage(ctx context.Context, in *UpdateBrokerImageRequest, opts ...grpc.CallOption) (*UpdateBrokerImageResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateBrokerImageResponse)
+	err := c.cc.Invoke(ctx, BrokerService_UpdateBrokerImage_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *brokerServiceClient) DeleteBrokerImage(ctx context.Context, in *DeleteBrokerImageRequest, opts ...grpc.CallOption) (*DeleteBrokerImageResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeleteBrokerImageResponse)
+	err := c.cc.Invoke(ctx, BrokerService_DeleteBrokerImage_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // BrokerServiceServer is the server API for BrokerService service.
 // All implementations must embed UnimplementedBrokerServiceServer
 // for forward compatibility.
 type BrokerServiceServer interface {
+	// Broker user management
 	CreateBrokerUser(context.Context, *CreateBrokerUserRequest) (*CreateBrokerUserResponse, error)
 	DeleteBrokerUser(context.Context, *DeleteBrokerUserRequest) (*DeleteBrokerUserResponse, error)
 	GetUserBrokers(context.Context, *GetUserBrokersRequest) (*GetUserBrokersResponse, error)
+	// Image management
+	CreateBrokerImage(context.Context, *CreateBrokerImageRequest) (*CreateBrokerImageResponse, error)
+	GetBrokerImage(context.Context, *GetBrokerImageRequest) (*GetBrokerImageResponse, error)
+	UpdateBrokerImage(context.Context, *UpdateBrokerImageRequest) (*UpdateBrokerImageResponse, error)
+	DeleteBrokerImage(context.Context, *DeleteBrokerImageRequest) (*DeleteBrokerImageResponse, error)
 	mustEmbedUnimplementedBrokerServiceServer()
 }
 
@@ -96,6 +152,18 @@ func (UnimplementedBrokerServiceServer) DeleteBrokerUser(context.Context, *Delet
 }
 func (UnimplementedBrokerServiceServer) GetUserBrokers(context.Context, *GetUserBrokersRequest) (*GetUserBrokersResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserBrokers not implemented")
+}
+func (UnimplementedBrokerServiceServer) CreateBrokerImage(context.Context, *CreateBrokerImageRequest) (*CreateBrokerImageResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateBrokerImage not implemented")
+}
+func (UnimplementedBrokerServiceServer) GetBrokerImage(context.Context, *GetBrokerImageRequest) (*GetBrokerImageResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetBrokerImage not implemented")
+}
+func (UnimplementedBrokerServiceServer) UpdateBrokerImage(context.Context, *UpdateBrokerImageRequest) (*UpdateBrokerImageResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateBrokerImage not implemented")
+}
+func (UnimplementedBrokerServiceServer) DeleteBrokerImage(context.Context, *DeleteBrokerImageRequest) (*DeleteBrokerImageResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteBrokerImage not implemented")
 }
 func (UnimplementedBrokerServiceServer) mustEmbedUnimplementedBrokerServiceServer() {}
 func (UnimplementedBrokerServiceServer) testEmbeddedByValue()                       {}
@@ -172,6 +240,78 @@ func _BrokerService_GetUserBrokers_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _BrokerService_CreateBrokerImage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateBrokerImageRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BrokerServiceServer).CreateBrokerImage(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BrokerService_CreateBrokerImage_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BrokerServiceServer).CreateBrokerImage(ctx, req.(*CreateBrokerImageRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _BrokerService_GetBrokerImage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetBrokerImageRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BrokerServiceServer).GetBrokerImage(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BrokerService_GetBrokerImage_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BrokerServiceServer).GetBrokerImage(ctx, req.(*GetBrokerImageRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _BrokerService_UpdateBrokerImage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateBrokerImageRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BrokerServiceServer).UpdateBrokerImage(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BrokerService_UpdateBrokerImage_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BrokerServiceServer).UpdateBrokerImage(ctx, req.(*UpdateBrokerImageRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _BrokerService_DeleteBrokerImage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteBrokerImageRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BrokerServiceServer).DeleteBrokerImage(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BrokerService_DeleteBrokerImage_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BrokerServiceServer).DeleteBrokerImage(ctx, req.(*DeleteBrokerImageRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // BrokerService_ServiceDesc is the grpc.ServiceDesc for BrokerService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -190,6 +330,22 @@ var BrokerService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetUserBrokers",
 			Handler:    _BrokerService_GetUserBrokers_Handler,
+		},
+		{
+			MethodName: "CreateBrokerImage",
+			Handler:    _BrokerService_CreateBrokerImage_Handler,
+		},
+		{
+			MethodName: "GetBrokerImage",
+			Handler:    _BrokerService_GetBrokerImage_Handler,
+		},
+		{
+			MethodName: "UpdateBrokerImage",
+			Handler:    _BrokerService_UpdateBrokerImage_Handler,
+		},
+		{
+			MethodName: "DeleteBrokerImage",
+			Handler:    _BrokerService_DeleteBrokerImage_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

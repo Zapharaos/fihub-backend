@@ -21,338 +21,6 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type CreateBrokerUserRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserId        string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	BrokerId      string                 `protobuf:"bytes,1,opt,name=broker_id,json=brokerId,proto3" json:"broker_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *CreateBrokerUserRequest) Reset() {
-	*x = CreateBrokerUserRequest{}
-	mi := &file_proto_broker_proto_msgTypes[0]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *CreateBrokerUserRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*CreateBrokerUserRequest) ProtoMessage() {}
-
-func (x *CreateBrokerUserRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_broker_proto_msgTypes[0]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use CreateBrokerUserRequest.ProtoReflect.Descriptor instead.
-func (*CreateBrokerUserRequest) Descriptor() ([]byte, []int) {
-	return file_proto_broker_proto_rawDescGZIP(), []int{0}
-}
-
-func (x *CreateBrokerUserRequest) GetUserId() string {
-	if x != nil {
-		return x.UserId
-	}
-	return ""
-}
-
-func (x *CreateBrokerUserRequest) GetBrokerId() string {
-	if x != nil {
-		return x.BrokerId
-	}
-	return ""
-}
-
-type CreateBrokerUserResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserBrokers   []*BrokerUser          `protobuf:"bytes,1,rep,name=user_brokers,json=userBrokers,proto3" json:"user_brokers,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *CreateBrokerUserResponse) Reset() {
-	*x = CreateBrokerUserResponse{}
-	mi := &file_proto_broker_proto_msgTypes[1]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *CreateBrokerUserResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*CreateBrokerUserResponse) ProtoMessage() {}
-
-func (x *CreateBrokerUserResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_broker_proto_msgTypes[1]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use CreateBrokerUserResponse.ProtoReflect.Descriptor instead.
-func (*CreateBrokerUserResponse) Descriptor() ([]byte, []int) {
-	return file_proto_broker_proto_rawDescGZIP(), []int{1}
-}
-
-func (x *CreateBrokerUserResponse) GetUserBrokers() []*BrokerUser {
-	if x != nil {
-		return x.UserBrokers
-	}
-	return nil
-}
-
-type DeleteBrokerUserRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	BrokerId      string                 `protobuf:"bytes,2,opt,name=broker_id,json=brokerId,proto3" json:"broker_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *DeleteBrokerUserRequest) Reset() {
-	*x = DeleteBrokerUserRequest{}
-	mi := &file_proto_broker_proto_msgTypes[2]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *DeleteBrokerUserRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*DeleteBrokerUserRequest) ProtoMessage() {}
-
-func (x *DeleteBrokerUserRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_broker_proto_msgTypes[2]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use DeleteBrokerUserRequest.ProtoReflect.Descriptor instead.
-func (*DeleteBrokerUserRequest) Descriptor() ([]byte, []int) {
-	return file_proto_broker_proto_rawDescGZIP(), []int{2}
-}
-
-func (x *DeleteBrokerUserRequest) GetUserId() string {
-	if x != nil {
-		return x.UserId
-	}
-	return ""
-}
-
-func (x *DeleteBrokerUserRequest) GetBrokerId() string {
-	if x != nil {
-		return x.BrokerId
-	}
-	return ""
-}
-
-type DeleteBrokerUserResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *DeleteBrokerUserResponse) Reset() {
-	*x = DeleteBrokerUserResponse{}
-	mi := &file_proto_broker_proto_msgTypes[3]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *DeleteBrokerUserResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*DeleteBrokerUserResponse) ProtoMessage() {}
-
-func (x *DeleteBrokerUserResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_broker_proto_msgTypes[3]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use DeleteBrokerUserResponse.ProtoReflect.Descriptor instead.
-func (*DeleteBrokerUserResponse) Descriptor() ([]byte, []int) {
-	return file_proto_broker_proto_rawDescGZIP(), []int{3}
-}
-
-func (x *DeleteBrokerUserResponse) GetSuccess() bool {
-	if x != nil {
-		return x.Success
-	}
-	return false
-}
-
-type GetUserBrokersRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetUserBrokersRequest) Reset() {
-	*x = GetUserBrokersRequest{}
-	mi := &file_proto_broker_proto_msgTypes[4]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetUserBrokersRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetUserBrokersRequest) ProtoMessage() {}
-
-func (x *GetUserBrokersRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_broker_proto_msgTypes[4]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetUserBrokersRequest.ProtoReflect.Descriptor instead.
-func (*GetUserBrokersRequest) Descriptor() ([]byte, []int) {
-	return file_proto_broker_proto_rawDescGZIP(), []int{4}
-}
-
-func (x *GetUserBrokersRequest) GetUserId() string {
-	if x != nil {
-		return x.UserId
-	}
-	return ""
-}
-
-type GetUserBrokersResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserBrokers   []*BrokerUser          `protobuf:"bytes,1,rep,name=user_brokers,json=userBrokers,proto3" json:"user_brokers,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetUserBrokersResponse) Reset() {
-	*x = GetUserBrokersResponse{}
-	mi := &file_proto_broker_proto_msgTypes[5]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetUserBrokersResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetUserBrokersResponse) ProtoMessage() {}
-
-func (x *GetUserBrokersResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_broker_proto_msgTypes[5]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetUserBrokersResponse.ProtoReflect.Descriptor instead.
-func (*GetUserBrokersResponse) Descriptor() ([]byte, []int) {
-	return file_proto_broker_proto_rawDescGZIP(), []int{5}
-}
-
-func (x *GetUserBrokersResponse) GetUserBrokers() []*BrokerUser {
-	if x != nil {
-		return x.UserBrokers
-	}
-	return nil
-}
-
-type BrokerUser struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserId        string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	Broker        *Broker                `protobuf:"bytes,4,opt,name=broker,proto3" json:"broker,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *BrokerUser) Reset() {
-	*x = BrokerUser{}
-	mi := &file_proto_broker_proto_msgTypes[6]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *BrokerUser) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*BrokerUser) ProtoMessage() {}
-
-func (x *BrokerUser) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_broker_proto_msgTypes[6]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use BrokerUser.ProtoReflect.Descriptor instead.
-func (*BrokerUser) Descriptor() ([]byte, []int) {
-	return file_proto_broker_proto_rawDescGZIP(), []int{6}
-}
-
-func (x *BrokerUser) GetUserId() string {
-	if x != nil {
-		return x.UserId
-	}
-	return ""
-}
-
-func (x *BrokerUser) GetBroker() *Broker {
-	if x != nil {
-		return x.Broker
-	}
-	return nil
-}
-
 type Broker struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -365,7 +33,7 @@ type Broker struct {
 
 func (x *Broker) Reset() {
 	*x = Broker{}
-	mi := &file_proto_broker_proto_msgTypes[7]
+	mi := &file_proto_broker_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -377,7 +45,7 @@ func (x *Broker) String() string {
 func (*Broker) ProtoMessage() {}
 
 func (x *Broker) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_broker_proto_msgTypes[7]
+	mi := &file_proto_broker_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -390,7 +58,7 @@ func (x *Broker) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Broker.ProtoReflect.Descriptor instead.
 func (*Broker) Descriptor() ([]byte, []int) {
-	return file_proto_broker_proto_rawDescGZIP(), []int{7}
+	return file_proto_broker_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *Broker) GetId() string {
@@ -421,11 +89,828 @@ func (x *Broker) GetDisabled() bool {
 	return false
 }
 
+type BrokerUser struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	Broker        *Broker                `protobuf:"bytes,4,opt,name=broker,proto3" json:"broker,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *BrokerUser) Reset() {
+	*x = BrokerUser{}
+	mi := &file_proto_broker_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BrokerUser) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BrokerUser) ProtoMessage() {}
+
+func (x *BrokerUser) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_broker_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BrokerUser.ProtoReflect.Descriptor instead.
+func (*BrokerUser) Descriptor() ([]byte, []int) {
+	return file_proto_broker_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *BrokerUser) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *BrokerUser) GetBroker() *Broker {
+	if x != nil {
+		return x.Broker
+	}
+	return nil
+}
+
+type CreateBrokerUserRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	BrokerId      string                 `protobuf:"bytes,1,opt,name=broker_id,json=brokerId,proto3" json:"broker_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateBrokerUserRequest) Reset() {
+	*x = CreateBrokerUserRequest{}
+	mi := &file_proto_broker_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateBrokerUserRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateBrokerUserRequest) ProtoMessage() {}
+
+func (x *CreateBrokerUserRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_broker_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateBrokerUserRequest.ProtoReflect.Descriptor instead.
+func (*CreateBrokerUserRequest) Descriptor() ([]byte, []int) {
+	return file_proto_broker_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *CreateBrokerUserRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *CreateBrokerUserRequest) GetBrokerId() string {
+	if x != nil {
+		return x.BrokerId
+	}
+	return ""
+}
+
+type CreateBrokerUserResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserBrokers   []*BrokerUser          `protobuf:"bytes,1,rep,name=user_brokers,json=userBrokers,proto3" json:"user_brokers,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateBrokerUserResponse) Reset() {
+	*x = CreateBrokerUserResponse{}
+	mi := &file_proto_broker_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateBrokerUserResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateBrokerUserResponse) ProtoMessage() {}
+
+func (x *CreateBrokerUserResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_broker_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateBrokerUserResponse.ProtoReflect.Descriptor instead.
+func (*CreateBrokerUserResponse) Descriptor() ([]byte, []int) {
+	return file_proto_broker_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *CreateBrokerUserResponse) GetUserBrokers() []*BrokerUser {
+	if x != nil {
+		return x.UserBrokers
+	}
+	return nil
+}
+
+type DeleteBrokerUserRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	BrokerId      string                 `protobuf:"bytes,2,opt,name=broker_id,json=brokerId,proto3" json:"broker_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteBrokerUserRequest) Reset() {
+	*x = DeleteBrokerUserRequest{}
+	mi := &file_proto_broker_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteBrokerUserRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteBrokerUserRequest) ProtoMessage() {}
+
+func (x *DeleteBrokerUserRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_broker_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteBrokerUserRequest.ProtoReflect.Descriptor instead.
+func (*DeleteBrokerUserRequest) Descriptor() ([]byte, []int) {
+	return file_proto_broker_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *DeleteBrokerUserRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *DeleteBrokerUserRequest) GetBrokerId() string {
+	if x != nil {
+		return x.BrokerId
+	}
+	return ""
+}
+
+type DeleteBrokerUserResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteBrokerUserResponse) Reset() {
+	*x = DeleteBrokerUserResponse{}
+	mi := &file_proto_broker_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteBrokerUserResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteBrokerUserResponse) ProtoMessage() {}
+
+func (x *DeleteBrokerUserResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_broker_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteBrokerUserResponse.ProtoReflect.Descriptor instead.
+func (*DeleteBrokerUserResponse) Descriptor() ([]byte, []int) {
+	return file_proto_broker_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *DeleteBrokerUserResponse) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
+type GetUserBrokersRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetUserBrokersRequest) Reset() {
+	*x = GetUserBrokersRequest{}
+	mi := &file_proto_broker_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetUserBrokersRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetUserBrokersRequest) ProtoMessage() {}
+
+func (x *GetUserBrokersRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_broker_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetUserBrokersRequest.ProtoReflect.Descriptor instead.
+func (*GetUserBrokersRequest) Descriptor() ([]byte, []int) {
+	return file_proto_broker_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *GetUserBrokersRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+type GetUserBrokersResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserBrokers   []*BrokerUser          `protobuf:"bytes,1,rep,name=user_brokers,json=userBrokers,proto3" json:"user_brokers,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetUserBrokersResponse) Reset() {
+	*x = GetUserBrokersResponse{}
+	mi := &file_proto_broker_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetUserBrokersResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetUserBrokersResponse) ProtoMessage() {}
+
+func (x *GetUserBrokersResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_broker_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetUserBrokersResponse.ProtoReflect.Descriptor instead.
+func (*GetUserBrokersResponse) Descriptor() ([]byte, []int) {
+	return file_proto_broker_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *GetUserBrokersResponse) GetUserBrokers() []*BrokerUser {
+	if x != nil {
+		return x.UserBrokers
+	}
+	return nil
+}
+
+type BrokerImage struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	BrokerId      string                 `protobuf:"bytes,2,opt,name=broker_id,json=brokerId,proto3" json:"broker_id,omitempty"`
+	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
+	Data          []byte                 `protobuf:"bytes,4,opt,name=data,proto3" json:"data,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *BrokerImage) Reset() {
+	*x = BrokerImage{}
+	mi := &file_proto_broker_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BrokerImage) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BrokerImage) ProtoMessage() {}
+
+func (x *BrokerImage) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_broker_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BrokerImage.ProtoReflect.Descriptor instead.
+func (*BrokerImage) Descriptor() ([]byte, []int) {
+	return file_proto_broker_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *BrokerImage) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *BrokerImage) GetBrokerId() string {
+	if x != nil {
+		return x.BrokerId
+	}
+	return ""
+}
+
+func (x *BrokerImage) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *BrokerImage) GetData() []byte {
+	if x != nil {
+		return x.Data
+	}
+	return nil
+}
+
+type CreateBrokerImageRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	BrokerId      string                 `protobuf:"bytes,1,opt,name=broker_id,json=brokerId,proto3" json:"broker_id,omitempty"`
+	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Data          []byte                 `protobuf:"bytes,3,opt,name=data,proto3" json:"data,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateBrokerImageRequest) Reset() {
+	*x = CreateBrokerImageRequest{}
+	mi := &file_proto_broker_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateBrokerImageRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateBrokerImageRequest) ProtoMessage() {}
+
+func (x *CreateBrokerImageRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_broker_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateBrokerImageRequest.ProtoReflect.Descriptor instead.
+func (*CreateBrokerImageRequest) Descriptor() ([]byte, []int) {
+	return file_proto_broker_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *CreateBrokerImageRequest) GetBrokerId() string {
+	if x != nil {
+		return x.BrokerId
+	}
+	return ""
+}
+
+func (x *CreateBrokerImageRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *CreateBrokerImageRequest) GetData() []byte {
+	if x != nil {
+		return x.Data
+	}
+	return nil
+}
+
+type CreateBrokerImageResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Image         *BrokerImage           `protobuf:"bytes,1,opt,name=image,proto3" json:"image,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateBrokerImageResponse) Reset() {
+	*x = CreateBrokerImageResponse{}
+	mi := &file_proto_broker_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateBrokerImageResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateBrokerImageResponse) ProtoMessage() {}
+
+func (x *CreateBrokerImageResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_broker_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateBrokerImageResponse.ProtoReflect.Descriptor instead.
+func (*CreateBrokerImageResponse) Descriptor() ([]byte, []int) {
+	return file_proto_broker_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *CreateBrokerImageResponse) GetImage() *BrokerImage {
+	if x != nil {
+		return x.Image
+	}
+	return nil
+}
+
+type GetBrokerImageRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ImageId       string                 `protobuf:"bytes,1,opt,name=image_id,json=imageId,proto3" json:"image_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetBrokerImageRequest) Reset() {
+	*x = GetBrokerImageRequest{}
+	mi := &file_proto_broker_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetBrokerImageRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetBrokerImageRequest) ProtoMessage() {}
+
+func (x *GetBrokerImageRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_broker_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetBrokerImageRequest.ProtoReflect.Descriptor instead.
+func (*GetBrokerImageRequest) Descriptor() ([]byte, []int) {
+	return file_proto_broker_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *GetBrokerImageRequest) GetImageId() string {
+	if x != nil {
+		return x.ImageId
+	}
+	return ""
+}
+
+type GetBrokerImageResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Data          []byte                 `protobuf:"bytes,1,opt,name=data,proto3" json:"data,omitempty"`
+	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetBrokerImageResponse) Reset() {
+	*x = GetBrokerImageResponse{}
+	mi := &file_proto_broker_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetBrokerImageResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetBrokerImageResponse) ProtoMessage() {}
+
+func (x *GetBrokerImageResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_broker_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetBrokerImageResponse.ProtoReflect.Descriptor instead.
+func (*GetBrokerImageResponse) Descriptor() ([]byte, []int) {
+	return file_proto_broker_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *GetBrokerImageResponse) GetData() []byte {
+	if x != nil {
+		return x.Data
+	}
+	return nil
+}
+
+func (x *GetBrokerImageResponse) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+type UpdateBrokerImageRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ImageId       string                 `protobuf:"bytes,1,opt,name=image_id,json=imageId,proto3" json:"image_id,omitempty"`
+	BrokerId      string                 `protobuf:"bytes,2,opt,name=broker_id,json=brokerId,proto3" json:"broker_id,omitempty"`
+	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
+	Data          []byte                 `protobuf:"bytes,4,opt,name=data,proto3" json:"data,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateBrokerImageRequest) Reset() {
+	*x = UpdateBrokerImageRequest{}
+	mi := &file_proto_broker_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateBrokerImageRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateBrokerImageRequest) ProtoMessage() {}
+
+func (x *UpdateBrokerImageRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_broker_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateBrokerImageRequest.ProtoReflect.Descriptor instead.
+func (*UpdateBrokerImageRequest) Descriptor() ([]byte, []int) {
+	return file_proto_broker_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *UpdateBrokerImageRequest) GetImageId() string {
+	if x != nil {
+		return x.ImageId
+	}
+	return ""
+}
+
+func (x *UpdateBrokerImageRequest) GetBrokerId() string {
+	if x != nil {
+		return x.BrokerId
+	}
+	return ""
+}
+
+func (x *UpdateBrokerImageRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *UpdateBrokerImageRequest) GetData() []byte {
+	if x != nil {
+		return x.Data
+	}
+	return nil
+}
+
+type UpdateBrokerImageResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Image         *BrokerImage           `protobuf:"bytes,1,opt,name=image,proto3" json:"image,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateBrokerImageResponse) Reset() {
+	*x = UpdateBrokerImageResponse{}
+	mi := &file_proto_broker_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateBrokerImageResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateBrokerImageResponse) ProtoMessage() {}
+
+func (x *UpdateBrokerImageResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_broker_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateBrokerImageResponse.ProtoReflect.Descriptor instead.
+func (*UpdateBrokerImageResponse) Descriptor() ([]byte, []int) {
+	return file_proto_broker_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *UpdateBrokerImageResponse) GetImage() *BrokerImage {
+	if x != nil {
+		return x.Image
+	}
+	return nil
+}
+
+type DeleteBrokerImageRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ImageId       string                 `protobuf:"bytes,1,opt,name=image_id,json=imageId,proto3" json:"image_id,omitempty"`
+	BrokerId      string                 `protobuf:"bytes,2,opt,name=broker_id,json=brokerId,proto3" json:"broker_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteBrokerImageRequest) Reset() {
+	*x = DeleteBrokerImageRequest{}
+	mi := &file_proto_broker_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteBrokerImageRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteBrokerImageRequest) ProtoMessage() {}
+
+func (x *DeleteBrokerImageRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_broker_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteBrokerImageRequest.ProtoReflect.Descriptor instead.
+func (*DeleteBrokerImageRequest) Descriptor() ([]byte, []int) {
+	return file_proto_broker_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *DeleteBrokerImageRequest) GetImageId() string {
+	if x != nil {
+		return x.ImageId
+	}
+	return ""
+}
+
+func (x *DeleteBrokerImageRequest) GetBrokerId() string {
+	if x != nil {
+		return x.BrokerId
+	}
+	return ""
+}
+
+type DeleteBrokerImageResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteBrokerImageResponse) Reset() {
+	*x = DeleteBrokerImageResponse{}
+	mi := &file_proto_broker_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteBrokerImageResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteBrokerImageResponse) ProtoMessage() {}
+
+func (x *DeleteBrokerImageResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_broker_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteBrokerImageResponse.ProtoReflect.Descriptor instead.
+func (*DeleteBrokerImageResponse) Descriptor() ([]byte, []int) {
+	return file_proto_broker_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *DeleteBrokerImageResponse) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
 var File_proto_broker_proto protoreflect.FileDescriptor
 
 const file_proto_broker_proto_rawDesc = "" +
 	"\n" +
-	"\x12proto/broker.proto\x12\x06broker\"O\n" +
+	"\x12proto/broker.proto\x12\x06broker\"c\n" +
+	"\x06Broker\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12\x19\n" +
+	"\bimage_id\x18\x03 \x01(\tR\aimageId\x12\x1a\n" +
+	"\bdisabled\x18\x04 \x01(\bR\bdisabled\"M\n" +
+	"\n" +
+	"BrokerUser\x12\x17\n" +
+	"\auser_id\x18\x02 \x01(\tR\x06userId\x12&\n" +
+	"\x06broker\x18\x04 \x01(\v2\x0e.broker.BrokerR\x06broker\"O\n" +
 	"\x17CreateBrokerUserRequest\x12\x17\n" +
 	"\auser_id\x18\x02 \x01(\tR\x06userId\x12\x1b\n" +
 	"\tbroker_id\x18\x01 \x01(\tR\bbrokerId\"Q\n" +
@@ -439,20 +924,43 @@ const file_proto_broker_proto_rawDesc = "" +
 	"\x15GetUserBrokersRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\"O\n" +
 	"\x16GetUserBrokersResponse\x125\n" +
-	"\fuser_brokers\x18\x01 \x03(\v2\x12.broker.BrokerUserR\vuserBrokers\"M\n" +
-	"\n" +
-	"BrokerUser\x12\x17\n" +
-	"\auser_id\x18\x02 \x01(\tR\x06userId\x12&\n" +
-	"\x06broker\x18\x04 \x01(\v2\x0e.broker.BrokerR\x06broker\"c\n" +
-	"\x06Broker\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\x12\x19\n" +
-	"\bimage_id\x18\x03 \x01(\tR\aimageId\x12\x1a\n" +
-	"\bdisabled\x18\x04 \x01(\bR\bdisabled2\x8e\x02\n" +
+	"\fuser_brokers\x18\x01 \x03(\v2\x12.broker.BrokerUserR\vuserBrokers\"b\n" +
+	"\vBrokerImage\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1b\n" +
+	"\tbroker_id\x18\x02 \x01(\tR\bbrokerId\x12\x12\n" +
+	"\x04name\x18\x03 \x01(\tR\x04name\x12\x12\n" +
+	"\x04data\x18\x04 \x01(\fR\x04data\"_\n" +
+	"\x18CreateBrokerImageRequest\x12\x1b\n" +
+	"\tbroker_id\x18\x01 \x01(\tR\bbrokerId\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12\x12\n" +
+	"\x04data\x18\x03 \x01(\fR\x04data\"F\n" +
+	"\x19CreateBrokerImageResponse\x12)\n" +
+	"\x05image\x18\x01 \x01(\v2\x13.broker.BrokerImageR\x05image\"2\n" +
+	"\x15GetBrokerImageRequest\x12\x19\n" +
+	"\bimage_id\x18\x01 \x01(\tR\aimageId\"@\n" +
+	"\x16GetBrokerImageResponse\x12\x12\n" +
+	"\x04data\x18\x01 \x01(\fR\x04data\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\"z\n" +
+	"\x18UpdateBrokerImageRequest\x12\x19\n" +
+	"\bimage_id\x18\x01 \x01(\tR\aimageId\x12\x1b\n" +
+	"\tbroker_id\x18\x02 \x01(\tR\bbrokerId\x12\x12\n" +
+	"\x04name\x18\x03 \x01(\tR\x04name\x12\x12\n" +
+	"\x04data\x18\x04 \x01(\fR\x04data\"F\n" +
+	"\x19UpdateBrokerImageResponse\x12)\n" +
+	"\x05image\x18\x01 \x01(\v2\x13.broker.BrokerImageR\x05image\"R\n" +
+	"\x18DeleteBrokerImageRequest\x12\x19\n" +
+	"\bimage_id\x18\x01 \x01(\tR\aimageId\x12\x1b\n" +
+	"\tbroker_id\x18\x02 \x01(\tR\bbrokerId\"5\n" +
+	"\x19DeleteBrokerImageResponse\x12\x18\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess2\xed\x04\n" +
 	"\rBrokerService\x12U\n" +
 	"\x10CreateBrokerUser\x12\x1f.broker.CreateBrokerUserRequest\x1a .broker.CreateBrokerUserResponse\x12U\n" +
 	"\x10DeleteBrokerUser\x12\x1f.broker.DeleteBrokerUserRequest\x1a .broker.DeleteBrokerUserResponse\x12O\n" +
-	"\x0eGetUserBrokers\x12\x1d.broker.GetUserBrokersRequest\x1a\x1e.broker.GetUserBrokersResponseB\fZ\n" +
+	"\x0eGetUserBrokers\x12\x1d.broker.GetUserBrokersRequest\x1a\x1e.broker.GetUserBrokersResponse\x12X\n" +
+	"\x11CreateBrokerImage\x12 .broker.CreateBrokerImageRequest\x1a!.broker.CreateBrokerImageResponse\x12O\n" +
+	"\x0eGetBrokerImage\x12\x1d.broker.GetBrokerImageRequest\x1a\x1e.broker.GetBrokerImageResponse\x12X\n" +
+	"\x11UpdateBrokerImage\x12 .broker.UpdateBrokerImageRequest\x1a!.broker.UpdateBrokerImageResponse\x12X\n" +
+	"\x11DeleteBrokerImage\x12 .broker.DeleteBrokerImageRequest\x1a!.broker.DeleteBrokerImageResponseB\fZ\n" +
 	"./protogenb\x06proto3"
 
 var (
@@ -467,32 +975,51 @@ func file_proto_broker_proto_rawDescGZIP() []byte {
 	return file_proto_broker_proto_rawDescData
 }
 
-var file_proto_broker_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_proto_broker_proto_msgTypes = make([]protoimpl.MessageInfo, 17)
 var file_proto_broker_proto_goTypes = []any{
-	(*CreateBrokerUserRequest)(nil),  // 0: broker.CreateBrokerUserRequest
-	(*CreateBrokerUserResponse)(nil), // 1: broker.CreateBrokerUserResponse
-	(*DeleteBrokerUserRequest)(nil),  // 2: broker.DeleteBrokerUserRequest
-	(*DeleteBrokerUserResponse)(nil), // 3: broker.DeleteBrokerUserResponse
-	(*GetUserBrokersRequest)(nil),    // 4: broker.GetUserBrokersRequest
-	(*GetUserBrokersResponse)(nil),   // 5: broker.GetUserBrokersResponse
-	(*BrokerUser)(nil),               // 6: broker.BrokerUser
-	(*Broker)(nil),                   // 7: broker.Broker
+	(*Broker)(nil),                    // 0: broker.Broker
+	(*BrokerUser)(nil),                // 1: broker.BrokerUser
+	(*CreateBrokerUserRequest)(nil),   // 2: broker.CreateBrokerUserRequest
+	(*CreateBrokerUserResponse)(nil),  // 3: broker.CreateBrokerUserResponse
+	(*DeleteBrokerUserRequest)(nil),   // 4: broker.DeleteBrokerUserRequest
+	(*DeleteBrokerUserResponse)(nil),  // 5: broker.DeleteBrokerUserResponse
+	(*GetUserBrokersRequest)(nil),     // 6: broker.GetUserBrokersRequest
+	(*GetUserBrokersResponse)(nil),    // 7: broker.GetUserBrokersResponse
+	(*BrokerImage)(nil),               // 8: broker.BrokerImage
+	(*CreateBrokerImageRequest)(nil),  // 9: broker.CreateBrokerImageRequest
+	(*CreateBrokerImageResponse)(nil), // 10: broker.CreateBrokerImageResponse
+	(*GetBrokerImageRequest)(nil),     // 11: broker.GetBrokerImageRequest
+	(*GetBrokerImageResponse)(nil),    // 12: broker.GetBrokerImageResponse
+	(*UpdateBrokerImageRequest)(nil),  // 13: broker.UpdateBrokerImageRequest
+	(*UpdateBrokerImageResponse)(nil), // 14: broker.UpdateBrokerImageResponse
+	(*DeleteBrokerImageRequest)(nil),  // 15: broker.DeleteBrokerImageRequest
+	(*DeleteBrokerImageResponse)(nil), // 16: broker.DeleteBrokerImageResponse
 }
 var file_proto_broker_proto_depIdxs = []int32{
-	6, // 0: broker.CreateBrokerUserResponse.user_brokers:type_name -> broker.BrokerUser
-	6, // 1: broker.GetUserBrokersResponse.user_brokers:type_name -> broker.BrokerUser
-	7, // 2: broker.BrokerUser.broker:type_name -> broker.Broker
-	0, // 3: broker.BrokerService.CreateBrokerUser:input_type -> broker.CreateBrokerUserRequest
-	2, // 4: broker.BrokerService.DeleteBrokerUser:input_type -> broker.DeleteBrokerUserRequest
-	4, // 5: broker.BrokerService.GetUserBrokers:input_type -> broker.GetUserBrokersRequest
-	1, // 6: broker.BrokerService.CreateBrokerUser:output_type -> broker.CreateBrokerUserResponse
-	3, // 7: broker.BrokerService.DeleteBrokerUser:output_type -> broker.DeleteBrokerUserResponse
-	5, // 8: broker.BrokerService.GetUserBrokers:output_type -> broker.GetUserBrokersResponse
-	6, // [6:9] is the sub-list for method output_type
-	3, // [3:6] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	0,  // 0: broker.BrokerUser.broker:type_name -> broker.Broker
+	1,  // 1: broker.CreateBrokerUserResponse.user_brokers:type_name -> broker.BrokerUser
+	1,  // 2: broker.GetUserBrokersResponse.user_brokers:type_name -> broker.BrokerUser
+	8,  // 3: broker.CreateBrokerImageResponse.image:type_name -> broker.BrokerImage
+	8,  // 4: broker.UpdateBrokerImageResponse.image:type_name -> broker.BrokerImage
+	2,  // 5: broker.BrokerService.CreateBrokerUser:input_type -> broker.CreateBrokerUserRequest
+	4,  // 6: broker.BrokerService.DeleteBrokerUser:input_type -> broker.DeleteBrokerUserRequest
+	6,  // 7: broker.BrokerService.GetUserBrokers:input_type -> broker.GetUserBrokersRequest
+	9,  // 8: broker.BrokerService.CreateBrokerImage:input_type -> broker.CreateBrokerImageRequest
+	11, // 9: broker.BrokerService.GetBrokerImage:input_type -> broker.GetBrokerImageRequest
+	13, // 10: broker.BrokerService.UpdateBrokerImage:input_type -> broker.UpdateBrokerImageRequest
+	15, // 11: broker.BrokerService.DeleteBrokerImage:input_type -> broker.DeleteBrokerImageRequest
+	3,  // 12: broker.BrokerService.CreateBrokerUser:output_type -> broker.CreateBrokerUserResponse
+	5,  // 13: broker.BrokerService.DeleteBrokerUser:output_type -> broker.DeleteBrokerUserResponse
+	7,  // 14: broker.BrokerService.GetUserBrokers:output_type -> broker.GetUserBrokersResponse
+	10, // 15: broker.BrokerService.CreateBrokerImage:output_type -> broker.CreateBrokerImageResponse
+	12, // 16: broker.BrokerService.GetBrokerImage:output_type -> broker.GetBrokerImageResponse
+	14, // 17: broker.BrokerService.UpdateBrokerImage:output_type -> broker.UpdateBrokerImageResponse
+	16, // 18: broker.BrokerService.DeleteBrokerImage:output_type -> broker.DeleteBrokerImageResponse
+	12, // [12:19] is the sub-list for method output_type
+	5,  // [5:12] is the sub-list for method input_type
+	5,  // [5:5] is the sub-list for extension type_name
+	5,  // [5:5] is the sub-list for extension extendee
+	0,  // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_proto_broker_proto_init() }
@@ -506,7 +1033,7 @@ func file_proto_broker_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_broker_proto_rawDesc), len(file_proto_broker_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   8,
+			NumMessages:   17,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

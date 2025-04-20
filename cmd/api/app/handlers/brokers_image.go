@@ -1,10 +1,11 @@
 package handlers
 
 import (
+	"context"
+	"github.com/Zapharaos/fihub-backend/cmd/api/app/clients"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/handlers/render"
-	"github.com/Zapharaos/fihub-backend/cmd/broker/app/repositories"
 	"github.com/Zapharaos/fihub-backend/internal/models"
-	"github.com/google/uuid"
+	"github.com/Zapharaos/fihub-backend/protogen"
 	"go.uber.org/zap"
 	"net/http"
 )
@@ -43,65 +44,26 @@ func CreateBrokerImage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Create the broker image
-	brokerImageInput := models.BrokerImage{
-		ID:       uuid.New(),
-		BrokerID: brokerID,
+	// Create gRPC protogen.CreateBrokerImageRequest
+	brokerUserRequest := &protogen.CreateBrokerImageRequest{
+		BrokerId: brokerID.String(),
 		Name:     name,
 		Data:     data,
 	}
 
-	// Validate the broker image
-	if ok, err := brokerImageInput.IsValid(); !ok {
-		zap.L().Warn("Broker image is not valid", zap.Error(err))
-		render.BadRequest(w, r, err)
-		return
-	}
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
-	// Verify broker has no image
-	ok, err := repositories.R().B().HasImage(brokerID)
+	// Create the BrokerImage
+	response, err := clients.C().Broker().CreateBrokerImage(ctx, brokerUserRequest)
 	if err != nil {
-		zap.L().Error("HasImageBroker", zap.Error(err))
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	if ok {
-		zap.L().Warn("Broker already has an image", zap.String("broker_id", brokerID.String()))
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	// Create the broker image
-	err = repositories.R().I().Create(brokerImageInput)
-	if err != nil {
-		zap.L().Error("PostBrokerImage.Create", zap.Error(err))
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	// Get the broker image back from the database
-	brokerImage, found, err := repositories.R().I().Get(brokerImageInput.ID)
-	if err != nil {
-		zap.L().Error("Cannot get broker image", zap.String("uuid", brokerImageInput.ID.String()), zap.Error(err))
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	if !found {
-		zap.L().Error("Broker image not found after create", zap.String("uuid", brokerImageInput.ID.String()))
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	// Set the broker image
-	err = repositories.R().B().SetImage(brokerID, brokerImageInput.ID)
-	if err != nil {
-		zap.L().Error("SetImageBroker.Create", zap.Error(err))
-		w.WriteHeader(http.StatusInternalServerError)
+		zap.L().Error("Create BrokerImage", zap.Error(err))
+		render.ErrorCodesCodeToHttpCode(w, r, err)
 		return
 	}
 
 	// Return the broker image
-	render.JSON(w, r, brokerImage)
+	render.JSON(w, r, models.FromProtogenBrokerImage(response.Image))
 }
 
 // GetBrokerImage godoc
@@ -128,24 +90,27 @@ func GetBrokerImage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Get the broker image
-	brokerImage, found, err := repositories.R().I().Get(imageID)
-	if err != nil {
-		zap.L().Error("Cannot get brokerImage", zap.String("image_id", imageID.String()), zap.Error(err))
-		w.WriteHeader(http.StatusInternalServerError)
-		return
+	// Create gRPC protogen.GetBrokerImageRequest
+	brokerUserRequest := &protogen.GetBrokerImageRequest{
+		ImageId: imageID.String(),
 	}
-	if !found {
-		zap.L().Warn("BrokerImage does not exist", zap.String("image_id", imageID.String()))
-		w.WriteHeader(http.StatusNotFound)
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	// Get the BrokerImage
+	response, err := clients.C().Broker().GetBrokerImage(ctx, brokerUserRequest)
+	if err != nil {
+		zap.L().Error("Get BrokerImage", zap.Error(err))
+		render.ErrorCodesCodeToHttpCode(w, r, err)
 		return
 	}
 
 	// Set headers
-	w.Header().Set("Content-Disposition", "inline; filename="+brokerImage.Name)
+	w.Header().Set("Content-Disposition", "inline; filename="+response.Name)
 
 	// Write the image
-	_, err = w.Write(brokerImage.Data)
+	_, err = w.Write(response.Data)
 	if err != nil {
 		zap.L().Error("Cannot write image", zap.Error(err))
 		render.Error(w, r, err, "Write image")
@@ -189,57 +154,27 @@ func UpdateBrokerImage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Create the broker image
-	brokerImageInput := models.BrokerImage{
-		ID:       imageID,
-		BrokerID: brokerID,
+	// Create gRPC protogen.UpdateBrokerImageRequest
+	brokerUserRequest := &protogen.UpdateBrokerImageRequest{
+		ImageId:  imageID.String(),
+		BrokerId: brokerID.String(),
 		Name:     name,
 		Data:     data,
 	}
 
-	// Validate the broker image
-	if ok, err := brokerImageInput.IsValid(); !ok {
-		zap.L().Warn("Broker image is not valid", zap.Error(err))
-		render.BadRequest(w, r, err)
-		return
-	}
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
-	// Verify imageBroker existence
-	exists, err := repositories.R().I().Exists(brokerID, imageID)
+	// Create the BrokerImage
+	response, err := clients.C().Broker().UpdateBrokerImage(ctx, brokerUserRequest)
 	if err != nil {
-		zap.L().Error("Check imageBroker exists", zap.Error(err))
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	if !exists {
-		zap.L().Warn("ImageBroker not found", zap.String("broker_id", brokerID.String()), zap.String("image_id", imageID.String()))
-		w.WriteHeader(http.StatusNotFound)
-		return
-	}
-
-	// Update the broker image
-	err = repositories.R().I().Update(brokerImageInput)
-	if err != nil {
-		zap.L().Error("UpdateBrokerImage.Update", zap.Error(err))
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	// Get the broker image back from the database
-	brokerImage, found, err := repositories.R().I().Get(brokerImageInput.ID)
-	if err != nil {
-		zap.L().Error("Cannot get broker image", zap.String("uuid", brokerImageInput.ID.String()), zap.Error(err))
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	if !found {
-		zap.L().Error("Broker image not found after create", zap.String("uuid", brokerImageInput.ID.String()))
-		w.WriteHeader(http.StatusInternalServerError)
+		zap.L().Error("Create BrokerImage", zap.Error(err))
+		render.ErrorCodesCodeToHttpCode(w, r, err)
 		return
 	}
 
 	// Return the broker image
-	render.JSON(w, r, brokerImage)
+	render.JSON(w, r, models.FromProtogenBrokerImage(response.Image))
 }
 
 // DeleteBrokerImage godoc
@@ -270,24 +205,20 @@ func DeleteBrokerImage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Verify imageBroker existence
-	exists, err := repositories.R().I().Exists(brokerID, imageID)
-	if err != nil {
-		zap.L().Error("Check imageBroker exists", zap.Error(err))
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	if !exists {
-		zap.L().Warn("ImageBroker not found", zap.String("broker_id", brokerID.String()), zap.String("image_id", imageID.String()))
-		w.WriteHeader(http.StatusNotFound)
-		return
+	// Create gRPC protogen.DeleteBrokerImageRequest
+	brokerUserRequest := &protogen.DeleteBrokerImageRequest{
+		ImageId:  imageID.String(),
+		BrokerId: brokerID.String(),
 	}
 
-	// Delete the broker image
-	err = repositories.R().I().Delete(imageID)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	// Create the BrokerImage
+	_, err := clients.C().Broker().DeleteBrokerImage(ctx, brokerUserRequest)
 	if err != nil {
-		zap.L().Error("DeleteBrokerImage.Delete", zap.Error(err))
-		w.WriteHeader(http.StatusInternalServerError)
+		zap.L().Error("Create BrokerImage", zap.Error(err))
+		render.ErrorCodesCodeToHttpCode(w, r, err)
 		return
 	}
 
