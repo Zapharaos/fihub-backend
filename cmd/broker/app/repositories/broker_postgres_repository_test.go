@@ -1,8 +1,8 @@
-package brokers_test
+package repositories_test
 
 import (
 	"errors"
-	"github.com/Zapharaos/fihub-backend/internal/brokers"
+	"github.com/Zapharaos/fihub-backend/cmd/broker/app/repositories"
 	"github.com/Zapharaos/fihub-backend/internal/models"
 	"github.com/Zapharaos/fihub-backend/test"
 	"github.com/google/uuid"
@@ -16,7 +16,7 @@ func TestBrokerPostgresRepository_Create(t *testing.T) {
 	sqlxMock.CreateFullTestSqlx(t)
 	defer sqlxMock.CleanTestSqlx()
 
-	brokers.ReplaceGlobals(brokers.NewRepository(brokers.NewPostgresRepository(sqlxMock.DB), nil, nil))
+	repositories.ReplaceGlobals(repositories.NewRepository(repositories.NewPostgresRepository(sqlxMock.DB), nil, nil))
 
 	tests := []struct {
 		name      string
@@ -43,7 +43,7 @@ func TestBrokerPostgresRepository_Create(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mockSetup()
-			_, err := brokers.R().B().Create(models.Broker{})
+			_, err := repositories.R().B().Create(models.Broker{})
 			if (err != nil) != tt.expectErr {
 				t.Errorf("Create() error = %v, expectErr %v", err, tt.expectErr)
 			}
@@ -57,7 +57,7 @@ func TestBrokerPostgresRepository_Get(t *testing.T) {
 	sqlxMock.CreateFullTestSqlx(t)
 	defer sqlxMock.CleanTestSqlx()
 
-	brokers.ReplaceGlobals(brokers.NewRepository(brokers.NewPostgresRepository(sqlxMock.DB), nil, nil))
+	repositories.ReplaceGlobals(repositories.NewRepository(repositories.NewPostgresRepository(sqlxMock.DB), nil, nil))
 
 	tests := []struct {
 		name        string
@@ -101,7 +101,7 @@ func TestBrokerPostgresRepository_Get(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mockSetup()
-			_, found, err := brokers.R().B().Get(tt.id)
+			_, found, err := repositories.R().B().Get(tt.id)
 			if (err != nil) != tt.expectErr {
 				t.Errorf("Get() error = %v, expectErr %v", err, tt.expectErr)
 			}
@@ -118,7 +118,7 @@ func TestBrokerPostgresRepository_Update(t *testing.T) {
 	sqlxMock.CreateFullTestSqlx(t)
 	defer sqlxMock.CleanTestSqlx()
 
-	brokers.ReplaceGlobals(brokers.NewRepository(brokers.NewPostgresRepository(sqlxMock.DB), nil, nil))
+	repositories.ReplaceGlobals(repositories.NewRepository(repositories.NewPostgresRepository(sqlxMock.DB), nil, nil))
 
 	tests := []struct {
 		name      string
@@ -155,7 +155,7 @@ func TestBrokerPostgresRepository_Update(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mockSetup()
-			err := brokers.R().B().Update(tt.broker)
+			err := repositories.R().B().Update(tt.broker)
 			if (err != nil) != tt.expectErr {
 				t.Errorf("Update() error = %v, expectErr %v", err, tt.expectErr)
 			}
@@ -169,7 +169,7 @@ func TestBrokerPostgresRepository_Delete(t *testing.T) {
 	sqlxMock.CreateFullTestSqlx(t)
 	defer sqlxMock.CleanTestSqlx()
 
-	brokers.ReplaceGlobals(brokers.NewRepository(brokers.NewPostgresRepository(sqlxMock.DB), nil, nil))
+	repositories.ReplaceGlobals(repositories.NewRepository(repositories.NewPostgresRepository(sqlxMock.DB), nil, nil))
 
 	tests := []struct {
 		name      string
@@ -198,7 +198,7 @@ func TestBrokerPostgresRepository_Delete(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mockSetup()
-			err := brokers.R().B().Delete(tt.id)
+			err := repositories.R().B().Delete(tt.id)
 			if (err != nil) != tt.expectErr {
 				t.Errorf("Delete() error = %v, expectErr %v", err, tt.expectErr)
 			}
@@ -212,7 +212,7 @@ func TestBrokerPostgresRepository_Exists(t *testing.T) {
 	sqlxMock.CreateFullTestSqlx(t)
 	defer sqlxMock.CleanTestSqlx()
 
-	brokers.ReplaceGlobals(brokers.NewRepository(brokers.NewPostgresRepository(sqlxMock.DB), nil, nil))
+	repositories.ReplaceGlobals(repositories.NewRepository(repositories.NewPostgresRepository(sqlxMock.DB), nil, nil))
 
 	tests := []struct {
 		name        string
@@ -256,7 +256,7 @@ func TestBrokerPostgresRepository_Exists(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mockSetup()
-			exists, err := brokers.R().B().Exists(tt.id)
+			exists, err := repositories.R().B().Exists(tt.id)
 			if (err != nil) != tt.expectErr {
 				t.Errorf("Exists() error = %v, expectErr %v", err, tt.expectErr)
 			}
@@ -273,7 +273,7 @@ func TestBrokerPostgresRepository_ExistsByName(t *testing.T) {
 	sqlxMock.CreateFullTestSqlx(t)
 	defer sqlxMock.CleanTestSqlx()
 
-	brokers.ReplaceGlobals(brokers.NewRepository(brokers.NewPostgresRepository(sqlxMock.DB), nil, nil))
+	repositories.ReplaceGlobals(repositories.NewRepository(repositories.NewPostgresRepository(sqlxMock.DB), nil, nil))
 
 	tests := []struct {
 		name        string
@@ -317,7 +317,7 @@ func TestBrokerPostgresRepository_ExistsByName(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mockSetup()
-			exists, err := brokers.R().B().ExistsByName(tt.brokerName)
+			exists, err := repositories.R().B().ExistsByName(tt.brokerName)
 			if (err != nil) != tt.expectErr {
 				t.Errorf("ExistsByName() error = %v, expectErr %v", err, tt.expectErr)
 			}
@@ -334,7 +334,7 @@ func TestBrokerPostgresRepository_GetAll(t *testing.T) {
 	sqlxMock.CreateFullTestSqlx(t)
 	defer sqlxMock.CleanTestSqlx()
 
-	brokers.ReplaceGlobals(brokers.NewRepository(brokers.NewPostgresRepository(sqlxMock.DB), nil, nil))
+	repositories.ReplaceGlobals(repositories.NewRepository(repositories.NewPostgresRepository(sqlxMock.DB), nil, nil))
 
 	tests := []struct {
 		name      string
@@ -375,7 +375,7 @@ func TestBrokerPostgresRepository_GetAll(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mockSetup()
-			b, err := brokers.R().B().GetAll()
+			b, err := repositories.R().B().GetAll()
 			if (err != nil) != tt.expectErr {
 				t.Errorf("GetAll() error = %v, expectErr %v", err, tt.expectErr)
 			}
@@ -392,7 +392,7 @@ func TestBrokerPostgresRepository_GetAllEnabled(t *testing.T) {
 	sqlxMock.CreateFullTestSqlx(t)
 	defer sqlxMock.CleanTestSqlx()
 
-	brokers.ReplaceGlobals(brokers.NewRepository(brokers.NewPostgresRepository(sqlxMock.DB), nil, nil))
+	repositories.ReplaceGlobals(repositories.NewRepository(repositories.NewPostgresRepository(sqlxMock.DB), nil, nil))
 
 	tests := []struct {
 		name      string
@@ -433,7 +433,7 @@ func TestBrokerPostgresRepository_GetAllEnabled(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mockSetup()
-			b, err := brokers.R().B().GetAllEnabled()
+			b, err := repositories.R().B().GetAllEnabled()
 			if (err != nil) != tt.expectErr {
 				t.Errorf("GetAllEnabled() error = %v, expectErr %v", err, tt.expectErr)
 			}
@@ -450,7 +450,7 @@ func TestBrokerPostgresRepository_SetImage(t *testing.T) {
 	sqlxMock.CreateFullTestSqlx(t)
 	defer sqlxMock.CleanTestSqlx()
 
-	brokers.ReplaceGlobals(brokers.NewRepository(brokers.NewPostgresRepository(sqlxMock.DB), nil, nil))
+	repositories.ReplaceGlobals(repositories.NewRepository(repositories.NewPostgresRepository(sqlxMock.DB), nil, nil))
 
 	tests := []struct {
 		name      string
@@ -482,7 +482,7 @@ func TestBrokerPostgresRepository_SetImage(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mockSetup()
-			err := brokers.R().B().SetImage(tt.id, tt.imageID)
+			err := repositories.R().B().SetImage(tt.id, tt.imageID)
 			if (err != nil) != tt.expectErr {
 				t.Errorf("SetImage() error = %v, expectErr %v", err, tt.expectErr)
 			}
@@ -496,7 +496,7 @@ func TestBrokerPostgresRepository_HasImage(t *testing.T) {
 	sqlxMock.CreateFullTestSqlx(t)
 	defer sqlxMock.CleanTestSqlx()
 
-	brokers.ReplaceGlobals(brokers.NewRepository(brokers.NewPostgresRepository(sqlxMock.DB), nil, nil))
+	repositories.ReplaceGlobals(repositories.NewRepository(repositories.NewPostgresRepository(sqlxMock.DB), nil, nil))
 
 	tests := []struct {
 		name        string
@@ -540,7 +540,7 @@ func TestBrokerPostgresRepository_HasImage(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mockSetup()
-			exists, err := brokers.R().B().HasImage(tt.id)
+			exists, err := repositories.R().B().HasImage(tt.id)
 			if (err != nil) != tt.expectErr {
 				t.Errorf("HasImage() error = %v, expectErr %v", err, tt.expectErr)
 			}
@@ -557,7 +557,7 @@ func TestBrokerPostgresRepository_DeleteImage(t *testing.T) {
 	sqlxMock.CreateFullTestSqlx(t)
 	defer sqlxMock.CleanTestSqlx()
 
-	brokers.ReplaceGlobals(brokers.NewRepository(brokers.NewPostgresRepository(sqlxMock.DB), nil, nil))
+	repositories.ReplaceGlobals(repositories.NewRepository(repositories.NewPostgresRepository(sqlxMock.DB), nil, nil))
 
 	tests := []struct {
 		name      string
@@ -586,7 +586,7 @@ func TestBrokerPostgresRepository_DeleteImage(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mockSetup()
-			err := brokers.R().B().DeleteImage(tt.id)
+			err := repositories.R().B().DeleteImage(tt.id)
 			if (err != nil) != tt.expectErr {
 				t.Errorf("DeleteImage() error = %v, expectErr %v", err, tt.expectErr)
 			}

@@ -5,11 +5,45 @@ package broker;
 option go_package = "./protogen";
 
 service BrokerService {
-	rpc TODO(TodoRequest) returns (TodoResponse);
+	rpc CreateBrokerUser(CreateBrokerUserRequest) returns (CreateBrokerUserResponse);
+	rpc DeleteBrokerUser(DeleteBrokerUserRequest) returns (DeleteBrokerUserResponse);
+	rpc GetUserBrokers(GetUserBrokersRequest) returns (GetUserBrokersResponse);
 }
 
-message TodoRequest {
+message CreateBrokerUserRequest {
+	string user_id = 2;
+	string broker_id = 1;
 }
 
-message TodoResponse {
+message CreateBrokerUserResponse {
+	repeated BrokerUser user_brokers = 1;
+}
+
+message DeleteBrokerUserRequest {
+	string user_id = 1;
+	string broker_id = 2;
+}
+
+message DeleteBrokerUserResponse {
+	bool success = 1;
+}
+
+message GetUserBrokersRequest {
+	string user_id = 1;
+}
+
+message GetUserBrokersResponse {
+	repeated BrokerUser user_brokers = 1;
+}
+
+message BrokerUser {
+	string user_id = 2;
+	Broker broker = 4;
+}
+
+message Broker {
+	string id = 1;
+	string name = 2;
+	string image_id = 3;
+	bool disabled = 4;
 }

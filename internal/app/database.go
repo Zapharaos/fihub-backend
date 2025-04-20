@@ -1,7 +1,7 @@
 package app
 
 import (
-	"github.com/Zapharaos/fihub-backend/internal/brokers"
+	"github.com/Zapharaos/fihub-backend/cmd/broker/app/repositories"
 	"github.com/Zapharaos/fihub-backend/internal/database"
 	"github.com/Zapharaos/fihub-backend/internal/users"
 	"github.com/Zapharaos/fihub-backend/internal/users/password"
@@ -36,8 +36,8 @@ func InitPostgres(dbClient *sqlx.DB) {
 	permissions.ReplaceGlobals(permissions.NewPostgresRepository(dbClient))
 
 	// Brokers
-	brokerRepository := brokers.NewPostgresRepository(dbClient)
-	userBrokerRepository := brokers.NewUserPostgresRepository(dbClient)
-	imageBrokerRepository := brokers.NewImagePostgresRepository(dbClient)
-	brokers.ReplaceGlobals(brokers.NewRepository(brokerRepository, userBrokerRepository, imageBrokerRepository))
+	brokerRepository := repositories.NewPostgresRepository(dbClient)
+	userBrokerRepository := repositories.NewUserPostgresRepository(dbClient)
+	imageBrokerRepository := repositories.NewImagePostgresRepository(dbClient)
+	repositories.ReplaceGlobals(repositories.NewRepository(brokerRepository, userBrokerRepository, imageBrokerRepository))
 }

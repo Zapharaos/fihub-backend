@@ -92,6 +92,12 @@ func Count(w http.ResponseWriter, r *http.Request, count int64) {
 func ErrorCodesCodeToHttpCode(w http.ResponseWriter, r *http.Request, err error) {
 	if s, ok := status.FromError(err); ok {
 		switch s.Code() {
+		case codes.FailedPrecondition:
+			BadRequest(w, r, err)
+			return
+		case codes.AlreadyExists:
+			BadRequest(w, r, err)
+			return
 		case codes.InvalidArgument:
 			BadRequest(w, r, err)
 			return
@@ -100,6 +106,7 @@ func ErrorCodesCodeToHttpCode(w http.ResponseWriter, r *http.Request, err error)
 			return
 		case codes.PermissionDenied:
 			w.WriteHeader(http.StatusUnauthorized)
+			return
 		case codes.Internal:
 			w.WriteHeader(http.StatusInternalServerError)
 			return

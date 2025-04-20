@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/handlers"
-	"github.com/Zapharaos/fihub-backend/internal/brokers"
+	"github.com/Zapharaos/fihub-backend/cmd/broker/app/repositories"
 	"github.com/Zapharaos/fihub-backend/internal/models"
 	"github.com/Zapharaos/fihub-backend/test/mocks"
 	"github.com/google/uuid"
@@ -41,7 +41,7 @@ func TestCreateBroker(t *testing.T) {
 				handlers.ReplaceGlobals(m)
 				bb := mocks.NewBrokerRepository(ctrl)
 				bb.EXPECT().ExistsByName(gomock.Any()).Times(0)
-				brokers.ReplaceGlobals(brokers.NewRepository(bb, nil, nil))
+				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
 			expectedStatus: http.StatusOK, // should be StatusUnauthorized, but not with mock
 		},
@@ -54,7 +54,7 @@ func TestCreateBroker(t *testing.T) {
 				handlers.ReplaceGlobals(m)
 				bb := mocks.NewBrokerRepository(ctrl)
 				bb.EXPECT().ExistsByName(gomock.Any()).Times(0)
-				brokers.ReplaceGlobals(brokers.NewRepository(bb, nil, nil))
+				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
 			expectedStatus: http.StatusBadRequest,
 		},
@@ -67,7 +67,7 @@ func TestCreateBroker(t *testing.T) {
 				handlers.ReplaceGlobals(m)
 				bb := mocks.NewBrokerRepository(ctrl)
 				bb.EXPECT().ExistsByName(gomock.Any()).Times(0)
-				brokers.ReplaceGlobals(brokers.NewRepository(bb, nil, nil))
+				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
 			expectedStatus: http.StatusBadRequest,
 		},
@@ -81,7 +81,7 @@ func TestCreateBroker(t *testing.T) {
 				bb := mocks.NewBrokerRepository(ctrl)
 				bb.EXPECT().ExistsByName(gomock.Any()).Return(false, errors.New("error"))
 				bb.EXPECT().Create(gomock.Any()).Times(0)
-				brokers.ReplaceGlobals(brokers.NewRepository(bb, nil, nil))
+				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
 			expectedStatus: http.StatusInternalServerError,
 		},
@@ -95,7 +95,7 @@ func TestCreateBroker(t *testing.T) {
 				bb := mocks.NewBrokerRepository(ctrl)
 				bb.EXPECT().ExistsByName(gomock.Any()).Return(true, nil)
 				bb.EXPECT().Create(gomock.Any()).Times(0)
-				brokers.ReplaceGlobals(brokers.NewRepository(bb, nil, nil))
+				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
 			expectedStatus: http.StatusBadRequest,
 		},
@@ -110,7 +110,7 @@ func TestCreateBroker(t *testing.T) {
 				bb.EXPECT().ExistsByName(gomock.Any()).Return(false, nil)
 				bb.EXPECT().Create(gomock.Any()).Return(uuid.Nil, errors.New("error"))
 				bb.EXPECT().Get(gomock.Any()).Times(0)
-				brokers.ReplaceGlobals(brokers.NewRepository(bb, nil, nil))
+				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
 			expectedStatus: http.StatusInternalServerError,
 		},
@@ -125,7 +125,7 @@ func TestCreateBroker(t *testing.T) {
 				bb.EXPECT().ExistsByName(gomock.Any()).Return(false, nil)
 				bb.EXPECT().Create(gomock.Any()).Return(uuid.Nil, nil)
 				bb.EXPECT().Get(gomock.Any()).Return(models.Broker{}, false, errors.New("error"))
-				brokers.ReplaceGlobals(brokers.NewRepository(bb, nil, nil))
+				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
 			expectedStatus: http.StatusInternalServerError,
 		},
@@ -140,7 +140,7 @@ func TestCreateBroker(t *testing.T) {
 				bb.EXPECT().ExistsByName(gomock.Any()).Return(false, nil)
 				bb.EXPECT().Create(gomock.Any()).Return(uuid.Nil, nil)
 				bb.EXPECT().Get(gomock.Any()).Return(models.Broker{}, false, nil)
-				brokers.ReplaceGlobals(brokers.NewRepository(bb, nil, nil))
+				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
 			expectedStatus: http.StatusInternalServerError,
 		},
@@ -155,7 +155,7 @@ func TestCreateBroker(t *testing.T) {
 				bb.EXPECT().ExistsByName(gomock.Any()).Return(false, nil)
 				bb.EXPECT().Create(gomock.Any()).Return(uuid.Nil, nil)
 				bb.EXPECT().Get(gomock.Any()).Return(models.Broker{}, true, nil)
-				brokers.ReplaceGlobals(brokers.NewRepository(bb, nil, nil))
+				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
 			expectedStatus: http.StatusOK,
 		},
@@ -196,7 +196,7 @@ func TestGetBroker(t *testing.T) {
 				handlers.ReplaceGlobals(m)
 				bb := mocks.NewBrokerRepository(ctrl)
 				bb.EXPECT().Get(gomock.Any()).Times(0)
-				brokers.ReplaceGlobals(brokers.NewRepository(bb, nil, nil))
+				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
 			expectedStatus: http.StatusOK, // should be StatusBadRequest, but not with mock
 		},
@@ -208,7 +208,7 @@ func TestGetBroker(t *testing.T) {
 				handlers.ReplaceGlobals(m)
 				bb := mocks.NewBrokerRepository(ctrl)
 				bb.EXPECT().Get(gomock.Any()).Return(models.Broker{}, false, errors.New("error"))
-				brokers.ReplaceGlobals(brokers.NewRepository(bb, nil, nil))
+				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
 			expectedStatus: http.StatusInternalServerError,
 		},
@@ -220,7 +220,7 @@ func TestGetBroker(t *testing.T) {
 				handlers.ReplaceGlobals(m)
 				bb := mocks.NewBrokerRepository(ctrl)
 				bb.EXPECT().Get(gomock.Any()).Return(models.Broker{}, false, nil)
-				brokers.ReplaceGlobals(brokers.NewRepository(bb, nil, nil))
+				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
 			expectedStatus: http.StatusNotFound,
 		},
@@ -232,7 +232,7 @@ func TestGetBroker(t *testing.T) {
 				handlers.ReplaceGlobals(m)
 				bb := mocks.NewBrokerRepository(ctrl)
 				bb.EXPECT().Get(gomock.Any()).Return(models.Broker{}, true, nil)
-				brokers.ReplaceGlobals(brokers.NewRepository(bb, nil, nil))
+				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
 			expectedStatus: http.StatusOK,
 		},
@@ -293,7 +293,7 @@ func TestUpdateBroker(t *testing.T) {
 				handlers.ReplaceGlobals(m)
 				bb := mocks.NewBrokerRepository(ctrl)
 				bb.EXPECT().Get(gomock.Any()).Times(0)
-				brokers.ReplaceGlobals(brokers.NewRepository(bb, nil, nil))
+				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
 			expectedStatus: http.StatusOK, // should be StatusUnauthorized, but not with mock
 		},
@@ -307,7 +307,7 @@ func TestUpdateBroker(t *testing.T) {
 				handlers.ReplaceGlobals(m)
 				bb := mocks.NewBrokerRepository(ctrl)
 				bb.EXPECT().Get(gomock.Any()).Times(0)
-				brokers.ReplaceGlobals(brokers.NewRepository(bb, nil, nil))
+				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
 			expectedStatus: http.StatusBadRequest,
 		},
@@ -321,7 +321,7 @@ func TestUpdateBroker(t *testing.T) {
 				handlers.ReplaceGlobals(m)
 				bb := mocks.NewBrokerRepository(ctrl)
 				bb.EXPECT().Get(gomock.Any()).Times(0)
-				brokers.ReplaceGlobals(brokers.NewRepository(bb, nil, nil))
+				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
 			expectedStatus: http.StatusBadRequest,
 		},
@@ -337,7 +337,7 @@ func TestUpdateBroker(t *testing.T) {
 				bb.EXPECT().Get(gomock.Any()).Return(models.Broker{}, false, errors.New("error"))
 				bb.EXPECT().ExistsByName(gomock.Any()).Times(0)
 				bb.EXPECT().Update(gomock.Any()).Times(0)
-				brokers.ReplaceGlobals(brokers.NewRepository(bb, nil, nil))
+				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
 			expectedStatus: http.StatusInternalServerError,
 		},
@@ -353,7 +353,7 @@ func TestUpdateBroker(t *testing.T) {
 				bb.EXPECT().Get(gomock.Any()).Return(models.Broker{}, false, nil)
 				bb.EXPECT().ExistsByName(gomock.Any()).Times(0)
 				bb.EXPECT().Update(gomock.Any()).Times(0)
-				brokers.ReplaceGlobals(brokers.NewRepository(bb, nil, nil))
+				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
 			expectedStatus: http.StatusNotFound,
 		},
@@ -369,7 +369,7 @@ func TestUpdateBroker(t *testing.T) {
 				bb.EXPECT().Get(gomock.Any()).Return(models.Broker{}, true, nil)
 				bb.EXPECT().ExistsByName(gomock.Any()).Return(true, errors.New("error"))
 				bb.EXPECT().Update(gomock.Any()).Times(0)
-				brokers.ReplaceGlobals(brokers.NewRepository(bb, nil, nil))
+				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
 			expectedStatus: http.StatusInternalServerError,
 		},
@@ -385,7 +385,7 @@ func TestUpdateBroker(t *testing.T) {
 				bb.EXPECT().Get(gomock.Any()).Return(models.Broker{}, true, nil)
 				bb.EXPECT().ExistsByName(gomock.Any()).Return(true, nil)
 				bb.EXPECT().Update(gomock.Any()).Times(0)
-				brokers.ReplaceGlobals(brokers.NewRepository(bb, nil, nil))
+				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
 			expectedStatus: http.StatusBadRequest,
 		},
@@ -401,7 +401,7 @@ func TestUpdateBroker(t *testing.T) {
 				bb.EXPECT().Get(gomock.Any()).Return(models.Broker{}, true, nil)
 				bb.EXPECT().ExistsByName(gomock.Any()).Return(false, nil)
 				bb.EXPECT().Update(gomock.Any()).Return(errors.New("error"))
-				brokers.ReplaceGlobals(brokers.NewRepository(bb, nil, nil))
+				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
 			expectedStatus: http.StatusInternalServerError,
 		},
@@ -418,7 +418,7 @@ func TestUpdateBroker(t *testing.T) {
 				bb.EXPECT().ExistsByName(gomock.Any()).Return(false, nil)
 				bb.EXPECT().Update(gomock.Any()).Return(nil)
 				bb.EXPECT().Get(gomock.Any()).Return(models.Broker{}, false, errors.New("error"))
-				brokers.ReplaceGlobals(brokers.NewRepository(bb, nil, nil))
+				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
 			expectedStatus: http.StatusInternalServerError,
 		},
@@ -435,7 +435,7 @@ func TestUpdateBroker(t *testing.T) {
 				bb.EXPECT().ExistsByName(gomock.Any()).Return(false, nil)
 				bb.EXPECT().Update(gomock.Any()).Return(nil)
 				bb.EXPECT().Get(gomock.Any()).Return(models.Broker{}, false, nil)
-				brokers.ReplaceGlobals(brokers.NewRepository(bb, nil, nil))
+				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
 			expectedStatus: http.StatusInternalServerError,
 		},
@@ -452,7 +452,7 @@ func TestUpdateBroker(t *testing.T) {
 				bb.EXPECT().ExistsByName(gomock.Any()).Return(false, nil)
 				bb.EXPECT().Update(gomock.Any()).Return(nil)
 				bb.EXPECT().Get(gomock.Any()).Return(models.Broker{}, true, nil)
-				brokers.ReplaceGlobals(brokers.NewRepository(bb, nil, nil))
+				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
 			expectedStatus: http.StatusOK,
 		},
@@ -504,7 +504,7 @@ func TestDeleteBroker(t *testing.T) {
 				handlers.ReplaceGlobals(m)
 				bb := mocks.NewBrokerRepository(ctrl)
 				bb.EXPECT().Exists(gomock.Any()).Times(0)
-				brokers.ReplaceGlobals(brokers.NewRepository(bb, nil, nil))
+				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
 			expectedStatus: http.StatusOK, // should be StatusBadRequest, but not with mock
 		},
@@ -518,7 +518,7 @@ func TestDeleteBroker(t *testing.T) {
 				bb := mocks.NewBrokerRepository(ctrl)
 				bb.EXPECT().Exists(gomock.Any()).Return(false, errors.New("error"))
 				bb.EXPECT().Delete(gomock.Any()).Times(0)
-				brokers.ReplaceGlobals(brokers.NewRepository(bb, nil, nil))
+				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
 			expectedStatus: http.StatusInternalServerError,
 		},
@@ -532,7 +532,7 @@ func TestDeleteBroker(t *testing.T) {
 				bb := mocks.NewBrokerRepository(ctrl)
 				bb.EXPECT().Exists(gomock.Any()).Return(false, nil)
 				bb.EXPECT().Delete(gomock.Any()).Times(0)
-				brokers.ReplaceGlobals(brokers.NewRepository(bb, nil, nil))
+				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
 			expectedStatus: http.StatusNotFound,
 		},
@@ -546,7 +546,7 @@ func TestDeleteBroker(t *testing.T) {
 				bb := mocks.NewBrokerRepository(ctrl)
 				bb.EXPECT().Exists(gomock.Any()).Return(true, nil)
 				bb.EXPECT().Delete(gomock.Any()).Return(errors.New("error"))
-				brokers.ReplaceGlobals(brokers.NewRepository(bb, nil, nil))
+				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
 			expectedStatus: http.StatusInternalServerError,
 		},
@@ -560,7 +560,7 @@ func TestDeleteBroker(t *testing.T) {
 				bb := mocks.NewBrokerRepository(ctrl)
 				bb.EXPECT().Exists(gomock.Any()).Return(true, nil)
 				bb.EXPECT().Delete(gomock.Any()).Return(nil)
-				brokers.ReplaceGlobals(brokers.NewRepository(bb, nil, nil))
+				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
 			expectedStatus: http.StatusOK,
 		},
@@ -602,7 +602,7 @@ func TestGetBrokers(t *testing.T) {
 				bb := mocks.NewBrokerRepository(ctrl)
 				bb.EXPECT().GetAllEnabled().Times(0)
 				bb.EXPECT().GetAll().Times(0)
-				brokers.ReplaceGlobals(brokers.NewRepository(bb, nil, nil))
+				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
 			expectedStatus: http.StatusOK, // should be StatusBadRequest, but not with mock
 		},
@@ -614,7 +614,7 @@ func TestGetBrokers(t *testing.T) {
 				handlers.ReplaceGlobals(m)
 				bb := mocks.NewBrokerRepository(ctrl)
 				bb.EXPECT().GetAllEnabled().Return(nil, errors.New("error"))
-				brokers.ReplaceGlobals(brokers.NewRepository(bb, nil, nil))
+				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
 			expectedStatus: http.StatusInternalServerError,
 		},
@@ -626,7 +626,7 @@ func TestGetBrokers(t *testing.T) {
 				handlers.ReplaceGlobals(m)
 				bb := mocks.NewBrokerRepository(ctrl)
 				bb.EXPECT().GetAll().Return(nil, errors.New("error"))
-				brokers.ReplaceGlobals(brokers.NewRepository(bb, nil, nil))
+				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
 			expectedStatus: http.StatusInternalServerError,
 		},
@@ -638,7 +638,7 @@ func TestGetBrokers(t *testing.T) {
 				handlers.ReplaceGlobals(m)
 				bb := mocks.NewBrokerRepository(ctrl)
 				bb.EXPECT().GetAll().Return([]models.Broker{}, nil)
-				brokers.ReplaceGlobals(brokers.NewRepository(bb, nil, nil))
+				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
 			expectedStatus: http.StatusOK,
 		},

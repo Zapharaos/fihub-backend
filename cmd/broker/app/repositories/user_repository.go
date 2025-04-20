@@ -1,4 +1,4 @@
-package brokers
+package repositories
 
 import (
 	"github.com/Zapharaos/fihub-backend/internal/models"

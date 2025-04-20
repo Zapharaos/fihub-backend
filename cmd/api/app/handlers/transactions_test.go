@@ -6,7 +6,7 @@ import (
 	"errors"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/clients"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/handlers"
-	"github.com/Zapharaos/fihub-backend/internal/brokers"
+	"github.com/Zapharaos/fihub-backend/cmd/broker/app/repositories"
 	"github.com/Zapharaos/fihub-backend/internal/models"
 	"github.com/Zapharaos/fihub-backend/protogen"
 	"github.com/Zapharaos/fihub-backend/test/mocks"
@@ -59,7 +59,7 @@ func TestCreateTransaction(t *testing.T) {
 				handlers.ReplaceGlobals(h)
 				bu := mocks.NewBrokerUserRepository(ctrl)
 				bu.EXPECT().Exists(gomock.Any()).Times(0)
-				brokers.ReplaceGlobals(brokers.NewRepository(nil, bu, nil))
+				repositories.ReplaceGlobals(repositories.NewRepository(nil, bu, nil))
 			},
 			expectedStatus: http.StatusUnauthorized,
 		},
@@ -72,7 +72,7 @@ func TestCreateTransaction(t *testing.T) {
 				handlers.ReplaceGlobals(h)
 				bu := mocks.NewBrokerUserRepository(ctrl)
 				bu.EXPECT().Exists(gomock.Any()).Times(0)
-				brokers.ReplaceGlobals(brokers.NewRepository(nil, bu, nil))
+				repositories.ReplaceGlobals(repositories.NewRepository(nil, bu, nil))
 			},
 			expectedStatus: http.StatusBadRequest,
 		},
@@ -85,7 +85,7 @@ func TestCreateTransaction(t *testing.T) {
 				handlers.ReplaceGlobals(h)
 				bu := mocks.NewBrokerUserRepository(ctrl)
 				bu.EXPECT().Exists(gomock.Any()).Return(false, errors.New("error"))
-				brokers.ReplaceGlobals(brokers.NewRepository(nil, bu, nil))
+				repositories.ReplaceGlobals(repositories.NewRepository(nil, bu, nil))
 				tc := mocks.NewTransactionServiceClient(ctrl)
 				tc.EXPECT().CreateTransaction(gomock.Any(), gomock.Any()).Times(0)
 				clients.ReplaceGlobals(clients.NewClients(nil, nil, tc))
@@ -101,7 +101,7 @@ func TestCreateTransaction(t *testing.T) {
 				handlers.ReplaceGlobals(h)
 				bu := mocks.NewBrokerUserRepository(ctrl)
 				bu.EXPECT().Exists(gomock.Any()).Return(false, nil)
-				brokers.ReplaceGlobals(brokers.NewRepository(nil, bu, nil))
+				repositories.ReplaceGlobals(repositories.NewRepository(nil, bu, nil))
 				tc := mocks.NewTransactionServiceClient(ctrl)
 				tc.EXPECT().CreateTransaction(gomock.Any(), gomock.Any()).Times(0)
 				clients.ReplaceGlobals(clients.NewClients(nil, nil, tc))
@@ -119,7 +119,7 @@ func TestCreateTransaction(t *testing.T) {
 				bb.EXPECT().Get(gomock.Any()).Times(0)
 				bu := mocks.NewBrokerUserRepository(ctrl)
 				bu.EXPECT().Exists(gomock.Any()).Return(true, nil)
-				brokers.ReplaceGlobals(brokers.NewRepository(bb, bu, nil))
+				repositories.ReplaceGlobals(repositories.NewRepository(bb, bu, nil))
 				tc := mocks.NewTransactionServiceClient(ctrl)
 				tc.EXPECT().CreateTransaction(gomock.Any(), gomock.Any()).Return(nil, status.Error(codes.Unknown, "error"))
 				clients.ReplaceGlobals(clients.NewClients(nil, nil, tc))
@@ -137,7 +137,7 @@ func TestCreateTransaction(t *testing.T) {
 				bb.EXPECT().Get(gomock.Any()).Return(models.Broker{}, false, errors.New("error"))
 				bu := mocks.NewBrokerUserRepository(ctrl)
 				bu.EXPECT().Exists(gomock.Any()).Return(true, nil)
-				brokers.ReplaceGlobals(brokers.NewRepository(bb, bu, nil))
+				repositories.ReplaceGlobals(repositories.NewRepository(bb, bu, nil))
 				tc := mocks.NewTransactionServiceClient(ctrl)
 				tc.EXPECT().CreateTransaction(gomock.Any(), gomock.Any()).Return(validResponse, nil)
 				clients.ReplaceGlobals(clients.NewClients(nil, nil, tc))
@@ -155,7 +155,7 @@ func TestCreateTransaction(t *testing.T) {
 				bb.EXPECT().Get(gomock.Any()).Return(models.Broker{}, false, nil)
 				bu := mocks.NewBrokerUserRepository(ctrl)
 				bu.EXPECT().Exists(gomock.Any()).Return(true, nil)
-				brokers.ReplaceGlobals(brokers.NewRepository(bb, bu, nil))
+				repositories.ReplaceGlobals(repositories.NewRepository(bb, bu, nil))
 				tc := mocks.NewTransactionServiceClient(ctrl)
 				tc.EXPECT().CreateTransaction(gomock.Any(), gomock.Any()).Return(validResponse, nil)
 				clients.ReplaceGlobals(clients.NewClients(nil, nil, tc))
@@ -173,7 +173,7 @@ func TestCreateTransaction(t *testing.T) {
 				bb.EXPECT().Get(gomock.Any()).Return(models.Broker{}, true, nil)
 				bu := mocks.NewBrokerUserRepository(ctrl)
 				bu.EXPECT().Exists(gomock.Any()).Return(true, nil)
-				brokers.ReplaceGlobals(brokers.NewRepository(bb, bu, nil))
+				repositories.ReplaceGlobals(repositories.NewRepository(bb, bu, nil))
 				tc := mocks.NewTransactionServiceClient(ctrl)
 				tc.EXPECT().CreateTransaction(gomock.Any(), gomock.Any()).Return(validResponse, nil)
 				clients.ReplaceGlobals(clients.NewClients(nil, nil, tc))
@@ -288,7 +288,7 @@ func TestGetTransaction(t *testing.T) {
 				clients.ReplaceGlobals(clients.NewClients(nil, nil, tc))
 				bb := mocks.NewBrokerRepository(ctrl)
 				bb.EXPECT().Get(gomock.Any()).Times(0)
-				brokers.ReplaceGlobals(brokers.NewRepository(bb, nil, nil))
+				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
 			expectedStatus: http.StatusUnauthorized,
 		},
@@ -304,7 +304,7 @@ func TestGetTransaction(t *testing.T) {
 				clients.ReplaceGlobals(clients.NewClients(nil, nil, tc))
 				bb := mocks.NewBrokerRepository(ctrl)
 				bb.EXPECT().Get(gomock.Any()).Return(models.Broker{}, false, errors.New("error"))
-				brokers.ReplaceGlobals(brokers.NewRepository(bb, nil, nil))
+				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
 			expectedStatus: http.StatusInternalServerError,
 		},
@@ -320,7 +320,7 @@ func TestGetTransaction(t *testing.T) {
 				clients.ReplaceGlobals(clients.NewClients(nil, nil, tc))
 				bb := mocks.NewBrokerRepository(ctrl)
 				bb.EXPECT().Get(gomock.Any()).Return(models.Broker{}, false, nil)
-				brokers.ReplaceGlobals(brokers.NewRepository(bb, nil, nil))
+				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
 			expectedStatus: http.StatusNotFound,
 		},
@@ -336,7 +336,7 @@ func TestGetTransaction(t *testing.T) {
 				clients.ReplaceGlobals(clients.NewClients(nil, nil, tc))
 				bb := mocks.NewBrokerRepository(ctrl)
 				bb.EXPECT().Get(gomock.Any()).Return(models.Broker{}, true, nil)
-				brokers.ReplaceGlobals(brokers.NewRepository(bb, nil, nil))
+				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
 			expectedStatus: http.StatusOK,
 		},
@@ -411,7 +411,7 @@ func TestUpdateTransaction(t *testing.T) {
 				handlers.ReplaceGlobals(h)
 				bu := mocks.NewBrokerUserRepository(ctrl)
 				bu.EXPECT().Exists(gomock.Any()).Times(0)
-				brokers.ReplaceGlobals(brokers.NewRepository(nil, bu, nil))
+				repositories.ReplaceGlobals(repositories.NewRepository(nil, bu, nil))
 			},
 			expectedStatus: http.StatusUnauthorized,
 		},
@@ -425,7 +425,7 @@ func TestUpdateTransaction(t *testing.T) {
 				handlers.ReplaceGlobals(h)
 				bu := mocks.NewBrokerUserRepository(ctrl)
 				bu.EXPECT().Exists(gomock.Any()).Times(0)
-				brokers.ReplaceGlobals(brokers.NewRepository(nil, bu, nil))
+				repositories.ReplaceGlobals(repositories.NewRepository(nil, bu, nil))
 			},
 			expectedStatus: http.StatusBadRequest,
 		},
@@ -439,7 +439,7 @@ func TestUpdateTransaction(t *testing.T) {
 				handlers.ReplaceGlobals(h)
 				bu := mocks.NewBrokerUserRepository(ctrl)
 				bu.EXPECT().Exists(gomock.Any()).Return(false, errors.New("error"))
-				brokers.ReplaceGlobals(brokers.NewRepository(nil, bu, nil))
+				repositories.ReplaceGlobals(repositories.NewRepository(nil, bu, nil))
 				tc := mocks.NewTransactionServiceClient(ctrl)
 				tc.EXPECT().UpdateTransaction(gomock.Any(), gomock.Any()).Times(0)
 				clients.ReplaceGlobals(clients.NewClients(nil, nil, tc))
@@ -457,7 +457,7 @@ func TestUpdateTransaction(t *testing.T) {
 				handlers.ReplaceGlobals(h)
 				bu := mocks.NewBrokerUserRepository(ctrl)
 				bu.EXPECT().Exists(gomock.Any()).Return(false, nil)
-				brokers.ReplaceGlobals(brokers.NewRepository(nil, bu, nil))
+				repositories.ReplaceGlobals(repositories.NewRepository(nil, bu, nil))
 				tc := mocks.NewTransactionServiceClient(ctrl)
 				tc.EXPECT().UpdateTransaction(gomock.Any(), gomock.Any()).Times(0)
 				clients.ReplaceGlobals(clients.NewClients(nil, nil, tc))
@@ -476,7 +476,7 @@ func TestUpdateTransaction(t *testing.T) {
 				bb.EXPECT().Get(gomock.Any()).Times(0)
 				bu := mocks.NewBrokerUserRepository(ctrl)
 				bu.EXPECT().Exists(gomock.Any()).Return(true, nil)
-				brokers.ReplaceGlobals(brokers.NewRepository(bb, bu, nil))
+				repositories.ReplaceGlobals(repositories.NewRepository(bb, bu, nil))
 				tc := mocks.NewTransactionServiceClient(ctrl)
 				tc.EXPECT().UpdateTransaction(gomock.Any(), gomock.Any()).Return(nil, status.Error(codes.Unknown, "error"))
 				clients.ReplaceGlobals(clients.NewClients(nil, nil, tc))
@@ -495,7 +495,7 @@ func TestUpdateTransaction(t *testing.T) {
 				bb.EXPECT().Get(gomock.Any()).Return(models.Broker{}, false, errors.New("error"))
 				bu := mocks.NewBrokerUserRepository(ctrl)
 				bu.EXPECT().Exists(gomock.Any()).Return(true, nil)
-				brokers.ReplaceGlobals(brokers.NewRepository(bb, bu, nil))
+				repositories.ReplaceGlobals(repositories.NewRepository(bb, bu, nil))
 				tc := mocks.NewTransactionServiceClient(ctrl)
 				tc.EXPECT().UpdateTransaction(gomock.Any(), gomock.Any()).Return(validResponse, nil)
 				clients.ReplaceGlobals(clients.NewClients(nil, nil, tc))
@@ -514,7 +514,7 @@ func TestUpdateTransaction(t *testing.T) {
 				bb.EXPECT().Get(gomock.Any()).Return(models.Broker{}, false, nil)
 				bu := mocks.NewBrokerUserRepository(ctrl)
 				bu.EXPECT().Exists(gomock.Any()).Return(true, nil)
-				brokers.ReplaceGlobals(brokers.NewRepository(bb, bu, nil))
+				repositories.ReplaceGlobals(repositories.NewRepository(bb, bu, nil))
 				tc := mocks.NewTransactionServiceClient(ctrl)
 				tc.EXPECT().UpdateTransaction(gomock.Any(), gomock.Any()).Return(validResponse, nil)
 				clients.ReplaceGlobals(clients.NewClients(nil, nil, tc))
@@ -533,7 +533,7 @@ func TestUpdateTransaction(t *testing.T) {
 				bb.EXPECT().Get(gomock.Any()).Return(models.Broker{}, true, nil)
 				bu := mocks.NewBrokerUserRepository(ctrl)
 				bu.EXPECT().Exists(gomock.Any()).Return(true, nil)
-				brokers.ReplaceGlobals(brokers.NewRepository(bb, bu, nil))
+				repositories.ReplaceGlobals(repositories.NewRepository(bb, bu, nil))
 				tc := mocks.NewTransactionServiceClient(ctrl)
 				tc.EXPECT().UpdateTransaction(gomock.Any(), gomock.Any()).Return(validResponse, nil)
 				clients.ReplaceGlobals(clients.NewClients(nil, nil, tc))
@@ -677,7 +677,7 @@ func TestListTransactions(t *testing.T) {
 				clients.ReplaceGlobals(clients.NewClients(nil, nil, tc))
 				bb := mocks.NewBrokerRepository(ctrl)
 				bb.EXPECT().GetAll().Times(0)
-				brokers.ReplaceGlobals(brokers.NewRepository(bb, nil, nil))
+				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
 			expectedStatus: http.StatusInternalServerError,
 		},
@@ -692,7 +692,7 @@ func TestListTransactions(t *testing.T) {
 				clients.ReplaceGlobals(clients.NewClients(nil, nil, tc))
 				bb := mocks.NewBrokerRepository(ctrl)
 				bb.EXPECT().GetAll().Return(nil, errors.New("error"))
-				brokers.ReplaceGlobals(brokers.NewRepository(bb, nil, nil))
+				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
 			expectedStatus: http.StatusInternalServerError,
 		},
@@ -707,7 +707,7 @@ func TestListTransactions(t *testing.T) {
 				clients.ReplaceGlobals(clients.NewClients(nil, nil, tc))
 				bb := mocks.NewBrokerRepository(ctrl)
 				bb.EXPECT().GetAll().Return([]models.Broker{}, nil)
-				brokers.ReplaceGlobals(brokers.NewRepository(bb, nil, nil))
+				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
 			expectedStatus: http.StatusOK,
 		},

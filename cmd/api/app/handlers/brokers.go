@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/handlers/render"
-	"github.com/Zapharaos/fihub-backend/internal/brokers"
+	"github.com/Zapharaos/fihub-backend/cmd/broker/app/repositories"
 	"github.com/Zapharaos/fihub-backend/internal/models"
 	"go.uber.org/zap"
 	"net/http"
@@ -48,7 +48,7 @@ func CreateBroker(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Verify that the broker does not already exist
-	exists, err := brokers.R().B().ExistsByName(broker.Name)
+	exists, err := repositories.R().B().ExistsByName(broker.Name)
 	if err != nil {
 		zap.L().Error("Check broker exists", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
@@ -61,7 +61,7 @@ func CreateBroker(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Create the broker
-	brokerID, err := brokers.R().B().Create(broker)
+	brokerID, err := repositories.R().B().Create(broker)
 	if err != nil {
 		zap.L().Warn("Create broker", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
@@ -69,7 +69,7 @@ func CreateBroker(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get the broker from the database
-	broker, found, err := brokers.R().B().Get(brokerID)
+	broker, found, err := repositories.R().B().Get(brokerID)
 	if err != nil {
 		zap.L().Error("Cannot get broker", zap.String("uuid", brokerID.String()), zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
@@ -108,7 +108,7 @@ func GetBroker(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get the broker from the database
-	broker, found, err := brokers.R().B().Get(brokerID)
+	broker, found, err := repositories.R().B().Get(brokerID)
 	if err != nil {
 		zap.L().Error("Cannot get broker", zap.String("uuid", brokerID.String()), zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
@@ -171,7 +171,7 @@ func UpdateBroker(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Retrieve the broker from the database and verify its existence
-	oldBroker, found, err := brokers.R().B().Get(brokerID)
+	oldBroker, found, err := repositories.R().B().Get(brokerID)
 	if err != nil {
 		zap.L().Error("Cannot get broker", zap.String("uuid", brokerID.String()), zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
@@ -186,7 +186,7 @@ func UpdateBroker(w http.ResponseWriter, r *http.Request) {
 	// Check if the broker name has changed
 	if oldBroker.Name != broker.Name {
 		// Verify that the broker name is not already used
-		exists, err := brokers.R().B().ExistsByName(broker.Name)
+		exists, err := repositories.R().B().ExistsByName(broker.Name)
 		if err != nil {
 			zap.L().Error("Check broker name exists", zap.Error(err))
 			w.WriteHeader(http.StatusInternalServerError)
@@ -200,7 +200,7 @@ func UpdateBroker(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Update the broker
-	err = brokers.R().B().Update(broker)
+	err = repositories.R().B().Update(broker)
 	if err != nil {
 		zap.L().Warn("Update broker", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
@@ -208,7 +208,7 @@ func UpdateBroker(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get the broker from the database
-	broker, found, err = brokers.R().B().Get(brokerID)
+	broker, found, err = repositories.R().B().Get(brokerID)
 	if err != nil {
 		zap.L().Error("Cannot get broker", zap.String("uuid", brokerID.String()), zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
@@ -251,7 +251,7 @@ func DeleteBroker(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Verify that the broker exists
-	exists, err := brokers.R().B().Exists(brokerID)
+	exists, err := repositories.R().B().Exists(brokerID)
 	if err != nil {
 		zap.L().Error("Check broker exists", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
@@ -264,7 +264,7 @@ func DeleteBroker(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Delete the broker
-	err = brokers.R().B().Delete(brokerID)
+	err = repositories.R().B().Delete(brokerID)
 	if err != nil {
 		zap.L().Warn("Delete broker", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
@@ -301,9 +301,9 @@ func GetBrokers(w http.ResponseWriter, r *http.Request) {
 
 	// Check if the query parameter is set to true
 	if enabled {
-		result, err = brokers.R().B().GetAllEnabled()
+		result, err = repositories.R().B().GetAllEnabled()
 	} else {
-		result, err = brokers.R().B().GetAll()
+		result, err = repositories.R().B().GetAll()
 	}
 
 	if err != nil {

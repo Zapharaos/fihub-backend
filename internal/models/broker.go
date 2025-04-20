@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"github.com/Zapharaos/fihub-backend/protogen"
 	"github.com/google/uuid"
 )
 
@@ -24,4 +25,24 @@ func (b Broker) IsValid() (bool, error) {
 		return false, errBrokerNameRequired
 	}
 	return true, nil
+}
+
+// ToProtogenBroker converts a Broker to a protogen.Broker
+func (b Broker) ToProtogenBroker() *protogen.Broker {
+	return &protogen.Broker{
+		Id:       b.ID.String(),
+		Name:     b.Name,
+		ImageId:  b.ImageID.UUID.String(),
+		Disabled: b.Disabled,
+	}
+}
+
+// FromProtogenBroker converts a protogen.Broker to a Broker
+func FromProtogenBroker(b *protogen.Broker) Broker {
+	return Broker{
+		ID:       uuid.MustParse(b.GetId()),
+		Name:     b.GetName(),
+		ImageID:  uuid.NullUUID{},
+		Disabled: b.GetDisabled(),
+	}
 }

@@ -1,9 +1,9 @@
 package main
 
 import (
+	"github.com/Zapharaos/fihub-backend/cmd/broker/app/repositories"
 	"github.com/Zapharaos/fihub-backend/cmd/broker/app/service"
 	"github.com/Zapharaos/fihub-backend/internal/app"
-	"github.com/Zapharaos/fihub-backend/internal/brokers"
 	"github.com/Zapharaos/fihub-backend/internal/database"
 	"github.com/Zapharaos/fihub-backend/protogen"
 	"github.com/spf13/viper"
@@ -27,10 +27,10 @@ func main() {
 	app.InitDatabase()
 
 	// Broker repositories
-	brokerRepository := brokers.NewPostgresRepository(database.DB().Postgres())
-	userBrokerRepository := brokers.NewUserPostgresRepository(database.DB().Postgres())
-	imageBrokerRepository := brokers.NewImagePostgresRepository(database.DB().Postgres())
-	brokers.ReplaceGlobals(brokers.NewRepository(brokerRepository, userBrokerRepository, imageBrokerRepository))
+	brokerRepository := repositories.NewPostgresRepository(database.DB().Postgres())
+	userBrokerRepository := repositories.NewUserPostgresRepository(database.DB().Postgres())
+	imageBrokerRepository := repositories.NewImagePostgresRepository(database.DB().Postgres())
+	repositories.ReplaceGlobals(repositories.NewRepository(brokerRepository, userBrokerRepository, imageBrokerRepository))
 
 	// Start gRPC microservice
 	port := viper.GetString("BROKER_MICROSERVICE_PORT")

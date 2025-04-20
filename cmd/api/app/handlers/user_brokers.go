@@ -1,11 +1,12 @@
 package handlers
 
 import (
+	"context"
 	"encoding/json"
-	"fmt"
+	"github.com/Zapharaos/fihub-backend/cmd/api/app/clients"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/handlers/render"
-	"github.com/Zapharaos/fihub-backend/internal/brokers"
 	"github.com/Zapharaos/fihub-backend/internal/models"
+	"github.com/Zapharaos/fihub-backend/protogen"
 	"go.uber.org/zap"
 	"net/http"
 )
@@ -27,7 +28,6 @@ import (
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/users/brokers [post]
 func CreateUserBroker(w http.ResponseWriter, r *http.Request) {
-
 	// Get the authenticated user from the context
 	user, ok := U().GetUserFromContext(r)
 	if !ok {
@@ -36,82 +36,38 @@ func CreateUserBroker(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Parse request body
-	var userBrokerInput models.BrokerUserInput
-	err := json.NewDecoder(r.Body).Decode(&userBrokerInput)
+	var brokerUserInput models.BrokerUserInput
+	err := json.NewDecoder(r.Body).Decode(&brokerUserInput)
 	if err != nil {
 		zap.L().Warn("BrokerUser json decode", zap.Error(err))
 		render.BadRequest(w, r, err)
 		return
 	}
 
-	// Validate user
-	if ok, err := userBrokerInput.IsValid(); !ok {
-		zap.L().Warn("BrokerUser is not valid", zap.Error(err))
-		render.BadRequest(w, r, err)
-		return
+	// Map models.BrokerUserInput to gRPC protogen.CreateBrokerUserRequest
+	brokerUserRequest := &protogen.CreateBrokerUserRequest{
+		UserId:   user.ID.String(),
+		BrokerId: brokerUserInput.BrokerID,
 	}
 
-	// Convert to BrokerUser
-	userBroker := userBrokerInput.ToUser()
-	userBroker.UserID = user.ID
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
-	// Retrieve broker to check if it exists
-	broker, exists, err := brokers.R().B().Get(userBroker.Broker.ID)
+	// Create the BrokerUser
+	response, err := clients.C().Broker().CreateBrokerUser(ctx, brokerUserRequest)
 	if err != nil {
-		zap.L().Error("Get broker", zap.Error(err))
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	if !exists {
-		zap.L().Warn("broker not found",
-			zap.String("UserID", userBroker.UserID.String()),
-			zap.String("BrokerID", userBroker.Broker.ID.String()))
-		w.WriteHeader(http.StatusBadRequest)
+		zap.L().Error("Create BrokerUser", zap.Error(err))
+		render.ErrorCodesCodeToHttpCode(w, r, err)
 		return
 	}
 
-	// Check if broker is disabled
-	if broker.Disabled {
-		zap.L().Warn("Broker is disabled", zap.String("BrokerID", userBroker.Broker.ID.String()))
-		w.WriteHeader(http.StatusUnauthorized)
-		return
+	// Map gRPC response to UserBrokers array
+	userBrokers := make([]models.BrokerUser, len(response.UserBrokers))
+	for i, protogenBrokerUser := range response.UserBrokers {
+		userBrokers[i] = models.FromProtogenBrokerUser(protogenBrokerUser)
 	}
 
-	// Verify userBroker existence
-	exists, err = brokers.R().U().Exists(userBroker)
-	if err != nil {
-		zap.L().Error("Check userBroker exists", zap.Error(err))
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	if exists {
-		zap.L().Warn("BrokerUser already exists", zap.String("BrokerID", userBroker.Broker.ID.String()))
-		render.BadRequest(w, r, fmt.Errorf("broker-used"))
-		return
-	}
-
-	// Create userBroker
-	err = brokers.R().U().Create(userBroker)
-	if err != nil {
-		zap.L().Error("PostUserBroker.Create", zap.Error(err))
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	// Get userBrockers back from database
-	userBrockers, err := brokers.R().U().GetAll(user.ID)
-	if err != nil {
-		zap.L().Error("Cannot get user brokers", zap.String("uuid", user.ID.String()), zap.Error(err))
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	if len(userBrockers) == 0 {
-		zap.L().Error("BrokerUser broker not found after creation", zap.String("uuid", user.ID.String()))
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	render.JSON(w, r, userBrockers)
+	render.JSON(w, r, userBrokers)
 }
 
 // DeleteUserBroker godoc
@@ -143,32 +99,20 @@ func DeleteUserBroker(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Build userBroker
-	userBroker := models.BrokerUser{
-		UserID: user.ID,
-		Broker: models.Broker{ID: brokerID},
+	// Map models.BrokerUserInput to gRPC protogen.DeleteBrokerUserRequest
+	brokerUserRequest := &protogen.DeleteBrokerUserRequest{
+		UserId:   user.ID.String(),
+		BrokerId: brokerID.String(),
 	}
 
-	// Verify userBroker existence
-	exists, err := brokers.R().U().Exists(userBroker)
-	if err != nil {
-		zap.L().Error("Check userBroker exists", zap.Error(err))
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	if !exists {
-		zap.L().Warn("BrokerUser not found",
-			zap.String("UserID", user.ID.String()),
-			zap.String("BrokerID", brokerID.String()))
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
-	// Remove broker
-	err = brokers.R().U().Delete(userBroker)
+	// Delete the BrokerUser
+	_, err := clients.C().Broker().DeleteBrokerUser(ctx, brokerUserRequest)
 	if err != nil {
-		zap.L().Error("Cannot remove user broker", zap.String("uuid", user.ID.String()), zap.Error(err))
-		w.WriteHeader(http.StatusInternalServerError)
+		zap.L().Error("Delete BrokerUser", zap.Error(err))
+		render.ErrorCodesCodeToHttpCode(w, r, err)
 		return
 	}
 
@@ -197,13 +141,27 @@ func GetUserBrokers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Get userBrockers back from database
-	userBrockers, err := brokers.R().U().GetAll(user.ID)
+	// Map props to gRPC protogen.GetUserBrokersRequest
+	brokerUserRequest := &protogen.GetUserBrokersRequest{
+		UserId: user.ID.String(),
+	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	// Get the userBrokers
+	response, err := clients.C().Broker().GetUserBrokers(ctx, brokerUserRequest)
 	if err != nil {
-		zap.L().Error("Cannot get user brokers", zap.String("uuid", user.ID.String()), zap.Error(err))
-		w.WriteHeader(http.StatusInternalServerError)
+		zap.L().Error("Get BrokerUsers", zap.Error(err))
+		render.ErrorCodesCodeToHttpCode(w, r, err)
 		return
 	}
 
-	render.JSON(w, r, userBrockers)
+	// Map gRPC response to UserBrokers array
+	userBrokers := make([]models.BrokerUser, len(response.UserBrokers))
+	for i, protogenBrokerUser := range response.UserBrokers {
+		userBrokers[i] = models.FromProtogenBrokerUser(protogenBrokerUser)
+	}
+
+	render.JSON(w, r, userBrokers)
 }

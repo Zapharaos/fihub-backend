@@ -267,6 +267,16 @@ func TestErrorCodesCodeToHttpCode(t *testing.T) {
 		expectedStatus int
 	}{
 		{
+			name:           "FailedPrecondition",
+			statusCode:     codes.FailedPrecondition,
+			expectedStatus: http.StatusBadRequest,
+		},
+		{
+			name:           "AlreadyExists",
+			statusCode:     codes.AlreadyExists,
+			expectedStatus: http.StatusBadRequest,
+		},
+		{
 			name:           "InvalidArgument",
 			statusCode:     codes.InvalidArgument,
 			expectedStatus: http.StatusBadRequest,

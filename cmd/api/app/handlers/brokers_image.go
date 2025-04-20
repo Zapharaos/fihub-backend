@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/handlers/render"
-	"github.com/Zapharaos/fihub-backend/internal/brokers"
+	"github.com/Zapharaos/fihub-backend/cmd/broker/app/repositories"
 	"github.com/Zapharaos/fihub-backend/internal/models"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
@@ -59,7 +59,7 @@ func CreateBrokerImage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Verify broker has no image
-	ok, err := brokers.R().B().HasImage(brokerID)
+	ok, err := repositories.R().B().HasImage(brokerID)
 	if err != nil {
 		zap.L().Error("HasImageBroker", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
@@ -72,7 +72,7 @@ func CreateBrokerImage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Create the broker image
-	err = brokers.R().I().Create(brokerImageInput)
+	err = repositories.R().I().Create(brokerImageInput)
 	if err != nil {
 		zap.L().Error("PostBrokerImage.Create", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
@@ -80,7 +80,7 @@ func CreateBrokerImage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get the broker image back from the database
-	brokerImage, found, err := brokers.R().I().Get(brokerImageInput.ID)
+	brokerImage, found, err := repositories.R().I().Get(brokerImageInput.ID)
 	if err != nil {
 		zap.L().Error("Cannot get broker image", zap.String("uuid", brokerImageInput.ID.String()), zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
@@ -93,7 +93,7 @@ func CreateBrokerImage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Set the broker image
-	err = brokers.R().B().SetImage(brokerID, brokerImageInput.ID)
+	err = repositories.R().B().SetImage(brokerID, brokerImageInput.ID)
 	if err != nil {
 		zap.L().Error("SetImageBroker.Create", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
@@ -129,7 +129,7 @@ func GetBrokerImage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get the broker image
-	brokerImage, found, err := brokers.R().I().Get(imageID)
+	brokerImage, found, err := repositories.R().I().Get(imageID)
 	if err != nil {
 		zap.L().Error("Cannot get brokerImage", zap.String("image_id", imageID.String()), zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
@@ -205,7 +205,7 @@ func UpdateBrokerImage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Verify imageBroker existence
-	exists, err := brokers.R().I().Exists(brokerID, imageID)
+	exists, err := repositories.R().I().Exists(brokerID, imageID)
 	if err != nil {
 		zap.L().Error("Check imageBroker exists", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
@@ -218,7 +218,7 @@ func UpdateBrokerImage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Update the broker image
-	err = brokers.R().I().Update(brokerImageInput)
+	err = repositories.R().I().Update(brokerImageInput)
 	if err != nil {
 		zap.L().Error("UpdateBrokerImage.Update", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
@@ -226,7 +226,7 @@ func UpdateBrokerImage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get the broker image back from the database
-	brokerImage, found, err := brokers.R().I().Get(brokerImageInput.ID)
+	brokerImage, found, err := repositories.R().I().Get(brokerImageInput.ID)
 	if err != nil {
 		zap.L().Error("Cannot get broker image", zap.String("uuid", brokerImageInput.ID.String()), zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
@@ -271,7 +271,7 @@ func DeleteBrokerImage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Verify imageBroker existence
-	exists, err := brokers.R().I().Exists(brokerID, imageID)
+	exists, err := repositories.R().I().Exists(brokerID, imageID)
 	if err != nil {
 		zap.L().Error("Check imageBroker exists", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
@@ -284,7 +284,7 @@ func DeleteBrokerImage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Delete the broker image
-	err = brokers.R().I().Delete(imageID)
+	err = repositories.R().I().Delete(imageID)
 	if err != nil {
 		zap.L().Error("DeleteBrokerImage.Delete", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)

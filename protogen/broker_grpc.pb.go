@@ -19,14 +19,18 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	BrokerService_TODO_FullMethodName = "/broker.BrokerService/TODO"
+	BrokerService_CreateBrokerUser_FullMethodName = "/broker.BrokerService/CreateBrokerUser"
+	BrokerService_DeleteBrokerUser_FullMethodName = "/broker.BrokerService/DeleteBrokerUser"
+	BrokerService_GetUserBrokers_FullMethodName   = "/broker.BrokerService/GetUserBrokers"
 )
 
 // BrokerServiceClient is the client API for BrokerService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type BrokerServiceClient interface {
-	TODO(ctx context.Context, in *TodoRequest, opts ...grpc.CallOption) (*TodoResponse, error)
+	CreateBrokerUser(ctx context.Context, in *CreateBrokerUserRequest, opts ...grpc.CallOption) (*CreateBrokerUserResponse, error)
+	DeleteBrokerUser(ctx context.Context, in *DeleteBrokerUserRequest, opts ...grpc.CallOption) (*DeleteBrokerUserResponse, error)
+	GetUserBrokers(ctx context.Context, in *GetUserBrokersRequest, opts ...grpc.CallOption) (*GetUserBrokersResponse, error)
 }
 
 type brokerServiceClient struct {
@@ -37,10 +41,30 @@ func NewBrokerServiceClient(cc grpc.ClientConnInterface) BrokerServiceClient {
 	return &brokerServiceClient{cc}
 }
 
-func (c *brokerServiceClient) TODO(ctx context.Context, in *TodoRequest, opts ...grpc.CallOption) (*TodoResponse, error) {
+func (c *brokerServiceClient) CreateBrokerUser(ctx context.Context, in *CreateBrokerUserRequest, opts ...grpc.CallOption) (*CreateBrokerUserResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(TodoResponse)
-	err := c.cc.Invoke(ctx, BrokerService_TODO_FullMethodName, in, out, cOpts...)
+	out := new(CreateBrokerUserResponse)
+	err := c.cc.Invoke(ctx, BrokerService_CreateBrokerUser_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *brokerServiceClient) DeleteBrokerUser(ctx context.Context, in *DeleteBrokerUserRequest, opts ...grpc.CallOption) (*DeleteBrokerUserResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeleteBrokerUserResponse)
+	err := c.cc.Invoke(ctx, BrokerService_DeleteBrokerUser_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *brokerServiceClient) GetUserBrokers(ctx context.Context, in *GetUserBrokersRequest, opts ...grpc.CallOption) (*GetUserBrokersResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetUserBrokersResponse)
+	err := c.cc.Invoke(ctx, BrokerService_GetUserBrokers_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +75,9 @@ func (c *brokerServiceClient) TODO(ctx context.Context, in *TodoRequest, opts ..
 // All implementations must embed UnimplementedBrokerServiceServer
 // for forward compatibility.
 type BrokerServiceServer interface {
-	TODO(context.Context, *TodoRequest) (*TodoResponse, error)
+	CreateBrokerUser(context.Context, *CreateBrokerUserRequest) (*CreateBrokerUserResponse, error)
+	DeleteBrokerUser(context.Context, *DeleteBrokerUserRequest) (*DeleteBrokerUserResponse, error)
+	GetUserBrokers(context.Context, *GetUserBrokersRequest) (*GetUserBrokersResponse, error)
 	mustEmbedUnimplementedBrokerServiceServer()
 }
 
@@ -62,8 +88,14 @@ type BrokerServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedBrokerServiceServer struct{}
 
-func (UnimplementedBrokerServiceServer) TODO(context.Context, *TodoRequest) (*TodoResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method TODO not implemented")
+func (UnimplementedBrokerServiceServer) CreateBrokerUser(context.Context, *CreateBrokerUserRequest) (*CreateBrokerUserResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateBrokerUser not implemented")
+}
+func (UnimplementedBrokerServiceServer) DeleteBrokerUser(context.Context, *DeleteBrokerUserRequest) (*DeleteBrokerUserResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteBrokerUser not implemented")
+}
+func (UnimplementedBrokerServiceServer) GetUserBrokers(context.Context, *GetUserBrokersRequest) (*GetUserBrokersResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserBrokers not implemented")
 }
 func (UnimplementedBrokerServiceServer) mustEmbedUnimplementedBrokerServiceServer() {}
 func (UnimplementedBrokerServiceServer) testEmbeddedByValue()                       {}
@@ -86,20 +118,56 @@ func RegisterBrokerServiceServer(s grpc.ServiceRegistrar, srv BrokerServiceServe
 	s.RegisterService(&BrokerService_ServiceDesc, srv)
 }
 
-func _BrokerService_TODO_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(TodoRequest)
+func _BrokerService_CreateBrokerUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateBrokerUserRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BrokerServiceServer).TODO(ctx, in)
+		return srv.(BrokerServiceServer).CreateBrokerUser(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: BrokerService_TODO_FullMethodName,
+		FullMethod: BrokerService_CreateBrokerUser_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BrokerServiceServer).TODO(ctx, req.(*TodoRequest))
+		return srv.(BrokerServiceServer).CreateBrokerUser(ctx, req.(*CreateBrokerUserRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _BrokerService_DeleteBrokerUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteBrokerUserRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BrokerServiceServer).DeleteBrokerUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BrokerService_DeleteBrokerUser_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BrokerServiceServer).DeleteBrokerUser(ctx, req.(*DeleteBrokerUserRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _BrokerService_GetUserBrokers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserBrokersRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BrokerServiceServer).GetUserBrokers(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BrokerService_GetUserBrokers_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BrokerServiceServer).GetUserBrokers(ctx, req.(*GetUserBrokersRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -112,8 +180,16 @@ var BrokerService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*BrokerServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "TODO",
-			Handler:    _BrokerService_TODO_Handler,
+			MethodName: "CreateBrokerUser",
+			Handler:    _BrokerService_CreateBrokerUser_Handler,
+		},
+		{
+			MethodName: "DeleteBrokerUser",
+			Handler:    _BrokerService_DeleteBrokerUser_Handler,
+		},
+		{
+			MethodName: "GetUserBrokers",
+			Handler:    _BrokerService_GetUserBrokers_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

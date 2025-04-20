@@ -1,4 +1,4 @@
-package brokers
+package repositories
 
 // Repository is a struct that contains all the repositories
 type Repository struct {
