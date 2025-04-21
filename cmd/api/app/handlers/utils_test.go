@@ -385,10 +385,10 @@ func TestParseParamBool(t *testing.T) {
 			w := httptest.NewRecorder()
 			r := httptest.NewRequest("GET", "/", nil)
 
-			// Create a new route context
-			rctx := chi.NewRouteContext()
-			rctx.URLParams.Add(tt.paramKey, tt.paramValue)
-			r = r.WithContext(context.WithValue(r.Context(), chi.RouteCtxKey, rctx))
+			// Add the bool parameter to the request
+			q := r.URL.Query()
+			q.Add(tt.paramKey, tt.paramValue)
+			r.URL.RawQuery = q.Encode()
 
 			// Call the function
 			resultBool, ok := handlers.U().ParseParamBool(w, r, tt.paramKey)

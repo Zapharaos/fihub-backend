@@ -96,6 +96,6 @@ func TestFromProtogenBroker(t *testing.T) {
 	// Assert values were correctly converted
 	assert.Equal(t, id, broker.ID)
 	assert.Equal(t, "Test Broker", broker.Name)
-	assert.Equal(t, false, broker.ImageID.Valid) // Note: ImageID.Valid is false in conversion
+	assert.Equal(t, true, broker.ImageID.Valid) // Note: ImageID.Valid is false in conversion
 	assert.Equal(t, true, broker.Disabled)
 }

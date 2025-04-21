@@ -483,8 +483,8 @@ func TestDeleteUserBroker(t *testing.T) {
 	}
 }
 
-// TestGetUserBrokers tests the GetUserBrokers handler
-func TestGetUserBrokers(t *testing.T) {
+// TestListUserBrokers tests the ListUserBrokers handler
+func TestListUserBrokers(t *testing.T) {
 	// Prepare data
 	service := &Service{}
 
@@ -559,7 +559,7 @@ func TestGetUserBrokers(t *testing.T) {
 			defer ctrl.Finish()
 
 			// Call service
-			response, err := service.GetUserBrokers(context.Background(), tt.request)
+			response, err := service.ListUserBrokers(context.Background(), tt.request)
 
 			// Handle errors
 			if err != nil && tt.expectedErrCode == codes.OK {

@@ -24,17 +24,30 @@ func NewPostgresRepository(dbClient *sqlx.DB) BrokerRepository {
 // Create use to create a Broker
 func (r *BrokerPostgresRepository) Create(broker models.Broker) (uuid.UUID, error) {
 
+	// Prepare query
+	query := `INSERT INTO brokers (id, name, disabled)
+			  VALUES (:id, :name, :disabled)
+			  RETURNING id`
+	params := map[string]interface{}{
+		"id":       uuid.New(),
+		"name":     broker.Name,
+		"disabled": broker.Disabled,
+	}
+
 	// Execute query
-	row := r.conn.QueryRow(""+
-		"INSERT INTO brokers (id, name, disabled)"+
-		"VALUES (:id, :name, :disabled)"+
-		"RETURNING id",
-		uuid.New(), broker.Name, broker.Disabled)
+	rows, err := r.conn.NamedQuery(query, params)
+	if err != nil {
+		return uuid.Nil, err
+	}
+	defer rows.Close()
 
 	// Retrieve the created transaction ID
 	var id uuid.UUID
-	if err := row.Scan(&id); err != nil {
-		return uuid.Nil, err
+	if rows.Next() {
+		if err := rows.Scan(&id); err != nil {
+			return uuid.Nil, err
+		}
+		return id, nil
 	}
 
 	return id, nil

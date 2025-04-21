@@ -138,7 +138,8 @@ func (u *utils) ParseParamLanguage(w http.ResponseWriter, r *http.Request) langu
 
 // ParseParamBool parses a boolean from the request parameters (using key parameter)
 func (u *utils) ParseParamBool(w http.ResponseWriter, r *http.Request, key string) (bool, bool) {
-	value := chi.URLParam(r, key)
+	value := r.URL.Query().Get(key)
+
 	if value == "" {
 		zap.L().Debug("Parse bool", zap.String("key", key))
 		render.BadRequest(w, r, fmt.Errorf("invalid %s", key))

@@ -28,10 +28,11 @@ func (u *BrokerUserInput) IsValid() (bool, error) {
 
 // ToUser Returns a BrokerUser struct from a BrokerUserInput struct
 func (u *BrokerUserInput) ToUser() BrokerUser {
-	// BrokerID
+	userID, _ := uuid.Parse(u.UserID)
 	brokerID, _ := uuid.Parse(u.BrokerID)
 
 	return BrokerUser{
+		UserID: userID,
 		Broker: Broker{ID: brokerID},
 	}
 }

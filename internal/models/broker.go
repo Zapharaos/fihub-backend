@@ -39,10 +39,19 @@ func (b Broker) ToProtogenBroker() *protogen.Broker {
 
 // FromProtogenBroker converts a protogen.Broker to a Broker
 func FromProtogenBroker(b *protogen.Broker) Broker {
+
+	imageId, err := uuid.Parse(b.GetImageId())
+	if err != nil {
+		imageId = uuid.Nil
+	}
+
 	return Broker{
-		ID:       uuid.MustParse(b.GetId()),
-		Name:     b.GetName(),
-		ImageID:  uuid.NullUUID{},
+		ID:   uuid.MustParse(b.GetId()),
+		Name: b.GetName(),
+		ImageID: uuid.NullUUID{
+			UUID:  imageId,
+			Valid: imageId != uuid.Nil,
+		},
 		Disabled: b.GetDisabled(),
 	}
 }

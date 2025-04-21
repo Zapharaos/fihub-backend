@@ -203,8 +203,8 @@ func (h *Service) DeleteBrokerUser(ctx context.Context, req *protogen.DeleteBrok
 	}, nil
 }
 
-// GetUserBrokers implements the GetUserBrokers RPC method.
-func (h *Service) GetUserBrokers(ctx context.Context, req *protogen.ListUserBrokersRequest) (*protogen.ListUserBrokersResponse, error) {
+// ListUserBrokers implements the ListUserBrokers RPC method.
+func (h *Service) ListUserBrokers(ctx context.Context, req *protogen.ListUserBrokersRequest) (*protogen.ListUserBrokersResponse, error) {
 	// Parse the user ID from the request
 	userID, err := uuid.Parse(req.GetUserId())
 	if err != nil {
