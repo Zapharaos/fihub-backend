@@ -737,3 +737,96 @@ func TestDeleteTransaction(t *testing.T) {
 		})
 	}
 }
+
+// TestDeleteTransactionByBroker tests the DeleteTransactionByBroker handler
+func TestDeleteTransactionByBroker(t *testing.T) {
+	service := &Service{}
+
+	// Define request data
+	userID := uuid.New()
+	brokerID := uuid.New()
+	request := &protogen.DeleteTransactionByBrokerRequest{
+		UserId:   userID.String(),
+		BrokerId: brokerID.String(),
+	}
+
+	// Define tests
+	tests := []struct {
+		name            string
+		mockSetup       func(ctrl *gomock.Controller)
+		request         *protogen.DeleteTransactionByBrokerRequest
+		expectedErrCode codes.Code
+	}{
+		{
+			name: "missing request body",
+			mockSetup: func(ctrl *gomock.Controller) {
+				tr := mocks.NewTransactionsRepository(ctrl)
+				tr.EXPECT().DeleteByBroker(gomock.Any()).Times(0)
+				repositories.ReplaceGlobals(tr)
+			},
+			request:         nil,
+			expectedErrCode: codes.InvalidArgument,
+		},
+		{
+			name: "fails to parse ID from request",
+			mockSetup: func(ctrl *gomock.Controller) {
+				tr := mocks.NewTransactionsRepository(ctrl)
+				tr.EXPECT().DeleteByBroker(gomock.Any()).Times(0)
+				repositories.ReplaceGlobals(tr)
+			},
+			request: &protogen.DeleteTransactionByBrokerRequest{
+				UserId: "bad-uuid",
+			},
+			expectedErrCode: codes.InvalidArgument,
+		},
+		{
+			name: "fails to delete the transaction",
+			mockSetup: func(ctrl *gomock.Controller) {
+				tr := mocks.NewTransactionsRepository(ctrl)
+				tr.EXPECT().DeleteByBroker(gomock.Any()).Return(errors.New("error"))
+				repositories.ReplaceGlobals(tr)
+			},
+			request:         request,
+			expectedErrCode: codes.Internal,
+		},
+		{
+			name: "succeeded",
+			mockSetup: func(ctrl *gomock.Controller) {
+				tr := mocks.NewTransactionsRepository(ctrl)
+				tr.EXPECT().DeleteByBroker(gomock.Any()).Return(nil)
+				repositories.ReplaceGlobals(tr)
+			},
+			request:         request,
+			expectedErrCode: codes.OK,
+		},
+	}
+
+	// Run tests
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Apply mocks
+			ctrl := gomock.NewController(t)
+			tt.mockSetup(ctrl)
+			defer ctrl.Finish()
+
+			// Call service
+			response, err := service.DeleteTransactionByBroker(context.Background(), tt.request)
+
+			// Handle errors
+			if err != nil && tt.expectedErrCode == codes.OK {
+				assert.Fail(t, "unexpected error", err)
+			} else if err != nil {
+				if s, ok := status.FromError(err); ok {
+					assert.Equal(t, tt.expectedErrCode, s.Code())
+				} else {
+					assert.Fail(t, "failed to get status from error")
+				}
+			}
+
+			// Handle response
+			if tt.expectedErrCode == codes.OK {
+				assert.NotNil(t, response)
+			}
+		})
+	}
+}

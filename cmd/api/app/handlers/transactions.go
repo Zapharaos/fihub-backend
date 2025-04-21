@@ -349,7 +349,7 @@ func ListTransactions(w http.ResponseWriter, r *http.Request) {
 
 	// Retrieve broker objects
 	responseBrokers, err := clients.C().Broker().ListBrokers(ctx, &protogen.ListBrokersRequest{
-		EnabledOnly: true,
+		EnabledOnly: false,
 	})
 	if err != nil {
 		zap.L().Error("List brokers", zap.Error(err))

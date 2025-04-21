@@ -150,7 +150,24 @@ func TestDeleteUserBroker(t *testing.T) {
 				handlers.ReplaceGlobals(m)
 				bc := mocks.NewBrokerServiceClient(ctrl)
 				bc.EXPECT().DeleteBrokerUser(gomock.Any(), gomock.Any()).Return(nil, status.Error(codes.Unknown, "error"))
-				clients.ReplaceGlobals(clients.NewClients(nil, bc, nil))
+				tc := mocks.NewTransactionServiceClient(ctrl)
+				tc.EXPECT().DeleteTransactionByBroker(gomock.Any(), gomock.Any()).Times(0)
+				clients.ReplaceGlobals(clients.NewClients(nil, bc, tc))
+			},
+			expectedStatus: http.StatusInternalServerError,
+		},
+		{
+			name: "Fails to delete transactions related to the user broker",
+			mockSetup: func(ctrl *gomock.Controller) {
+				m := mocks.NewMockUtils(ctrl)
+				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), gomock.Any()).Return(uuid.Nil, true)
+				m.EXPECT().GetUserFromContext(gomock.Any()).Return(models.UserWithRoles{}, true)
+				handlers.ReplaceGlobals(m)
+				bc := mocks.NewBrokerServiceClient(ctrl)
+				bc.EXPECT().DeleteBrokerUser(gomock.Any(), gomock.Any()).Return(&protogen.DeleteBrokerUserResponse{}, nil)
+				tc := mocks.NewTransactionServiceClient(ctrl)
+				tc.EXPECT().DeleteTransactionByBroker(gomock.Any(), gomock.Any()).Return(nil, status.Error(codes.Unknown, "error"))
+				clients.ReplaceGlobals(clients.NewClients(nil, bc, tc))
 			},
 			expectedStatus: http.StatusInternalServerError,
 		},
@@ -163,7 +180,9 @@ func TestDeleteUserBroker(t *testing.T) {
 				handlers.ReplaceGlobals(m)
 				bc := mocks.NewBrokerServiceClient(ctrl)
 				bc.EXPECT().DeleteBrokerUser(gomock.Any(), gomock.Any()).Return(&protogen.DeleteBrokerUserResponse{}, nil)
-				clients.ReplaceGlobals(clients.NewClients(nil, bc, nil))
+				tc := mocks.NewTransactionServiceClient(ctrl)
+				tc.EXPECT().DeleteTransactionByBroker(gomock.Any(), gomock.Any()).Return(&protogen.DeleteTransactionByBrokerResponse{}, nil)
+				clients.ReplaceGlobals(clients.NewClients(nil, bc, tc))
 			},
 			expectedStatus: http.StatusOK,
 		},

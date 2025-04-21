@@ -307,3 +307,37 @@ func (s *Service) DeleteTransaction(ctx context.Context, req *protogen.DeleteTra
 	// Return success response
 	return &protogen.DeleteTransactionResponse{}, nil
 }
+
+// DeleteTransactionByBroker implements the DeleteTransactionByBroker RPC method.
+func (s *Service) DeleteTransactionByBroker(ctx context.Context, req *protogen.DeleteTransactionByBrokerRequest) (*protogen.DeleteTransactionByBrokerResponse, error) {
+	// Parse the user ID from the request
+	userID, err := uuid.Parse(req.GetUserId())
+	if err != nil {
+		// Log the error and return an invalid response
+		zap.L().Error("Invalid user ID", zap.String("user_id", req.GetUserId()), zap.Error(err))
+		return &protogen.DeleteTransactionByBrokerResponse{}, status.Error(codes.InvalidArgument, "Invalid user ID")
+	}
+
+	// Parse the broker ID from the request
+	brokerID, err := uuid.Parse(req.GetBrokerId())
+	if err != nil {
+		// Log the error and return an invalid response
+		zap.L().Error("Invalid broker ID", zap.String("broker_id", req.GetBrokerId()), zap.Error(err))
+		return &protogen.DeleteTransactionByBrokerResponse{}, status.Error(codes.InvalidArgument, "Invalid broker ID")
+	}
+
+	// Remove transactions by broker
+	err = repositories.R().DeleteByBroker(models.Transaction{
+		UserID: userID,
+		Broker: models.Broker{
+			ID: brokerID,
+		},
+	})
+	if err != nil {
+		zap.L().Error("Cannot remove broker related transactions", zap.String("uuid", brokerID.String()), zap.Error(err))
+		return &protogen.DeleteTransactionByBrokerResponse{}, status.Error(codes.Internal, "Failed to remove broker related transactions")
+	}
+
+	// Return success response
+	return &protogen.DeleteTransactionByBrokerResponse{}, nil
+}

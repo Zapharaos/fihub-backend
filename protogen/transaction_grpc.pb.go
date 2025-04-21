@@ -19,11 +19,12 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	TransactionService_CreateTransaction_FullMethodName = "/transaction.TransactionService/CreateTransaction"
-	TransactionService_GetTransaction_FullMethodName    = "/transaction.TransactionService/GetTransaction"
-	TransactionService_UpdateTransaction_FullMethodName = "/transaction.TransactionService/UpdateTransaction"
-	TransactionService_DeleteTransaction_FullMethodName = "/transaction.TransactionService/DeleteTransaction"
-	TransactionService_ListTransactions_FullMethodName  = "/transaction.TransactionService/ListTransactions"
+	TransactionService_CreateTransaction_FullMethodName         = "/transaction.TransactionService/CreateTransaction"
+	TransactionService_GetTransaction_FullMethodName            = "/transaction.TransactionService/GetTransaction"
+	TransactionService_UpdateTransaction_FullMethodName         = "/transaction.TransactionService/UpdateTransaction"
+	TransactionService_DeleteTransaction_FullMethodName         = "/transaction.TransactionService/DeleteTransaction"
+	TransactionService_DeleteTransactionByBroker_FullMethodName = "/transaction.TransactionService/DeleteTransactionByBroker"
+	TransactionService_ListTransactions_FullMethodName          = "/transaction.TransactionService/ListTransactions"
 )
 
 // TransactionServiceClient is the client API for TransactionService service.
@@ -36,6 +37,7 @@ type TransactionServiceClient interface {
 	GetTransaction(ctx context.Context, in *GetTransactionRequest, opts ...grpc.CallOption) (*GetTransactionResponse, error)
 	UpdateTransaction(ctx context.Context, in *UpdateTransactionRequest, opts ...grpc.CallOption) (*UpdateTransactionResponse, error)
 	DeleteTransaction(ctx context.Context, in *DeleteTransactionRequest, opts ...grpc.CallOption) (*DeleteTransactionResponse, error)
+	DeleteTransactionByBroker(ctx context.Context, in *DeleteTransactionByBrokerRequest, opts ...grpc.CallOption) (*DeleteTransactionByBrokerResponse, error)
 	ListTransactions(ctx context.Context, in *ListTransactionsRequest, opts ...grpc.CallOption) (*ListTransactionsResponse, error)
 }
 
@@ -87,6 +89,16 @@ func (c *transactionServiceClient) DeleteTransaction(ctx context.Context, in *De
 	return out, nil
 }
 
+func (c *transactionServiceClient) DeleteTransactionByBroker(ctx context.Context, in *DeleteTransactionByBrokerRequest, opts ...grpc.CallOption) (*DeleteTransactionByBrokerResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeleteTransactionByBrokerResponse)
+	err := c.cc.Invoke(ctx, TransactionService_DeleteTransactionByBroker_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *transactionServiceClient) ListTransactions(ctx context.Context, in *ListTransactionsRequest, opts ...grpc.CallOption) (*ListTransactionsResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ListTransactionsResponse)
@@ -107,6 +119,7 @@ type TransactionServiceServer interface {
 	GetTransaction(context.Context, *GetTransactionRequest) (*GetTransactionResponse, error)
 	UpdateTransaction(context.Context, *UpdateTransactionRequest) (*UpdateTransactionResponse, error)
 	DeleteTransaction(context.Context, *DeleteTransactionRequest) (*DeleteTransactionResponse, error)
+	DeleteTransactionByBroker(context.Context, *DeleteTransactionByBrokerRequest) (*DeleteTransactionByBrokerResponse, error)
 	ListTransactions(context.Context, *ListTransactionsRequest) (*ListTransactionsResponse, error)
 	mustEmbedUnimplementedTransactionServiceServer()
 }
@@ -129,6 +142,9 @@ func (UnimplementedTransactionServiceServer) UpdateTransaction(context.Context, 
 }
 func (UnimplementedTransactionServiceServer) DeleteTransaction(context.Context, *DeleteTransactionRequest) (*DeleteTransactionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteTransaction not implemented")
+}
+func (UnimplementedTransactionServiceServer) DeleteTransactionByBroker(context.Context, *DeleteTransactionByBrokerRequest) (*DeleteTransactionByBrokerResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteTransactionByBroker not implemented")
 }
 func (UnimplementedTransactionServiceServer) ListTransactions(context.Context, *ListTransactionsRequest) (*ListTransactionsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListTransactions not implemented")
@@ -226,6 +242,24 @@ func _TransactionService_DeleteTransaction_Handler(srv interface{}, ctx context.
 	return interceptor(ctx, in, info, handler)
 }
 
+func _TransactionService_DeleteTransactionByBroker_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteTransactionByBrokerRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TransactionServiceServer).DeleteTransactionByBroker(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TransactionService_DeleteTransactionByBroker_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TransactionServiceServer).DeleteTransactionByBroker(ctx, req.(*DeleteTransactionByBrokerRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _TransactionService_ListTransactions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ListTransactionsRequest)
 	if err := dec(in); err != nil {
@@ -266,6 +300,10 @@ var TransactionService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteTransaction",
 			Handler:    _TransactionService_DeleteTransaction_Handler,
+		},
+		{
+			MethodName: "DeleteTransactionByBroker",
+			Handler:    _TransactionService_DeleteTransactionByBroker_Handler,
 		},
 		{
 			MethodName: "ListTransactions",

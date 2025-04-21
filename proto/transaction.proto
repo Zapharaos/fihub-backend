@@ -7,6 +7,16 @@ option go_package = "./protogen";
 // Import Google's well-known types for UUID and timestamps
 import "google/protobuf/timestamp.proto";
 
+// TransactionService definition
+service TransactionService {
+  rpc CreateTransaction(CreateTransactionRequest) returns (CreateTransactionResponse);
+  rpc GetTransaction(GetTransactionRequest) returns (GetTransactionResponse);
+  rpc UpdateTransaction(UpdateTransactionRequest) returns (UpdateTransactionResponse);
+  rpc DeleteTransaction(DeleteTransactionRequest) returns (DeleteTransactionResponse);
+  rpc DeleteTransactionByBroker(DeleteTransactionByBrokerRequest) returns (DeleteTransactionByBrokerResponse);
+  rpc ListTransactions(ListTransactionsRequest) returns (ListTransactionsResponse);
+}
+
 // TransactionType enum
 enum TransactionType {
   TRANSACTION_TYPE_UNSPECIFIED = 0;
@@ -68,6 +78,15 @@ message DeleteTransactionRequest {
 // Response message for deleting a transaction
 message DeleteTransactionResponse {}
 
+// Request message for deleting a transaction by broker
+message DeleteTransactionByBrokerRequest {
+  string broker_id = 1;
+  string user_id = 2;
+}
+
+// Response message for deleting a transaction by broker
+message DeleteTransactionByBrokerResponse {}
+
 // Request message for listing all transactions
 message ListTransactionsRequest {
   string user_id = 1;
@@ -90,13 +109,4 @@ message Transaction {
   double price = 8;
   double price_unit = 9;
   double fee = 10;
-}
-
-// TransactionService definition
-service TransactionService {
-  rpc CreateTransaction(CreateTransactionRequest) returns (CreateTransactionResponse);
-  rpc GetTransaction(GetTransactionRequest) returns (GetTransactionResponse);
-  rpc UpdateTransaction(UpdateTransactionRequest) returns (UpdateTransactionResponse);
-  rpc DeleteTransaction(DeleteTransactionRequest) returns (DeleteTransactionResponse);
-  rpc ListTransactions(ListTransactionsRequest) returns (ListTransactionsResponse);
 }

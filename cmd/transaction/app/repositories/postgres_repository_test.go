@@ -191,6 +191,47 @@ func TestPostgresRepository_Delete(t *testing.T) {
 	}
 }
 
+// TestPostgresRepository_DeleteByBroker test the DeleteByBroker method
+func TestPostgresRepository_DeleteByBroker(t *testing.T) {
+	var sqlxMock test.Sqlx
+	sqlxMock.CreateFullTestSqlx(t)
+	defer sqlxMock.CleanTestSqlx()
+
+	repositories.ReplaceGlobals(repositories.NewPostgresRepository(sqlxMock.DB))
+
+	tests := []struct {
+		name        string
+		transaction models.Transaction
+		mockSetup   func()
+		expectErr   bool
+	}{
+		{
+			name: "Fail transaction delete",
+			mockSetup: func() {
+				sqlxMock.Mock.ExpectExec("DELETE FROM transactions").WillReturnError(errors.New("error"))
+			},
+			expectErr: true,
+		},
+		{
+			name: "Delete transaction",
+			mockSetup: func() {
+				sqlxMock.Mock.ExpectExec("DELETE FROM transactions").WillReturnResult(sqlxmock.NewResult(1, 10))
+			},
+			expectErr: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.mockSetup()
+			err := repositories.R().DeleteByBroker(models.Transaction{})
+			if (err != nil) != tt.expectErr {
+				t.Errorf("Delete() error = %v, expectErr %v", err, tt.expectErr)
+			}
+		})
+	}
+}
+
 // TestPostgresRepository_Exists test the Exists method
 func TestPostgresRepository_Exists(t *testing.T) {
 	var sqlxMock test.Sqlx

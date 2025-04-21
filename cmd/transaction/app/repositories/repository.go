@@ -14,6 +14,7 @@ type Repository interface {
 	Get(transactionID uuid.UUID) (models.Transaction, bool, error)
 	Update(transactionInput models.TransactionInput) error
 	Delete(transaction models.Transaction) error
+	DeleteByBroker(transaction models.Transaction) error
 	Exists(transactionID uuid.UUID, userID uuid.UUID) (bool, error)
 	GetAll(userID uuid.UUID) ([]models.Transaction, error)
 }

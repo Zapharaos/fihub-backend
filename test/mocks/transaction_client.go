@@ -82,6 +82,26 @@ func (mr *TransactionServiceClientMockRecorder) DeleteTransaction(ctx, in any, o
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteTransaction", reflect.TypeOf((*TransactionServiceClient)(nil).DeleteTransaction), varargs...)
 }
 
+// DeleteTransactionByBroker mocks base method.
+func (m *TransactionServiceClient) DeleteTransactionByBroker(ctx context.Context, in *protogen.DeleteTransactionByBrokerRequest, opts ...grpc.CallOption) (*protogen.DeleteTransactionByBrokerResponse, error) {
+	m.ctrl.T.Helper()
+	varargs := []any{ctx, in}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "DeleteTransactionByBroker", varargs...)
+	ret0, _ := ret[0].(*protogen.DeleteTransactionByBrokerResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DeleteTransactionByBroker indicates an expected call of DeleteTransactionByBroker.
+func (mr *TransactionServiceClientMockRecorder) DeleteTransactionByBroker(ctx, in any, opts ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]any{ctx, in}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteTransactionByBroker", reflect.TypeOf((*TransactionServiceClient)(nil).DeleteTransactionByBroker), varargs...)
+}
+
 // GetTransaction mocks base method.
 func (m *TransactionServiceClient) GetTransaction(ctx context.Context, in *protogen.GetTransactionRequest, opts ...grpc.CallOption) (*protogen.GetTransactionResponse, error) {
 	m.ctrl.T.Helper()
@@ -194,6 +214,21 @@ func (m *MockTransactionServiceServer) DeleteTransaction(arg0 context.Context, a
 func (mr *MockTransactionServiceServerMockRecorder) DeleteTransaction(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteTransaction", reflect.TypeOf((*MockTransactionServiceServer)(nil).DeleteTransaction), arg0, arg1)
+}
+
+// DeleteTransactionByBroker mocks base method.
+func (m *MockTransactionServiceServer) DeleteTransactionByBroker(arg0 context.Context, arg1 *protogen.DeleteTransactionByBrokerRequest) (*protogen.DeleteTransactionByBrokerResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteTransactionByBroker", arg0, arg1)
+	ret0, _ := ret[0].(*protogen.DeleteTransactionByBrokerResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DeleteTransactionByBroker indicates an expected call of DeleteTransactionByBroker.
+func (mr *MockTransactionServiceServerMockRecorder) DeleteTransactionByBroker(arg0, arg1 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteTransactionByBroker", reflect.TypeOf((*MockTransactionServiceServer)(nil).DeleteTransactionByBroker), arg0, arg1)
 }
 
 // GetTransaction mocks base method.

@@ -135,6 +135,23 @@ func (r PostgresRepository) Delete(transaction models.Transaction) error {
 	return utils.CheckRowAffected(result, 1)
 }
 
+// DeleteByBroker use to delete a Transaction
+func (r PostgresRepository) DeleteByBroker(transaction models.Transaction) error {
+	// Prepare query
+	query := `DELETE FROM transactions as t WHERE t.broker_id = :broker_id`
+	params := map[string]interface{}{
+		"broker_id": transaction.Broker.ID,
+	}
+
+	// Execute query
+	_, err := r.conn.NamedExec(query, params)
+	if err != nil {
+		return err
+	}
+	
+	return nil
+}
+
 // Exists use to check if a Transaction exists
 func (r PostgresRepository) Exists(transactionID uuid.UUID, userID uuid.UUID) (bool, error) {
 	query := `SELECT id

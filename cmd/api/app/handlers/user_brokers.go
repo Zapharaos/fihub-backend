@@ -116,6 +116,17 @@ func DeleteUserBroker(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Delete Transactions related to the BrokerUser
+	_, err = clients.C().Transaction().DeleteTransactionByBroker(ctx, &protogen.DeleteTransactionByBrokerRequest{
+		UserId:   user.ID.String(),
+		BrokerId: brokerID.String(),
+	})
+	if err != nil {
+		zap.L().Error("Delete Transactions by BrokerUser", zap.Error(err))
+		render.ErrorCodesCodeToHttpCode(w, r, err)
+		return
+	}
+
 	render.OK(w, r)
 }
 

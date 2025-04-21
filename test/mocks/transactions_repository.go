@@ -70,6 +70,20 @@ func (mr *TransactionsRepositoryMockRecorder) Delete(transaction any) *gomock.Ca
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*TransactionsRepository)(nil).Delete), transaction)
 }
 
+// DeleteByBroker mocks base method.
+func (m *TransactionsRepository) DeleteByBroker(transaction models.Transaction) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteByBroker", transaction)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteByBroker indicates an expected call of DeleteByBroker.
+func (mr *TransactionsRepositoryMockRecorder) DeleteByBroker(transaction any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteByBroker", reflect.TypeOf((*TransactionsRepository)(nil).DeleteByBroker), transaction)
+}
+
 // Exists mocks base method.
 func (m *TransactionsRepository) Exists(transactionID, userID uuid.UUID) (bool, error) {
 	m.ctrl.T.Helper()
