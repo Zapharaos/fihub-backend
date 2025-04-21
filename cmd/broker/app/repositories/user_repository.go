@@ -10,6 +10,7 @@ import (
 // It allows standard CRUD operation on BrokerUser
 type UserRepository interface {
 	Create(userBroker models.BrokerUser) error
+	Get(userBroker models.BrokerUser) (models.BrokerUser, bool, error)
 	Delete(userBroker models.BrokerUser) error
 	Exists(userBroker models.BrokerUser) (bool, error)
 	GetAll(userID uuid.UUID) ([]models.BrokerUser, error)

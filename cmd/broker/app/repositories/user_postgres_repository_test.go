@@ -52,6 +52,64 @@ func TestUserPostgresRepository_Create(t *testing.T) {
 	}
 }
 
+// TestUserPostgresRepository_Get tests the Get method
+func TestUserPostgresRepository_Get(t *testing.T) {
+	var sqlxMock test.Sqlx
+	sqlxMock.CreateFullTestSqlx(t)
+	defer sqlxMock.CleanTestSqlx()
+
+	repositories.ReplaceGlobals(repositories.NewRepository(nil, repositories.NewUserPostgresRepository(sqlxMock.DB), nil))
+
+	tests := []struct {
+		name        string
+		mockSetup   func()
+		expectErr   bool
+		expectFound bool
+	}{
+		{
+			name: "Fail broker user retrieval",
+			mockSetup: func() {
+				sqlxMock.Mock.ExpectQuery("SELECT").WillReturnError(errors.New("error"))
+			},
+			expectErr:   true,
+			expectFound: false,
+		},
+		{
+			name: "User broker not found",
+			mockSetup: func() {
+				rows := sqlxmock.NewRows([]string{"id", "name", "image_id"})
+				sqlxMock.Mock.ExpectQuery("SELECT").WillReturnRows(rows)
+			},
+			expectErr:   false,
+			expectFound: false,
+		},
+		{
+			name: "User broker found",
+			mockSetup: func() {
+				rows := sqlxmock.NewRows([]string{"id", "name", "image_id"}).
+					AddRow(uuid.New(), "broker_name", uuid.New())
+				sqlxMock.Mock.ExpectQuery("SELECT").WillReturnRows(rows)
+			},
+			expectErr:   false,
+			expectFound: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.mockSetup()
+			_, found, err := repositories.R().U().Get(models.BrokerUser{})
+			if (err != nil) != tt.expectErr {
+				t.Errorf("Get() error = %v, expectErr %v", err, tt.expectErr)
+				return
+			}
+			if found != tt.expectFound {
+				t.Errorf("Get() found = %v, expectFound %v", found, tt.expectFound)
+			}
+		})
+	}
+}
+
 // TestUserPostgresRepository_Delete tests the Delete method
 func TestUserPostgresRepository_Delete(t *testing.T) {
 	var sqlxMock test.Sqlx

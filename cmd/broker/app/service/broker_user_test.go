@@ -240,6 +240,122 @@ func TestCreateUserBroker(t *testing.T) {
 	}
 }
 
+// TestGetUserBroker tests the GetUserBroker handler
+func TestGetUserBroker(t *testing.T) {
+	// Prepare data
+	service := &Service{}
+	validRequest := &protogen.GetBrokerUserRequest{
+		UserId:   uuid.New().String(),
+		BrokerId: uuid.New().String(),
+	}
+	validResponse := models.BrokerUser{
+		UserID: uuid.New(),
+		Broker: models.Broker{
+			ID:       uuid.New(),
+			Name:     "name",
+			Disabled: false,
+		},
+	}
+
+	// Test cases
+	tests := []struct {
+		name            string
+		mockSetup       func(ctrl *gomock.Controller)
+		request         *protogen.GetBrokerUserRequest
+		expected        *protogen.GetBrokerUserResponse
+		expectedErrCode codes.Code
+	}{
+		{
+			name: "missing request body",
+			mockSetup: func(ctrl *gomock.Controller) {
+				bu := mocks.NewBrokerUserRepository(ctrl)
+				bu.EXPECT().Get(gomock.Any()).Times(0)
+				repositories.ReplaceGlobals(repositories.NewRepository(nil, bu, nil))
+			},
+			request:         nil,
+			expected:        &protogen.GetBrokerUserResponse{},
+			expectedErrCode: codes.InvalidArgument,
+		},
+		{
+			name: "fails to parse ID from request",
+			mockSetup: func(ctrl *gomock.Controller) {
+				bu := mocks.NewBrokerUserRepository(ctrl)
+				bu.EXPECT().Get(gomock.Any()).Times(0)
+				repositories.ReplaceGlobals(repositories.NewRepository(nil, bu, nil))
+			},
+			request: &protogen.GetBrokerUserRequest{
+				UserId: "bad-uuid",
+			},
+			expected:        &protogen.GetBrokerUserResponse{},
+			expectedErrCode: codes.InvalidArgument,
+		},
+		{
+			name: "Fails to retrieve the user broker",
+			mockSetup: func(ctrl *gomock.Controller) {
+				bu := mocks.NewBrokerUserRepository(ctrl)
+				bu.EXPECT().Get(gomock.Any()).Return(models.BrokerUser{}, false, errors.New("error"))
+				repositories.ReplaceGlobals(repositories.NewRepository(nil, bu, nil))
+			},
+			request:         validRequest,
+			expected:        &protogen.GetBrokerUserResponse{},
+			expectedErrCode: codes.Internal,
+		},
+		{
+			name: "Fails to find the user broker",
+			mockSetup: func(ctrl *gomock.Controller) {
+				bu := mocks.NewBrokerUserRepository(ctrl)
+				bu.EXPECT().Get(gomock.Any()).Return(models.BrokerUser{}, false, nil)
+				repositories.ReplaceGlobals(repositories.NewRepository(nil, bu, nil))
+			},
+			request:         validRequest,
+			expected:        &protogen.GetBrokerUserResponse{},
+			expectedErrCode: codes.NotFound,
+		},
+		{
+			name: "Succeeded",
+			mockSetup: func(ctrl *gomock.Controller) {
+				bu := mocks.NewBrokerUserRepository(ctrl)
+				bu.EXPECT().Get(gomock.Any()).Return(validResponse, true, nil)
+				repositories.ReplaceGlobals(repositories.NewRepository(nil, bu, nil))
+			},
+			request:         validRequest,
+			expected:        &protogen.GetBrokerUserResponse{},
+			expectedErrCode: codes.OK,
+		},
+	}
+
+	// Run tests
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Apply mocks
+			ctrl := gomock.NewController(t)
+			tt.mockSetup(ctrl)
+			defer ctrl.Finish()
+
+			// Call service
+			response, err := service.GetBrokerUser(context.Background(), tt.request)
+
+			// Handle errors
+			if err != nil && tt.expectedErrCode == codes.OK {
+				assert.Fail(t, "unexpected error", err)
+			} else if err != nil {
+				if s, ok := status.FromError(err); ok {
+					assert.Equal(t, tt.expectedErrCode, s.Code())
+				} else {
+					assert.Fail(t, "failed to get status from error")
+				}
+			}
+
+			// Handle response
+			if tt.expectedErrCode == codes.OK {
+				assert.NotNil(t, response)
+			} else {
+				assert.Equal(t, tt.expected, response)
+			}
+		})
+	}
+}
+
 // TestDeleteUserBroker tests the DeleteUserBroker handler
 func TestDeleteUserBroker(t *testing.T) {
 	// Prepare data

@@ -3,15 +3,11 @@ package handlers
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/clients"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/handlers/render"
-	"github.com/Zapharaos/fihub-backend/cmd/broker/app/repositories"
 	"github.com/Zapharaos/fihub-backend/internal/models"
 	"github.com/Zapharaos/fihub-backend/protogen"
 	"go.uber.org/zap"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"net/http"
 )
@@ -50,16 +46,17 @@ func CreateTransaction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// check if userBroker exists
-	exists, err := repositories.R().U().Exists(models.BrokerUser{UserID: user.ID, Broker: models.Broker{ID: transactionInput.BrokerID}})
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	// Verify BrokerUser existence
+	_, err = clients.C().Broker().GetBrokerUser(ctx, &protogen.GetBrokerUserRequest{
+		UserId:   user.ID.String(),
+		BrokerId: transactionInput.BrokerID.String(),
+	})
 	if err != nil {
-		zap.L().Error("Check userBroker exists", zap.Error(err))
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	if !exists {
-		zap.L().Warn("BrokerUser not found")
-		render.BadRequest(w, r, fmt.Errorf("broker-invalid"))
+		zap.L().Error("Get BrokerUser", zap.Error(err))
+		render.ErrorCodesCodeToHttpCode(w, r, err)
 		return
 	}
 
@@ -75,9 +72,6 @@ func CreateTransaction(w http.ResponseWriter, r *http.Request) {
 		Fee:             transactionInput.Fee,
 	}
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
 	// Create the transaction
 	response, err := clients.C().Transaction().CreateTransaction(ctx, transactionRequest)
 	if err != nil {
@@ -90,20 +84,17 @@ func CreateTransaction(w http.ResponseWriter, r *http.Request) {
 	transaction := models.FromProtogenTransaction(response.Transaction)
 
 	// Retrieve broker object
-	broker, found, err := repositories.R().B().Get(transaction.Broker.ID)
+	responseBroker, err := clients.C().Broker().GetBroker(ctx, &protogen.GetBrokerRequest{
+		Id: transaction.Broker.ID.String(),
+	})
 	if err != nil {
-		zap.L().Error("Cannot get broker", zap.String("uuid", transaction.Broker.ID.String()), zap.Error(err))
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	if !found {
-		zap.L().Error("Broker not found", zap.String("uuid", transaction.Broker.ID.String()))
-		w.WriteHeader(http.StatusNotFound)
+		zap.L().Error("Get broker", zap.Error(err))
+		render.ErrorCodesCodeToHttpCode(w, r, err)
 		return
 	}
 
-	// Put the broker object in the transaction
-	transaction.Broker = broker
+	// Put the broker object into the transaction
+	transaction.Broker = models.FromProtogenBroker(responseBroker.Broker)
 	render.JSON(w, r, transaction)
 }
 
@@ -163,20 +154,17 @@ func GetTransaction(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Retrieve broker object
-	broker, found, err := repositories.R().B().Get(transaction.Broker.ID)
+	responseBroker, err := clients.C().Broker().GetBroker(ctx, &protogen.GetBrokerRequest{
+		Id: transaction.Broker.ID.String(),
+	})
 	if err != nil {
-		zap.L().Error("Cannot get broker", zap.String("uuid", transaction.Broker.ID.String()), zap.Error(err))
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	if !found {
-		zap.L().Error("Broker not found", zap.String("uuid", transaction.Broker.ID.String()))
-		w.WriteHeader(http.StatusNotFound)
+		zap.L().Error("Get broker", zap.Error(err))
+		render.ErrorCodesCodeToHttpCode(w, r, err)
 		return
 	}
 
 	// Put the broker object in the transaction
-	transaction.Broker = broker
+	transaction.Broker = models.FromProtogenBroker(responseBroker.Broker)
 	render.JSON(w, r, transaction)
 }
 
@@ -222,16 +210,17 @@ func UpdateTransaction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Verify that the userBroker exists
-	exists, err := repositories.R().U().Exists(models.BrokerUser{UserID: user.ID, Broker: models.Broker{ID: transactionInput.BrokerID}})
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	// Verify BrokerUser existence
+	_, err = clients.C().Broker().GetBrokerUser(ctx, &protogen.GetBrokerUserRequest{
+		UserId:   user.ID.String(),
+		BrokerId: transactionInput.BrokerID.String(),
+	})
 	if err != nil {
-		zap.L().Error("Check userBroker exists", zap.Error(err))
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	if !exists {
-		zap.L().Warn("BrokerUser not found")
-		render.BadRequest(w, r, fmt.Errorf("broker-invalid"))
+		zap.L().Error("Get BrokerUser", zap.Error(err))
+		render.ErrorCodesCodeToHttpCode(w, r, err)
 		return
 	}
 
@@ -248,27 +237,11 @@ func UpdateTransaction(w http.ResponseWriter, r *http.Request) {
 		Fee:             transactionInput.Fee,
 	}
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
 	// Create the transaction
 	response, err := clients.C().Transaction().UpdateTransaction(ctx, transactionRequest)
 	if err != nil {
 		zap.L().Error("Update transaction", zap.Error(err))
-		if s, ok := status.FromError(err); ok {
-			switch s.Code() {
-			case codes.InvalidArgument:
-				render.BadRequest(w, r, err)
-				return
-			case codes.NotFound:
-				w.WriteHeader(http.StatusNotFound)
-				return
-			case codes.Internal:
-				w.WriteHeader(http.StatusInternalServerError)
-				return
-			}
-		}
-		w.WriteHeader(http.StatusInternalServerError)
+		render.ErrorCodesCodeToHttpCode(w, r, err)
 		return
 	}
 
@@ -276,20 +249,17 @@ func UpdateTransaction(w http.ResponseWriter, r *http.Request) {
 	transaction := models.FromProtogenTransaction(response.Transaction)
 
 	// Retrieve broker object
-	broker, found, err := repositories.R().B().Get(transaction.Broker.ID)
+	responseBroker, err := clients.C().Broker().GetBroker(ctx, &protogen.GetBrokerRequest{
+		Id: transaction.Broker.ID.String(),
+	})
 	if err != nil {
-		zap.L().Error("Cannot get broker", zap.String("uuid", transaction.Broker.ID.String()), zap.Error(err))
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	if !found {
-		zap.L().Error("Broker not found", zap.String("uuid", transaction.Broker.ID.String()))
-		w.WriteHeader(http.StatusNotFound)
+		zap.L().Error("Get broker", zap.Error(err))
+		render.ErrorCodesCodeToHttpCode(w, r, err)
 		return
 	}
 
 	// Put the broker object in the transaction
-	transaction.Broker = broker
+	transaction.Broker = models.FromProtogenBroker(responseBroker.Broker)
 	render.JSON(w, r, transaction)
 }
 
@@ -377,18 +347,21 @@ func ListTransactions(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Retrieve all existing brokers
-	brokersAll, err := repositories.R().B().GetAll()
+	// Retrieve broker objects
+	responseBrokers, err := clients.C().Broker().ListBrokers(ctx, &protogen.ListBrokersRequest{
+		EnabledOnly: true,
+	})
 	if err != nil {
-		zap.L().Error("Cannot get brokers", zap.Error(err))
-		w.WriteHeader(http.StatusInternalServerError)
+		zap.L().Error("List brokers", zap.Error(err))
+		render.ErrorCodesCodeToHttpCode(w, r, err)
 		return
 	}
 
 	// Create a map of brokers indexed by broker ID for faster lookup
 	brokersMap := make(map[string]models.Broker)
-	for _, b := range brokersAll {
-		brokersMap[b.ID.String()] = b
+	for _, b := range responseBrokers.Brokers {
+		broker := models.FromProtogenBroker(b)
+		brokersMap[broker.ID.String()] = broker
 	}
 
 	// Map gRPC response to Transaction array

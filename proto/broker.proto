@@ -14,6 +14,7 @@ service BrokerService {
 
 	// Broker user management
 	rpc CreateBrokerUser(CreateBrokerUserRequest) returns (CreateBrokerUserResponse);
+	rpc GetBrokerUser(GetBrokerUserRequest) returns (GetBrokerUserResponse);
 	rpc DeleteBrokerUser(DeleteBrokerUserRequest) returns (DeleteBrokerUserResponse);
 	rpc ListUserBrokers(ListUserBrokersRequest) returns (ListUserBrokersResponse);
 
@@ -80,17 +81,26 @@ message ListBrokersResponse {
 // Broker user
 
 message BrokerUser {
-	string user_id = 2;
-	Broker broker = 4;
+	string user_id = 1;
+	Broker broker = 2;
 }
 
 message CreateBrokerUserRequest {
-	string user_id = 2;
-	string broker_id = 1;
+	string user_id = 1;
+	string broker_id = 2;
 }
 
 message CreateBrokerUserResponse {
 	repeated BrokerUser user_brokers = 1;
+}
+
+message GetBrokerUserRequest {
+	string user_id = 1;
+	string broker_id = 2;
+}
+
+message GetBrokerUserResponse {
+	BrokerUser broker_user = 1;
 }
 
 message DeleteBrokerUserRequest {

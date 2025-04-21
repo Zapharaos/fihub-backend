@@ -11,9 +11,6 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-// TODO : replace other handlers calls to broker repositories with gRPC calls
-// TODO : remove broker repositories from internal/app singletons
-
 // CreateBrokerUser implements the CreateBrokerUser RPC method.
 func (h *Service) CreateBrokerUser(ctx context.Context, req *protogen.CreateBrokerUserRequest) (*protogen.CreateBrokerUserResponse, error) {
 
@@ -104,6 +101,45 @@ func (h *Service) CreateBrokerUser(ctx context.Context, req *protogen.CreateBrok
 
 	return &protogen.CreateBrokerUserResponse{
 		UserBrokers: list,
+	}, nil
+}
+
+// GetBrokerUser implements the GetBrokerUser RPC method.
+func (h *Service) GetBrokerUser(ctx context.Context, req *protogen.GetBrokerUserRequest) (*protogen.GetBrokerUserResponse, error) {
+	// Parse the user ID from the request
+	userID, err := uuid.Parse(req.GetUserId())
+	if err != nil {
+		// Log the error and return an invalid response
+		zap.L().Error("Invalid user ID", zap.String("user_id", req.GetUserId()), zap.Error(err))
+		return &protogen.GetBrokerUserResponse{}, status.Error(codes.InvalidArgument, "Invalid user ID")
+	}
+
+	// Parse the broker ID from the request
+	brokerID, err := uuid.Parse(req.GetBrokerId())
+	if err != nil {
+		// Log the error and return an invalid response
+		zap.L().Error("Invalid broker ID", zap.String("broker_id", req.GetUserId()), zap.Error(err))
+		return &protogen.GetBrokerUserResponse{}, status.Error(codes.InvalidArgument, "Invalid broker ID")
+	}
+
+	// Retrieve the BrokerUser from the database
+	brokerUser, exists, err := repositories.R().U().Get(models.BrokerUser{
+		UserID: userID,
+		Broker: models.Broker{ID: brokerID},
+	})
+	if err != nil {
+		zap.L().Error("Cannot get user broker", zap.Error(err))
+		return &protogen.GetBrokerUserResponse{}, status.Error(codes.Internal, err.Error())
+	}
+	if !exists {
+		zap.L().Warn("BrokerUser not found",
+			zap.String("UserID", userID.String()),
+			zap.String("BrokerID", brokerID.String()))
+		return &protogen.GetBrokerUserResponse{}, status.Error(codes.NotFound, "Broker not found")
+	}
+
+	return &protogen.GetBrokerUserResponse{
+		BrokerUser: brokerUser.ToProtogenBrokerUser(),
 	}, nil
 }
 

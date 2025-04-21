@@ -84,6 +84,22 @@ func (mr *BrokerUserRepositoryMockRecorder) Exists(userBroker any) *gomock.Call 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Exists", reflect.TypeOf((*BrokerUserRepository)(nil).Exists), userBroker)
 }
 
+// Get mocks base method.
+func (m *BrokerUserRepository) Get(userBroker models.BrokerUser) (models.BrokerUser, bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Get", userBroker)
+	ret0, _ := ret[0].(models.BrokerUser)
+	ret1, _ := ret[1].(bool)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
+}
+
+// Get indicates an expected call of Get.
+func (mr *BrokerUserRepositoryMockRecorder) Get(userBroker any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*BrokerUserRepository)(nil).Get), userBroker)
+}
+
 // GetAll mocks base method.
 func (m *BrokerUserRepository) GetAll(userID uuid.UUID) ([]models.BrokerUser, error) {
 	m.ctrl.T.Helper()

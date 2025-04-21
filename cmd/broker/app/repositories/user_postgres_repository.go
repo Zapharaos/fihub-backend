@@ -40,6 +40,28 @@ func (r *UserPostgresRepository) Create(userBroker models.BrokerUser) error {
 	return nil
 }
 
+// Get use to retrieve a BrokerUser by its id
+func (r *UserPostgresRepository) Get(userBroker models.BrokerUser) (models.BrokerUser, bool, error) {
+	// Prepare query
+	query := `SELECT b.id, b.name, b.image_id
+			  FROM user_brokers as ub
+			  JOIN brokers AS b ON ub.broker_id = b.id
+			  WHERE ub.user_id = :user_id AND ub.broker_id = :broker_id`
+	params := map[string]interface{}{
+		"user_id":   userBroker.UserID,
+		"broker_id": userBroker.Broker.ID,
+	}
+
+	// Execute query
+	rows, err := r.conn.NamedQuery(query, params)
+	if err != nil {
+		return models.BrokerUser{}, false, err
+	}
+	defer rows.Close()
+
+	return utils.ScanFirst(rows, r.Scan)
+}
+
 // Delete use to delete a BrokerUser
 func (r *UserPostgresRepository) Delete(userBroker models.BrokerUser) error {
 	// Prepare query

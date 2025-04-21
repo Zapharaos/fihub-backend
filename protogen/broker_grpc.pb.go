@@ -25,6 +25,7 @@ const (
 	BrokerService_DeleteBroker_FullMethodName      = "/broker.BrokerService/DeleteBroker"
 	BrokerService_ListBrokers_FullMethodName       = "/broker.BrokerService/ListBrokers"
 	BrokerService_CreateBrokerUser_FullMethodName  = "/broker.BrokerService/CreateBrokerUser"
+	BrokerService_GetBrokerUser_FullMethodName     = "/broker.BrokerService/GetBrokerUser"
 	BrokerService_DeleteBrokerUser_FullMethodName  = "/broker.BrokerService/DeleteBrokerUser"
 	BrokerService_ListUserBrokers_FullMethodName   = "/broker.BrokerService/ListUserBrokers"
 	BrokerService_CreateBrokerImage_FullMethodName = "/broker.BrokerService/CreateBrokerImage"
@@ -45,6 +46,7 @@ type BrokerServiceClient interface {
 	ListBrokers(ctx context.Context, in *ListBrokersRequest, opts ...grpc.CallOption) (*ListBrokersResponse, error)
 	// Broker user management
 	CreateBrokerUser(ctx context.Context, in *CreateBrokerUserRequest, opts ...grpc.CallOption) (*CreateBrokerUserResponse, error)
+	GetBrokerUser(ctx context.Context, in *GetBrokerUserRequest, opts ...grpc.CallOption) (*GetBrokerUserResponse, error)
 	DeleteBrokerUser(ctx context.Context, in *DeleteBrokerUserRequest, opts ...grpc.CallOption) (*DeleteBrokerUserResponse, error)
 	ListUserBrokers(ctx context.Context, in *ListUserBrokersRequest, opts ...grpc.CallOption) (*ListUserBrokersResponse, error)
 	// Image management
@@ -116,6 +118,16 @@ func (c *brokerServiceClient) CreateBrokerUser(ctx context.Context, in *CreateBr
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(CreateBrokerUserResponse)
 	err := c.cc.Invoke(ctx, BrokerService_CreateBrokerUser_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *brokerServiceClient) GetBrokerUser(ctx context.Context, in *GetBrokerUserRequest, opts ...grpc.CallOption) (*GetBrokerUserResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetBrokerUserResponse)
+	err := c.cc.Invoke(ctx, BrokerService_GetBrokerUser_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -194,6 +206,7 @@ type BrokerServiceServer interface {
 	ListBrokers(context.Context, *ListBrokersRequest) (*ListBrokersResponse, error)
 	// Broker user management
 	CreateBrokerUser(context.Context, *CreateBrokerUserRequest) (*CreateBrokerUserResponse, error)
+	GetBrokerUser(context.Context, *GetBrokerUserRequest) (*GetBrokerUserResponse, error)
 	DeleteBrokerUser(context.Context, *DeleteBrokerUserRequest) (*DeleteBrokerUserResponse, error)
 	ListUserBrokers(context.Context, *ListUserBrokersRequest) (*ListUserBrokersResponse, error)
 	// Image management
@@ -228,6 +241,9 @@ func (UnimplementedBrokerServiceServer) ListBrokers(context.Context, *ListBroker
 }
 func (UnimplementedBrokerServiceServer) CreateBrokerUser(context.Context, *CreateBrokerUserRequest) (*CreateBrokerUserResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateBrokerUser not implemented")
+}
+func (UnimplementedBrokerServiceServer) GetBrokerUser(context.Context, *GetBrokerUserRequest) (*GetBrokerUserResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetBrokerUser not implemented")
 }
 func (UnimplementedBrokerServiceServer) DeleteBrokerUser(context.Context, *DeleteBrokerUserRequest) (*DeleteBrokerUserResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteBrokerUser not implemented")
@@ -376,6 +392,24 @@ func _BrokerService_CreateBrokerUser_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _BrokerService_GetBrokerUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetBrokerUserRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BrokerServiceServer).GetBrokerUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BrokerService_GetBrokerUser_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BrokerServiceServer).GetBrokerUser(ctx, req.(*GetBrokerUserRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _BrokerService_DeleteBrokerUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(DeleteBrokerUserRequest)
 	if err := dec(in); err != nil {
@@ -514,6 +548,10 @@ var BrokerService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateBrokerUser",
 			Handler:    _BrokerService_CreateBrokerUser_Handler,
+		},
+		{
+			MethodName: "GetBrokerUser",
+			Handler:    _BrokerService_GetBrokerUser_Handler,
 		},
 		{
 			MethodName: "DeleteBrokerUser",
