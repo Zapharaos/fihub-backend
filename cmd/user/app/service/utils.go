@@ -1,10 +1,9 @@
-package users
+package service
 
 import (
 	"errors"
+	"github.com/Zapharaos/fihub-backend/cmd/user/app/repositories"
 	"github.com/Zapharaos/fihub-backend/internal/models"
-	"github.com/Zapharaos/fihub-backend/internal/users/permissions"
-	"github.com/Zapharaos/fihub-backend/internal/users/roles"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 )
@@ -15,7 +14,7 @@ var (
 
 // LoadFullUser loads the roles from the database
 func LoadFullUser(userId uuid.UUID) (*models.UserWithRoles, bool, error) {
-	user, ok, err := R().Get(userId)
+	user, ok, err := repositories.R().U().Get(userId)
 	if err != nil {
 		return nil, false, err
 	}
@@ -36,7 +35,7 @@ func LoadFullUser(userId uuid.UUID) (*models.UserWithRoles, bool, error) {
 
 // LoadUserRoles loads the roles from the database
 func LoadUserRoles(userId uuid.UUID) (models.RolesWithPermissions, error) {
-	userRoles, err := roles.R().GetRolesByUserId(userId)
+	userRoles, err := repositories.R().R().GetRolesByUserId(userId)
 	if err != nil {
 		zap.L().Error("GetUserRoles.GetRolesByUserId", zap.Error(err))
 		return nil, err
@@ -45,7 +44,7 @@ func LoadUserRoles(userId uuid.UUID) (models.RolesWithPermissions, error) {
 	userRolesWithPermissions := make(models.RolesWithPermissions, 0)
 
 	for _, role := range userRoles {
-		perms, err := permissions.R().GetAllByRoleId(role.Id)
+		perms, err := repositories.R().P().GetAllByRoleId(role.Id)
 		if err != nil {
 			zap.L().Error("GetUserRoles.GetAllByRoleId", zap.Error(err))
 			return nil, err

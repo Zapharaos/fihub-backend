@@ -5,10 +5,8 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/handlers"
+	"github.com/Zapharaos/fihub-backend/cmd/user/app/repositories"
 	"github.com/Zapharaos/fihub-backend/internal/models"
-	"github.com/Zapharaos/fihub-backend/internal/users"
-	"github.com/Zapharaos/fihub-backend/internal/users/permissions"
-	"github.com/Zapharaos/fihub-backend/internal/users/roles"
 	"github.com/Zapharaos/fihub-backend/test/mocks"
 	"github.com/google/uuid"
 	"github.com/spf13/viper"
@@ -111,10 +109,10 @@ func TestCreateRole(t *testing.T) {
 				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), pRoleCreate).Return(true)
 				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), pRolePermUpdate).Return(true)
 				handlers.ReplaceGlobals(m)
-				r := mocks.NewRolesRepository(ctrl)
+				r := mocks.NewUserRoleRepository(ctrl)
 				r.EXPECT().Create(gomock.Any(), gomock.Any()).Return(uuid.Nil, errors.New("error"))
 				r.EXPECT().GetWithPermissions(gomock.Any()).Times(0)
-				roles.ReplaceGlobals(r)
+				repositories.ReplaceGlobals(repositories.NewRepository(nil, r, nil))
 			},
 			expectedStatus: http.StatusInternalServerError,
 		},
@@ -126,10 +124,10 @@ func TestCreateRole(t *testing.T) {
 				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), pRoleCreate).Return(true)
 				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), pRolePermUpdate).Return(true)
 				handlers.ReplaceGlobals(m)
-				r := mocks.NewRolesRepository(ctrl)
+				r := mocks.NewUserRoleRepository(ctrl)
 				r.EXPECT().Create(gomock.Any(), gomock.Any()).Return(uuid.New(), nil)
 				r.EXPECT().GetWithPermissions(gomock.Any()).Return(models.RoleWithPermissions{}, false, errors.New("error"))
-				roles.ReplaceGlobals(r)
+				repositories.ReplaceGlobals(repositories.NewRepository(nil, r, nil))
 			},
 			expectedStatus: http.StatusInternalServerError,
 		},
@@ -141,10 +139,10 @@ func TestCreateRole(t *testing.T) {
 				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), pRoleCreate).Return(true)
 				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), pRolePermUpdate).Return(true)
 				handlers.ReplaceGlobals(m)
-				r := mocks.NewRolesRepository(ctrl)
+				r := mocks.NewUserRoleRepository(ctrl)
 				r.EXPECT().Create(gomock.Any(), gomock.Any()).Return(uuid.New(), nil)
 				r.EXPECT().GetWithPermissions(gomock.Any()).Return(models.RoleWithPermissions{}, false, nil)
-				roles.ReplaceGlobals(r)
+				repositories.ReplaceGlobals(repositories.NewRepository(nil, r, nil))
 			},
 			expectedStatus: http.StatusInternalServerError,
 		},
@@ -156,10 +154,10 @@ func TestCreateRole(t *testing.T) {
 				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), pRoleCreate).Return(true)
 				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), pRolePermUpdate).Return(true)
 				handlers.ReplaceGlobals(m)
-				r := mocks.NewRolesRepository(ctrl)
+				r := mocks.NewUserRoleRepository(ctrl)
 				r.EXPECT().Create(gomock.Any(), gomock.Any()).Return(uuid.New(), nil)
 				r.EXPECT().GetWithPermissions(gomock.Any()).Return(models.RoleWithPermissions{}, true, nil)
-				roles.ReplaceGlobals(r)
+				repositories.ReplaceGlobals(repositories.NewRepository(nil, r, nil))
 			},
 			expectedStatus: http.StatusOK,
 		},
@@ -218,9 +216,9 @@ func TestGetRole(t *testing.T) {
 					m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(false),
 				)
 				handlers.ReplaceGlobals(m)
-				r := mocks.NewRolesRepository(ctrl)
+				r := mocks.NewUserRoleRepository(ctrl)
 				r.EXPECT().GetAllWithPermissions().Times(0)
-				roles.ReplaceGlobals(r)
+				repositories.ReplaceGlobals(repositories.NewRepository(nil, r, nil))
 			},
 			expectedStatus: http.StatusOK, // should be StatusUnauthorized, but not because of mock
 		},
@@ -233,9 +231,9 @@ func TestGetRole(t *testing.T) {
 					m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(true),
 				)
 				handlers.ReplaceGlobals(m)
-				r := mocks.NewRolesRepository(ctrl)
+				r := mocks.NewUserRoleRepository(ctrl)
 				r.EXPECT().GetWithPermissions(gomock.Any()).Return(models.RoleWithPermissions{}, false, errors.New("error"))
-				roles.ReplaceGlobals(r)
+				repositories.ReplaceGlobals(repositories.NewRepository(nil, r, nil))
 			},
 			expectedStatus: http.StatusInternalServerError,
 		},
@@ -248,9 +246,9 @@ func TestGetRole(t *testing.T) {
 					m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(true),
 				)
 				handlers.ReplaceGlobals(m)
-				r := mocks.NewRolesRepository(ctrl)
+				r := mocks.NewUserRoleRepository(ctrl)
 				r.EXPECT().GetWithPermissions(gomock.Any()).Return(models.RoleWithPermissions{}, false, nil)
-				roles.ReplaceGlobals(r)
+				repositories.ReplaceGlobals(repositories.NewRepository(nil, r, nil))
 			},
 			expectedStatus: http.StatusNotFound,
 		},
@@ -263,9 +261,9 @@ func TestGetRole(t *testing.T) {
 					m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(true),
 				)
 				handlers.ReplaceGlobals(m)
-				r := mocks.NewRolesRepository(ctrl)
+				r := mocks.NewUserRoleRepository(ctrl)
 				r.EXPECT().GetWithPermissions(gomock.Any()).Return(models.RoleWithPermissions{}, true, nil)
-				roles.ReplaceGlobals(r)
+				repositories.ReplaceGlobals(repositories.NewRepository(nil, r, nil))
 			},
 			expectedStatus: http.StatusOK,
 		},
@@ -307,9 +305,9 @@ func TestGetRoles(t *testing.T) {
 				m := mocks.NewMockUtils(ctrl)
 				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(false)
 				handlers.ReplaceGlobals(m)
-				r := mocks.NewRolesRepository(ctrl)
+				r := mocks.NewUserRoleRepository(ctrl)
 				r.EXPECT().GetAllWithPermissions().Times(0)
-				roles.ReplaceGlobals(r)
+				repositories.ReplaceGlobals(repositories.NewRepository(nil, r, nil))
 			},
 			expectedStatus: http.StatusOK, // should be StatusUnauthorized, but not with mock
 		},
@@ -319,9 +317,9 @@ func TestGetRoles(t *testing.T) {
 				m := mocks.NewMockUtils(ctrl)
 				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(true)
 				handlers.ReplaceGlobals(m)
-				r := mocks.NewRolesRepository(ctrl)
+				r := mocks.NewUserRoleRepository(ctrl)
 				r.EXPECT().GetAllWithPermissions().Return(models.RolesWithPermissions{}, errors.New("error"))
-				roles.ReplaceGlobals(r)
+				repositories.ReplaceGlobals(repositories.NewRepository(nil, r, nil))
 			},
 			expectedStatus: http.StatusInternalServerError,
 		},
@@ -331,9 +329,9 @@ func TestGetRoles(t *testing.T) {
 				m := mocks.NewMockUtils(ctrl)
 				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(true)
 				handlers.ReplaceGlobals(m)
-				r := mocks.NewRolesRepository(ctrl)
+				r := mocks.NewUserRoleRepository(ctrl)
 				r.EXPECT().GetAllWithPermissions().Return([]models.RoleWithPermissions{}, nil)
-				roles.ReplaceGlobals(r)
+				repositories.ReplaceGlobals(repositories.NewRepository(nil, r, nil))
 			},
 			expectedStatus: http.StatusOK,
 		},
@@ -468,10 +466,10 @@ func TestUpdateRole(t *testing.T) {
 				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), pRoleUpdate).Return(true)
 				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), pRolePermUpdate).Return(true)
 				handlers.ReplaceGlobals(m)
-				r := mocks.NewRolesRepository(ctrl)
+				r := mocks.NewUserRoleRepository(ctrl)
 				r.EXPECT().Update(gomock.Any(), gomock.Any()).Return(errors.New("error"))
 				r.EXPECT().GetWithPermissions(gomock.Any()).Times(0)
-				roles.ReplaceGlobals(r)
+				repositories.ReplaceGlobals(repositories.NewRepository(nil, r, nil))
 			},
 			expectedStatus: http.StatusInternalServerError,
 		},
@@ -484,10 +482,10 @@ func TestUpdateRole(t *testing.T) {
 				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), pRoleUpdate).Return(true)
 				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), pRolePermUpdate).Return(true)
 				handlers.ReplaceGlobals(m)
-				r := mocks.NewRolesRepository(ctrl)
+				r := mocks.NewUserRoleRepository(ctrl)
 				r.EXPECT().Update(gomock.Any(), gomock.Any()).Return(nil)
 				r.EXPECT().GetWithPermissions(gomock.Any()).Return(models.RoleWithPermissions{}, false, errors.New("error"))
-				roles.ReplaceGlobals(r)
+				repositories.ReplaceGlobals(repositories.NewRepository(nil, r, nil))
 			},
 			expectedStatus: http.StatusInternalServerError,
 		},
@@ -500,10 +498,10 @@ func TestUpdateRole(t *testing.T) {
 				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), pRoleUpdate).Return(true)
 				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), pRolePermUpdate).Return(true)
 				handlers.ReplaceGlobals(m)
-				r := mocks.NewRolesRepository(ctrl)
+				r := mocks.NewUserRoleRepository(ctrl)
 				r.EXPECT().Update(gomock.Any(), gomock.Any()).Return(nil)
 				r.EXPECT().GetWithPermissions(gomock.Any()).Return(models.RoleWithPermissions{}, false, nil)
-				roles.ReplaceGlobals(r)
+				repositories.ReplaceGlobals(repositories.NewRepository(nil, r, nil))
 			},
 			expectedStatus: http.StatusInternalServerError,
 		},
@@ -516,10 +514,10 @@ func TestUpdateRole(t *testing.T) {
 				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), pRoleUpdate).Return(true)
 				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), pRolePermUpdate).Return(true)
 				handlers.ReplaceGlobals(m)
-				r := mocks.NewRolesRepository(ctrl)
+				r := mocks.NewUserRoleRepository(ctrl)
 				r.EXPECT().Update(gomock.Any(), gomock.Any()).Return(nil)
 				r.EXPECT().GetWithPermissions(gomock.Any()).Return(models.RoleWithPermissions{}, true, nil)
-				roles.ReplaceGlobals(r)
+				repositories.ReplaceGlobals(repositories.NewRepository(nil, r, nil))
 			},
 			expectedStatus: http.StatusOK,
 		},
@@ -576,9 +574,9 @@ func TestDeleteRole(t *testing.T) {
 					m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(false),
 				)
 				handlers.ReplaceGlobals(m)
-				r := mocks.NewRolesRepository(ctrl)
+				r := mocks.NewUserRoleRepository(ctrl)
 				r.EXPECT().Delete(gomock.Any()).Times(0)
-				roles.ReplaceGlobals(r)
+				repositories.ReplaceGlobals(repositories.NewRepository(nil, r, nil))
 			},
 			expectedStatus: http.StatusOK, // should be StatusUnauthorized, but not because of mock
 		},
@@ -591,9 +589,9 @@ func TestDeleteRole(t *testing.T) {
 					m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(true),
 				)
 				handlers.ReplaceGlobals(m)
-				r := mocks.NewRolesRepository(ctrl)
+				r := mocks.NewUserRoleRepository(ctrl)
 				r.EXPECT().Delete(gomock.Any()).Return(errors.New("error"))
-				roles.ReplaceGlobals(r)
+				repositories.ReplaceGlobals(repositories.NewRepository(nil, r, nil))
 			},
 			expectedStatus: http.StatusInternalServerError,
 		},
@@ -606,9 +604,9 @@ func TestDeleteRole(t *testing.T) {
 					m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(true),
 				)
 				handlers.ReplaceGlobals(m)
-				r := mocks.NewRolesRepository(ctrl)
+				r := mocks.NewUserRoleRepository(ctrl)
 				r.EXPECT().Delete(gomock.Any()).Return(nil)
-				roles.ReplaceGlobals(r)
+				repositories.ReplaceGlobals(repositories.NewRepository(nil, r, nil))
 			},
 			expectedStatus: http.StatusOK,
 		},
@@ -665,9 +663,9 @@ func TestGetRolePermissions(t *testing.T) {
 					m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(false),
 				)
 				handlers.ReplaceGlobals(m)
-				p := mocks.NewPermissionsRepository(ctrl)
+				p := mocks.NewUserPermissionRepository(ctrl)
 				p.EXPECT().GetAllByRoleId(gomock.Any()).Times(0)
-				permissions.ReplaceGlobals(p)
+				repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, p))
 			},
 			expectedStatus: http.StatusOK, // should be StatusUnauthorized, but not because of mock
 		},
@@ -680,9 +678,9 @@ func TestGetRolePermissions(t *testing.T) {
 					m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(true),
 				)
 				handlers.ReplaceGlobals(m)
-				p := mocks.NewPermissionsRepository(ctrl)
+				p := mocks.NewUserPermissionRepository(ctrl)
 				p.EXPECT().GetAllByRoleId(gomock.Any()).Return(models.Permissions{}, errors.New("error"))
-				permissions.ReplaceGlobals(p)
+				repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, p))
 			},
 			expectedStatus: http.StatusInternalServerError,
 		},
@@ -695,9 +693,9 @@ func TestGetRolePermissions(t *testing.T) {
 					m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(true),
 				)
 				handlers.ReplaceGlobals(m)
-				p := mocks.NewPermissionsRepository(ctrl)
+				p := mocks.NewUserPermissionRepository(ctrl)
 				p.EXPECT().GetAllByRoleId(gomock.Any()).Return(models.Permissions{}, nil)
-				permissions.ReplaceGlobals(p)
+				repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, p))
 			},
 			expectedStatus: http.StatusOK,
 		},
@@ -759,9 +757,9 @@ func TestSetRolePermissions(t *testing.T) {
 				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), "id").Return(uuid.New(), true)
 				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(false)
 				handlers.ReplaceGlobals(m)
-				r := mocks.NewRolesRepository(ctrl)
+				r := mocks.NewUserRoleRepository(ctrl)
 				r.EXPECT().SetRolePermissions(gomock.Any(), gomock.Any()).Times(0)
-				roles.ReplaceGlobals(r)
+				repositories.ReplaceGlobals(repositories.NewRepository(nil, r, nil))
 			},
 			expectedStatus: http.StatusOK, // should be StatusUnauthorized, but not with mock
 		},
@@ -773,9 +771,9 @@ func TestSetRolePermissions(t *testing.T) {
 				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), "id").Return(uuid.New(), true)
 				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(true)
 				handlers.ReplaceGlobals(m)
-				r := mocks.NewRolesRepository(ctrl)
+				r := mocks.NewUserRoleRepository(ctrl)
 				r.EXPECT().SetRolePermissions(gomock.Any(), gomock.Any()).Times(0)
-				roles.ReplaceGlobals(r)
+				repositories.ReplaceGlobals(repositories.NewRepository(nil, r, nil))
 			},
 			expectedStatus: http.StatusBadRequest,
 		},
@@ -787,9 +785,9 @@ func TestSetRolePermissions(t *testing.T) {
 				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), "id").Return(uuid.New(), true)
 				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(true)
 				handlers.ReplaceGlobals(m)
-				r := mocks.NewRolesRepository(ctrl)
+				r := mocks.NewUserRoleRepository(ctrl)
 				r.EXPECT().SetRolePermissions(gomock.Any(), gomock.Any()).Times(0)
-				roles.ReplaceGlobals(r)
+				repositories.ReplaceGlobals(repositories.NewRepository(nil, r, nil))
 			},
 			expectedStatus: http.StatusBadRequest,
 		},
@@ -801,9 +799,9 @@ func TestSetRolePermissions(t *testing.T) {
 				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), "id").Return(uuid.New(), true)
 				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(true)
 				handlers.ReplaceGlobals(m)
-				r := mocks.NewRolesRepository(ctrl)
+				r := mocks.NewUserRoleRepository(ctrl)
 				r.EXPECT().SetRolePermissions(gomock.Any(), gomock.Any()).Return(errors.New("error"))
-				roles.ReplaceGlobals(r)
+				repositories.ReplaceGlobals(repositories.NewRepository(nil, r, nil))
 			},
 			expectedStatus: http.StatusInternalServerError,
 		},
@@ -815,9 +813,9 @@ func TestSetRolePermissions(t *testing.T) {
 				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), "id").Return(uuid.New(), true)
 				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(true)
 				handlers.ReplaceGlobals(m)
-				r := mocks.NewRolesRepository(ctrl)
+				r := mocks.NewUserRoleRepository(ctrl)
 				r.EXPECT().SetRolePermissions(gomock.Any(), gomock.Any()).Return(nil)
-				roles.ReplaceGlobals(r)
+				repositories.ReplaceGlobals(repositories.NewRepository(nil, r, nil))
 			},
 			expectedStatus: http.StatusOK,
 		},
@@ -874,9 +872,9 @@ func TestGetRoleUsers(t *testing.T) {
 					m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(false),
 				)
 				handlers.ReplaceGlobals(m)
-				u := mocks.NewUsersRepository(ctrl)
+				u := mocks.NewUserRepository(ctrl)
 				u.EXPECT().GetUsersByRoleID(gomock.Any()).Times(0)
-				users.ReplaceGlobals(u)
+				repositories.ReplaceGlobals(repositories.NewRepository(u, nil, nil))
 			},
 			expectedStatus: http.StatusOK, // should be StatusUnauthorized, but not because of mock
 		},
@@ -889,9 +887,9 @@ func TestGetRoleUsers(t *testing.T) {
 					m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(true),
 				)
 				handlers.ReplaceGlobals(m)
-				u := mocks.NewUsersRepository(ctrl)
+				u := mocks.NewUserRepository(ctrl)
 				u.EXPECT().GetUsersByRoleID(gomock.Any()).Return([]models.User{}, errors.New("error"))
-				users.ReplaceGlobals(u)
+				repositories.ReplaceGlobals(repositories.NewRepository(u, nil, nil))
 			},
 			expectedStatus: http.StatusInternalServerError,
 		},
@@ -904,9 +902,9 @@ func TestGetRoleUsers(t *testing.T) {
 					m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(true),
 				)
 				handlers.ReplaceGlobals(m)
-				u := mocks.NewUsersRepository(ctrl)
+				u := mocks.NewUserRepository(ctrl)
 				u.EXPECT().GetUsersByRoleID(gomock.Any()).Return([]models.User{}, nil)
-				users.ReplaceGlobals(u)
+				repositories.ReplaceGlobals(repositories.NewRepository(u, nil, nil))
 			},
 			expectedStatus: http.StatusOK,
 		},
@@ -964,9 +962,9 @@ func TestPutUsersRole(t *testing.T) {
 				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), "id").Return(uuid.New(), true)
 				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(false)
 				handlers.ReplaceGlobals(m)
-				u := mocks.NewUsersRepository(ctrl)
+				u := mocks.NewUserRepository(ctrl)
 				u.EXPECT().AddUsersRole(gomock.Any(), gomock.Any()).Times(0)
-				users.ReplaceGlobals(u)
+				repositories.ReplaceGlobals(repositories.NewRepository(u, nil, nil))
 			},
 			expectedStatus: http.StatusOK, // should be StatusUnauthorized, but not with mock
 		},
@@ -978,9 +976,9 @@ func TestPutUsersRole(t *testing.T) {
 				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), "id").Return(uuid.New(), true)
 				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(true)
 				handlers.ReplaceGlobals(m)
-				u := mocks.NewUsersRepository(ctrl)
+				u := mocks.NewUserRepository(ctrl)
 				u.EXPECT().AddUsersRole(gomock.Any(), gomock.Any()).Times(0)
-				users.ReplaceGlobals(u)
+				repositories.ReplaceGlobals(repositories.NewRepository(u, nil, nil))
 			},
 			expectedStatus: http.StatusBadRequest,
 		},
@@ -992,9 +990,9 @@ func TestPutUsersRole(t *testing.T) {
 				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), "id").Return(uuid.New(), true)
 				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(true)
 				handlers.ReplaceGlobals(m)
-				u := mocks.NewUsersRepository(ctrl)
+				u := mocks.NewUserRepository(ctrl)
 				u.EXPECT().AddUsersRole(gomock.Any(), gomock.Any()).Times(0)
-				users.ReplaceGlobals(u)
+				repositories.ReplaceGlobals(repositories.NewRepository(u, nil, nil))
 			},
 			expectedStatus: http.StatusBadRequest,
 		},
@@ -1006,9 +1004,9 @@ func TestPutUsersRole(t *testing.T) {
 				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), "id").Return(uuid.New(), true)
 				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(true)
 				handlers.ReplaceGlobals(m)
-				u := mocks.NewUsersRepository(ctrl)
+				u := mocks.NewUserRepository(ctrl)
 				u.EXPECT().AddUsersRole(gomock.Any(), gomock.Any()).Return(errors.New("error"))
-				users.ReplaceGlobals(u)
+				repositories.ReplaceGlobals(repositories.NewRepository(u, nil, nil))
 			},
 			expectedStatus: http.StatusInternalServerError,
 		},
@@ -1020,9 +1018,9 @@ func TestPutUsersRole(t *testing.T) {
 				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), "id").Return(uuid.New(), true)
 				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(true)
 				handlers.ReplaceGlobals(m)
-				u := mocks.NewUsersRepository(ctrl)
+				u := mocks.NewUserRepository(ctrl)
 				u.EXPECT().AddUsersRole(gomock.Any(), gomock.Any()).Return(nil)
-				users.ReplaceGlobals(u)
+				repositories.ReplaceGlobals(repositories.NewRepository(u, nil, nil))
 			},
 			expectedStatus: http.StatusOK,
 		},
@@ -1080,9 +1078,9 @@ func TestDeleteUsersRole(t *testing.T) {
 				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), "id").Return(uuid.New(), true)
 				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(false)
 				handlers.ReplaceGlobals(m)
-				u := mocks.NewUsersRepository(ctrl)
+				u := mocks.NewUserRepository(ctrl)
 				u.EXPECT().RemoveUsersRole(gomock.Any(), gomock.Any()).Times(0)
-				users.ReplaceGlobals(u)
+				repositories.ReplaceGlobals(repositories.NewRepository(u, nil, nil))
 			},
 			expectedStatus: http.StatusOK, // should be StatusUnauthorized, but not with mock
 		},
@@ -1094,9 +1092,9 @@ func TestDeleteUsersRole(t *testing.T) {
 				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), "id").Return(uuid.New(), true)
 				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(true)
 				handlers.ReplaceGlobals(m)
-				u := mocks.NewUsersRepository(ctrl)
+				u := mocks.NewUserRepository(ctrl)
 				u.EXPECT().RemoveUsersRole(gomock.Any(), gomock.Any()).Times(0)
-				users.ReplaceGlobals(u)
+				repositories.ReplaceGlobals(repositories.NewRepository(u, nil, nil))
 			},
 			expectedStatus: http.StatusBadRequest,
 		},
@@ -1108,9 +1106,9 @@ func TestDeleteUsersRole(t *testing.T) {
 				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), "id").Return(uuid.New(), true)
 				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(true)
 				handlers.ReplaceGlobals(m)
-				u := mocks.NewUsersRepository(ctrl)
+				u := mocks.NewUserRepository(ctrl)
 				u.EXPECT().RemoveUsersRole(gomock.Any(), gomock.Any()).Times(0)
-				users.ReplaceGlobals(u)
+				repositories.ReplaceGlobals(repositories.NewRepository(u, nil, nil))
 			},
 			expectedStatus: http.StatusBadRequest,
 		},
@@ -1122,9 +1120,9 @@ func TestDeleteUsersRole(t *testing.T) {
 				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), "id").Return(uuid.New(), true)
 				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(true)
 				handlers.ReplaceGlobals(m)
-				u := mocks.NewUsersRepository(ctrl)
+				u := mocks.NewUserRepository(ctrl)
 				u.EXPECT().RemoveUsersRole(gomock.Any(), gomock.Any()).Return(errors.New("error"))
-				users.ReplaceGlobals(u)
+				repositories.ReplaceGlobals(repositories.NewRepository(u, nil, nil))
 			},
 			expectedStatus: http.StatusInternalServerError,
 		},
@@ -1136,9 +1134,9 @@ func TestDeleteUsersRole(t *testing.T) {
 				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), "id").Return(uuid.New(), true)
 				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(true)
 				handlers.ReplaceGlobals(m)
-				u := mocks.NewUsersRepository(ctrl)
+				u := mocks.NewUserRepository(ctrl)
 				u.EXPECT().RemoveUsersRole(gomock.Any(), gomock.Any()).Return(nil)
-				users.ReplaceGlobals(u)
+				repositories.ReplaceGlobals(repositories.NewRepository(u, nil, nil))
 			},
 			expectedStatus: http.StatusOK,
 		},

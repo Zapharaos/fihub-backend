@@ -5,11 +5,9 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/auth"
+	"github.com/Zapharaos/fihub-backend/cmd/user/app/repositories"
 	"github.com/Zapharaos/fihub-backend/internal/app"
 	"github.com/Zapharaos/fihub-backend/internal/models"
-	"github.com/Zapharaos/fihub-backend/internal/users"
-	"github.com/Zapharaos/fihub-backend/internal/users/permissions"
-	"github.com/Zapharaos/fihub-backend/internal/users/roles"
 	"github.com/Zapharaos/fihub-backend/test/mocks"
 	"github.com/google/uuid"
 	"github.com/spf13/viper"
@@ -64,9 +62,9 @@ func TestGetToken(t *testing.T) {
 		{
 			name: "authentication error",
 			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewUsersRepository(ctrl)
+				m := mocks.NewUserRepository(ctrl)
 				m.EXPECT().Authenticate(gomock.Any(), gomock.Any()).Return(models.User{}, false, errors.New("error"))
-				users.ReplaceGlobals(m)
+				repositories.ReplaceGlobals(repositories.NewRepository(m, nil, nil))
 			},
 			body:        userBody,
 			status:      http.StatusInternalServerError,
@@ -75,9 +73,9 @@ func TestGetToken(t *testing.T) {
 		{
 			name: "authentication failed",
 			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewUsersRepository(ctrl)
+				m := mocks.NewUserRepository(ctrl)
 				m.EXPECT().Authenticate(gomock.Any(), gomock.Any()).Return(models.User{}, false, nil)
-				users.ReplaceGlobals(m)
+				repositories.ReplaceGlobals(repositories.NewRepository(m, nil, nil))
 			},
 			body:        userBody,
 			status:      http.StatusBadRequest,
@@ -86,9 +84,9 @@ func TestGetToken(t *testing.T) {
 		{
 			name: "authentication success",
 			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewUsersRepository(ctrl)
+				m := mocks.NewUserRepository(ctrl)
 				m.EXPECT().Authenticate(gomock.Any(), gomock.Any()).Return(userWithPassword.User, true, nil)
-				users.ReplaceGlobals(m)
+				repositories.ReplaceGlobals(repositories.NewRepository(m, nil, nil))
 			},
 			body:        userBody,
 			status:      http.StatusOK,
@@ -223,7 +221,7 @@ func TestMiddleware(t *testing.T) {
 		token       string                   // Token to set in the request
 		target      string                   // Target URL
 		mockSetup   func(*gomock.Controller) // Mock setup function
-		roles       mocks.RolesRepository    // Roles repository mocks
+		roles       mocks.UserRoleRepository // Roles repository mocks
 		expectCode  int                      // Expected status code
 		expectCtx   bool                     // Expected context
 		expectErr   bool
@@ -233,9 +231,9 @@ func TestMiddleware(t *testing.T) {
 			name:   "skip middleware",
 			target: "/users",
 			mockSetup: func(ctrl *gomock.Controller) {
-				u := mocks.NewUsersRepository(ctrl)
+				u := mocks.NewUserRepository(ctrl)
 				u.EXPECT().Get(gomock.Any()).Times(0)
-				users.ReplaceGlobals(u)
+				repositories.ReplaceGlobals(repositories.NewRepository(u, nil, nil))
 			},
 			expectCode: http.StatusOK,
 			expectCtx:  false,
@@ -244,9 +242,9 @@ func TestMiddleware(t *testing.T) {
 			name:  "empty token",
 			token: "",
 			mockSetup: func(ctrl *gomock.Controller) {
-				u := mocks.NewUsersRepository(ctrl)
+				u := mocks.NewUserRepository(ctrl)
 				u.EXPECT().Get(gomock.Any()).Times(0)
-				users.ReplaceGlobals(u)
+				repositories.ReplaceGlobals(repositories.NewRepository(u, nil, nil))
 			},
 			expectCode: http.StatusUnauthorized,
 			expectCtx:  false,
@@ -255,9 +253,9 @@ func TestMiddleware(t *testing.T) {
 			name:  "invalid token",
 			token: "invalid.token.string",
 			mockSetup: func(ctrl *gomock.Controller) {
-				u := mocks.NewUsersRepository(ctrl)
+				u := mocks.NewUserRepository(ctrl)
 				u.EXPECT().Get(gomock.Any()).Times(0)
-				users.ReplaceGlobals(u)
+				repositories.ReplaceGlobals(repositories.NewRepository(u, nil, nil))
 			},
 			expectCode: http.StatusUnauthorized,
 			expectCtx:  false,
@@ -266,12 +264,11 @@ func TestMiddleware(t *testing.T) {
 			name:  "load user error",
 			token: validToken.Token,
 			mockSetup: func(ctrl *gomock.Controller) {
-				u := mocks.NewUsersRepository(ctrl)
+				u := mocks.NewUserRepository(ctrl)
 				u.EXPECT().Get(gomock.Any()).Return(models.User{}, false, errors.New("error"))
-				users.ReplaceGlobals(u)
-				r := mocks.NewRolesRepository(ctrl)
+				r := mocks.NewUserRoleRepository(ctrl)
 				r.EXPECT().GetRolesByUserId(gomock.Any()).Times(0)
-				roles.ReplaceGlobals(r)
+				repositories.ReplaceGlobals(repositories.NewRepository(u, r, nil))
 			},
 			expectCode: http.StatusUnauthorized,
 			expectCtx:  false,
@@ -280,15 +277,13 @@ func TestMiddleware(t *testing.T) {
 			name:  "valid token",
 			token: validToken.Token,
 			mockSetup: func(ctrl *gomock.Controller) {
-				u := mocks.NewUsersRepository(ctrl)
+				u := mocks.NewUserRepository(ctrl)
 				u.EXPECT().Get(gomock.Any()).Return(user, true, nil)
-				users.ReplaceGlobals(u)
-				r := mocks.NewRolesRepository(ctrl)
+				r := mocks.NewUserRoleRepository(ctrl)
 				r.EXPECT().GetRolesByUserId(gomock.Any()).Return([]models.Role{{Id: uuid.New(), Name: "admin"}}, nil)
-				roles.ReplaceGlobals(r)
-				p := mocks.NewPermissionsRepository(ctrl)
+				p := mocks.NewUserPermissionRepository(ctrl)
 				p.EXPECT().GetAllByRoleId(gomock.Any()).Return([]models.Permission{}, nil)
-				permissions.ReplaceGlobals(p)
+				repositories.ReplaceGlobals(repositories.NewRepository(u, r, p))
 			},
 			expectErr:   false,
 			expectFound: true,

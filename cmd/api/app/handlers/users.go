@@ -4,8 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/handlers/render"
+	"github.com/Zapharaos/fihub-backend/cmd/user/app/repositories"
+	"github.com/Zapharaos/fihub-backend/cmd/user/app/service"
 	"github.com/Zapharaos/fihub-backend/internal/models"
-	"github.com/Zapharaos/fihub-backend/internal/users"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"net/http"
@@ -47,7 +48,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	userWithPassword := userInputCreate.UserWithPassword
 
 	// Verify user existence
-	exists, err := users.R().Exists(userWithPassword.Email)
+	exists, err := repositories.R().U().Exists(userWithPassword.Email)
 	if err != nil {
 		zap.L().Error("Check user exists", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
@@ -60,7 +61,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Create user
-	userID, err := users.R().Create(userWithPassword)
+	userID, err := repositories.R().U().Create(userWithPassword)
 	if err != nil {
 		zap.L().Error("PostUser.Create", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
@@ -68,7 +69,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get user back from database
-	user, found, err := users.R().Get(userID)
+	user, found, err := repositories.R().U().Get(userID)
 	if err != nil {
 		zap.L().Error("Cannot get user", zap.String("uuid", userID.String()), zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
@@ -152,7 +153,7 @@ func UpdateUserSelf(w http.ResponseWriter, r *http.Request) {
 	user.ID = userCtx.ID
 
 	// Update user
-	err = users.R().Update(user)
+	err = repositories.R().U().Update(user)
 	if err != nil {
 		zap.L().Error("PutUser.Update", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
@@ -160,7 +161,7 @@ func UpdateUserSelf(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get user back from database
-	user, found, err = users.R().Get(userCtx.ID)
+	user, found, err = repositories.R().U().Get(userCtx.ID)
 	if err != nil {
 		zap.L().Error("Cannot get user", zap.String("uuid", userCtx.ID.String()), zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
@@ -220,7 +221,7 @@ func ChangeUserPassword(w http.ResponseWriter, r *http.Request) {
 	userWithPassword.ID = userCtx.ID
 
 	// Update password
-	err = users.R().UpdateWithPassword(userWithPassword)
+	err = repositories.R().U().UpdateWithPassword(userWithPassword)
 	if err != nil {
 		zap.L().Error("PutUser.UpdatePassword", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
@@ -250,7 +251,7 @@ func DeleteUserSelf(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := users.R().Delete(userCtx.ID)
+	err := repositories.R().U().Delete(userCtx.ID)
 	if err != nil {
 		zap.L().Error("DeleteUser.Delete", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
@@ -287,7 +288,7 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 	var err error
 
 	// the user default accessible data
-	user.User, found, err = users.R().Get(userId)
+	user.User, found, err = repositories.R().U().Get(userId)
 	if err != nil {
 		zap.L().Error("GetUser.Get", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
@@ -301,7 +302,7 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 
 	// Check if the user can retrieve the user roles as well
 	if U().CheckPermission(w, r, "admin.users.roles.list") {
-		roles, err := users.LoadUserRoles(userId)
+		roles, err := service.LoadUserRoles(userId)
 		if err != nil {
 			zap.L().Error("GetUser.LoadUserRoles", zap.Error(err))
 			w.WriteHeader(http.StatusInternalServerError)
@@ -347,7 +348,7 @@ func SetUser(w http.ResponseWriter, r *http.Request) {
 
 	user.ID = userId
 
-	err = users.R().UpdateWithRoles(user, user.Roles.GetUUIDs())
+	err = repositories.R().U().UpdateWithRoles(user, user.Roles.GetUUIDs())
 	if err != nil {
 		zap.L().Error("PutUser.Update", zap.Error(err))
 		render.Error(w, r, err, "Update user")
@@ -394,7 +395,7 @@ func SetUserRoles(w http.ResponseWriter, r *http.Request) {
 		roleUUIDs = append(roleUUIDs, role.Id)
 	}
 
-	err = users.R().SetUserRoles(userId, roleUUIDs)
+	err = repositories.R().U().SetUserRoles(userId, roleUUIDs)
 	if err != nil {
 		zap.L().Error("PutUser.Update", zap.Error(err))
 		render.Error(w, r, err, "Set roles on user")
@@ -425,7 +426,7 @@ func GetUserRoles(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userRolesWithPermissions, err := users.LoadUserRoles(userId)
+	userRolesWithPermissions, err := service.LoadUserRoles(userId)
 	if err != nil {
 		render.Error(w, r, err, "Cannot load roles")
 		return
@@ -452,7 +453,7 @@ func GetAllUsersWithRoles(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	usersWithRoles, err := users.R().GetAllWithRoles()
+	usersWithRoles, err := repositories.R().U().GetAllWithRoles()
 	if err != nil {
 		zap.L().Error("GetAllWithRoles", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)

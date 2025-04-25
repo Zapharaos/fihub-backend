@@ -1,22 +1,22 @@
-package permissions_test
+package repositories_test
 
 import (
 	"errors"
+	"github.com/Zapharaos/fihub-backend/cmd/user/app/repositories"
 	"github.com/Zapharaos/fihub-backend/internal/models"
-	"github.com/Zapharaos/fihub-backend/internal/users/permissions"
 	"github.com/Zapharaos/fihub-backend/test"
 	"github.com/google/uuid"
 	sqlxmock "github.com/zhashkevych/go-sqlxmock"
 	"testing"
 )
 
-// TestPostgresRepository_Get test the Get method
-func TestPostgresRepository_Get(t *testing.T) {
+// TestPermissionPostgresRepository_Get test the PermissionPostgresRepository.Get method
+func TestPermissionPostgresRepository_Get(t *testing.T) {
 	var sqlxMock test.Sqlx
 	sqlxMock.CreateFullTestSqlx(t)
 	defer sqlxMock.CleanTestSqlx()
 
-	permissions.ReplaceGlobals(permissions.NewPostgresRepository(sqlxMock.DB))
+	repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, repositories.NewPermissionPostgresRepository(sqlxMock.DB)))
 
 	tests := []struct {
 		name         string
@@ -50,7 +50,7 @@ func TestPostgresRepository_Get(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mockSetup()
-			_, found, err := permissions.R().Get(tt.permissionID)
+			_, found, err := repositories.R().P().Get(tt.permissionID)
 			if (err != nil) != tt.expectErr {
 				t.Errorf("Get() error = %v, expectErr %v", err, tt.expectErr)
 				return
@@ -62,13 +62,13 @@ func TestPostgresRepository_Get(t *testing.T) {
 	}
 }
 
-// TestPostgresRepository_Create test the Create method
-func TestPostgresRepository_Create(t *testing.T) {
+// TestPermissionPostgresRepository_Create test the PermissionPostgresRepository.Create method
+func TestPermissionPostgresRepository_Create(t *testing.T) {
 	var sqlxMock test.Sqlx
 	sqlxMock.CreateFullTestSqlx(t)
 	defer sqlxMock.CleanTestSqlx()
 
-	permissions.ReplaceGlobals(permissions.NewPostgresRepository(sqlxMock.DB))
+	repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, repositories.NewPermissionPostgresRepository(sqlxMock.DB)))
 
 	tests := []struct {
 		name       string
@@ -97,7 +97,7 @@ func TestPostgresRepository_Create(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mockSetup()
-			_, err := permissions.R().Create(tt.permission)
+			_, err := repositories.R().P().Create(tt.permission)
 			if (err != nil) != tt.expectErr {
 				t.Errorf("Create() error = %v, expectErr %v", err, tt.expectErr)
 			}
@@ -105,13 +105,13 @@ func TestPostgresRepository_Create(t *testing.T) {
 	}
 }
 
-// TestPostgresRepository_Update test the Update method
-func TestPostgresRepository_Update(t *testing.T) {
+// TestPermissionPostgresRepository_Update test the PermissionPostgresRepository.Update method
+func TestPermissionPostgresRepository_Update(t *testing.T) {
 	var sqlxMock test.Sqlx
 	sqlxMock.CreateFullTestSqlx(t)
 	defer sqlxMock.CleanTestSqlx()
 
-	permissions.ReplaceGlobals(permissions.NewPostgresRepository(sqlxMock.DB))
+	repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, repositories.NewPermissionPostgresRepository(sqlxMock.DB)))
 
 	tests := []struct {
 		name       string
@@ -138,7 +138,7 @@ func TestPostgresRepository_Update(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mockSetup()
-			err := permissions.R().Update(tt.permission)
+			err := repositories.R().P().Update(tt.permission)
 			if (err != nil) != tt.expectErr {
 				t.Errorf("Update() error = %v, expectErr %v", err, tt.expectErr)
 			}
@@ -146,13 +146,13 @@ func TestPostgresRepository_Update(t *testing.T) {
 	}
 }
 
-// TestPostgresRepository_Delete test the Delete method
-func TestPostgresRepository_Delete(t *testing.T) {
+// TestPermissionPostgresRepository_Delete test the PermissionPostgresRepository.Delete method
+func TestPermissionPostgresRepository_Delete(t *testing.T) {
 	var sqlxMock test.Sqlx
 	sqlxMock.CreateFullTestSqlx(t)
 	defer sqlxMock.CleanTestSqlx()
 
-	permissions.ReplaceGlobals(permissions.NewPostgresRepository(sqlxMock.DB))
+	repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, repositories.NewPermissionPostgresRepository(sqlxMock.DB)))
 
 	tests := []struct {
 		name         string
@@ -181,7 +181,7 @@ func TestPostgresRepository_Delete(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mockSetup()
-			err := permissions.R().Delete(tt.permissionID)
+			err := repositories.R().P().Delete(tt.permissionID)
 			if (err != nil) != tt.expectErr {
 				t.Errorf("Delete() error = %v, expectErr %v", err, tt.expectErr)
 			}
@@ -189,13 +189,13 @@ func TestPostgresRepository_Delete(t *testing.T) {
 	}
 }
 
-// TestPostgresRepository_GetAll test the GetAll method
-func TestPostgresRepository_GetAll(t *testing.T) {
+// TestPermissionPostgresRepository_GetAll test the PermissionPostgresRepository.GetAll method
+func TestPermissionPostgresRepository_GetAll(t *testing.T) {
 	var sqlxMock test.Sqlx
 	sqlxMock.CreateFullTestSqlx(t)
 	defer sqlxMock.CleanTestSqlx()
 
-	permissions.ReplaceGlobals(permissions.NewPostgresRepository(sqlxMock.DB))
+	repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, repositories.NewPermissionPostgresRepository(sqlxMock.DB)))
 
 	tests := []struct {
 		name        string
@@ -227,7 +227,7 @@ func TestPostgresRepository_GetAll(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mockSetup()
-			p, err := permissions.R().GetAll()
+			p, err := repositories.R().P().GetAll()
 			if (err != nil) != tt.expectErr {
 				t.Errorf("GetAll() error = %v, expectErr %v", err, tt.expectErr)
 				return
@@ -239,13 +239,13 @@ func TestPostgresRepository_GetAll(t *testing.T) {
 	}
 }
 
-// TestPostgresRepository_GetAllByRoleId test the GetAllByRoleId method
-func TestPostgresRepository_GetAllByRoleId(t *testing.T) {
+// TestPermissionPostgresRepository_GetAllByRoleId test the PermissionPostgresRepository.GetAllByRoleId method
+func TestPermissionPostgresRepository_GetAllByRoleId(t *testing.T) {
 	var sqlxMock test.Sqlx
 	sqlxMock.CreateFullTestSqlx(t)
 	defer sqlxMock.CleanTestSqlx()
 
-	permissions.ReplaceGlobals(permissions.NewPostgresRepository(sqlxMock.DB))
+	repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, repositories.NewPermissionPostgresRepository(sqlxMock.DB)))
 
 	tests := []struct {
 		name        string
@@ -280,7 +280,7 @@ func TestPostgresRepository_GetAllByRoleId(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mockSetup()
-			p, err := permissions.R().GetAllByRoleId(tt.roleID)
+			p, err := repositories.R().P().GetAllByRoleId(tt.roleID)
 			if (err != nil) != tt.expectErr {
 				t.Errorf("GetAllByRoleId() error = %v, expectErr %v", err, tt.expectErr)
 				return
@@ -292,13 +292,13 @@ func TestPostgresRepository_GetAllByRoleId(t *testing.T) {
 	}
 }
 
-// TestPostgresRepository_GetAllForUser test the GetAllForUser method
-func TestPostgresRepository_GetAllForUser(t *testing.T) {
+// TestPermissionPostgresRepository_GetAllForUser test the PermissionPostgresRepository.GetAllForUser method
+func TestPermissionPostgresRepository_GetAllForUser(t *testing.T) {
 	var sqlxMock test.Sqlx
 	sqlxMock.CreateFullTestSqlx(t)
 	defer sqlxMock.CleanTestSqlx()
 
-	permissions.ReplaceGlobals(permissions.NewPostgresRepository(sqlxMock.DB))
+	repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, repositories.NewPermissionPostgresRepository(sqlxMock.DB)))
 
 	tests := []struct {
 		name        string
@@ -333,7 +333,7 @@ func TestPostgresRepository_GetAllForUser(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mockSetup()
-			p, err := permissions.R().GetAllForUser(tt.userID)
+			p, err := repositories.R().P().GetAllForUser(tt.userID)
 			if (err != nil) != tt.expectErr {
 				t.Errorf("GetAllForUser() error = %v, expectErr %v", err, tt.expectErr)
 				return

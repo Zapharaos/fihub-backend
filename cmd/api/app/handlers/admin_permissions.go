@@ -3,8 +3,8 @@ package handlers
 import (
 	"encoding/json"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/handlers/render"
+	"github.com/Zapharaos/fihub-backend/cmd/user/app/repositories"
 	"github.com/Zapharaos/fihub-backend/internal/models"
-	"github.com/Zapharaos/fihub-backend/internal/users/permissions"
 	"go.uber.org/zap"
 	"net/http"
 )
@@ -44,13 +44,13 @@ func CreatePermission(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	permissionID, err := permissions.R().Create(permission)
+	permissionID, err := repositories.R().P().Create(permission)
 	if err != nil {
 		render.Error(w, r, err, "Create permission")
 		return
 	}
 
-	newPermission, found, err := permissions.R().Get(permissionID)
+	newPermission, found, err := repositories.R().P().Get(permissionID)
 	if err != nil {
 		zap.L().Error("Cannot get permission", zap.String("uuid", permissionID.String()), zap.Error(err))
 		render.Error(w, r, nil, "")
@@ -87,7 +87,7 @@ func GetPermission(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	permission, found, err := permissions.R().Get(permissionID)
+	permission, found, err := repositories.R().P().Get(permissionID)
 	if err != nil {
 		zap.L().Error("Cannot load permission", zap.String("uuid", permissionID.String()), zap.Error(err))
 		render.Error(w, r, nil, "")
@@ -121,7 +121,7 @@ func GetPermissions(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result, err := permissions.R().GetAll()
+	result, err := repositories.R().P().GetAll()
 	if err != nil {
 		render.Error(w, r, err, "Get permissions")
 		return
@@ -167,13 +167,13 @@ func UpdatePermission(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = permissions.R().Update(permission)
+	err = repositories.R().P().Update(permission)
 	if err != nil {
 		render.Error(w, r, err, "Update permission")
 		return
 	}
 
-	permission, found, err := permissions.R().Get(permissionID)
+	permission, found, err := repositories.R().P().Get(permissionID)
 	if err != nil {
 		zap.L().Error("Cannot get permission", zap.String("uuid", permissionID.String()), zap.Error(err))
 		render.Error(w, r, nil, "")
@@ -209,7 +209,7 @@ func DeletePermission(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := permissions.R().Delete(permissionID)
+	err := repositories.R().P().Delete(permissionID)
 	if err != nil {
 		render.Error(w, r, err, "Cannot delete permission")
 		return

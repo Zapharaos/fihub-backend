@@ -1,4 +1,4 @@
-package permissions
+package repositories
 
 import (
 	"github.com/Zapharaos/fihub-backend/internal/models"
@@ -7,23 +7,23 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-// PostgresRepository is a repository containing the user permissions data based on a PSQL database and
+// PermissionPostgresRepository is a repository containing the user permissions data based on a PSQL database and
 // implementing the repository interface
-type PostgresRepository struct {
+type PermissionPostgresRepository struct {
 	conn *sqlx.DB
 }
 
-// NewPostgresRepository returns a new instance of PostgresRepository
-func NewPostgresRepository(dbClient *sqlx.DB) Repository {
-	r := PostgresRepository{
+// NewPermissionPostgresRepository returns a new instance of PermissionRepository
+func NewPermissionPostgresRepository(dbClient *sqlx.DB) PermissionRepository {
+	r := PermissionPostgresRepository{
 		conn: dbClient,
 	}
-	var ifm Repository = &r
-	return ifm
+	var rp PermissionRepository = &r
+	return rp
 }
 
 // Get search and returns a Permission from the repository by its id
-func (r *PostgresRepository) Get(permissionUUID uuid.UUID) (models.Permission, bool, error) {
+func (r *PermissionPostgresRepository) Get(permissionUUID uuid.UUID) (models.Permission, bool, error) {
 	// Prepare query
 	query := `SELECT *
 			  FROM permissions as p
@@ -43,7 +43,7 @@ func (r *PostgresRepository) Get(permissionUUID uuid.UUID) (models.Permission, b
 }
 
 // Create creates a new Permission in the repository
-func (r *PostgresRepository) Create(permission models.Permission) (uuid.UUID, error) {
+func (r *PermissionPostgresRepository) Create(permission models.Permission) (uuid.UUID, error) {
 
 	newUUID := uuid.New()
 
@@ -67,7 +67,7 @@ func (r *PostgresRepository) Create(permission models.Permission) (uuid.UUID, er
 }
 
 // Update updates a Permission in the repository
-func (r *PostgresRepository) Update(permission models.Permission) error {
+func (r *PermissionPostgresRepository) Update(permission models.Permission) error {
 	// Prepare query
 	query := `UPDATE permissions as p
 			  SET value = :value, scope = :scope, description = :description
@@ -89,7 +89,7 @@ func (r *PostgresRepository) Update(permission models.Permission) error {
 }
 
 // Delete deletes a Permission in the repository
-func (r *PostgresRepository) Delete(uuid uuid.UUID) error {
+func (r *PermissionPostgresRepository) Delete(uuid uuid.UUID) error {
 	// Prepare query
 	query := `DELETE FROM permissions as p
 			  WHERE p.id = :id`
@@ -107,7 +107,7 @@ func (r *PostgresRepository) Delete(uuid uuid.UUID) error {
 }
 
 // GetAll returns all User Permissions in the repository
-func (r *PostgresRepository) GetAll() ([]models.Permission, error) {
+func (r *PermissionPostgresRepository) GetAll() ([]models.Permission, error) {
 	// Prepare query
 	query := `SELECT *
 			  FROM permissions`
@@ -123,7 +123,7 @@ func (r *PostgresRepository) GetAll() ([]models.Permission, error) {
 }
 
 // GetAllByRoleId returns all Permissions for a given Role
-func (r *PostgresRepository) GetAllByRoleId(roleUUID uuid.UUID) ([]models.Permission, error) {
+func (r *PermissionPostgresRepository) GetAllByRoleId(roleUUID uuid.UUID) ([]models.Permission, error) {
 	// Prepare query
 	query := `SELECT p.id, p.value, p.scope, p.description
 			  FROM permissions as p
@@ -144,7 +144,7 @@ func (r *PostgresRepository) GetAllByRoleId(roleUUID uuid.UUID) ([]models.Permis
 }
 
 // GetAllForUser returns all Permissions for a given User
-func (r *PostgresRepository) GetAllForUser(userUUID uuid.UUID) ([]models.Permission, error) {
+func (r *PermissionPostgresRepository) GetAllForUser(userUUID uuid.UUID) ([]models.Permission, error) {
 	// Prepare query
 	query := `SELECT p.id, p.value, p.scope, p.description
 			  FROM permissions as p
@@ -166,7 +166,7 @@ func (r *PostgresRepository) GetAllForUser(userUUID uuid.UUID) ([]models.Permiss
 }
 
 // Scan scans the retrieved data from the database and returns a Permission
-func (r *PostgresRepository) Scan(rows *sqlx.Rows) (models.Permission, error) {
+func (r *PermissionPostgresRepository) Scan(rows *sqlx.Rows) (models.Permission, error) {
 	var permission models.Permission
 	err := rows.Scan(
 		&permission.Id,

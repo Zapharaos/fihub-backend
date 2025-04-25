@@ -54,7 +54,8 @@ mocks:
 	go generate ./cmd/api/app/clients/mockgen.go
 	go generate ./cmd/transaction/app/repositories/mockgen.go
 	go generate ./cmd/broker/app/repositories/mockgen.go
-	go generate ./internal/users/mockgen.go
+	go generate ./cmd/user/app/repositories/mockgen.go
+	go generate ./internal/password/mockgen.go
 
 # Proto commands
 proto-gen:

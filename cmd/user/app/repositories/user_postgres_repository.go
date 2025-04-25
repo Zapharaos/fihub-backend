@@ -1,4 +1,4 @@
-package users
+package repositories
 
 import (
 	"context"
@@ -15,22 +15,22 @@ import (
 	"time"
 )
 
-// PostgresRepository is a postgres interface for Repository
-type PostgresRepository struct {
+// UserPostgresRepository is a postgres interface for UserRepository
+type UserPostgresRepository struct {
 	conn *sqlx.DB
 }
 
-// NewPostgresRepository returns a new instance of PostgresRepository
-func NewPostgresRepository(dbClient *sqlx.DB) Repository {
-	r := PostgresRepository{
+// NewUserPostgresRepository returns a new instance of PostgresRepository
+func NewUserPostgresRepository(dbClient *sqlx.DB) UserRepository {
+	r := UserPostgresRepository{
 		conn: dbClient,
 	}
-	var repo Repository = &r
+	var repo UserRepository = &r
 	return repo
 }
 
 // Create method used to create a User
-func (r *PostgresRepository) Create(user models.UserWithPassword) (uuid.UUID, error) {
+func (r *UserPostgresRepository) Create(user models.UserWithPassword) (uuid.UUID, error) {
 
 	// UUID
 	userID := uuid.New()
@@ -66,7 +66,7 @@ func (r *PostgresRepository) Create(user models.UserWithPassword) (uuid.UUID, er
 }
 
 // Get use to retrieve a User by ID
-func (r *PostgresRepository) Get(userID uuid.UUID) (models.User, bool, error) {
+func (r *UserPostgresRepository) Get(userID uuid.UUID) (models.User, bool, error) {
 
 	// Prepare query
 	query := `SELECT *
@@ -87,7 +87,7 @@ func (r *PostgresRepository) Get(userID uuid.UUID) (models.User, bool, error) {
 }
 
 // GetByEmail use to retrieve a User by email
-func (r *PostgresRepository) GetByEmail(email string) (models.User, bool, error) {
+func (r *UserPostgresRepository) GetByEmail(email string) (models.User, bool, error) {
 
 	// Prepare query
 	query := `SELECT *
@@ -108,7 +108,7 @@ func (r *PostgresRepository) GetByEmail(email string) (models.User, bool, error)
 }
 
 // Exists checks if a User with requested email exists in the repository
-func (r *PostgresRepository) Exists(email string) (bool, error) {
+func (r *UserPostgresRepository) Exists(email string) (bool, error) {
 	// Prepare query
 	query := `SELECT *
 			  FROM Users as u
@@ -128,7 +128,7 @@ func (r *PostgresRepository) Exists(email string) (bool, error) {
 }
 
 // Authenticate returns a User from the repository by its login and password
-func (r *PostgresRepository) Authenticate(email string, password string) (models.User, bool, error) {
+func (r *UserPostgresRepository) Authenticate(email string, password string) (models.User, bool, error) {
 	// Prepare query
 	query := `SELECT *
 			  FROM Users as u
@@ -162,7 +162,7 @@ func (r *PostgresRepository) Authenticate(email string, password string) (models
 }
 
 // Update method used to update a User
-func (r *PostgresRepository) Update(user models.User) error {
+func (r *UserPostgresRepository) Update(user models.User) error {
 
 	// Prepare query
 	query := `UPDATE Users as u
@@ -184,7 +184,7 @@ func (r *PostgresRepository) Update(user models.User) error {
 }
 
 // UpdateWithPassword method used to update a User with password
-func (r *PostgresRepository) UpdateWithPassword(user models.UserWithPassword) error {
+func (r *UserPostgresRepository) UpdateWithPassword(user models.UserWithPassword) error {
 
 	// Hash password before saving
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
@@ -212,7 +212,7 @@ func (r *PostgresRepository) UpdateWithPassword(user models.UserWithPassword) er
 }
 
 // Delete method used to delete a User
-func (r *PostgresRepository) Delete(userID uuid.UUID) error {
+func (r *UserPostgresRepository) Delete(userID uuid.UUID) error {
 
 	// Prepare query
 	query := `DELETE FROM Users as u
@@ -231,7 +231,7 @@ func (r *PostgresRepository) Delete(userID uuid.UUID) error {
 }
 
 // GetWithRoles returns a User with its roles in the repository
-func (r *PostgresRepository) GetWithRoles(userID uuid.UUID) (models.UserWithRoles, error) {
+func (r *UserPostgresRepository) GetWithRoles(userID uuid.UUID) (models.UserWithRoles, error) {
 	// Prepare query
 	query := `SELECT u.ID, u.email, u.created_at, u.updated_at, r.ID, r.name
 			  FROM Users as u
@@ -258,7 +258,7 @@ func (r *PostgresRepository) GetWithRoles(userID uuid.UUID) (models.UserWithRole
 }
 
 // GetAllWithRoles returns a User with its roles in the repository
-func (r *PostgresRepository) GetAllWithRoles() ([]models.UserWithRoles, error) {
+func (r *UserPostgresRepository) GetAllWithRoles() ([]models.UserWithRoles, error) {
 	// Prepare query
 	query := `SELECT u.ID, u.email, u.created_at, u.updated_at, r.ID, r.name
 			  FROM Users as u
@@ -277,7 +277,7 @@ func (r *PostgresRepository) GetAllWithRoles() ([]models.UserWithRoles, error) {
 }
 
 // GetUsersByRoleID returns all User for a role in the repository
-func (r *PostgresRepository) GetUsersByRoleID(roleUUID uuid.UUID) ([]models.User, error) {
+func (r *UserPostgresRepository) GetUsersByRoleID(roleUUID uuid.UUID) ([]models.User, error) {
 	// Prepare query
 	query := `SELECT u.ID, u.email, u.password, u.created_at, u.updated_at
 			  FROM Users as u
@@ -298,7 +298,7 @@ func (r *PostgresRepository) GetUsersByRoleID(roleUUID uuid.UUID) ([]models.User
 }
 
 // UpdateWithRoles updates a User with its roles in the repository
-func (r *PostgresRepository) UpdateWithRoles(user models.UserWithRoles, roleUUIDs []uuid.UUID) error {
+func (r *UserPostgresRepository) UpdateWithRoles(user models.UserWithRoles, roleUUIDs []uuid.UUID) error {
 	// Start transaction
 	ctx := context.Background()
 	tx, err := r.conn.BeginTx(ctx, nil)
@@ -369,7 +369,7 @@ func (r *PostgresRepository) UpdateWithRoles(user models.UserWithRoles, roleUUID
 }
 
 // SetUserRoles sets the roles of a User in the repository
-func (r *PostgresRepository) SetUserRoles(userUUID uuid.UUID, roleUUIDs []uuid.UUID) error {
+func (r *UserPostgresRepository) SetUserRoles(userUUID uuid.UUID, roleUUIDs []uuid.UUID) error {
 
 	// Start transaction
 	ctx := context.Background()
@@ -431,7 +431,7 @@ func (r *PostgresRepository) SetUserRoles(userUUID uuid.UUID, roleUUIDs []uuid.U
 }
 
 // AddUsersRole adds a role to a list of User in the repository
-func (r *PostgresRepository) AddUsersRole(userUUIDs []uuid.UUID, roleUUID uuid.UUID) error {
+func (r *UserPostgresRepository) AddUsersRole(userUUIDs []uuid.UUID, roleUUID uuid.UUID) error {
 
 	// Start transaction
 	ctx := context.Background()
@@ -475,7 +475,7 @@ func (r *PostgresRepository) AddUsersRole(userUUIDs []uuid.UUID, roleUUID uuid.U
 }
 
 // RemoveUsersRole removes a role from a list of User in the repository
-func (r *PostgresRepository) RemoveUsersRole(userUUIDs []uuid.UUID, roleUUID uuid.UUID) error {
+func (r *UserPostgresRepository) RemoveUsersRole(userUUIDs []uuid.UUID, roleUUID uuid.UUID) error {
 	// Start transaction
 	ctx := context.Background()
 	tx, err := r.conn.BeginTx(ctx, nil)
@@ -509,7 +509,7 @@ func (r *PostgresRepository) RemoveUsersRole(userUUIDs []uuid.UUID, roleUUID uui
 	return nil
 }
 
-func (r *PostgresRepository) Scan(rows *sqlx.Rows) (models.User, error) {
+func (r *UserPostgresRepository) Scan(rows *sqlx.Rows) (models.User, error) {
 
 	userWithPassword, err := r.ScanWithPassword(rows)
 	if err != nil {
@@ -519,7 +519,7 @@ func (r *PostgresRepository) Scan(rows *sqlx.Rows) (models.User, error) {
 	return userWithPassword.User, nil
 }
 
-func (r *PostgresRepository) ScanWithPassword(rows *sqlx.Rows) (models.UserWithPassword, error) {
+func (r *UserPostgresRepository) ScanWithPassword(rows *sqlx.Rows) (models.UserWithPassword, error) {
 	var userWithPassword models.UserWithPassword
 	err := rows.Scan(
 		&userWithPassword.ID,
@@ -535,7 +535,7 @@ func (r *PostgresRepository) ScanWithPassword(rows *sqlx.Rows) (models.UserWithP
 	return userWithPassword, nil
 }
 
-func (r *PostgresRepository) ScanWithRoles(rows *sqlx.Rows) (models.UserWithRoles, error) {
+func (r *UserPostgresRepository) ScanWithRoles(rows *sqlx.Rows) (models.UserWithRoles, error) {
 
 	var userWithRoles models.UserWithRoles
 	var role models.RoleWithPermissions
@@ -563,7 +563,7 @@ func (r *PostgresRepository) ScanWithRoles(rows *sqlx.Rows) (models.UserWithRole
 	return userWithRoles, nil
 }
 
-func (r *PostgresRepository) ScanMultiplesWithRoles(rows *sqlx.Rows) ([]models.UserWithRoles, error) {
+func (r *UserPostgresRepository) ScanMultiplesWithRoles(rows *sqlx.Rows) ([]models.UserWithRoles, error) {
 	var usersWithRoles []models.UserWithRoles
 	userMap := make(map[uuid.UUID]int)
 

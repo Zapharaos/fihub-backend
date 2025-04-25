@@ -4,10 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/handlers/render"
+	"github.com/Zapharaos/fihub-backend/cmd/user/app/repositories"
 	"github.com/Zapharaos/fihub-backend/internal/models"
-	"github.com/Zapharaos/fihub-backend/internal/users"
-	"github.com/Zapharaos/fihub-backend/internal/users/permissions"
-	"github.com/Zapharaos/fihub-backend/internal/users/roles"
 	"net/http"
 
 	"github.com/google/uuid"
@@ -63,14 +61,14 @@ func CreateRole(w http.ResponseWriter, r *http.Request) {
 		perms = role.Permissions.GetUUIDs()
 	}
 
-	roleID, err := roles.R().Create(role.Role, perms)
+	roleID, err := repositories.R().R().Create(role.Role, perms)
 	if err != nil {
 		zap.L().Error("Cannot create role", zap.Error(err))
 		render.Error(w, r, err, "Create role")
 		return
 	}
 
-	newRole, found, err := roles.R().GetWithPermissions(roleID)
+	newRole, found, err := repositories.R().R().GetWithPermissions(roleID)
 	if err != nil {
 		zap.L().Error("Cannot get role", zap.String("uuid", roleID.String()), zap.Error(err))
 		render.Error(w, r, nil, "")
@@ -107,7 +105,7 @@ func GetRole(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	role, found, err := roles.R().GetWithPermissions(roleID)
+	role, found, err := repositories.R().R().GetWithPermissions(roleID)
 	if err != nil {
 		zap.L().Error("Cannot load role", zap.String("uuid", roleID.String()), zap.Error(err))
 		render.Error(w, r, nil, "")
@@ -142,7 +140,7 @@ func GetRoles(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result, err := roles.R().GetAllWithPermissions()
+	result, err := repositories.R().R().GetAllWithPermissions()
 	if err != nil {
 		render.Error(w, r, err, "Get roles")
 		return
@@ -202,14 +200,14 @@ func UpdateRole(w http.ResponseWriter, r *http.Request) {
 		perms = role.Permissions.GetUUIDs()
 	}
 
-	err = roles.R().Update(role.Role, perms)
+	err = repositories.R().R().Update(role.Role, perms)
 	if err != nil {
 		zap.L().Error("Cannot update role", zap.Error(err))
 		render.Error(w, r, err, "Update role")
 		return
 	}
 
-	role, found, err := roles.R().GetWithPermissions(roleID)
+	role, found, err := repositories.R().R().GetWithPermissions(roleID)
 	if err != nil {
 		zap.L().Error("Cannot get role", zap.String("uuid", roleID.String()), zap.Error(err))
 		render.Error(w, r, nil, "")
@@ -245,7 +243,7 @@ func DeleteRole(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := roles.R().Delete(roleID)
+	err := repositories.R().R().Delete(roleID)
 	if err != nil {
 		render.Error(w, r, err, "Cannot delete role")
 		return
@@ -275,7 +273,7 @@ func GetRolePermissions(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	perms, err := permissions.R().GetAllByRoleId(roleId)
+	perms, err := repositories.R().P().GetAllByRoleId(roleId)
 	if err != nil {
 		render.Error(w, r, err, "Get role permissions")
 		return
@@ -321,7 +319,7 @@ func SetRolePermissions(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = roles.R().SetRolePermissions(roleId, perms.GetUUIDs())
+	err = repositories.R().R().SetRolePermissions(roleId, perms.GetUUIDs())
 	if err != nil {
 		zap.L().Error("Failed to set permissions", zap.Error(err))
 		render.Error(w, r, err, "Set role permissions")
@@ -352,7 +350,7 @@ func GetRoleUsers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	roleUsers, err := users.R().GetUsersByRoleID(roleId)
+	roleUsers, err := repositories.R().U().GetUsersByRoleID(roleId)
 	if err != nil {
 		render.Error(w, r, err, "Get role users")
 		return
@@ -397,7 +395,7 @@ func PutUsersRole(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = users.R().AddUsersRole(userUUIDs, roleId)
+	err = repositories.R().U().AddUsersRole(userUUIDs, roleId)
 	if err != nil {
 		render.Error(w, r, err, "Set user roles")
 		return
@@ -442,7 +440,7 @@ func DeleteUsersRole(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = users.R().RemoveUsersRole(userUUIDs, roleId)
+	err = repositories.R().U().RemoveUsersRole(userUUIDs, roleId)
 	if err != nil {
 		render.Error(w, r, err, "Delete user roles")
 		return

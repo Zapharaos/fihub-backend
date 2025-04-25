@@ -73,6 +73,16 @@ HEALTH_MICROSERVICE_PORT = "50001"
 # Default value: "health"
 HEALTH_MICROSERVICE_HOST = "health"
 
+# Specify the port for the User microservice
+# This port is used to run the gRPC UserService
+# Default value: "50002"
+USER_MICROSERVICE_PORT = "50002"
+
+# Specify the host for the User microservice
+# Use "user" when running through Docker, "localhost" otherwise
+# Default value: "user"
+USER_MICROSERVICE_HOST = "user"
+
 # Specify the port for the Broker microservice
 # This port is used to run the gRPC BrokerService
 # Default value: "50003"
@@ -80,7 +90,7 @@ BROKER_MICROSERVICE_PORT = "50003"
 
 # Specify the host for the Broker microservice
 # Use "broker" when running through Docker, "localhost" otherwise
-# Default value: "postgres"
+# Default value: "broker"
 BROKER_MICROSERVICE_HOST = "broker"
 
 # Specify the port for the Transaction microservice

@@ -5,9 +5,10 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/handlers/render"
+	"github.com/Zapharaos/fihub-backend/cmd/user/app/repositories"
+	"github.com/Zapharaos/fihub-backend/cmd/user/app/service"
 	"github.com/Zapharaos/fihub-backend/internal/app"
 	"github.com/Zapharaos/fihub-backend/internal/models"
-	"github.com/Zapharaos/fihub-backend/internal/users"
 	"github.com/Zapharaos/fihub-backend/internal/utils"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
@@ -92,7 +93,7 @@ func (a *Auth) GetToken(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, found, err := users.R().Authenticate(userCredentials.Email, userCredentials.Password)
+	user, found, err := repositories.R().U().Authenticate(userCredentials.Email, userCredentials.Password)
 	if err != nil {
 		zap.L().Warn("GetToken.Authenticate", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
@@ -201,7 +202,7 @@ func (a *Auth) Middleware(next http.Handler) http.Handler {
 		}
 
 		// get the user from the repository
-		user, found, err := users.LoadFullUser(userId)
+		user, found, err := service.LoadFullUser(userId)
 		if err != nil {
 			zap.L().Error("Cannot load full user", zap.Error(err))
 			w.WriteHeader(http.StatusUnauthorized)

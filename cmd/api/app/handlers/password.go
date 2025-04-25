@@ -5,9 +5,9 @@ import (
 	"errors"
 	"fmt"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/handlers/render"
+	"github.com/Zapharaos/fihub-backend/cmd/user/app/repositories"
 	"github.com/Zapharaos/fihub-backend/internal/models"
-	"github.com/Zapharaos/fihub-backend/internal/users"
-	"github.com/Zapharaos/fihub-backend/internal/users/password"
+	"github.com/Zapharaos/fihub-backend/internal/password"
 	"github.com/Zapharaos/fihub-backend/pkg/email"
 	"github.com/Zapharaos/fihub-backend/pkg/email/templates"
 	"github.com/Zapharaos/fihub-backend/pkg/translation"
@@ -43,7 +43,7 @@ func CreatePasswordResetRequest(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Retrieve user and validate email
-	user, exists, err := users.R().GetByEmail(inputRequest.Email)
+	user, exists, err := repositories.R().U().GetByEmail(inputRequest.Email)
 	if err != nil {
 		zap.L().Error("Check resetPassword exists", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
@@ -196,7 +196,7 @@ func GetPasswordResetRequestID(w http.ResponseWriter, r *http.Request) {
 	}
 	if requestID == uuid.Nil {
 		zap.L().Warn("ResetPassword request not found", zap.Error(err))
-		render.BadRequest(w, r, errors.New("otp-invalid"))
+		render.BadRequest(w, r, errors.New("password-invalid"))
 		return
 	}
 
@@ -260,7 +260,7 @@ func ResetPassword(w http.ResponseWriter, r *http.Request) {
 	userWithPassword.ID = userID
 
 	// Reset password
-	err = users.R().UpdateWithPassword(userWithPassword)
+	err = repositories.R().U().UpdateWithPassword(userWithPassword)
 	if err != nil {
 		zap.L().Error("PutUser.UpdatePassword", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)

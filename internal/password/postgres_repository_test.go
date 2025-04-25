@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"github.com/Zapharaos/fihub-backend/internal/models"
-	"github.com/Zapharaos/fihub-backend/internal/users/password"
+	"github.com/Zapharaos/fihub-backend/internal/password"
 	"github.com/Zapharaos/fihub-backend/test"
 	"github.com/google/uuid"
 	sqlxmock "github.com/zhashkevych/go-sqlxmock"

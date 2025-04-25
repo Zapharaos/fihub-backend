@@ -1,11 +1,9 @@
 package app
 
 import (
+	"github.com/Zapharaos/fihub-backend/cmd/user/app/repositories"
 	"github.com/Zapharaos/fihub-backend/internal/database"
-	"github.com/Zapharaos/fihub-backend/internal/users"
-	"github.com/Zapharaos/fihub-backend/internal/users/password"
-	"github.com/Zapharaos/fihub-backend/internal/users/permissions"
-	"github.com/Zapharaos/fihub-backend/internal/users/roles"
+	"github.com/Zapharaos/fihub-backend/internal/password"
 	"github.com/Zapharaos/fihub-backend/test"
 	"github.com/stretchr/testify/assert"
 	sqlmock "github.com/zhashkevych/go-sqlxmock"
@@ -39,8 +37,8 @@ func TestInitPostgres(t *testing.T) {
 	InitPostgres(sqlxMock)
 
 	// Assertions to verify repositories initialization
-	assert.NotNil(t, users.R(), "Users repository should be initialized")
+	assert.NotNil(t, repositories.R(), "Users repository should be initialized")
 	assert.NotNil(t, password.R(), "Password repository should be initialized")
-	assert.NotNil(t, roles.R(), "Roles repository should be initialized")
-	assert.NotNil(t, permissions.R(), "Permissions repository should be initialized")
+	assert.NotNil(t, repositories.R(), "Roles repository should be initialized")
+	assert.NotNil(t, repositories.R(), "Permissions repository should be initialized")
 }
