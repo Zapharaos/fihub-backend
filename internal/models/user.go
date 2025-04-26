@@ -3,7 +3,9 @@ package models
 import (
 	"errors"
 	"github.com/Zapharaos/fihub-backend/pkg/email"
+	"github.com/Zapharaos/fihub-backend/protogen"
 	"github.com/google/uuid"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	"time"
 )
 
@@ -154,4 +156,29 @@ func (u *UserWithRoles) HasPermission(permission string) bool {
 		}
 	}
 	return false
+}
+
+// ToProtogenUser converts a User model to a protogen.User
+func (u User) ToProtogenUser() *protogen.User {
+	return &protogen.User{
+		Id:        u.ID.String(),
+		Email:     u.Email,
+		CreatedAt: timestamppb.New(u.CreatedAt),
+		UpdatedAt: timestamppb.New(u.UpdatedAt),
+	}
+}
+
+// FromProtogenUser converts a protogen.User to a User model
+func FromProtogenUser(protoUser *protogen.User) (User, error) {
+	id, err := uuid.Parse(protoUser.Id)
+	if err != nil {
+		return User{}, err
+	}
+
+	return User{
+		ID:        id,
+		Email:     protoUser.Email,
+		CreatedAt: protoUser.CreatedAt.AsTime(),
+		UpdatedAt: protoUser.UpdatedAt.AsTime(),
+	}, nil
 }

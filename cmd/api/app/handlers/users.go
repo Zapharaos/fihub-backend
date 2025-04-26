@@ -1,12 +1,15 @@
 package handlers
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/Zapharaos/fihub-backend/cmd/api/app/clients"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/handlers/render"
 	"github.com/Zapharaos/fihub-backend/cmd/user/app/repositories"
 	"github.com/Zapharaos/fihub-backend/cmd/user/app/service"
 	"github.com/Zapharaos/fihub-backend/internal/models"
+	"github.com/Zapharaos/fihub-backend/protogen"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"net/http"
@@ -37,46 +40,29 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Validate user
-	if ok, err := userInputCreate.IsValid(); !ok {
-		zap.L().Warn("User is not valid", zap.Error(err))
-		render.BadRequest(w, r, err)
-		return
-	}
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
-	// Convert to UserWithPassword
-	userWithPassword := userInputCreate.UserWithPassword
-
-	// Verify user existence
-	exists, err := repositories.R().Exists(userWithPassword.Email)
-	if err != nil {
-		zap.L().Error("Check user exists", zap.Error(err))
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	if exists {
-		zap.L().Warn("User already exists", zap.String("email", userWithPassword.Email))
-		render.BadRequest(w, r, fmt.Errorf("email-used"))
-		return
+	// Map UserInputCreate to gRPC CreateUserRequest
+	createUserRequest := &protogen.CreateUserRequest{
+		Email:        userInputCreate.Email,
+		Password:     userInputCreate.Password,
+		Confirmation: userInputCreate.Confirmation,
+		Checkbox:     userInputCreate.Checkbox,
 	}
 
 	// Create user
-	userID, err := repositories.R().Create(userWithPassword)
+	createUserResponse, err := clients.C().User().CreateUser(ctx, createUserRequest)
 	if err != nil {
-		zap.L().Error("PostUser.Create", zap.Error(err))
-		w.WriteHeader(http.StatusInternalServerError)
+		zap.L().Error("Create user", zap.Error(err))
+		render.ErrorCodesCodeToHttpCode(w, r, err)
 		return
 	}
 
-	// Get user back from database
-	user, found, err := repositories.R().Get(userID)
+	// Map the response to the models.User struct
+	user, err := models.FromProtogenUser(createUserResponse.User)
 	if err != nil {
-		zap.L().Error("Cannot get user", zap.String("uuid", userID.String()), zap.Error(err))
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	if !found {
-		zap.L().Error("User not found after creation", zap.String("uuid", userID.String()))
+		zap.L().Error("Bad protogen user", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -142,33 +128,27 @@ func UpdateUserSelf(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Validate user
-	if ok, err := user.IsValid(); !ok {
-		zap.L().Warn("User is not valid", zap.Error(err))
-		render.BadRequest(w, r, err)
-		return
-	}
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
-	// Replace ID with the one from the context
-	user.ID = userCtx.ID
+	// Map User to gRPC UpdateUserRequest
+	updateUserRequest := &protogen.UpdateUserRequest{
+		Id:    userCtx.ID.String(),
+		Email: user.Email,
+	}
 
 	// Update user
-	err = repositories.R().Update(user)
+	updateUserResponse, err := clients.C().User().UpdateUser(ctx, updateUserRequest)
 	if err != nil {
-		zap.L().Error("PutUser.Update", zap.Error(err))
-		w.WriteHeader(http.StatusInternalServerError)
+		zap.L().Error("Update user", zap.Error(err))
+		render.ErrorCodesCodeToHttpCode(w, r, err)
 		return
 	}
 
-	// Get user back from database
-	user, found, err = repositories.R().Get(userCtx.ID)
+	// Map the response to the models.User struct
+	user, err = models.FromProtogenUser(updateUserResponse.User)
 	if err != nil {
-		zap.L().Error("Cannot get user", zap.String("uuid", userCtx.ID.String()), zap.Error(err))
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	if !found {
-		zap.L().Error("User not found after update", zap.String("uuid", userCtx.ID.String()))
+		zap.L().Error("Bad protogen user", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -176,12 +156,12 @@ func UpdateUserSelf(w http.ResponseWriter, r *http.Request) {
 	render.JSON(w, r, user)
 }
 
-// ChangeUserPassword godoc
+// UpdateUserPassword godoc
 //
-//	@Id				ChangeUserPassword
+//	@Id				UpdateUserPassword
 //
-//	@Summary		Change the password of the currently authenticated user
-//	@Description	Changes the password of the currently authenticated user.
+//	@Summary		Update the password of the currently authenticated user
+//	@Description	Update the password of the currently authenticated user.
 //	@Tags			Users
 //	@Accept			json
 //	@Produce		json
@@ -192,7 +172,7 @@ func UpdateUserSelf(w http.ResponseWriter, r *http.Request) {
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/users/me/password [put]
-func ChangeUserPassword(w http.ResponseWriter, r *http.Request) {
+func UpdateUserPassword(w http.ResponseWriter, r *http.Request) {
 	userCtx, found := U().GetUserFromContext(r)
 	if !found {
 		zap.L().Debug("No context user provided")
@@ -209,22 +189,21 @@ func ChangeUserPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Validate password
-	if ok, err := userPassword.IsValidPassword(); !ok {
-		zap.L().Warn("User is not valid", zap.Error(err))
-		render.BadRequest(w, r, err)
-		return
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	// Map UserInputPassword to gRPC UpdateUserRequest
+	updateUserRequest := &protogen.UpdateUserPasswordRequest{
+		Id:           userCtx.ID.String(),
+		Password:     userPassword.Password,
+		Confirmation: userPassword.Confirmation,
 	}
 
-	// Convert to UserWithPassword
-	userWithPassword := userPassword.UserWithPassword
-	userWithPassword.ID = userCtx.ID
-
-	// Update password
-	err = repositories.R().UpdateWithPassword(userWithPassword)
+	// Update user password
+	_, err = clients.C().User().UpdateUserPassword(ctx, updateUserRequest)
 	if err != nil {
-		zap.L().Error("PutUser.UpdatePassword", zap.Error(err))
-		w.WriteHeader(http.StatusInternalServerError)
+		zap.L().Error("Update user password", zap.Error(err))
+		render.ErrorCodesCodeToHttpCode(w, r, err)
 		return
 	}
 
@@ -251,10 +230,16 @@ func DeleteUserSelf(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := repositories.R().Delete(userCtx.ID)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	// Delete user
+	_, err := clients.C().User().DeleteUser(ctx, &protogen.DeleteUserRequest{
+		Id: userCtx.ID.String(),
+	})
 	if err != nil {
-		zap.L().Error("DeleteUser.Delete", zap.Error(err))
-		w.WriteHeader(http.StatusInternalServerError)
+		zap.L().Error("Delete user", zap.Error(err))
+		render.ErrorCodesCodeToHttpCode(w, r, err)
 		return
 	}
 
@@ -283,21 +268,30 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var user models.UserWithRoles
-	var found bool
-	var err error
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
-	// the user default accessible data
-	user.User, found, err = repositories.R().Get(userId)
+	// Get user
+	userResponse, err := clients.C().User().GetUser(ctx, &protogen.GetUserRequest{
+		Id: userId.String(),
+	})
 	if err != nil {
-		zap.L().Error("GetUser.Get", zap.Error(err))
+		zap.L().Error("Get user", zap.Error(err))
+		render.ErrorCodesCodeToHttpCode(w, r, err)
+		return
+	}
+
+	// Map the response to the models.User struct
+	user, err := models.FromProtogenUser(userResponse.User)
+	if err != nil {
+		zap.L().Error("Bad protogen user", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	if !found {
-		zap.L().Warn("User not found", zap.String("uuid", userId.String()))
-		w.WriteHeader(http.StatusNotFound)
-		return
+
+	// TODO : keep but return user with roleUUIDs instead of models.UserWithRoles
+	userRoles := models.UserWithRoles{
+		User: user,
 	}
 
 	// Check if the user can retrieve the user roles as well
@@ -309,53 +303,10 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		user.Roles = roles
+		userRoles.Roles = roles
 	}
 
-	render.JSON(w, r, user)
-}
-
-// SetUser godoc
-//
-//	@Id				SetUser
-//
-//	@Summary		Update a user by ID
-//	@Description	Update a user by ID. (Permission: <b>admin.users.update</b>)
-//	@Tags			Users
-//	@Accept			json
-//	@Produce		json
-//	@Param			id		path	string				true	"user ID"
-//	@Param			user	body	models.UserWithRoles	true	"user (json)"
-//	@Security		Bearer
-//	@Success		200	{object}	models.UserWithRoles		"user"
-//	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
-//	@Failure		401	{string}	string					"Permission denied"
-//	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
-//	@Router			/api/v1/users/{id} [put]
-func SetUser(w http.ResponseWriter, r *http.Request) {
-	userId, ok := U().ParseParamUUID(w, r, "id")
-	if !ok || !U().CheckPermission(w, r, "admin.users.update") {
-		return
-	}
-
-	var user models.UserWithRoles
-	err := json.NewDecoder(r.Body).Decode(&user)
-	if err != nil {
-		zap.L().Warn("User json decode", zap.Error(err))
-		render.BadRequest(w, r, nil)
-		return
-	}
-
-	user.ID = userId
-
-	err = repositories.R().UpdateWithRoles(user, user.Roles.GetUUIDs())
-	if err != nil {
-		zap.L().Error("PutUser.Update", zap.Error(err))
-		render.Error(w, r, err, "Update user")
-		return
-	}
-
-	render.OK(w, r)
+	render.JSON(w, r, userRoles)
 }
 
 // SetUserRoles godoc
@@ -368,7 +319,7 @@ func SetUser(w http.ResponseWriter, r *http.Request) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			id		path	string				true	"user ID"
-//	@Param			user	body	models.UserWithRoles	true	"user (json)"
+//	@Param			roles	body	[]string			true	"array of role UUIDs"
 //	@Security		Bearer
 //	@Success		200	{object}	models.UserWithRoles		"user"
 //	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
@@ -381,21 +332,28 @@ func SetUserRoles(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var user models.UserWithRoles
-	err := json.NewDecoder(r.Body).Decode(&user)
+	var stringRoles []string
+	err := json.NewDecoder(r.Body).Decode(&stringRoles)
 	if err != nil {
-		zap.L().Warn("User json decode", zap.Error(err))
+		zap.L().Warn("Role UUIDs json decode", zap.Error(err))
 		render.BadRequest(w, r, nil)
 		return
 	}
 
-	roleUUIDs := make([]uuid.UUID, 0)
-
-	for _, role := range user.Roles {
-		roleUUIDs = append(roleUUIDs, role.Id)
+	// Parse role UUIDs
+	uuidRoles := make([]uuid.UUID, 0, len(stringRoles))
+	for _, stringRole := range stringRoles {
+		uuidRole, err := uuid.Parse(stringRole)
+		if err != nil {
+			zap.L().Warn("Invalid role UUID", zap.String("uuid", stringRole), zap.Error(err))
+			render.BadRequest(w, r, fmt.Errorf("invalid role UUID: %s", stringRole))
+			return
+		}
+		uuidRoles = append(uuidRoles, uuidRole)
 	}
 
-	err = repositories.R().SetUserRoles(userId, roleUUIDs)
+	// Set roles on user
+	err = repositories.R().SetUserRoles(userId, uuidRoles)
 	if err != nil {
 		zap.L().Error("PutUser.Update", zap.Error(err))
 		render.Error(w, r, err, "Set roles on user")
@@ -403,62 +361,4 @@ func SetUserRoles(w http.ResponseWriter, r *http.Request) {
 	}
 
 	render.OK(w, r)
-}
-
-// GetUserRoles godoc
-//
-//	@Id				GetUserRoles
-//
-//	@Summary		Get all roles for a specified user id
-//	@Description	Gets a list of all roles. (Permission: <b>admin.users.roles.list</b>)
-//	@Tags			Users, UserRoles
-//	@Produce		json
-//	@Param			id	path	string	true	"user ID"
-//	@Security		Bearer
-//	@Success		200	{array}		models.RoleWithPermissions	"list of roles"
-//	@Failure		400	{object}	render.ErrorResponse		"Bad PasswordRequest"
-//	@Failure		401	{string}	string						"Permission denied"
-//	@Failure		500	{object}	render.ErrorResponse		"Internal Server Error"
-//	@Router			/api/v1/users/{id}/roles [get]
-func GetUserRoles(w http.ResponseWriter, r *http.Request) {
-	userId, ok := U().ParseParamUUID(w, r, "id")
-	if !ok || !U().CheckPermission(w, r, "admin.users.roles.list") {
-		return
-	}
-
-	userRolesWithPermissions, err := service.LoadUserRoles(userId)
-	if err != nil {
-		render.Error(w, r, err, "Cannot load roles")
-		return
-	}
-
-	render.JSON(w, r, userRolesWithPermissions)
-}
-
-// GetAllUsersWithRoles godoc
-//
-//	@Id				GetAllUsersWithRoles
-//
-//	@Summary		Get all users with their roles
-//	@Description	Gets a list of all users with their roles. (Permission: <b>admin.users.list</b>)
-//	@Tags			Users, UserRoles
-//	@Produce		json
-//	@Security		Bearer
-//	@Success		200	{array}		models.UserWithRoles	"list of users"
-//	@Failure		401	{string}	string					"Permission denied"
-//	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
-//	@Router			/api/v1/users [get]
-func GetAllUsersWithRoles(w http.ResponseWriter, r *http.Request) {
-	if !U().CheckPermission(w, r, "admin.users.list") {
-		return
-	}
-
-	usersWithRoles, err := repositories.R().GetAllWithRoles()
-	if err != nil {
-		zap.L().Error("GetAllWithRoles", zap.Error(err))
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	render.JSON(w, r, usersWithRoles)
 }

@@ -108,7 +108,7 @@ func buildProtectedRoutes(a *auth.Auth) func(r chi.Router) {
 		// Users
 		r.Route("/users", func(r chi.Router) {
 			r.Post("/", handlers.CreateUser)
-			r.Get("/", handlers.GetAllUsersWithRoles)
+			// r.Get("/", handlers.GetAllUsersWithRoles)
 
 			// User's self profile : retrieving userID through context
 			r.Route("/me", func(r chi.Router) {
@@ -117,13 +117,12 @@ func buildProtectedRoutes(a *auth.Auth) func(r chi.Router) {
 				r.Delete("/", handlers.DeleteUserSelf)
 
 				// User's password : retrieving userID through context
-				r.Put("/password", handlers.ChangeUserPassword)
+				r.Put("/password", handlers.UpdateUserPassword)
 			})
 
 			// User specific
 			r.Route("/{id}", func(r chi.Router) {
 				r.Get("/", handlers.GetUser)
-				r.Put("/", handlers.SetUser)
 
 				// Roles
 				r.Route("/roles", func(r chi.Router) {

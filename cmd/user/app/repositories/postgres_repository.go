@@ -230,6 +230,7 @@ func (r *PostgresRepository) Delete(userID uuid.UUID) error {
 	return utils.CheckRowAffected(result, 1)
 }
 
+// TODO : might need to move query
 // GetWithRoles returns a User with its roles in the repository
 func (r *PostgresRepository) GetWithRoles(userID uuid.UUID) (models.UserWithRoles, error) {
 	// Prepare query
@@ -257,6 +258,7 @@ func (r *PostgresRepository) GetWithRoles(userID uuid.UUID) (models.UserWithRole
 	return results[0], nil
 }
 
+// TODO : might need to move query
 // GetAllWithRoles returns a User with its roles in the repository
 func (r *PostgresRepository) GetAllWithRoles() ([]models.UserWithRoles, error) {
 	// Prepare query

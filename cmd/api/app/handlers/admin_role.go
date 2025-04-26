@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/handlers/render"
 	"github.com/Zapharaos/fihub-backend/cmd/security/app/repositories"
+	"github.com/Zapharaos/fihub-backend/cmd/user/app/service"
 	"github.com/Zapharaos/fihub-backend/internal/models"
 	"net/http"
 
@@ -449,4 +450,66 @@ func SetRolePermissions(w http.ResponseWriter, r *http.Request) {
 	}
 
 	render.OK(w, r)
+}*/
+
+// TODO : keep but return user with roleUUIDs instead of models.UserWithRoles
+
+// GetUserRoles godoc
+//
+//	@Id				GetUserRoles
+//
+//	@Summary		Get all roles for a specified user id
+//	@Description	Gets a list of all roles. (Permission: <b>admin.users.roles.list</b>)
+//	@Tags			Users, UserRoles
+//	@Produce		json
+//	@Param			id	path	string	true	"user ID"
+//	@Security		Bearer
+//	@Success		200	{array}		models.RoleWithPermissions	"list of roles"
+//	@Failure		400	{object}	render.ErrorResponse		"Bad PasswordRequest"
+//	@Failure		401	{string}	string						"Permission denied"
+//	@Failure		500	{object}	render.ErrorResponse		"Internal Server Error"
+//	@Router			/api/v1/users/{id}/roles [get]
+func GetUserRoles(w http.ResponseWriter, r *http.Request) {
+	userId, ok := U().ParseParamUUID(w, r, "id")
+	if !ok || !U().CheckPermission(w, r, "admin.users.roles.list") {
+		return
+	}
+
+	userRolesWithPermissions, err := service.LoadUserRoles(userId)
+	if err != nil {
+		render.Error(w, r, err, "Cannot load roles")
+		return
+	}
+
+	render.JSON(w, r, userRolesWithPermissions)
+}
+
+// TODO : keep but return user with roleUUIDs instead of models.UserWithRoles
+
+/*// GetAllUsersWithRoles godoc
+//
+//	@Id				GetAllUsersWithRoles
+//
+//	@Summary		Get all users with their roles
+//	@Description	Gets a list of all users with their roles. (Permission: <b>admin.users.list</b>)
+//	@Tags			Users, UserRoles
+//	@Produce		json
+//	@Security		Bearer
+//	@Success		200	{array}		models.UserWithRoles	"list of users"
+//	@Failure		401	{string}	string					"Permission denied"
+//	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
+//	@Router			/api/v1/users [get]
+func GetAllUsersWithRoles(w http.ResponseWriter, r *http.Request) {
+	if !U().CheckPermission(w, r, "admin.users.list") {
+		return
+	}
+
+	usersWithRoles, err := repositories.R().GetAllWithRoles()
+	if err != nil {
+		zap.L().Error("GetAllWithRoles", zap.Error(err))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	render.JSON(w, r, usersWithRoles)
 }*/

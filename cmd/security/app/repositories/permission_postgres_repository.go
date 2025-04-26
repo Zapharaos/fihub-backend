@@ -143,6 +143,7 @@ func (r *PermissionPostgresRepository) GetAllByRoleId(roleUUID uuid.UUID) ([]mod
 	return utils.ScanAll(rows, r.Scan)
 }
 
+// TODO : might need to move query
 // GetAllForUser returns all Permissions for a given User
 func (r *PermissionPostgresRepository) GetAllForUser(userUUID uuid.UUID) ([]models.Permission, error) {
 	// Prepare query

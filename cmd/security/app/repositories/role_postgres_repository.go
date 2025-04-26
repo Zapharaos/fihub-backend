@@ -235,6 +235,7 @@ func (r *RolePostgresRepository) GetAll() ([]models.Role, error) {
 	return utils.ScanAll(rows, r.Scan)
 }
 
+// TODO : might need to move query
 // GetWithPermissions returns a Role in the repository with its permissions
 func (r *RolePostgresRepository) GetWithPermissions(uuid uuid.UUID) (models.RoleWithPermissions, bool, error) {
 	// Prepare query
@@ -257,6 +258,7 @@ func (r *RolePostgresRepository) GetWithPermissions(uuid uuid.UUID) (models.Role
 	return utils.ScanFirst(rows, r.ScanWithPermissions)
 }
 
+// TODO : might need to move query
 // GetAllWithPermissions returns all Roles in the repository with their permissions
 func (r *RolePostgresRepository) GetAllWithPermissions() (models.RolesWithPermissions, error) {
 	// Prepare query
@@ -276,6 +278,7 @@ func (r *RolePostgresRepository) GetAllWithPermissions() (models.RolesWithPermis
 	return r.ScanAllWithPermissions(rows)
 }
 
+// TODO : might need to move query
 // GetRolesByUserId returns all the roles of a user in the repository
 func (r *RolePostgresRepository) GetRolesByUserId(userUUID uuid.UUID) ([]models.Role, error) {
 	// Prepare query
@@ -297,6 +300,7 @@ func (r *RolePostgresRepository) GetRolesByUserId(userUUID uuid.UUID) ([]models.
 	return utils.ScanAll(rows, r.Scan)
 }
 
+// TODO : might need to move query
 func (r *RolePostgresRepository) SetRolePermissions(roleUUID uuid.UUID, permissionUUIDs []uuid.UUID) error {
 
 	// Start transaction
