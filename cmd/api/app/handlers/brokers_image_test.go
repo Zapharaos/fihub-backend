@@ -61,7 +61,7 @@ func TestCreateBrokerImage(t *testing.T) {
 				handlers.ReplaceGlobals(m)
 				bc := mocks.NewBrokerServiceClient(ctrl)
 				bc.EXPECT().CreateBrokerImage(gomock.Any(), gomock.Any()).Times(0)
-				clients.ReplaceGlobals(clients.NewClients(nil, bc, nil))
+				clients.ReplaceGlobals(clients.NewClients(nil, nil, bc, nil))
 			},
 			expectedStatus: http.StatusOK, // should be StatusBadRequest, but not with mock
 		},
@@ -75,7 +75,7 @@ func TestCreateBrokerImage(t *testing.T) {
 				handlers.ReplaceGlobals(m)
 				bc := mocks.NewBrokerServiceClient(ctrl)
 				bc.EXPECT().CreateBrokerImage(gomock.Any(), gomock.Any()).Return(nil, status.Error(codes.Unknown, "error"))
-				clients.ReplaceGlobals(clients.NewClients(nil, bc, nil))
+				clients.ReplaceGlobals(clients.NewClients(nil, nil, bc, nil))
 			},
 			expectedStatus: http.StatusInternalServerError,
 		},
@@ -96,7 +96,7 @@ func TestCreateBrokerImage(t *testing.T) {
 						Data:     fileData,
 					},
 				}, nil)
-				clients.ReplaceGlobals(clients.NewClients(nil, bc, nil))
+				clients.ReplaceGlobals(clients.NewClients(nil, nil, bc, nil))
 			},
 			expectedStatus: http.StatusOK,
 		},
@@ -139,7 +139,7 @@ func TestGetBrokerImage(t *testing.T) {
 				handlers.ReplaceGlobals(m)
 				bc := mocks.NewBrokerServiceClient(ctrl)
 				bc.EXPECT().GetBrokerImage(gomock.Any(), gomock.Any()).Times(0)
-				clients.ReplaceGlobals(clients.NewClients(nil, bc, nil))
+				clients.ReplaceGlobals(clients.NewClients(nil, nil, bc, nil))
 			},
 			expectedStatus: http.StatusOK, // should be StatusBadRequest, but not with mock
 		},
@@ -151,7 +151,7 @@ func TestGetBrokerImage(t *testing.T) {
 				handlers.ReplaceGlobals(m)
 				bc := mocks.NewBrokerServiceClient(ctrl)
 				bc.EXPECT().GetBrokerImage(gomock.Any(), gomock.Any()).Return(nil, status.Error(codes.Unknown, "error"))
-				clients.ReplaceGlobals(clients.NewClients(nil, bc, nil))
+				clients.ReplaceGlobals(clients.NewClients(nil, nil, bc, nil))
 			},
 			expectedStatus: http.StatusInternalServerError,
 		},
@@ -166,7 +166,7 @@ func TestGetBrokerImage(t *testing.T) {
 					Name: "name",
 					Data: []byte{0x00, 0x01},
 				}, nil)
-				clients.ReplaceGlobals(clients.NewClients(nil, bc, nil))
+				clients.ReplaceGlobals(clients.NewClients(nil, nil, bc, nil))
 			},
 			expectedStatus: http.StatusOK,
 		},
@@ -236,7 +236,7 @@ func TestUpdateBrokerImage(t *testing.T) {
 				handlers.ReplaceGlobals(m)
 				bc := mocks.NewBrokerServiceClient(ctrl)
 				bc.EXPECT().UpdateBrokerImage(gomock.Any(), gomock.Any()).Times(0)
-				clients.ReplaceGlobals(clients.NewClients(nil, bc, nil))
+				clients.ReplaceGlobals(clients.NewClients(nil, nil, bc, nil))
 			},
 			expectedStatus: http.StatusOK, // should be StatusBadRequest, but not with mock
 		},
@@ -250,7 +250,7 @@ func TestUpdateBrokerImage(t *testing.T) {
 				handlers.ReplaceGlobals(m)
 				bc := mocks.NewBrokerServiceClient(ctrl)
 				bc.EXPECT().UpdateBrokerImage(gomock.Any(), gomock.Any()).Return(nil, status.Error(codes.Unknown, "error"))
-				clients.ReplaceGlobals(clients.NewClients(nil, bc, nil))
+				clients.ReplaceGlobals(clients.NewClients(nil, nil, bc, nil))
 			},
 			expectedStatus: http.StatusInternalServerError,
 		},
@@ -271,7 +271,7 @@ func TestUpdateBrokerImage(t *testing.T) {
 						Data:     fileData,
 					},
 				}, nil)
-				clients.ReplaceGlobals(clients.NewClients(nil, bc, nil))
+				clients.ReplaceGlobals(clients.NewClients(nil, nil, bc, nil))
 			},
 			expectedStatus: http.StatusOK,
 		},
@@ -325,7 +325,7 @@ func TestDeleteBrokerImage(t *testing.T) {
 				handlers.ReplaceGlobals(m)
 				bc := mocks.NewBrokerServiceClient(ctrl)
 				bc.EXPECT().DeleteBrokerImage(gomock.Any(), gomock.Any()).Times(0)
-				clients.ReplaceGlobals(clients.NewClients(nil, bc, nil))
+				clients.ReplaceGlobals(clients.NewClients(nil, nil, bc, nil))
 			},
 			expectedStatus: http.StatusOK, // should be StatusBadRequest, but not with mock
 		},
@@ -338,7 +338,7 @@ func TestDeleteBrokerImage(t *testing.T) {
 				handlers.ReplaceGlobals(m)
 				bc := mocks.NewBrokerServiceClient(ctrl)
 				bc.EXPECT().DeleteBrokerImage(gomock.Any(), gomock.Any()).Return(nil, status.Error(codes.Unknown, "error"))
-				clients.ReplaceGlobals(clients.NewClients(nil, bc, nil))
+				clients.ReplaceGlobals(clients.NewClients(nil, nil, bc, nil))
 			},
 			expectedStatus: http.StatusInternalServerError,
 		},
@@ -353,7 +353,7 @@ func TestDeleteBrokerImage(t *testing.T) {
 				bc.EXPECT().DeleteBrokerImage(gomock.Any(), gomock.Any()).Return(&protogen.DeleteBrokerImageResponse{
 					Success: true,
 				}, nil)
-				clients.ReplaceGlobals(clients.NewClients(nil, bc, nil))
+				clients.ReplaceGlobals(clients.NewClients(nil, nil, bc, nil))
 			},
 			expectedStatus: http.StatusOK,
 		},

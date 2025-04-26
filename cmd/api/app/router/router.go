@@ -174,7 +174,7 @@ func buildProtectedRoutes(a *auth.Auth) func(r chi.Router) {
 			r.Get("/{id}", handlers.GetPermission)
 			r.Put("/{id}", handlers.UpdatePermission)
 			r.Delete("/{id}", handlers.DeletePermission)
-			r.Get("/", handlers.GetPermissions)
+			r.Get("/", handlers.ListPermissions)
 		})
 
 		// Brokers

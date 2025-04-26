@@ -45,7 +45,7 @@ func TestCreateUserBroker(t *testing.T) {
 				handlers.ReplaceGlobals(m)
 				bc := mocks.NewBrokerServiceClient(ctrl)
 				bc.EXPECT().CreateBrokerUser(gomock.Any(), gomock.Any()).Times(0)
-				clients.ReplaceGlobals(clients.NewClients(nil, bc, nil))
+				clients.ReplaceGlobals(clients.NewClients(nil, nil, bc, nil))
 			},
 			expectedStatus: http.StatusUnauthorized,
 		},
@@ -58,7 +58,7 @@ func TestCreateUserBroker(t *testing.T) {
 				handlers.ReplaceGlobals(m)
 				bc := mocks.NewBrokerServiceClient(ctrl)
 				bc.EXPECT().CreateBrokerUser(gomock.Any(), gomock.Any()).Times(0)
-				clients.ReplaceGlobals(clients.NewClients(nil, bc, nil))
+				clients.ReplaceGlobals(clients.NewClients(nil, nil, bc, nil))
 			},
 			expectedStatus: http.StatusBadRequest,
 		},
@@ -71,7 +71,7 @@ func TestCreateUserBroker(t *testing.T) {
 				handlers.ReplaceGlobals(m)
 				bc := mocks.NewBrokerServiceClient(ctrl)
 				bc.EXPECT().CreateBrokerUser(gomock.Any(), gomock.Any()).Return(nil, status.Error(codes.Unknown, "error"))
-				clients.ReplaceGlobals(clients.NewClients(nil, bc, nil))
+				clients.ReplaceGlobals(clients.NewClients(nil, nil, bc, nil))
 			},
 			expectedStatus: http.StatusInternalServerError,
 		},
@@ -84,7 +84,7 @@ func TestCreateUserBroker(t *testing.T) {
 				handlers.ReplaceGlobals(m)
 				bc := mocks.NewBrokerServiceClient(ctrl)
 				bc.EXPECT().CreateBrokerUser(gomock.Any(), gomock.Any()).Return(validResponse, nil)
-				clients.ReplaceGlobals(clients.NewClients(nil, bc, nil))
+				clients.ReplaceGlobals(clients.NewClients(nil, nil, bc, nil))
 			},
 			expectedStatus: http.StatusOK,
 		},
@@ -137,7 +137,7 @@ func TestDeleteUserBroker(t *testing.T) {
 				handlers.ReplaceGlobals(m)
 				bc := mocks.NewBrokerServiceClient(ctrl)
 				bc.EXPECT().DeleteBrokerUser(gomock.Any(), gomock.Any()).Times(0)
-				clients.ReplaceGlobals(clients.NewClients(nil, bc, nil))
+				clients.ReplaceGlobals(clients.NewClients(nil, nil, bc, nil))
 			},
 			expectedStatus: http.StatusUnauthorized,
 		},
@@ -152,7 +152,7 @@ func TestDeleteUserBroker(t *testing.T) {
 				bc.EXPECT().DeleteBrokerUser(gomock.Any(), gomock.Any()).Return(nil, status.Error(codes.Unknown, "error"))
 				tc := mocks.NewTransactionServiceClient(ctrl)
 				tc.EXPECT().DeleteTransactionByBroker(gomock.Any(), gomock.Any()).Times(0)
-				clients.ReplaceGlobals(clients.NewClients(nil, bc, tc))
+				clients.ReplaceGlobals(clients.NewClients(nil, nil, bc, tc))
 			},
 			expectedStatus: http.StatusInternalServerError,
 		},
@@ -167,7 +167,7 @@ func TestDeleteUserBroker(t *testing.T) {
 				bc.EXPECT().DeleteBrokerUser(gomock.Any(), gomock.Any()).Return(&protogen.DeleteBrokerUserResponse{}, nil)
 				tc := mocks.NewTransactionServiceClient(ctrl)
 				tc.EXPECT().DeleteTransactionByBroker(gomock.Any(), gomock.Any()).Return(nil, status.Error(codes.Unknown, "error"))
-				clients.ReplaceGlobals(clients.NewClients(nil, bc, tc))
+				clients.ReplaceGlobals(clients.NewClients(nil, nil, bc, tc))
 			},
 			expectedStatus: http.StatusInternalServerError,
 		},
@@ -182,7 +182,7 @@ func TestDeleteUserBroker(t *testing.T) {
 				bc.EXPECT().DeleteBrokerUser(gomock.Any(), gomock.Any()).Return(&protogen.DeleteBrokerUserResponse{}, nil)
 				tc := mocks.NewTransactionServiceClient(ctrl)
 				tc.EXPECT().DeleteTransactionByBroker(gomock.Any(), gomock.Any()).Return(&protogen.DeleteTransactionByBrokerResponse{}, nil)
-				clients.ReplaceGlobals(clients.NewClients(nil, bc, tc))
+				clients.ReplaceGlobals(clients.NewClients(nil, nil, bc, tc))
 			},
 			expectedStatus: http.StatusOK,
 		},
@@ -225,7 +225,7 @@ func TestListUserBrokers(t *testing.T) {
 				handlers.ReplaceGlobals(m)
 				bc := mocks.NewBrokerServiceClient(ctrl)
 				bc.EXPECT().ListUserBrokers(gomock.Any(), gomock.Any()).Times(0)
-				clients.ReplaceGlobals(clients.NewClients(nil, bc, nil))
+				clients.ReplaceGlobals(clients.NewClients(nil, nil, bc, nil))
 			},
 			expectedStatus: http.StatusUnauthorized,
 		},
@@ -237,7 +237,7 @@ func TestListUserBrokers(t *testing.T) {
 				handlers.ReplaceGlobals(m)
 				bc := mocks.NewBrokerServiceClient(ctrl)
 				bc.EXPECT().ListUserBrokers(gomock.Any(), gomock.Any()).Return(nil, status.Error(codes.Unknown, "error"))
-				clients.ReplaceGlobals(clients.NewClients(nil, bc, nil))
+				clients.ReplaceGlobals(clients.NewClients(nil, nil, bc, nil))
 			},
 			expectedStatus: http.StatusInternalServerError,
 		},
@@ -251,7 +251,7 @@ func TestListUserBrokers(t *testing.T) {
 				bc.EXPECT().ListUserBrokers(gomock.Any(), gomock.Any()).Return(&protogen.ListUserBrokersResponse{
 					UserBrokers: []*protogen.BrokerUser{},
 				}, nil)
-				clients.ReplaceGlobals(clients.NewClients(nil, bc, nil))
+				clients.ReplaceGlobals(clients.NewClients(nil, nil, bc, nil))
 			},
 			expectedStatus: http.StatusOK,
 		},

@@ -21,11 +21,11 @@ func TestHealthCheckHandler(t *testing.T) {
 	// Set up a mock controller and a mock HealthServiceClient
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	m := mocks.NewHealthServiceClient(ctrl)
-	m.EXPECT().CheckHealth(gomock.Any(), gomock.Any()).Return(&protogen.HealthResponse{
+	hc := mocks.NewHealthServiceClient(ctrl)
+	hc.EXPECT().CheckHealth(gomock.Any(), gomock.Any()).Return(&protogen.HealthResponse{
 		IsHealthy: true,
 	}, nil)
-	clients.ReplaceGlobals(clients.NewClients(m, nil, nil))
+	clients.ReplaceGlobals(clients.NewClients(hc, nil, nil, nil))
 
 	// Call the HealthCheckHandler function
 	HealthCheckHandler(w, r)

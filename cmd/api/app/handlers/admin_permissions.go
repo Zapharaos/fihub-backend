@@ -1,10 +1,12 @@
 package handlers
 
 import (
+	"context"
 	"encoding/json"
+	"github.com/Zapharaos/fihub-backend/cmd/api/app/clients"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/handlers/render"
-	"github.com/Zapharaos/fihub-backend/cmd/user/app/repositories"
 	"github.com/Zapharaos/fihub-backend/internal/models"
+	"github.com/Zapharaos/fihub-backend/protogen"
 	"go.uber.org/zap"
 	"net/http"
 )
@@ -30,6 +32,7 @@ func CreatePermission(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Parse request body
 	var permission models.Permission
 	err := json.NewDecoder(r.Body).Decode(&permission)
 	if err != nil {
@@ -38,31 +41,33 @@ func CreatePermission(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if ok, err := permission.IsValid(); !ok {
-		zap.L().Warn("Permission is not valid", zap.Error(err))
-		render.BadRequest(w, r, err)
-		return
+	// Create gRPC protogen.CreatePermissionRequest
+	permissionRequest := &protogen.CreatePermissionRequest{
+		Value:       permission.Value,
+		Scope:       permission.Scope,
+		Description: permission.Description,
 	}
 
-	permissionID, err := repositories.R().P().Create(permission)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	// Create the Permission
+	response, err := clients.C().User().CreatePermission(ctx, permissionRequest)
 	if err != nil {
-		render.Error(w, r, err, "Create permission")
+		zap.L().Error("Create Permission", zap.Error(err))
+		render.ErrorCodesCodeToHttpCode(w, r, err)
 		return
 	}
 
-	newPermission, found, err := repositories.R().P().Get(permissionID)
+	// Map the response to the models.Permission struct
+	p, err := models.FromProtogenPermission(response.Permission)
 	if err != nil {
-		zap.L().Error("Cannot get permission", zap.String("uuid", permissionID.String()), zap.Error(err))
-		render.Error(w, r, nil, "")
-		return
-	}
-	if !found {
-		zap.L().Error("Permission not found after creation", zap.String("uuid", permissionID.String()))
-		render.Error(w, r, nil, "")
+		zap.L().Error("Bad protogen permission", zap.Error(err))
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	render.JSON(w, r, newPermission)
+	render.JSON(w, r, p)
 }
 
 // GetPermission godoc
@@ -87,25 +92,36 @@ func GetPermission(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	permission, found, err := repositories.R().P().Get(permissionID)
+	// Create gRPC protogen.CreatePermissionRequest
+	permissionRequest := &protogen.GetPermissionRequest{
+		Id: permissionID.String(),
+	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	// Get the Permission
+	response, err := clients.C().User().GetPermission(ctx, permissionRequest)
 	if err != nil {
-		zap.L().Error("Cannot load permission", zap.String("uuid", permissionID.String()), zap.Error(err))
-		render.Error(w, r, nil, "")
+		zap.L().Error("Get Permission", zap.Error(err))
+		render.ErrorCodesCodeToHttpCode(w, r, err)
 		return
 	}
 
-	if !found {
-		zap.L().Debug("Permission not found", zap.String("uuid", permissionID.String()))
-		w.WriteHeader(http.StatusNotFound)
+	// Map the response to the models.Permission struct
+	p, err := models.FromProtogenPermission(response.Permission)
+	if err != nil {
+		zap.L().Error("Bad protogen permission", zap.Error(err))
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	render.JSON(w, r, permission)
+	render.JSON(w, r, p)
 }
 
-// GetPermissions godoc
+// ListPermissions godoc
 //
-//	@Id				GetPermissions
+//	@Id				ListPermissions
 //
 //	@Summary		Get all permissions
 //	@Description	Gets a list of all permissions. (Permission: <b>admin.permissions.list</b>)
@@ -116,18 +132,35 @@ func GetPermission(w http.ResponseWriter, r *http.Request) {
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/permissions [get]
-func GetPermissions(w http.ResponseWriter, r *http.Request) {
+func ListPermissions(w http.ResponseWriter, r *http.Request) {
 	if !U().CheckPermission(w, r, "admin.permissions.list") {
 		return
 	}
 
-	result, err := repositories.R().P().GetAll()
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	// List the Broker
+	response, err := clients.C().User().ListPermissions(ctx, &protogen.ListPermissionsRequest{})
 	if err != nil {
-		render.Error(w, r, err, "Get permissions")
+		zap.L().Error("List Permissions", zap.Error(err))
+		render.ErrorCodesCodeToHttpCode(w, r, err)
 		return
 	}
 
-	render.JSON(w, r, result)
+	// Map gRPC response to Permissions array
+	permissions := make([]models.Permission, len(response.Permissions))
+	for i, protogenPermission := range response.Permissions {
+		p, err := models.FromProtogenPermission(protogenPermission)
+		if err != nil {
+			zap.L().Error("Bad protogen permission", zap.Error(err))
+			// Skip this item and continue with others
+			continue
+		}
+		permissions[i] = p
+	}
+
+	render.JSON(w, r, permissions)
 }
 
 // UpdatePermission godoc
@@ -160,32 +193,35 @@ func UpdatePermission(w http.ResponseWriter, r *http.Request) {
 		render.BadRequest(w, r, nil)
 		return
 	}
-	permission.Id = permissionID
 
-	if ok, err := permission.IsValid(); !ok {
-		render.BadRequest(w, r, err)
-		return
+	// Create gRPC protogen.UpdatePermissionRequest
+	permissionRequest := &protogen.UpdatePermissionRequest{
+		Id:          permissionID.String(),
+		Value:       permission.Value,
+		Scope:       permission.Scope,
+		Description: permission.Description,
 	}
 
-	err = repositories.R().P().Update(permission)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	// Update the Permission
+	response, err := clients.C().User().UpdatePermission(ctx, permissionRequest)
 	if err != nil {
-		render.Error(w, r, err, "Update permission")
+		zap.L().Error("Update Permission", zap.Error(err))
+		render.ErrorCodesCodeToHttpCode(w, r, err)
 		return
 	}
 
-	permission, found, err := repositories.R().P().Get(permissionID)
+	// Map the response to the models.Permission struct
+	p, err := models.FromProtogenPermission(response.Permission)
 	if err != nil {
-		zap.L().Error("Cannot get permission", zap.String("uuid", permissionID.String()), zap.Error(err))
-		render.Error(w, r, nil, "")
-		return
-	}
-	if !found {
-		zap.L().Error("Permission not found after update", zap.String("uuid", permissionID.String()))
-		render.Error(w, r, nil, "")
+		zap.L().Error("Bad protogen permission", zap.Error(err))
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	render.JSON(w, r, permission)
+	render.JSON(w, r, p)
 }
 
 // DeletePermission godoc
@@ -209,9 +245,19 @@ func DeletePermission(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := repositories.R().P().Delete(permissionID)
+	// Create gRPC protogen.DeletePermissionRequest
+	permissionRequest := &protogen.DeletePermissionRequest{
+		Id: permissionID.String(),
+	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	// Delete the Permission
+	_, err := clients.C().User().DeletePermission(ctx, permissionRequest)
 	if err != nil {
-		render.Error(w, r, err, "Cannot delete permission")
+		zap.L().Error("Delete Permission", zap.Error(err))
+		render.ErrorCodesCodeToHttpCode(w, r, err)
 		return
 	}
 

@@ -118,6 +118,17 @@ func initGrpcClients() {
 	}
 	healthClient := protogen.NewHealthServiceClient(healthConn)
 
+	// Connect to the gRPC user microservice
+	userHost := viper.GetString("USER_MICROSERVICE_HOST")
+	userPort := viper.GetString("USER_MICROSERVICE_PORT")
+	userConn, err := grpc.NewClient(userHost+":"+userPort, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		zap.L().Fatal("Failed to connect to User gRPC service", zap.Error(err))
+	} else {
+		zap.L().Info("Connected to User gRPC service", zap.String("address", userConn.Target()))
+	}
+	userClient := protogen.NewUserServiceClient(userConn)
+
 	// Connect to the gRPC broker microservice
 	brokerHost := viper.GetString("BROKER_MICROSERVICE_HOST")
 	brokerPort := viper.GetString("BROKER_MICROSERVICE_PORT")
@@ -141,7 +152,7 @@ func initGrpcClients() {
 	transactionClient := protogen.NewTransactionServiceClient(transactionConn)
 
 	// Initialize the gRPC clients
-	clients.ReplaceGlobals(clients.NewClients(healthClient, brokerClient, transactionClient))
+	clients.ReplaceGlobals(clients.NewClients(healthClient, userClient, brokerClient, transactionClient))
 }
 
 func setup() {

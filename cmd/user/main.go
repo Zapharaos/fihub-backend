@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/Zapharaos/fihub-backend/cmd/broker/app/service"
 	"github.com/Zapharaos/fihub-backend/cmd/user/app/repositories"
+	"github.com/Zapharaos/fihub-backend/cmd/user/app/service"
 	"github.com/Zapharaos/fihub-backend/internal/app"
 	"github.com/Zapharaos/fihub-backend/internal/database"
 	"github.com/Zapharaos/fihub-backend/protogen"
@@ -42,7 +42,7 @@ func main() {
 	s := grpc.NewServer()
 
 	// Register gRPC service
-	protogen.RegisterBrokerServiceServer(s, &service.Service{})
+	protogen.RegisterUserServiceServer(s, &service.Service{})
 
 	zap.L().Info("gRPC User microservice is running on port : " + port)
 	if err := s.Serve(lis); err != nil {

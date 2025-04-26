@@ -1,0 +1,73 @@
+syntax = "proto3";
+
+package user;
+
+option go_package = "./protogen";
+
+service UserService {
+	// Admin - Permission management
+	rpc CreatePermission(CreatePermissionRequest) returns (CreatePermissionResponse);
+	rpc GetPermission(GetPermissionRequest) returns (GetPermissionResponse);
+	rpc UpdatePermission(UpdatePermissionRequest) returns (UpdatePermissionResponse);
+	rpc DeletePermission(DeletePermissionRequest) returns (DeletePermissionResponse);
+	rpc ListPermissions(ListPermissionsRequest) returns (ListPermissionsResponse);
+
+	// Admin - Role management
+
+	// User management
+}
+
+// Types
+
+message Permission {
+	string id = 1;
+	string value = 2;
+	string scope = 3;
+	string description = 4;
+}
+
+// Admin - Permission
+
+message CreatePermissionRequest {
+	string value = 1;
+	string scope = 2;
+	string description = 3;
+}
+
+message CreatePermissionResponse {
+	Permission permission = 1;
+}
+
+message GetPermissionRequest {
+	string id = 1;
+}
+
+message GetPermissionResponse {
+	Permission permission = 1;
+}
+
+message UpdatePermissionRequest {
+	string id = 1;
+	string value = 2;
+	string scope = 3;
+	string description = 4;
+}
+
+message UpdatePermissionResponse {
+	Permission permission = 1;
+}
+
+message DeletePermissionRequest {
+	string id = 1;
+}
+
+message DeletePermissionResponse {
+	bool success = 1;
+}
+
+message ListPermissionsRequest {
+}
+
+message ListPermissionsResponse {
+	repeated Permission permissions = 1;
+}

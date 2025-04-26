@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"github.com/Zapharaos/fihub-backend/protogen"
 	"github.com/google/uuid"
 	"regexp"
 	"strings"
@@ -87,6 +88,35 @@ func (p Permission) Match(permission string) bool {
 
 	// Check if the permission matches the compiled regex
 	return re.MatchString(permission)
+}
+
+// ToProtogenPermission converts a Permission to a protogen.Permission
+func (p Permission) ToProtogenPermission() *protogen.Permission {
+	return &protogen.Permission{
+		Id:          p.Id.String(),
+		Value:       p.Value,
+		Scope:       p.Scope,
+		Description: p.Description,
+	}
+}
+
+// FromProtogenPermission converts a protogen.Permission to a Permission
+func FromProtogenPermission(p *protogen.Permission) (Permission, error) {
+	if p == nil {
+		return Permission{}, errors.New("permission is nil")
+	}
+
+	id, err := uuid.Parse(p.GetId())
+	if err != nil {
+		return Permission{}, err
+	}
+
+	return Permission{
+		Id:          id,
+		Value:       p.GetValue(),
+		Scope:       p.GetScope(),
+		Description: p.GetDescription(),
+	}, nil
 }
 
 // CheckScope checks if a scope is valid
