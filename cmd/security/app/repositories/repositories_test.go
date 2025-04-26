@@ -1,7 +1,7 @@
 package repositories_test
 
 import (
-	"github.com/Zapharaos/fihub-backend/cmd/user/app/repositories"
+	"github.com/Zapharaos/fihub-backend/cmd/security/app/repositories"
 	"github.com/Zapharaos/fihub-backend/test/mocks"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -12,25 +12,24 @@ import (
 func TestNewRepository(t *testing.T) {
 
 	// Replace with mocks repositories
-	mockUserRepository := &mocks.UserRepository{}
-	mockRoleRepository := &mocks.UserRoleRepository{}
-	mockPermissionRepository := &mocks.UserPermissionRepository{}
+	mockRoleRepository := &mocks.SecurityRoleRepository{}
+	mockPermissionRepository := &mocks.SecurityPermissionRepository{}
 
 	// Create a new repository
-	repo := repositories.NewRepository(mockUserRepository, mockRoleRepository, mockPermissionRepository)
+	repo := repositories.NewRepository(mockRoleRepository, mockPermissionRepository)
 
 	// Verify that the repositories are correctly assigned
-	assert.Equal(t, mockUserRepository, repo.U())
+	assert.Equal(t, mockRoleRepository, repo.R())
+	assert.Equal(t, mockPermissionRepository, repo.P())
 }
 
 // TestReplaceGlobals tests the ReplaceGlobals function
 // It verifies that the global repository can be replaced and restored correctly.
 func TestReplaceGlobals(t *testing.T) {
 	// Replace with mocks repositories
-	mockUserRepository := &mocks.UserRepository{}
-	mockRoleRepository := &mocks.UserRoleRepository{}
-	mockPermissionRepository := &mocks.UserPermissionRepository{}
-	mockRepository := repositories.NewRepository(mockUserRepository, mockRoleRepository, mockPermissionRepository)
+	mockRoleRepository := &mocks.SecurityRoleRepository{}
+	mockPermissionRepository := &mocks.SecurityPermissionRepository{}
+	mockRepository := repositories.NewRepository(mockRoleRepository, mockPermissionRepository)
 
 	// Replace the global repository with a mocks repository
 	restore := repositories.ReplaceGlobals(mockRepository)

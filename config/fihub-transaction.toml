@@ -13,8 +13,8 @@ LOGGER_LEVEL = "debug"
 
 # Specify the port for the Transaction microservice
 # This port is used to run the gRPC TransactionService
-# Default value: "50004"
-TRANSACTION_MICROSERVICE_PORT = "50004"
+# Default value: "50006"
+TRANSACTION_MICROSERVICE_PORT = "50006"
 
 # Specify the PostgreSQL username
 # Used to authenticate with the PostgreSQL database

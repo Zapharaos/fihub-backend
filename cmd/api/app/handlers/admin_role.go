@@ -2,9 +2,8 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/handlers/render"
-	"github.com/Zapharaos/fihub-backend/cmd/user/app/repositories"
+	"github.com/Zapharaos/fihub-backend/cmd/security/app/repositories"
 	"github.com/Zapharaos/fihub-backend/internal/models"
 	"net/http"
 
@@ -329,6 +328,7 @@ func SetRolePermissions(w http.ResponseWriter, r *http.Request) {
 	render.OK(w, r)
 }
 
+// TODO : move to user private
 // GetRoleUsers godoc
 //
 //	@Id				GetRoleUsers
@@ -344,7 +344,7 @@ func SetRolePermissions(w http.ResponseWriter, r *http.Request) {
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/roles/{id}/users [get]
-func GetRoleUsers(w http.ResponseWriter, r *http.Request) {
+/*func GetRoleUsers(w http.ResponseWriter, r *http.Request) {
 	roleId, ok := U().ParseParamUUID(w, r, "id")
 	if !ok || !U().CheckPermission(w, r, "admin.roles.users.list") {
 		return
@@ -357,8 +357,9 @@ func GetRoleUsers(w http.ResponseWriter, r *http.Request) {
 	}
 
 	render.JSON(w, r, roleUsers)
-}
+}*/
 
+// TODO : move to user private
 // PutUsersRole godoc
 //
 //	@Id				PutUsersRole
@@ -376,7 +377,7 @@ func GetRoleUsers(w http.ResponseWriter, r *http.Request) {
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/roles/{id}/users [put]
-func PutUsersRole(w http.ResponseWriter, r *http.Request) {
+/*func PutUsersRole(w http.ResponseWriter, r *http.Request) {
 	roleId, ok := U().ParseParamUUID(w, r, "id")
 	if !ok || !U().CheckPermission(w, r, "admin.roles.users.update") {
 		return
@@ -402,8 +403,9 @@ func PutUsersRole(w http.ResponseWriter, r *http.Request) {
 	}
 
 	render.OK(w, r)
-}
+}*/
 
+// TODO : move to user private
 // DeleteUsersRole godoc
 //
 //	@Id				DeleteUsersRole
@@ -421,7 +423,7 @@ func PutUsersRole(w http.ResponseWriter, r *http.Request) {
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/roles/{id}/users [delete]
-func DeleteUsersRole(w http.ResponseWriter, r *http.Request) {
+/*func DeleteUsersRole(w http.ResponseWriter, r *http.Request) {
 	roleId, ok := U().ParseParamUUID(w, r, "id")
 	if !ok || !U().CheckPermission(w, r, "admin.roles.users.delete") {
 		return
@@ -447,4 +449,4 @@ func DeleteUsersRole(w http.ResponseWriter, r *http.Request) {
 	}
 
 	render.OK(w, r)
-}
+}*/

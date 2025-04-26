@@ -93,7 +93,7 @@ func (a *Auth) GetToken(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, found, err := repositories.R().U().Authenticate(userCredentials.Email, userCredentials.Password)
+	user, found, err := repositories.R().Authenticate(userCredentials.Email, userCredentials.Password)
 	if err != nil {
 		zap.L().Warn("GetToken.Authenticate", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)

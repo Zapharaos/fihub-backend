@@ -2,7 +2,7 @@ package service
 
 import (
 	"context"
-	"github.com/Zapharaos/fihub-backend/cmd/user/app/repositories"
+	"github.com/Zapharaos/fihub-backend/cmd/security/app/repositories"
 	"github.com/Zapharaos/fihub-backend/internal/models"
 	"github.com/Zapharaos/fihub-backend/protogen"
 	"github.com/google/uuid"
@@ -12,7 +12,7 @@ import (
 )
 
 // CreatePermission implements the CreatePermission RPC method.
-func (h *Service) CreatePermission(ctx context.Context, req *protogen.CreatePermissionRequest) (*protogen.CreatePermissionResponse, error) {
+func (s *Service) CreatePermission(ctx context.Context, req *protogen.CreatePermissionRequest) (*protogen.CreatePermissionResponse, error) {
 
 	// Construct the Permission object from the request
 	permission := models.Permission{
@@ -52,7 +52,7 @@ func (h *Service) CreatePermission(ctx context.Context, req *protogen.CreatePerm
 }
 
 // GetPermission implements the GetPermission RPC method.
-func (h *Service) GetPermission(ctx context.Context, req *protogen.GetPermissionRequest) (*protogen.GetPermissionResponse, error) {
+func (s *Service) GetPermission(ctx context.Context, req *protogen.GetPermissionRequest) (*protogen.GetPermissionResponse, error) {
 
 	// Parse the permission ID from the request
 	permissionID, err := uuid.Parse(req.GetId())
@@ -79,7 +79,7 @@ func (h *Service) GetPermission(ctx context.Context, req *protogen.GetPermission
 }
 
 // UpdatePermission implements the UpdatePermission RPC method.
-func (h *Service) UpdatePermission(ctx context.Context, req *protogen.UpdatePermissionRequest) (*protogen.UpdatePermissionResponse, error) {
+func (s *Service) UpdatePermission(ctx context.Context, req *protogen.UpdatePermissionRequest) (*protogen.UpdatePermissionResponse, error) {
 
 	// Parse the permission ID from the request
 	permissionID, err := uuid.Parse(req.GetId())
@@ -127,7 +127,7 @@ func (h *Service) UpdatePermission(ctx context.Context, req *protogen.UpdatePerm
 }
 
 // DeletePermission implements the DeletePermission RPC method.
-func (h *Service) DeletePermission(ctx context.Context, req *protogen.DeletePermissionRequest) (*protogen.DeletePermissionResponse, error) {
+func (s *Service) DeletePermission(ctx context.Context, req *protogen.DeletePermissionRequest) (*protogen.DeletePermissionResponse, error) {
 
 	// Parse the permission ID from the request
 	permissionID, err := uuid.Parse(req.GetId())
@@ -154,7 +154,7 @@ func (h *Service) DeletePermission(ctx context.Context, req *protogen.DeletePerm
 }
 
 // ListPermissions implements the ListPermissions RPC method.
-func (h *Service) ListPermissions(ctx context.Context, req *protogen.ListPermissionsRequest) (*protogen.ListPermissionsResponse, error) {
+func (s *Service) ListPermissions(ctx context.Context, req *protogen.ListPermissionsRequest) (*protogen.ListPermissionsResponse, error) {
 	// Get all permissions from the database
 	result, err := repositories.R().P().GetAll()
 	if err != nil {

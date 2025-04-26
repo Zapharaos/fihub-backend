@@ -3,7 +3,7 @@ package service
 import (
 	"context"
 	"errors"
-	"github.com/Zapharaos/fihub-backend/cmd/user/app/repositories"
+	"github.com/Zapharaos/fihub-backend/cmd/security/app/repositories"
 	"github.com/Zapharaos/fihub-backend/internal/models"
 	"github.com/Zapharaos/fihub-backend/protogen"
 	"github.com/Zapharaos/fihub-backend/test/mocks"
@@ -36,9 +36,9 @@ func TestCreatePermission(t *testing.T) {
 		{
 			name: "missing request body",
 			mockSetup: func(ctrl *gomock.Controller) {
-				p := mocks.NewUserPermissionRepository(ctrl)
+				p := mocks.NewSecurityPermissionRepository(ctrl)
 				p.EXPECT().Create(gomock.Any()).Times(0)
-				repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, p))
+				repositories.ReplaceGlobals(repositories.NewRepository(nil, p))
 			},
 			request:         nil,
 			expected:        &protogen.CreatePermissionResponse{},
@@ -47,9 +47,9 @@ func TestCreatePermission(t *testing.T) {
 		{
 			name: "fails at bad permission input",
 			mockSetup: func(ctrl *gomock.Controller) {
-				p := mocks.NewUserPermissionRepository(ctrl)
+				p := mocks.NewSecurityPermissionRepository(ctrl)
 				p.EXPECT().Create(gomock.Any()).Times(0)
-				repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, p))
+				repositories.ReplaceGlobals(repositories.NewRepository(nil, p))
 			},
 			request: &protogen.CreatePermissionRequest{
 				Value: "",
@@ -61,10 +61,10 @@ func TestCreatePermission(t *testing.T) {
 		{
 			name: "With create error",
 			mockSetup: func(ctrl *gomock.Controller) {
-				p := mocks.NewUserPermissionRepository(ctrl)
+				p := mocks.NewSecurityPermissionRepository(ctrl)
 				p.EXPECT().Create(gomock.Any()).Return(uuid.Nil, errors.New("error"))
 				p.EXPECT().Get(gomock.Any()).Times(0)
-				repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, p))
+				repositories.ReplaceGlobals(repositories.NewRepository(nil, p))
 			},
 			request:         validRequest,
 			expected:        &protogen.CreatePermissionResponse{},
@@ -73,10 +73,10 @@ func TestCreatePermission(t *testing.T) {
 		{
 			name: "With retrieve error",
 			mockSetup: func(ctrl *gomock.Controller) {
-				p := mocks.NewUserPermissionRepository(ctrl)
+				p := mocks.NewSecurityPermissionRepository(ctrl)
 				p.EXPECT().Create(gomock.Any()).Return(uuid.New(), nil)
 				p.EXPECT().Get(gomock.Any()).Return(models.Permission{}, false, errors.New("error"))
-				repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, p))
+				repositories.ReplaceGlobals(repositories.NewRepository(nil, p))
 			},
 			request:         validRequest,
 			expected:        &protogen.CreatePermissionResponse{},
@@ -85,10 +85,10 @@ func TestCreatePermission(t *testing.T) {
 		{
 			name: "With retrieve not found",
 			mockSetup: func(ctrl *gomock.Controller) {
-				p := mocks.NewUserPermissionRepository(ctrl)
+				p := mocks.NewSecurityPermissionRepository(ctrl)
 				p.EXPECT().Create(gomock.Any()).Return(uuid.New(), nil)
 				p.EXPECT().Get(gomock.Any()).Return(models.Permission{}, false, nil)
-				repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, p))
+				repositories.ReplaceGlobals(repositories.NewRepository(nil, p))
 			},
 			request:         validRequest,
 			expected:        &protogen.CreatePermissionResponse{},
@@ -97,10 +97,10 @@ func TestCreatePermission(t *testing.T) {
 		{
 			name: "With success",
 			mockSetup: func(ctrl *gomock.Controller) {
-				p := mocks.NewUserPermissionRepository(ctrl)
+				p := mocks.NewSecurityPermissionRepository(ctrl)
 				p.EXPECT().Create(gomock.Any()).Return(uuid.New(), nil)
 				p.EXPECT().Get(gomock.Any()).Return(models.Permission{}, true, nil)
-				repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, p))
+				repositories.ReplaceGlobals(repositories.NewRepository(nil, p))
 			},
 			request:         validRequest,
 			expected:        &protogen.CreatePermissionResponse{},
@@ -159,9 +159,9 @@ func TestGetPermission(t *testing.T) {
 		{
 			name: "missing request body",
 			mockSetup: func(ctrl *gomock.Controller) {
-				p := mocks.NewUserPermissionRepository(ctrl)
+				p := mocks.NewSecurityPermissionRepository(ctrl)
 				p.EXPECT().Get(gomock.Any()).Times(0)
-				repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, p))
+				repositories.ReplaceGlobals(repositories.NewRepository(nil, p))
 			},
 			request:         nil,
 			expected:        &protogen.GetPermissionResponse{},
@@ -170,9 +170,9 @@ func TestGetPermission(t *testing.T) {
 		{
 			name: "fails to parse ID from request",
 			mockSetup: func(ctrl *gomock.Controller) {
-				p := mocks.NewUserPermissionRepository(ctrl)
+				p := mocks.NewSecurityPermissionRepository(ctrl)
 				p.EXPECT().Get(gomock.Any()).Times(0)
-				repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, p))
+				repositories.ReplaceGlobals(repositories.NewRepository(nil, p))
 			},
 			request: &protogen.GetPermissionRequest{
 				Id: "bad-uuid",
@@ -183,9 +183,9 @@ func TestGetPermission(t *testing.T) {
 		{
 			name: "With get error",
 			mockSetup: func(ctrl *gomock.Controller) {
-				p := mocks.NewUserPermissionRepository(ctrl)
+				p := mocks.NewSecurityPermissionRepository(ctrl)
 				p.EXPECT().Get(gomock.Any()).Return(models.Permission{}, false, errors.New("error"))
-				repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, p))
+				repositories.ReplaceGlobals(repositories.NewRepository(nil, p))
 			},
 			request:         validRequest,
 			expected:        &protogen.GetPermissionResponse{},
@@ -194,9 +194,9 @@ func TestGetPermission(t *testing.T) {
 		{
 			name: "With retrieve not found",
 			mockSetup: func(ctrl *gomock.Controller) {
-				p := mocks.NewUserPermissionRepository(ctrl)
+				p := mocks.NewSecurityPermissionRepository(ctrl)
 				p.EXPECT().Get(gomock.Any()).Return(models.Permission{}, false, nil)
-				repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, p))
+				repositories.ReplaceGlobals(repositories.NewRepository(nil, p))
 			},
 			request:         validRequest,
 			expected:        &protogen.GetPermissionResponse{},
@@ -205,9 +205,9 @@ func TestGetPermission(t *testing.T) {
 		{
 			name: "With success",
 			mockSetup: func(ctrl *gomock.Controller) {
-				p := mocks.NewUserPermissionRepository(ctrl)
+				p := mocks.NewSecurityPermissionRepository(ctrl)
 				p.EXPECT().Get(gomock.Any()).Return(models.Permission{}, true, nil)
-				repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, p))
+				repositories.ReplaceGlobals(repositories.NewRepository(nil, p))
 			},
 			request:         validRequest,
 			expected:        &protogen.GetPermissionResponse{},
@@ -263,9 +263,9 @@ func TestListPermissions(t *testing.T) {
 		{
 			name: "With get all error",
 			mockSetup: func(ctrl *gomock.Controller) {
-				p := mocks.NewUserPermissionRepository(ctrl)
+				p := mocks.NewSecurityPermissionRepository(ctrl)
 				p.EXPECT().GetAll().Return(nil, errors.New("error"))
-				repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, p))
+				repositories.ReplaceGlobals(repositories.NewRepository(nil, p))
 			},
 			request:         nil,
 			expected:        &protogen.ListPermissionsResponse{},
@@ -274,9 +274,9 @@ func TestListPermissions(t *testing.T) {
 		{
 			name: "With success",
 			mockSetup: func(ctrl *gomock.Controller) {
-				p := mocks.NewUserPermissionRepository(ctrl)
+				p := mocks.NewSecurityPermissionRepository(ctrl)
 				p.EXPECT().GetAll().Return([]models.Permission{}, nil)
-				repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, p))
+				repositories.ReplaceGlobals(repositories.NewRepository(nil, p))
 			},
 			request:         nil,
 			expected:        &protogen.ListPermissionsResponse{},
@@ -339,9 +339,9 @@ func TestUpdatePermission(t *testing.T) {
 		{
 			name: "missing request body",
 			mockSetup: func(ctrl *gomock.Controller) {
-				p := mocks.NewUserPermissionRepository(ctrl)
+				p := mocks.NewSecurityPermissionRepository(ctrl)
 				p.EXPECT().Update(gomock.Any()).Times(0)
-				repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, p))
+				repositories.ReplaceGlobals(repositories.NewRepository(nil, p))
 			},
 			request:         nil,
 			expected:        &protogen.UpdatePermissionResponse{},
@@ -350,9 +350,9 @@ func TestUpdatePermission(t *testing.T) {
 		{
 			name: "fails to parse ID from request",
 			mockSetup: func(ctrl *gomock.Controller) {
-				p := mocks.NewUserPermissionRepository(ctrl)
+				p := mocks.NewSecurityPermissionRepository(ctrl)
 				p.EXPECT().Update(gomock.Any()).Times(0)
-				repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, p))
+				repositories.ReplaceGlobals(repositories.NewRepository(nil, p))
 			},
 			request: &protogen.UpdatePermissionRequest{
 				Id: "bad-uuid",
@@ -363,9 +363,9 @@ func TestUpdatePermission(t *testing.T) {
 		{
 			name: "fails at bad permission input",
 			mockSetup: func(ctrl *gomock.Controller) {
-				p := mocks.NewUserPermissionRepository(ctrl)
+				p := mocks.NewSecurityPermissionRepository(ctrl)
 				p.EXPECT().Update(gomock.Any()).Times(0)
-				repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, p))
+				repositories.ReplaceGlobals(repositories.NewRepository(nil, p))
 			},
 			request:         &protogen.UpdatePermissionRequest{},
 			expected:        &protogen.UpdatePermissionResponse{},
@@ -374,10 +374,10 @@ func TestUpdatePermission(t *testing.T) {
 		{
 			name: "With update error",
 			mockSetup: func(ctrl *gomock.Controller) {
-				p := mocks.NewUserPermissionRepository(ctrl)
+				p := mocks.NewSecurityPermissionRepository(ctrl)
 				p.EXPECT().Update(gomock.Any()).Return(errors.New("error"))
 				p.EXPECT().Get(gomock.Any()).Times(0)
-				repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, p))
+				repositories.ReplaceGlobals(repositories.NewRepository(nil, p))
 			},
 			request:         validRequest,
 			expected:        &protogen.UpdatePermissionResponse{},
@@ -386,10 +386,10 @@ func TestUpdatePermission(t *testing.T) {
 		{
 			name: "With retrieve error",
 			mockSetup: func(ctrl *gomock.Controller) {
-				p := mocks.NewUserPermissionRepository(ctrl)
+				p := mocks.NewSecurityPermissionRepository(ctrl)
 				p.EXPECT().Update(gomock.Any()).Return(nil)
 				p.EXPECT().Get(gomock.Any()).Return(models.Permission{}, false, errors.New("error"))
-				repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, p))
+				repositories.ReplaceGlobals(repositories.NewRepository(nil, p))
 			},
 			request:         validRequest,
 			expected:        &protogen.UpdatePermissionResponse{},
@@ -398,10 +398,10 @@ func TestUpdatePermission(t *testing.T) {
 		{
 			name: "With retrieve not found",
 			mockSetup: func(ctrl *gomock.Controller) {
-				p := mocks.NewUserPermissionRepository(ctrl)
+				p := mocks.NewSecurityPermissionRepository(ctrl)
 				p.EXPECT().Update(gomock.Any()).Return(nil)
 				p.EXPECT().Get(gomock.Any()).Return(models.Permission{}, false, nil)
-				repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, p))
+				repositories.ReplaceGlobals(repositories.NewRepository(nil, p))
 			},
 			request:         validRequest,
 			expected:        &protogen.UpdatePermissionResponse{},
@@ -410,10 +410,10 @@ func TestUpdatePermission(t *testing.T) {
 		{
 			name: "Succeed",
 			mockSetup: func(ctrl *gomock.Controller) {
-				p := mocks.NewUserPermissionRepository(ctrl)
+				p := mocks.NewSecurityPermissionRepository(ctrl)
 				p.EXPECT().Update(gomock.Any()).Return(nil)
 				p.EXPECT().Get(gomock.Any()).Return(models.Permission{}, true, nil)
-				repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, p))
+				repositories.ReplaceGlobals(repositories.NewRepository(nil, p))
 			},
 			request:         validRequest,
 			expected:        &protogen.UpdatePermissionResponse{},
@@ -471,9 +471,9 @@ func TestDeletePermission(t *testing.T) {
 		{
 			name: "missing request body",
 			mockSetup: func(ctrl *gomock.Controller) {
-				p := mocks.NewUserPermissionRepository(ctrl)
+				p := mocks.NewSecurityPermissionRepository(ctrl)
 				p.EXPECT().Delete(gomock.Any()).Times(0)
-				repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, p))
+				repositories.ReplaceGlobals(repositories.NewRepository(nil, p))
 			},
 			request:         nil,
 			expected:        &protogen.DeletePermissionResponse{},
@@ -482,9 +482,9 @@ func TestDeletePermission(t *testing.T) {
 		{
 			name: "fails to parse ID from request",
 			mockSetup: func(ctrl *gomock.Controller) {
-				p := mocks.NewUserPermissionRepository(ctrl)
+				p := mocks.NewSecurityPermissionRepository(ctrl)
 				p.EXPECT().Delete(gomock.Any()).Times(0)
-				repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, p))
+				repositories.ReplaceGlobals(repositories.NewRepository(nil, p))
 			},
 			request: &protogen.DeletePermissionRequest{
 				Id: "bad-uuid",
@@ -495,9 +495,9 @@ func TestDeletePermission(t *testing.T) {
 		{
 			name: "With delete error",
 			mockSetup: func(ctrl *gomock.Controller) {
-				p := mocks.NewUserPermissionRepository(ctrl)
+				p := mocks.NewSecurityPermissionRepository(ctrl)
 				p.EXPECT().Delete(gomock.Any()).Return(errors.New("error"))
-				repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, p))
+				repositories.ReplaceGlobals(repositories.NewRepository(nil, p))
 			},
 			request:         validRequest,
 			expected:        &protogen.DeletePermissionResponse{},
@@ -506,9 +506,9 @@ func TestDeletePermission(t *testing.T) {
 		{
 			name: "With success",
 			mockSetup: func(ctrl *gomock.Controller) {
-				p := mocks.NewUserPermissionRepository(ctrl)
+				p := mocks.NewSecurityPermissionRepository(ctrl)
 				p.EXPECT().Delete(gomock.Any()).Return(nil)
-				repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, p))
+				repositories.ReplaceGlobals(repositories.NewRepository(nil, p))
 			},
 			request:         validRequest,
 			expected:        &protogen.DeletePermissionResponse{},

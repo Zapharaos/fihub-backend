@@ -48,7 +48,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	userWithPassword := userInputCreate.UserWithPassword
 
 	// Verify user existence
-	exists, err := repositories.R().U().Exists(userWithPassword.Email)
+	exists, err := repositories.R().Exists(userWithPassword.Email)
 	if err != nil {
 		zap.L().Error("Check user exists", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
@@ -61,7 +61,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Create user
-	userID, err := repositories.R().U().Create(userWithPassword)
+	userID, err := repositories.R().Create(userWithPassword)
 	if err != nil {
 		zap.L().Error("PostUser.Create", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
@@ -69,7 +69,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get user back from database
-	user, found, err := repositories.R().U().Get(userID)
+	user, found, err := repositories.R().Get(userID)
 	if err != nil {
 		zap.L().Error("Cannot get user", zap.String("uuid", userID.String()), zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
@@ -153,7 +153,7 @@ func UpdateUserSelf(w http.ResponseWriter, r *http.Request) {
 	user.ID = userCtx.ID
 
 	// Update user
-	err = repositories.R().U().Update(user)
+	err = repositories.R().Update(user)
 	if err != nil {
 		zap.L().Error("PutUser.Update", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
@@ -161,7 +161,7 @@ func UpdateUserSelf(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get user back from database
-	user, found, err = repositories.R().U().Get(userCtx.ID)
+	user, found, err = repositories.R().Get(userCtx.ID)
 	if err != nil {
 		zap.L().Error("Cannot get user", zap.String("uuid", userCtx.ID.String()), zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
@@ -221,7 +221,7 @@ func ChangeUserPassword(w http.ResponseWriter, r *http.Request) {
 	userWithPassword.ID = userCtx.ID
 
 	// Update password
-	err = repositories.R().U().UpdateWithPassword(userWithPassword)
+	err = repositories.R().UpdateWithPassword(userWithPassword)
 	if err != nil {
 		zap.L().Error("PutUser.UpdatePassword", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
@@ -251,7 +251,7 @@ func DeleteUserSelf(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := repositories.R().U().Delete(userCtx.ID)
+	err := repositories.R().Delete(userCtx.ID)
 	if err != nil {
 		zap.L().Error("DeleteUser.Delete", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
@@ -288,7 +288,7 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 	var err error
 
 	// the user default accessible data
-	user.User, found, err = repositories.R().U().Get(userId)
+	user.User, found, err = repositories.R().Get(userId)
 	if err != nil {
 		zap.L().Error("GetUser.Get", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
@@ -348,7 +348,7 @@ func SetUser(w http.ResponseWriter, r *http.Request) {
 
 	user.ID = userId
 
-	err = repositories.R().U().UpdateWithRoles(user, user.Roles.GetUUIDs())
+	err = repositories.R().UpdateWithRoles(user, user.Roles.GetUUIDs())
 	if err != nil {
 		zap.L().Error("PutUser.Update", zap.Error(err))
 		render.Error(w, r, err, "Update user")
@@ -395,7 +395,7 @@ func SetUserRoles(w http.ResponseWriter, r *http.Request) {
 		roleUUIDs = append(roleUUIDs, role.Id)
 	}
 
-	err = repositories.R().U().SetUserRoles(userId, roleUUIDs)
+	err = repositories.R().SetUserRoles(userId, roleUUIDs)
 	if err != nil {
 		zap.L().Error("PutUser.Update", zap.Error(err))
 		render.Error(w, r, err, "Set roles on user")
@@ -453,7 +453,7 @@ func GetAllUsersWithRoles(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	usersWithRoles, err := repositories.R().U().GetAllWithRoles()
+	usersWithRoles, err := repositories.R().GetAllWithRoles()
 	if err != nil {
 		zap.L().Error("GetAllWithRoles", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)

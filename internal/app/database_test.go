@@ -1,7 +1,7 @@
 package app
 
 import (
-	"github.com/Zapharaos/fihub-backend/cmd/user/app/repositories"
+	"github.com/Zapharaos/fihub-backend/cmd/security/app/repositories"
 	"github.com/Zapharaos/fihub-backend/internal/database"
 	"github.com/Zapharaos/fihub-backend/internal/password"
 	"github.com/Zapharaos/fihub-backend/test"

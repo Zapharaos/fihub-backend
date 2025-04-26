@@ -27,10 +27,7 @@ func main() {
 	app.InitDatabase()
 
 	// User repositories
-	userRepository := repositories.NewUserPostgresRepository(database.DB().Postgres())
-	roleRepository := repositories.NewRolePostgresRepository(database.DB().Postgres())
-	permissionRepository := repositories.NewPermissionPostgresRepository(database.DB().Postgres())
-	repositories.ReplaceGlobals(repositories.NewRepository(userRepository, roleRepository, permissionRepository))
+	repositories.ReplaceGlobals(repositories.NewPostgresRepository(database.DB().Postgres()))
 
 	// Start gRPC microservice
 	port := viper.GetString("USER_MICROSERVICE_PORT")

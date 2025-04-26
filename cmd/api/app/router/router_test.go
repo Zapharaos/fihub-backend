@@ -30,11 +30,13 @@ func TestNewRouter(t *testing.T) {
 	// Set up a mock controller and a mock HealthServiceClient
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	m := mocks.NewHealthServiceClient(ctrl)
-	m.EXPECT().CheckHealth(gomock.Any(), gomock.Any()).Return(&protogen.HealthResponse{
+	hc := mocks.NewHealthServiceClient(ctrl)
+	hc.EXPECT().CheckHealth(gomock.Any(), gomock.Any()).Return(&protogen.HealthResponse{
 		IsHealthy: true,
 	}, nil)
-	clients.ReplaceGlobals(clients.NewClients(m, nil, nil, nil))
+	clients.ReplaceGlobals(clients.NewClients(
+		clients.WithHealthClient(hc),
+	))
 
 	// Test health check route
 	apiBasePath := viper.GetString("API_BASE_PATH")

@@ -10,12 +10,9 @@
 package mocks
 
 import (
-	context "context"
 	reflect "reflect"
 
-	protogen "github.com/Zapharaos/fihub-backend/protogen"
 	gomock "go.uber.org/mock/gomock"
-	grpc "google.golang.org/grpc"
 )
 
 // UserServiceClient is a mock of UserServiceClient interface.
@@ -42,106 +39,6 @@ func (m *UserServiceClient) EXPECT() *UserServiceClientMockRecorder {
 	return m.recorder
 }
 
-// CreatePermission mocks base method.
-func (m *UserServiceClient) CreatePermission(ctx context.Context, in *protogen.CreatePermissionRequest, opts ...grpc.CallOption) (*protogen.CreatePermissionResponse, error) {
-	m.ctrl.T.Helper()
-	varargs := []any{ctx, in}
-	for _, a := range opts {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "CreatePermission", varargs...)
-	ret0, _ := ret[0].(*protogen.CreatePermissionResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// CreatePermission indicates an expected call of CreatePermission.
-func (mr *UserServiceClientMockRecorder) CreatePermission(ctx, in any, opts ...any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	varargs := append([]any{ctx, in}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreatePermission", reflect.TypeOf((*UserServiceClient)(nil).CreatePermission), varargs...)
-}
-
-// DeletePermission mocks base method.
-func (m *UserServiceClient) DeletePermission(ctx context.Context, in *protogen.DeletePermissionRequest, opts ...grpc.CallOption) (*protogen.DeletePermissionResponse, error) {
-	m.ctrl.T.Helper()
-	varargs := []any{ctx, in}
-	for _, a := range opts {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "DeletePermission", varargs...)
-	ret0, _ := ret[0].(*protogen.DeletePermissionResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// DeletePermission indicates an expected call of DeletePermission.
-func (mr *UserServiceClientMockRecorder) DeletePermission(ctx, in any, opts ...any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	varargs := append([]any{ctx, in}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeletePermission", reflect.TypeOf((*UserServiceClient)(nil).DeletePermission), varargs...)
-}
-
-// GetPermission mocks base method.
-func (m *UserServiceClient) GetPermission(ctx context.Context, in *protogen.GetPermissionRequest, opts ...grpc.CallOption) (*protogen.GetPermissionResponse, error) {
-	m.ctrl.T.Helper()
-	varargs := []any{ctx, in}
-	for _, a := range opts {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "GetPermission", varargs...)
-	ret0, _ := ret[0].(*protogen.GetPermissionResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetPermission indicates an expected call of GetPermission.
-func (mr *UserServiceClientMockRecorder) GetPermission(ctx, in any, opts ...any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	varargs := append([]any{ctx, in}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPermission", reflect.TypeOf((*UserServiceClient)(nil).GetPermission), varargs...)
-}
-
-// ListPermissions mocks base method.
-func (m *UserServiceClient) ListPermissions(ctx context.Context, in *protogen.ListPermissionsRequest, opts ...grpc.CallOption) (*protogen.ListPermissionsResponse, error) {
-	m.ctrl.T.Helper()
-	varargs := []any{ctx, in}
-	for _, a := range opts {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "ListPermissions", varargs...)
-	ret0, _ := ret[0].(*protogen.ListPermissionsResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// ListPermissions indicates an expected call of ListPermissions.
-func (mr *UserServiceClientMockRecorder) ListPermissions(ctx, in any, opts ...any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	varargs := append([]any{ctx, in}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListPermissions", reflect.TypeOf((*UserServiceClient)(nil).ListPermissions), varargs...)
-}
-
-// UpdatePermission mocks base method.
-func (m *UserServiceClient) UpdatePermission(ctx context.Context, in *protogen.UpdatePermissionRequest, opts ...grpc.CallOption) (*protogen.UpdatePermissionResponse, error) {
-	m.ctrl.T.Helper()
-	varargs := []any{ctx, in}
-	for _, a := range opts {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "UpdatePermission", varargs...)
-	ret0, _ := ret[0].(*protogen.UpdatePermissionResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// UpdatePermission indicates an expected call of UpdatePermission.
-func (mr *UserServiceClientMockRecorder) UpdatePermission(ctx, in any, opts ...any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	varargs := append([]any{ctx, in}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdatePermission", reflect.TypeOf((*UserServiceClient)(nil).UpdatePermission), varargs...)
-}
-
 // MockUserServiceServer is a mock of UserServiceServer interface.
 type MockUserServiceServer struct {
 	ctrl     *gomock.Controller
@@ -164,81 +61,6 @@ func NewMockUserServiceServer(ctrl *gomock.Controller) *MockUserServiceServer {
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockUserServiceServer) EXPECT() *MockUserServiceServerMockRecorder {
 	return m.recorder
-}
-
-// CreatePermission mocks base method.
-func (m *MockUserServiceServer) CreatePermission(arg0 context.Context, arg1 *protogen.CreatePermissionRequest) (*protogen.CreatePermissionResponse, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreatePermission", arg0, arg1)
-	ret0, _ := ret[0].(*protogen.CreatePermissionResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// CreatePermission indicates an expected call of CreatePermission.
-func (mr *MockUserServiceServerMockRecorder) CreatePermission(arg0, arg1 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreatePermission", reflect.TypeOf((*MockUserServiceServer)(nil).CreatePermission), arg0, arg1)
-}
-
-// DeletePermission mocks base method.
-func (m *MockUserServiceServer) DeletePermission(arg0 context.Context, arg1 *protogen.DeletePermissionRequest) (*protogen.DeletePermissionResponse, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DeletePermission", arg0, arg1)
-	ret0, _ := ret[0].(*protogen.DeletePermissionResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// DeletePermission indicates an expected call of DeletePermission.
-func (mr *MockUserServiceServerMockRecorder) DeletePermission(arg0, arg1 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeletePermission", reflect.TypeOf((*MockUserServiceServer)(nil).DeletePermission), arg0, arg1)
-}
-
-// GetPermission mocks base method.
-func (m *MockUserServiceServer) GetPermission(arg0 context.Context, arg1 *protogen.GetPermissionRequest) (*protogen.GetPermissionResponse, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetPermission", arg0, arg1)
-	ret0, _ := ret[0].(*protogen.GetPermissionResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetPermission indicates an expected call of GetPermission.
-func (mr *MockUserServiceServerMockRecorder) GetPermission(arg0, arg1 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPermission", reflect.TypeOf((*MockUserServiceServer)(nil).GetPermission), arg0, arg1)
-}
-
-// ListPermissions mocks base method.
-func (m *MockUserServiceServer) ListPermissions(arg0 context.Context, arg1 *protogen.ListPermissionsRequest) (*protogen.ListPermissionsResponse, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListPermissions", arg0, arg1)
-	ret0, _ := ret[0].(*protogen.ListPermissionsResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// ListPermissions indicates an expected call of ListPermissions.
-func (mr *MockUserServiceServerMockRecorder) ListPermissions(arg0, arg1 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListPermissions", reflect.TypeOf((*MockUserServiceServer)(nil).ListPermissions), arg0, arg1)
-}
-
-// UpdatePermission mocks base method.
-func (m *MockUserServiceServer) UpdatePermission(arg0 context.Context, arg1 *protogen.UpdatePermissionRequest) (*protogen.UpdatePermissionResponse, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdatePermission", arg0, arg1)
-	ret0, _ := ret[0].(*protogen.UpdatePermissionResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// UpdatePermission indicates an expected call of UpdatePermission.
-func (mr *MockUserServiceServerMockRecorder) UpdatePermission(arg0, arg1 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdatePermission", reflect.TypeOf((*MockUserServiceServer)(nil).UpdatePermission), arg0, arg1)
 }
 
 // mustEmbedUnimplementedUserServiceServer mocks base method.

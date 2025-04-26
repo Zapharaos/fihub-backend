@@ -43,7 +43,7 @@ func CreatePasswordResetRequest(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Retrieve user and validate email
-	user, exists, err := repositories.R().U().GetByEmail(inputRequest.Email)
+	user, exists, err := repositories.R().GetByEmail(inputRequest.Email)
 	if err != nil {
 		zap.L().Error("Check resetPassword exists", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
@@ -260,7 +260,7 @@ func ResetPassword(w http.ResponseWriter, r *http.Request) {
 	userWithPassword.ID = userID
 
 	// Reset password
-	err = repositories.R().U().UpdateWithPassword(userWithPassword)
+	err = repositories.R().UpdateWithPassword(userWithPassword)
 	if err != nil {
 		zap.L().Error("PutUser.UpdatePassword", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)

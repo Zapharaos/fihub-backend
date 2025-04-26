@@ -12,6 +12,10 @@ services:
     build:
       target: development
 
+  security:
+    build:
+      target: development
+
   broker:
     build:
       target: development

@@ -43,7 +43,7 @@ func TestCreatePasswordResetRequest(t *testing.T) {
 			mockSetup: func(ctrl *gomock.Controller) {
 				u := mocks.NewUserRepository(ctrl)
 				u.EXPECT().GetByEmail(gomock.Any()).Times(0)
-				repositories.ReplaceGlobals(repositories.NewRepository(u, nil, nil))
+				repositories.ReplaceGlobals(u)
 			},
 			expectedStatus: http.StatusBadRequest,
 		},
@@ -53,7 +53,7 @@ func TestCreatePasswordResetRequest(t *testing.T) {
 			mockSetup: func(ctrl *gomock.Controller) {
 				u := mocks.NewUserRepository(ctrl)
 				u.EXPECT().GetByEmail(gomock.Any()).Return(models.User{}, false, errors.New("error"))
-				repositories.ReplaceGlobals(repositories.NewRepository(u, nil, nil))
+				repositories.ReplaceGlobals(u)
 				p := mocks.NewPasswordRepository(ctrl)
 				p.EXPECT().ValidForUser(gomock.Any()).Times(0)
 				password.ReplaceGlobals(p)
@@ -66,7 +66,7 @@ func TestCreatePasswordResetRequest(t *testing.T) {
 			mockSetup: func(ctrl *gomock.Controller) {
 				u := mocks.NewUserRepository(ctrl)
 				u.EXPECT().GetByEmail(gomock.Any()).Return(models.User{}, false, nil)
-				repositories.ReplaceGlobals(repositories.NewRepository(u, nil, nil))
+				repositories.ReplaceGlobals(u)
 				p := mocks.NewPasswordRepository(ctrl)
 				p.EXPECT().ValidForUser(gomock.Any()).Times(0)
 				password.ReplaceGlobals(p)
@@ -79,7 +79,7 @@ func TestCreatePasswordResetRequest(t *testing.T) {
 			mockSetup: func(ctrl *gomock.Controller) {
 				u := mocks.NewUserRepository(ctrl)
 				u.EXPECT().GetByEmail(gomock.Any()).Return(models.User{}, true, nil)
-				repositories.ReplaceGlobals(repositories.NewRepository(u, nil, nil))
+				repositories.ReplaceGlobals(u)
 				p := mocks.NewPasswordRepository(ctrl)
 				p.EXPECT().ValidForUser(gomock.Any()).Return(true, errors.New("error"))
 				p.EXPECT().GetExpiresAt(gomock.Any()).Times(0)
@@ -94,7 +94,7 @@ func TestCreatePasswordResetRequest(t *testing.T) {
 			mockSetup: func(ctrl *gomock.Controller) {
 				u := mocks.NewUserRepository(ctrl)
 				u.EXPECT().GetByEmail(gomock.Any()).Return(models.User{}, true, nil)
-				repositories.ReplaceGlobals(repositories.NewRepository(u, nil, nil))
+				repositories.ReplaceGlobals(u)
 				p := mocks.NewPasswordRepository(ctrl)
 				p.EXPECT().ValidForUser(gomock.Any()).Return(true, nil)
 				p.EXPECT().GetExpiresAt(gomock.Any()).Return(time.Now(), errors.New("error"))
@@ -109,7 +109,7 @@ func TestCreatePasswordResetRequest(t *testing.T) {
 			mockSetup: func(ctrl *gomock.Controller) {
 				u := mocks.NewUserRepository(ctrl)
 				u.EXPECT().GetByEmail(gomock.Any()).Return(models.User{}, true, nil)
-				repositories.ReplaceGlobals(repositories.NewRepository(u, nil, nil))
+				repositories.ReplaceGlobals(u)
 				p := mocks.NewPasswordRepository(ctrl)
 				p.EXPECT().ValidForUser(gomock.Any()).Return(true, nil)
 				p.EXPECT().GetExpiresAt(gomock.Any()).Return(time.Now(), nil)
@@ -124,7 +124,7 @@ func TestCreatePasswordResetRequest(t *testing.T) {
 			mockSetup: func(ctrl *gomock.Controller) {
 				u := mocks.NewUserRepository(ctrl)
 				u.EXPECT().GetByEmail(gomock.Any()).Return(models.User{}, true, nil)
-				repositories.ReplaceGlobals(repositories.NewRepository(u, nil, nil))
+				repositories.ReplaceGlobals(u)
 				p := mocks.NewPasswordRepository(ctrl)
 				p.EXPECT().ValidForUser(gomock.Any()).Return(false, nil)
 				p.EXPECT().Create(gomock.Any()).Return(models.PasswordRequest{}, errors.New("error"))
@@ -144,7 +144,7 @@ func TestCreatePasswordResetRequest(t *testing.T) {
 				handlers.ReplaceGlobals(h)
 				u := mocks.NewUserRepository(ctrl)
 				u.EXPECT().GetByEmail(gomock.Any()).Return(models.User{}, true, nil)
-				repositories.ReplaceGlobals(repositories.NewRepository(u, nil, nil))
+				repositories.ReplaceGlobals(u)
 				p := mocks.NewPasswordRepository(ctrl)
 				p.EXPECT().ValidForUser(gomock.Any()).Return(false, nil)
 				p.EXPECT().Create(gomock.Any()).Return(models.PasswordRequest{}, nil)
@@ -165,7 +165,7 @@ func TestCreatePasswordResetRequest(t *testing.T) {
 				handlers.ReplaceGlobals(h)
 				u := mocks.NewUserRepository(ctrl)
 				u.EXPECT().GetByEmail(gomock.Any()).Return(models.User{}, true, nil)
-				repositories.ReplaceGlobals(repositories.NewRepository(u, nil, nil))
+				repositories.ReplaceGlobals(u)
 				p := mocks.NewPasswordRepository(ctrl)
 				p.EXPECT().ValidForUser(gomock.Any()).Return(false, nil)
 				p.EXPECT().Create(gomock.Any()).Return(models.PasswordRequest{}, nil)
@@ -190,7 +190,7 @@ func TestCreatePasswordResetRequest(t *testing.T) {
 				handlers.ReplaceGlobals(h)
 				u := mocks.NewUserRepository(ctrl)
 				u.EXPECT().GetByEmail(gomock.Any()).Return(models.User{}, true, nil)
-				repositories.ReplaceGlobals(repositories.NewRepository(u, nil, nil))
+				repositories.ReplaceGlobals(u)
 				p := mocks.NewPasswordRepository(ctrl)
 				p.EXPECT().ValidForUser(gomock.Any()).Return(false, nil)
 				p.EXPECT().Create(gomock.Any()).Return(models.PasswordRequest{}, nil)
@@ -366,7 +366,7 @@ func TestResetPassword(t *testing.T) {
 				password.ReplaceGlobals(p)
 				u := mocks.NewUserRepository(ctrl)
 				u.EXPECT().UpdateWithPassword(gomock.Any()).Times(0)
-				repositories.ReplaceGlobals(repositories.NewRepository(u, nil, nil))
+				repositories.ReplaceGlobals(u)
 			},
 			expectedStatus: http.StatusInternalServerError,
 		},
@@ -381,7 +381,7 @@ func TestResetPassword(t *testing.T) {
 				password.ReplaceGlobals(p)
 				u := mocks.NewUserRepository(ctrl)
 				u.EXPECT().UpdateWithPassword(gomock.Any()).Times(0)
-				repositories.ReplaceGlobals(repositories.NewRepository(u, nil, nil))
+				repositories.ReplaceGlobals(u)
 			},
 			expectedStatus: http.StatusBadRequest,
 		},
@@ -397,7 +397,7 @@ func TestResetPassword(t *testing.T) {
 				password.ReplaceGlobals(p)
 				u := mocks.NewUserRepository(ctrl)
 				u.EXPECT().UpdateWithPassword(gomock.Any()).Times(0)
-				repositories.ReplaceGlobals(repositories.NewRepository(u, nil, nil))
+				repositories.ReplaceGlobals(u)
 			},
 			expectedStatus: http.StatusBadRequest,
 		},
@@ -413,7 +413,7 @@ func TestResetPassword(t *testing.T) {
 				password.ReplaceGlobals(p)
 				u := mocks.NewUserRepository(ctrl)
 				u.EXPECT().UpdateWithPassword(gomock.Any()).Times(0)
-				repositories.ReplaceGlobals(repositories.NewRepository(u, nil, nil))
+				repositories.ReplaceGlobals(u)
 			},
 			expectedStatus: http.StatusBadRequest,
 		},
@@ -430,7 +430,7 @@ func TestResetPassword(t *testing.T) {
 				password.ReplaceGlobals(p)
 				u := mocks.NewUserRepository(ctrl)
 				u.EXPECT().UpdateWithPassword(gomock.Any()).Return(errors.New("error"))
-				repositories.ReplaceGlobals(repositories.NewRepository(u, nil, nil))
+				repositories.ReplaceGlobals(u)
 			},
 			expectedStatus: http.StatusInternalServerError,
 		},
@@ -447,7 +447,7 @@ func TestResetPassword(t *testing.T) {
 				password.ReplaceGlobals(p)
 				u := mocks.NewUserRepository(ctrl)
 				u.EXPECT().UpdateWithPassword(gomock.Any()).Return(nil)
-				repositories.ReplaceGlobals(repositories.NewRepository(u, nil, nil))
+				repositories.ReplaceGlobals(u)
 			},
 			expectedStatus: http.StatusInternalServerError,
 		},
@@ -464,7 +464,7 @@ func TestResetPassword(t *testing.T) {
 				password.ReplaceGlobals(p)
 				u := mocks.NewUserRepository(ctrl)
 				u.EXPECT().UpdateWithPassword(gomock.Any()).Return(nil)
-				repositories.ReplaceGlobals(repositories.NewRepository(u, nil, nil))
+				repositories.ReplaceGlobals(u)
 			},
 			expectedStatus: http.StatusOK,
 		},

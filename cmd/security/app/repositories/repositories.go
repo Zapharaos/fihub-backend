@@ -2,23 +2,16 @@ package repositories
 
 // Repository is a struct that contains all the repositories
 type Repository struct {
-	user       UserRepository
 	role       RoleRepository
 	permission PermissionRepository
 }
 
 // NewRepository returns a new instance of Repository
-func NewRepository(user UserRepository, role RoleRepository, permission PermissionRepository) Repository {
+func NewRepository(role RoleRepository, permission PermissionRepository) Repository {
 	return Repository{
-		user:       user,
 		role:       role,
 		permission: permission,
 	}
-}
-
-// U is used to access the UserRepository singleton
-func (r Repository) U() UserRepository {
-	return r.user
 }
 
 // R is used to access the RoleRepository singleton

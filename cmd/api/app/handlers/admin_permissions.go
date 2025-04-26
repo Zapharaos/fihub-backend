@@ -52,7 +52,7 @@ func CreatePermission(w http.ResponseWriter, r *http.Request) {
 	defer cancel()
 
 	// Create the Permission
-	response, err := clients.C().User().CreatePermission(ctx, permissionRequest)
+	response, err := clients.C().Security().CreatePermission(ctx, permissionRequest)
 	if err != nil {
 		zap.L().Error("Create Permission", zap.Error(err))
 		render.ErrorCodesCodeToHttpCode(w, r, err)
@@ -101,7 +101,7 @@ func GetPermission(w http.ResponseWriter, r *http.Request) {
 	defer cancel()
 
 	// Get the Permission
-	response, err := clients.C().User().GetPermission(ctx, permissionRequest)
+	response, err := clients.C().Security().GetPermission(ctx, permissionRequest)
 	if err != nil {
 		zap.L().Error("Get Permission", zap.Error(err))
 		render.ErrorCodesCodeToHttpCode(w, r, err)
@@ -141,7 +141,7 @@ func ListPermissions(w http.ResponseWriter, r *http.Request) {
 	defer cancel()
 
 	// List the Broker
-	response, err := clients.C().User().ListPermissions(ctx, &protogen.ListPermissionsRequest{})
+	response, err := clients.C().Security().ListPermissions(ctx, &protogen.ListPermissionsRequest{})
 	if err != nil {
 		zap.L().Error("List Permissions", zap.Error(err))
 		render.ErrorCodesCodeToHttpCode(w, r, err)
@@ -206,7 +206,7 @@ func UpdatePermission(w http.ResponseWriter, r *http.Request) {
 	defer cancel()
 
 	// Update the Permission
-	response, err := clients.C().User().UpdatePermission(ctx, permissionRequest)
+	response, err := clients.C().Security().UpdatePermission(ctx, permissionRequest)
 	if err != nil {
 		zap.L().Error("Update Permission", zap.Error(err))
 		render.ErrorCodesCodeToHttpCode(w, r, err)
@@ -254,7 +254,7 @@ func DeletePermission(w http.ResponseWriter, r *http.Request) {
 	defer cancel()
 
 	// Delete the Permission
-	_, err := clients.C().User().DeletePermission(ctx, permissionRequest)
+	_, err := clients.C().Security().DeletePermission(ctx, permissionRequest)
 	if err != nil {
 		zap.L().Error("Delete Permission", zap.Error(err))
 		render.ErrorCodesCodeToHttpCode(w, r, err)

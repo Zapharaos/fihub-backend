@@ -63,6 +63,23 @@ services:
     networks:
       - backend
 
+  security:
+    build:
+      context: .
+      dockerfile: cmd/security/Dockerfile
+      target: production
+    restart: unless-stopped
+    ports:
+      - "50004:50004"
+    env_file:
+      - .env
+    depends_on:
+      - api
+    volumes:
+      - ./:/app
+    networks:
+      - backend
+
   broker:
     build:
       context: .
@@ -70,7 +87,7 @@ services:
       target: production
     restart: unless-stopped
     ports:
-      - "50003:50003"
+      - "50005:50005"
     env_file:
       - .env
     depends_on:
@@ -87,7 +104,7 @@ services:
       target: production
     restart: unless-stopped
     ports:
-      - "50004:50004"
+      - "50006:50006"
     env_file:
       - .env
     depends_on:

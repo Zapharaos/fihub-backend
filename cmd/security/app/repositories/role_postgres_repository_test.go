@@ -2,7 +2,7 @@ package repositories_test
 
 import (
 	"errors"
-	"github.com/Zapharaos/fihub-backend/cmd/user/app/repositories"
+	"github.com/Zapharaos/fihub-backend/cmd/security/app/repositories"
 	"github.com/Zapharaos/fihub-backend/internal/models"
 	"github.com/Zapharaos/fihub-backend/test"
 	"github.com/google/uuid"
@@ -16,7 +16,7 @@ func TestRolePostgresRepository_Get(t *testing.T) {
 	sqlxMock.CreateFullTestSqlx(t)
 	defer sqlxMock.CleanTestSqlx()
 
-	repositories.ReplaceGlobals(repositories.NewRepository(nil, repositories.NewRolePostgresRepository(sqlxMock.DB), nil))
+	repositories.ReplaceGlobals(repositories.NewRepository(repositories.NewRolePostgresRepository(sqlxMock.DB), nil))
 
 	tests := []struct {
 		name        string
@@ -68,7 +68,7 @@ func TestRolePostgresRepository_GetByName(t *testing.T) {
 	sqlxMock.CreateFullTestSqlx(t)
 	defer sqlxMock.CleanTestSqlx()
 
-	repositories.ReplaceGlobals(repositories.NewRepository(nil, repositories.NewRolePostgresRepository(sqlxMock.DB), nil))
+	repositories.ReplaceGlobals(repositories.NewRepository(repositories.NewRolePostgresRepository(sqlxMock.DB), nil))
 
 	tests := []struct {
 		name        string
@@ -120,7 +120,7 @@ func TestRolePostgresRepository_Create(t *testing.T) {
 	sqlxMock.CreateFullTestSqlx(t)
 	defer sqlxMock.CleanTestSqlx()
 
-	repositories.ReplaceGlobals(repositories.NewRepository(nil, repositories.NewRolePostgresRepository(sqlxMock.DB), nil))
+	repositories.ReplaceGlobals(repositories.NewRepository(repositories.NewRolePostgresRepository(sqlxMock.DB), nil))
 
 	tests := []struct {
 		name          string
@@ -204,7 +204,7 @@ func TestRolePostgresRepository_Update(t *testing.T) {
 	sqlxMock.CreateFullTestSqlx(t)
 	defer sqlxMock.CleanTestSqlx()
 
-	repositories.ReplaceGlobals(repositories.NewRepository(nil, repositories.NewRolePostgresRepository(sqlxMock.DB), nil))
+	repositories.ReplaceGlobals(repositories.NewRepository(repositories.NewRolePostgresRepository(sqlxMock.DB), nil))
 
 	tests := []struct {
 		name          string
@@ -292,7 +292,7 @@ func TestRolePostgresRepository_Delete(t *testing.T) {
 	sqlxMock.CreateFullTestSqlx(t)
 	defer sqlxMock.CleanTestSqlx()
 
-	repositories.ReplaceGlobals(repositories.NewRepository(nil, repositories.NewRolePostgresRepository(sqlxMock.DB), nil))
+	repositories.ReplaceGlobals(repositories.NewRepository(repositories.NewRolePostgresRepository(sqlxMock.DB), nil))
 
 	tests := []struct {
 		name      string
@@ -335,7 +335,7 @@ func TestRolePostgresRepository_GetAll(t *testing.T) {
 	sqlxMock.CreateFullTestSqlx(t)
 	defer sqlxMock.CleanTestSqlx()
 
-	repositories.ReplaceGlobals(repositories.NewRepository(nil, repositories.NewRolePostgresRepository(sqlxMock.DB), nil))
+	repositories.ReplaceGlobals(repositories.NewRepository(repositories.NewRolePostgresRepository(sqlxMock.DB), nil))
 
 	tests := []struct {
 		name        string
@@ -385,7 +385,7 @@ func TestRolePostgresRepository_GetWithPermissions(t *testing.T) {
 	sqlxMock.CreateFullTestSqlx(t)
 	defer sqlxMock.CleanTestSqlx()
 
-	repositories.ReplaceGlobals(repositories.NewRepository(nil, repositories.NewRolePostgresRepository(sqlxMock.DB), nil))
+	repositories.ReplaceGlobals(repositories.NewRepository(repositories.NewRolePostgresRepository(sqlxMock.DB), nil))
 
 	tests := []struct {
 		name        string
@@ -437,7 +437,7 @@ func TestRolePostgresRepository_GetAllWithPermissions(t *testing.T) {
 	sqlxMock.CreateFullTestSqlx(t)
 	defer sqlxMock.CleanTestSqlx()
 
-	repositories.ReplaceGlobals(repositories.NewRepository(nil, repositories.NewRolePostgresRepository(sqlxMock.DB), nil))
+	repositories.ReplaceGlobals(repositories.NewRepository(repositories.NewRolePostgresRepository(sqlxMock.DB), nil))
 
 	tests := []struct {
 		name        string
@@ -487,7 +487,7 @@ func TestRolePostgresRepository_GetRolesByUserId(t *testing.T) {
 	sqlxMock.CreateFullTestSqlx(t)
 	defer sqlxMock.CleanTestSqlx()
 
-	repositories.ReplaceGlobals(repositories.NewRepository(nil, repositories.NewRolePostgresRepository(sqlxMock.DB), nil))
+	repositories.ReplaceGlobals(repositories.NewRepository(repositories.NewRolePostgresRepository(sqlxMock.DB), nil))
 
 	tests := []struct {
 		name        string
@@ -540,7 +540,7 @@ func TestRolePostgresRepository_SetRolePermissions(t *testing.T) {
 	sqlxMock.CreateFullTestSqlx(t)
 	defer sqlxMock.CleanTestSqlx()
 
-	repositories.ReplaceGlobals(repositories.NewRepository(nil, repositories.NewRolePostgresRepository(sqlxMock.DB), nil))
+	repositories.ReplaceGlobals(repositories.NewRepository(repositories.NewRolePostgresRepository(sqlxMock.DB), nil))
 
 	tests := []struct {
 		name          string

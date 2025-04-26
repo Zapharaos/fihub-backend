@@ -83,10 +83,20 @@ USER_MICROSERVICE_PORT = "50002"
 # Default value: "user"
 USER_MICROSERVICE_HOST = "user"
 
+# Specify the port for the Security microservice
+# This port is used to run the gRPC SecurityService
+# Default value: "50004"
+SECURITY_MICROSERVICE_PORT = "50004"
+
+# Specify the host for the Security microservice
+# Use "security" when running through Docker, "localhost" otherwise
+# Default value: "security"
+SECURITY_MICROSERVICE_HOST = "security"
+
 # Specify the port for the Broker microservice
 # This port is used to run the gRPC BrokerService
-# Default value: "50003"
-BROKER_MICROSERVICE_PORT = "50003"
+# Default value: "50005"
+BROKER_MICROSERVICE_PORT = "50005"
 
 # Specify the host for the Broker microservice
 # Use "broker" when running through Docker, "localhost" otherwise
@@ -95,8 +105,8 @@ BROKER_MICROSERVICE_HOST = "broker"
 
 # Specify the port for the Transaction microservice
 # This port is used to run the gRPC TransactionService
-# Default value: "50004"
-TRANSACTION_MICROSERVICE_PORT = "50004"
+# Default value: "50006"
+TRANSACTION_MICROSERVICE_PORT = "50006"
 
 # Specify the host for the Transaction microservice
 # Use "transaction" when running through Docker, "localhost" otherwise

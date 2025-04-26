@@ -1,7 +1,7 @@
 package app
 
 import (
-	"github.com/Zapharaos/fihub-backend/cmd/user/app/repositories"
+	userrepositories "github.com/Zapharaos/fihub-backend/cmd/user/app/repositories"
 	"github.com/Zapharaos/fihub-backend/internal/database"
 	"github.com/Zapharaos/fihub-backend/internal/password"
 	"github.com/jmoiron/sqlx"
@@ -22,10 +22,6 @@ func InitDatabase() {
 
 // InitPostgres initializes the postgres repositories.
 func InitPostgres(dbClient *sqlx.DB) {
-	userRepository := repositories.NewUserPostgresRepository(database.DB().Postgres())
-	roleRepository := repositories.NewRolePostgresRepository(database.DB().Postgres())
-	permissionRepository := repositories.NewPermissionPostgresRepository(database.DB().Postgres())
-	repositories.ReplaceGlobals(repositories.NewRepository(userRepository, roleRepository, permissionRepository))
-	
+	userrepositories.ReplaceGlobals(userrepositories.NewPostgresRepository(dbClient))
 	password.ReplaceGlobals(password.NewPostgresRepository(dbClient))
 }

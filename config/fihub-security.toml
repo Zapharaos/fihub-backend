@@ -11,10 +11,10 @@ APP_ENV = "production"
 # Default value: "debug"
 LOGGER_LEVEL = "debug"
 
-# Specify the port for the Broker microservice
-# This port is used to run the gRPC HealthService
-# Default value: "50005"
-BROKER_MICROSERVICE_PORT = "50005"
+# Specify the port for the Security microservice
+# This port is used to run the gRPC SecurityService
+# Default value: "50004"
+SECURITY_MICROSERVICE_PORT = "50004"
 
 # Specify the PostgreSQL username
 # Used to authenticate with the PostgreSQL database

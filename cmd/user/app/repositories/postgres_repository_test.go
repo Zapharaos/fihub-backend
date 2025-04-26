@@ -18,7 +18,7 @@ func TestUserPostgresRepository_Create(t *testing.T) {
 	sqlxMock.CreateFullTestSqlx(t)
 	defer sqlxMock.CleanTestSqlx()
 
-	repositories.ReplaceGlobals(repositories.NewRepository(repositories.NewUserPostgresRepository(sqlxMock.DB), nil, nil))
+	repositories.ReplaceGlobals(repositories.NewPostgresRepository(sqlxMock.DB))
 
 	tests := []struct {
 		name      string
@@ -48,7 +48,7 @@ func TestUserPostgresRepository_Create(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mockSetup()
-			_, err := repositories.R().U().Create(tt.user)
+			_, err := repositories.R().Create(tt.user)
 			if (err != nil) != tt.expectErr {
 				t.Errorf("Create() error = %v, expectErr %v", err, tt.expectErr)
 			}
@@ -62,7 +62,7 @@ func TestUserPostgresRepository_Get(t *testing.T) {
 	sqlxMock.CreateFullTestSqlx(t)
 	defer sqlxMock.CleanTestSqlx()
 
-	repositories.ReplaceGlobals(repositories.NewRepository(repositories.NewUserPostgresRepository(sqlxMock.DB), nil, nil))
+	repositories.ReplaceGlobals(repositories.NewPostgresRepository(sqlxMock.DB))
 
 	tests := []struct {
 		name        string
@@ -96,7 +96,7 @@ func TestUserPostgresRepository_Get(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mockSetup()
-			_, found, err := repositories.R().U().Get(tt.userID)
+			_, found, err := repositories.R().Get(tt.userID)
 			if (err != nil) != tt.expectErr {
 				t.Errorf("Get() error = %v, expectErr %v", err, tt.expectErr)
 				return
@@ -114,7 +114,7 @@ func TestUserPostgresRepository_GetByEmail(t *testing.T) {
 	sqlxMock.CreateFullTestSqlx(t)
 	defer sqlxMock.CleanTestSqlx()
 
-	repositories.ReplaceGlobals(repositories.NewRepository(repositories.NewUserPostgresRepository(sqlxMock.DB), nil, nil))
+	repositories.ReplaceGlobals(repositories.NewPostgresRepository(sqlxMock.DB))
 
 	tests := []struct {
 		name        string
@@ -148,7 +148,7 @@ func TestUserPostgresRepository_GetByEmail(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mockSetup()
-			_, found, err := repositories.R().U().GetByEmail(tt.email)
+			_, found, err := repositories.R().GetByEmail(tt.email)
 			if (err != nil) != tt.expectErr {
 				t.Errorf("GetByEmail() error = %v, expectErr %v", err, tt.expectErr)
 				return
@@ -166,7 +166,7 @@ func TestUserPostgresRepository_Exists(t *testing.T) {
 	sqlxMock.CreateFullTestSqlx(t)
 	defer sqlxMock.CleanTestSqlx()
 
-	repositories.ReplaceGlobals(repositories.NewRepository(repositories.NewUserPostgresRepository(sqlxMock.DB), nil, nil))
+	repositories.ReplaceGlobals(repositories.NewPostgresRepository(sqlxMock.DB))
 
 	tests := []struct {
 		name         string
@@ -205,7 +205,7 @@ func TestUserPostgresRepository_Exists(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mockSetup()
-			exists, err := repositories.R().U().Exists("")
+			exists, err := repositories.R().Exists("")
 			if (err != nil) != tt.expectErr {
 				t.Errorf("Exists() error = %v, expectErr %v", err, tt.expectErr)
 			}
@@ -222,7 +222,7 @@ func TestUserPostgresRepository_Authenticate(t *testing.T) {
 	sqlxMock.CreateFullTestSqlx(t)
 	defer sqlxMock.CleanTestSqlx()
 
-	repositories.ReplaceGlobals(repositories.NewRepository(repositories.NewUserPostgresRepository(sqlxMock.DB), nil, nil))
+	repositories.ReplaceGlobals(repositories.NewPostgresRepository(sqlxMock.DB))
 
 	tests := []struct {
 		name       string
@@ -254,7 +254,7 @@ func TestUserPostgresRepository_Authenticate(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mockSetup()
-			_, auth, err := repositories.R().U().Authenticate("", "password")
+			_, auth, err := repositories.R().Authenticate("", "password")
 			if (err != nil) != tt.expectErr {
 				t.Errorf("Authenticate() error = %v, expectErr %v", err, tt.expectErr)
 			}
@@ -271,7 +271,7 @@ func TestUserPostgresRepository_Update(t *testing.T) {
 	sqlxMock.CreateFullTestSqlx(t)
 	defer sqlxMock.CleanTestSqlx()
 
-	repositories.ReplaceGlobals(repositories.NewRepository(repositories.NewUserPostgresRepository(sqlxMock.DB), nil, nil))
+	repositories.ReplaceGlobals(repositories.NewPostgresRepository(sqlxMock.DB))
 
 	tests := []struct {
 		name      string
@@ -300,7 +300,7 @@ func TestUserPostgresRepository_Update(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mockSetup()
-			err := repositories.R().U().Update(tt.user)
+			err := repositories.R().Update(tt.user)
 			if (err != nil) != tt.expectErr {
 				t.Errorf("Update() error = %v, expectErr %v", err, tt.expectErr)
 			}
@@ -314,7 +314,7 @@ func TestUserPostgresRepository_UpdateWithPassword(t *testing.T) {
 	sqlxMock.CreateFullTestSqlx(t)
 	defer sqlxMock.CleanTestSqlx()
 
-	repositories.ReplaceGlobals(repositories.NewRepository(repositories.NewUserPostgresRepository(sqlxMock.DB), nil, nil))
+	repositories.ReplaceGlobals(repositories.NewPostgresRepository(sqlxMock.DB))
 
 	tests := []struct {
 		name      string
@@ -343,7 +343,7 @@ func TestUserPostgresRepository_UpdateWithPassword(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mockSetup()
-			err := repositories.R().U().UpdateWithPassword(tt.user)
+			err := repositories.R().UpdateWithPassword(tt.user)
 			if (err != nil) != tt.expectErr {
 				t.Errorf("UpdateWithPassword() error = %v, expectErr %v", err, tt.expectErr)
 			}
@@ -357,7 +357,7 @@ func TestUserPostgresRepository_Delete(t *testing.T) {
 	sqlxMock.CreateFullTestSqlx(t)
 	defer sqlxMock.CleanTestSqlx()
 
-	repositories.ReplaceGlobals(repositories.NewRepository(repositories.NewUserPostgresRepository(sqlxMock.DB), nil, nil))
+	repositories.ReplaceGlobals(repositories.NewPostgresRepository(sqlxMock.DB))
 
 	tests := []struct {
 		name      string
@@ -386,7 +386,7 @@ func TestUserPostgresRepository_Delete(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mockSetup()
-			err := repositories.R().U().Delete(tt.userID)
+			err := repositories.R().Delete(tt.userID)
 			if (err != nil) != tt.expectErr {
 				t.Errorf("Delete() error = %v, expectErr %v", err, tt.expectErr)
 			}
@@ -400,7 +400,7 @@ func TestUserPostgresRepository_GetWithRoles(t *testing.T) {
 	sqlxMock.CreateFullTestSqlx(t)
 	defer sqlxMock.CleanTestSqlx()
 
-	repositories.ReplaceGlobals(repositories.NewRepository(repositories.NewUserPostgresRepository(sqlxMock.DB), nil, nil))
+	repositories.ReplaceGlobals(repositories.NewPostgresRepository(sqlxMock.DB))
 
 	tests := []struct {
 		name      string
@@ -431,7 +431,7 @@ func TestUserPostgresRepository_GetWithRoles(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mockSetup()
-			_, err := repositories.R().U().GetWithRoles(tt.userID)
+			_, err := repositories.R().GetWithRoles(tt.userID)
 			if (err != nil) != tt.expectErr {
 				t.Errorf("GetWithRoles() error = %v, expectErr %v", err, tt.expectErr)
 			}
@@ -445,7 +445,7 @@ func TestUserPostgresRepository_GetAllWithRoles(t *testing.T) {
 	sqlxMock.CreateFullTestSqlx(t)
 	defer sqlxMock.CleanTestSqlx()
 
-	repositories.ReplaceGlobals(repositories.NewRepository(repositories.NewUserPostgresRepository(sqlxMock.DB), nil, nil))
+	repositories.ReplaceGlobals(repositories.NewPostgresRepository(sqlxMock.DB))
 
 	tests := []struct {
 		name      string
@@ -474,7 +474,7 @@ func TestUserPostgresRepository_GetAllWithRoles(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mockSetup()
-			_, err := repositories.R().U().GetAllWithRoles()
+			_, err := repositories.R().GetAllWithRoles()
 			if (err != nil) != tt.expectErr {
 				t.Errorf("GetAllWithRoles() error = %v, expectErr %v", err, tt.expectErr)
 			}
@@ -488,7 +488,7 @@ func TestUserPostgresRepository_GetUsersByRoleID(t *testing.T) {
 	sqlxMock.CreateFullTestSqlx(t)
 	defer sqlxMock.CleanTestSqlx()
 
-	repositories.ReplaceGlobals(repositories.NewRepository(repositories.NewUserPostgresRepository(sqlxMock.DB), nil, nil))
+	repositories.ReplaceGlobals(repositories.NewPostgresRepository(sqlxMock.DB))
 
 	tests := []struct {
 		name      string
@@ -520,7 +520,7 @@ func TestUserPostgresRepository_GetUsersByRoleID(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mockSetup()
-			_, err := repositories.R().U().GetUsersByRoleID(tt.roleID)
+			_, err := repositories.R().GetUsersByRoleID(tt.roleID)
 			if (err != nil) != tt.expectErr {
 				t.Errorf("GetUsersByRoleID() error = %v, expectErr %v", err, tt.expectErr)
 			}
@@ -534,7 +534,7 @@ func TestUserPostgresRepository_UpdateWithRoles(t *testing.T) {
 	sqlxMock.CreateFullTestSqlx(t)
 	defer sqlxMock.CleanTestSqlx()
 
-	repositories.ReplaceGlobals(repositories.NewRepository(repositories.NewUserPostgresRepository(sqlxMock.DB), nil, nil))
+	repositories.ReplaceGlobals(repositories.NewPostgresRepository(sqlxMock.DB))
 
 	tests := []struct {
 		name      string
@@ -572,7 +572,7 @@ func TestUserPostgresRepository_UpdateWithRoles(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mockSetup()
-			err := repositories.R().U().UpdateWithRoles(tt.user, tt.roleUUIDs)
+			err := repositories.R().UpdateWithRoles(tt.user, tt.roleUUIDs)
 			if (err != nil) != tt.expectErr {
 				t.Errorf("UpdateWithRoles() error = %v, expectErr %v", err, tt.expectErr)
 			}
@@ -586,7 +586,7 @@ func TestUserPostgresRepository_SetUserRoles(t *testing.T) {
 	sqlxMock.CreateFullTestSqlx(t)
 	defer sqlxMock.CleanTestSqlx()
 
-	repositories.ReplaceGlobals(repositories.NewRepository(repositories.NewUserPostgresRepository(sqlxMock.DB), nil, nil))
+	repositories.ReplaceGlobals(repositories.NewPostgresRepository(sqlxMock.DB))
 
 	tests := []struct {
 		name      string
@@ -623,7 +623,7 @@ func TestUserPostgresRepository_SetUserRoles(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mockSetup()
-			err := repositories.R().U().SetUserRoles(tt.userUUID, tt.roleUUIDs)
+			err := repositories.R().SetUserRoles(tt.userUUID, tt.roleUUIDs)
 			if (err != nil) != tt.expectErr {
 				t.Errorf("SetUserRoles() error = %v, expectErr %v", err, tt.expectErr)
 			}
@@ -637,7 +637,7 @@ func TestUserPostgresRepository_AddUsersRole(t *testing.T) {
 	sqlxMock.CreateFullTestSqlx(t)
 	defer sqlxMock.CleanTestSqlx()
 
-	repositories.ReplaceGlobals(repositories.NewRepository(repositories.NewUserPostgresRepository(sqlxMock.DB), nil, nil))
+	repositories.ReplaceGlobals(repositories.NewPostgresRepository(sqlxMock.DB))
 
 	tests := []struct {
 		name      string
@@ -673,7 +673,7 @@ func TestUserPostgresRepository_AddUsersRole(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mockSetup()
-			err := repositories.R().U().AddUsersRole(tt.userUUIDs, tt.roleUUID)
+			err := repositories.R().AddUsersRole(tt.userUUIDs, tt.roleUUID)
 			if (err != nil) != tt.expectErr {
 				t.Errorf("AddUsersRole() error = %v, expectErr %v", err, tt.expectErr)
 			}
@@ -687,7 +687,7 @@ func TestUserPostgresRepository_RemoveUsersRole(t *testing.T) {
 	sqlxMock.CreateFullTestSqlx(t)
 	defer sqlxMock.CleanTestSqlx()
 
-	repositories.ReplaceGlobals(repositories.NewRepository(repositories.NewUserPostgresRepository(sqlxMock.DB), nil, nil))
+	repositories.ReplaceGlobals(repositories.NewPostgresRepository(sqlxMock.DB))
 
 	tests := []struct {
 		name      string
@@ -723,7 +723,7 @@ func TestUserPostgresRepository_RemoveUsersRole(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mockSetup()
-			err := repositories.R().U().RemoveUsersRole(tt.userUUIDs, tt.roleUUID)
+			err := repositories.R().RemoveUsersRole(tt.userUUIDs, tt.roleUUID)
 			if (err != nil) != tt.expectErr {
 				t.Errorf("RemoveUsersRole() error = %v, expectErr %v", err, tt.expectErr)
 			}
