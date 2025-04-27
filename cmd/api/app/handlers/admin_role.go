@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/clients"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/handlers/render"
-	"github.com/Zapharaos/fihub-backend/cmd/user/app/service"
 	"github.com/Zapharaos/fihub-backend/internal/models"
 	"github.com/Zapharaos/fihub-backend/protogen"
 	"net/http"
@@ -320,38 +319,6 @@ func SetRolePermissions(w http.ResponseWriter, r *http.Request) {
 	render.OK(w, r)
 }
 
-// TODO : move to user private
-
-// GetRoleUsers godoc
-//
-//	@Id				GetRoleUsers
-//
-//	@Summary		Get all users for a specified role id
-//	@Description	Gets a list of all role users. (Permission: <b>admin.roles.users.list</b>)
-//	@Tags			Roles, RoleUsers
-//	@Produce		json
-//	@Param			id	path	string	true	"role ID"
-//	@Security		Bearer
-//	@Success		200	{array}		models.User				"list of users"
-//	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
-//	@Failure		401	{string}	string					"Permission denied"
-//	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
-//	@Router			/api/v1/roles/{id}/users [get]
-/*func GetRoleUsers(w http.ResponseWriter, r *http.Request) {
-	roleId, ok := U().ParseParamUUID(w, r, "id")
-	if !ok || !U().CheckPermission(w, r, "admin.roles.users.list") {
-		return
-	}
-
-	roleUsers, err := repositories.R().U().GetUsersByRoleID(roleId)
-	if err != nil {
-		render.Error(w, r, err, "Get role users")
-		return
-	}
-
-	render.JSON(w, r, roleUsers)
-}*/
-
 // PutUsersRole godoc
 //
 //	@Id				PutUsersRole
@@ -442,6 +409,40 @@ func RemoveUsersFromRole(w http.ResponseWriter, r *http.Request) {
 	render.OK(w, r)
 }
 
+// ListUsersForRole godoc
+//
+//	@Id				GetRoleUsers
+//
+//	@Summary		Get all users for a specified role id
+//	@Description	Gets a list of all role users. (Permission: <b>admin.roles.users.list</b>)
+//	@Tags			Roles, RoleUsers
+//	@Produce		json
+//	@Param			id	path	string	true	"role ID"
+//	@Security		Bearer
+//	@Success		200	{array}		models.User				"list of users"
+//	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
+//	@Failure		401	{string}	string					"Permission denied"
+//	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
+//	@Router			/api/v1/roles/{id}/users [get]
+func ListUsersForRole(w http.ResponseWriter, r *http.Request) {
+	roleId, ok := U().ParseParamUUID(w, r, "id")
+	if !ok {
+		return
+	}
+
+	// List users for the role
+	users, err := clients.C().Security().ListUsersForRole(r.Context(), &protogen.ListUsersForRoleRequest{
+		RoleId: roleId.String(),
+	})
+	if err != nil {
+		zap.L().Error("List Users for Role", zap.Error(err))
+		render.ErrorCodesCodeToHttpCode(w, r, err)
+		return
+	}
+
+	render.JSON(w, r, users)
+}
+
 // SetUserRoles godoc
 //
 //	@Id				SetUserRoles
@@ -487,8 +488,6 @@ func SetRolesForUser(w http.ResponseWriter, r *http.Request) {
 	render.OK(w, r)
 }
 
-// TODO : keep but return user with roleUUIDs instead of models.UserWithRoles
-
 // GetUserRoles godoc
 //
 //	@Id				GetUserRoles
@@ -504,24 +503,34 @@ func SetRolesForUser(w http.ResponseWriter, r *http.Request) {
 //	@Failure		401	{string}	string						"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse		"Internal Server Error"
 //	@Router			/api/v1/users/{id}/roles [get]
-func GetUserRoles(w http.ResponseWriter, r *http.Request) {
+func ListRolesForUser(w http.ResponseWriter, r *http.Request) {
 	userId, ok := U().ParseParamUUID(w, r, "id")
 	if !ok || !U().CheckPermission(w, r, "admin.users.roles.list") {
 		return
 	}
 
-	userRolesWithPermissions, err := service.LoadUserRoles(userId)
+	// List roles for the user
+	response, err := clients.C().Security().ListRolesForUser(r.Context(), &protogen.ListRolesForUserRequest{
+		UserId: userId.String(),
+	})
 	if err != nil {
-		render.Error(w, r, err, "Cannot load roles")
+		zap.L().Error("List Roles for User", zap.Error(err))
+		render.ErrorCodesCodeToHttpCode(w, r, err)
 		return
 	}
 
-	render.JSON(w, r, userRolesWithPermissions)
+	// Map the response to the RolesWithPermissions model
+	roles, err := models.FromProtogenRoles(response.GetRoles())
+	if err != nil {
+		zap.L().Error("Bad protogen roles", zap.Error(err))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	render.JSON(w, r, roles)
 }
 
-// TODO : keep but return user with roleUUIDs instead of models.UserWithRoles
-
-/*// GetAllUsersWithRoles godoc
+// GetAllUsersWithRoles godoc
 //
 //	@Id				GetAllUsersWithRoles
 //
@@ -535,16 +544,15 @@ func GetUserRoles(w http.ResponseWriter, r *http.Request) {
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/users [get]
 func GetAllUsersWithRoles(w http.ResponseWriter, r *http.Request) {
-	if !U().CheckPermission(w, r, "admin.users.list") {
-		return
-	}
-
-	usersWithRoles, err := repositories.R().GetAllWithRoles()
+	// List roles for the user
+	response, err := clients.C().Security().ListUsers(r.Context(), &protogen.ListUsersRequest{})
 	if err != nil {
-		zap.L().Error("GetAllWithRoles", zap.Error(err))
-		w.WriteHeader(http.StatusInternalServerError)
+		zap.L().Error("List Users", zap.Error(err))
+		render.ErrorCodesCodeToHttpCode(w, r, err)
 		return
 	}
 
-	render.JSON(w, r, usersWithRoles)
-}*/
+	// TODO : retrieve associated users
+
+	render.JSON(w, r, response)
+}

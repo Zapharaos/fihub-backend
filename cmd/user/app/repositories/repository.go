@@ -18,12 +18,6 @@ type Repository interface {
 	Update(user models.User) error
 	UpdateWithPassword(user models.UserWithPassword) error
 	Delete(userID uuid.UUID) error
-
-	// TODO : might need to move queries
-	GetWithRoles(userID uuid.UUID) (models.UserWithRoles, error)
-	GetAllWithRoles() ([]models.UserWithRoles, error)
-	GetUsersByRoleID(roleUUID uuid.UUID) ([]models.User, error)
-	UpdateWithRoles(user models.UserWithRoles, roleUUIDs []uuid.UUID) error
 }
 
 var (

@@ -243,7 +243,7 @@ func (r *RolePostgresRepository) Delete(uuid uuid.UUID) error {
 }
 
 // List returns all Roles in the repository
-func (r *RolePostgresRepository) List() ([]models.Role, error) {
+func (r *RolePostgresRepository) List() (models.Roles, error) {
 	// Prepare query
 	query := `SELECT *
 			  FROM roles`
@@ -259,7 +259,7 @@ func (r *RolePostgresRepository) List() ([]models.Role, error) {
 }
 
 // ListByUserId returns all the roles of a user in the repository
-func (r *RolePostgresRepository) ListByUserId(userUUID uuid.UUID) ([]models.Role, error) {
+func (r *RolePostgresRepository) ListByUserId(userUUID uuid.UUID) (models.Roles, error) {
 	// Prepare query
 	query := `SELECT r.id, r.name
 			  FROM roles as r
@@ -287,6 +287,29 @@ func (r *RolePostgresRepository) ListWithPermissions() (models.RolesWithPermissi
 			  LEFT JOIN role_permissions as rp on r.id = rp.role_id
 			  LEFT JOIN permissions as p on rp.permission_id = p.id`
 	params := map[string]interface{}{}
+
+	// Execute query
+	rows, err := r.conn.NamedQuery(query, params)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	return r.ScanAllWithPermissions(rows)
+}
+
+// ListWithPermissionsByUserId returns all the roles with permissions for a user in the repository
+func (r *RolePostgresRepository) ListWithPermissionsByUserId(userUUID uuid.UUID) (models.RolesWithPermissions, error) {
+	// Prepare query
+	query := `SELECT r.id, r.name, p.id, p.value, p.scope, p.description
+			  FROM roles as r
+			  LEFT JOIN role_permissions as rp on r.id = rp.role_id
+			  LEFT JOIN permissions as p on rp.permission_id = p.id
+			  INNER JOIN user_roles as ur on r.id = ur.role_id
+			  WHERE ur.user_id = :id`
+	params := map[string]interface{}{
+		"id": userUUID,
+	}
 
 	// Execute query
 	rows, err := r.conn.NamedQuery(query, params)
@@ -437,6 +460,42 @@ func (r *RolePostgresRepository) RemoveFromUsers(userUUIDs []uuid.UUID, roleUUID
 		return err
 	}
 	return nil
+}
+
+// ListUsersByRoleId returns all Users for a given Role
+func (r *RolePostgresRepository) ListUsersByRoleId(roleUUID uuid.UUID) ([]string, error) {
+	// Prepare query
+	query := `SELECT DISTINCT ur.user_id
+			  FROM user_roles as ur
+			  WHERE ur.role_id = :ID`
+	params := map[string]interface{}{
+		"ID": roleUUID,
+	}
+
+	// Execute query
+	rows, err := r.conn.NamedQuery(query, params)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	return utils.ScanAll(rows, utils.ScanString)
+}
+
+// ListUsers returns all User id's
+func (r *RolePostgresRepository) ListUsers() ([]string, error) {
+	// Prepare query
+	query := `SELECT DISTINCT ur.user_id
+			  FROM user_roles as ur`
+
+	// Execute query
+	rows, err := r.conn.Queryx(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	return utils.ScanAll(rows, utils.ScanString)
 }
 
 // SetPermissionsByRoleId sets the permissions of a Role in the repository

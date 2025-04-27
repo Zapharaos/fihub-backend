@@ -46,3 +46,11 @@ func ScanAll[T any](rows *sqlx.Rows, scan func(rows *sqlx.Rows) (T, error)) ([]T
 	}
 	return objs, nil
 }
+
+func ScanString(rows *sqlx.Rows) (string, error) {
+	var userID string
+	if err := rows.Scan(&userID); err != nil {
+		return "", err
+	}
+	return userID, nil
+}

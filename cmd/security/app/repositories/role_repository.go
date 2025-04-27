@@ -15,14 +15,18 @@ type RoleRepository interface {
 	GetWithPermissions(uuid uuid.UUID) (models.RoleWithPermissions, bool, error)
 	Update(role models.Role, permissionUUIDs []uuid.UUID) error
 	Delete(uuid uuid.UUID) error
-	List() ([]models.Role, error)
-	ListByUserId(userUUID uuid.UUID) ([]models.Role, error)
+	List() (models.Roles, error)
+	ListByUserId(userUUID uuid.UUID) (models.Roles, error)
 	ListWithPermissions() (models.RolesWithPermissions, error)
+	ListWithPermissionsByUserId(userUUID uuid.UUID) (models.RolesWithPermissions, error)
 
 	SetForUser(userUUID uuid.UUID, roleUUIDs []uuid.UUID) error
 	AddToUsers(userUUIDs []uuid.UUID, id uuid.UUID) error
 	RemoveFromUsers(userUUIDs []uuid.UUID, roleUUID uuid.UUID) error
-	
+
+	ListUsersByRoleId(roleUUID uuid.UUID) ([]string, error)
+	ListUsers() ([]string, error)
+
 	SetPermissionsByRoleId(roleUUID uuid.UUID, permissionUUIDs []uuid.UUID) error
 	ListPermissionsByRoleId(roleUUID uuid.UUID) (models.Permissions, error)
 	ListPermissionsByUserId(userUUID uuid.UUID) (models.Permissions, error)

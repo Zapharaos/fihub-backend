@@ -22,6 +22,8 @@ type Role struct {
 	Name string    `json:"name"`
 }
 
+type Roles []Role
+
 // IsValid checks if a Role is valid
 func (r Role) IsValid() (bool, error) {
 	if r.Name == "" {
@@ -67,6 +69,16 @@ func (r Role) ToProtogenRole() *protogen.Role {
 		Id:   r.Id.String(),
 		Name: r.Name,
 	}
+}
+
+// ToProtogenRoles converts a slice of Roles to a slice of protogen.Role
+func (r Roles) ToProtogenRoles() []*protogen.Role {
+	roles := make([]*protogen.Role, 0)
+	for _, role := range r {
+		roles = append(roles, role.ToProtogenRole())
+	}
+
+	return roles
 }
 
 // ToProtogenString converts a slice of RolePermissionsInput to a slice of strings
@@ -120,6 +132,24 @@ func FromProtogenRole(r *protogen.Role) (Role, error) {
 		Id:   id,
 		Name: r.GetName(),
 	}, nil
+}
+
+// FromProtogenRoles converts a slice of protogen.Role to Roles
+func FromProtogenRoles(roles []*protogen.Role) (Roles, error) {
+	if roles == nil {
+		return nil, errors.New("roles is nil")
+	}
+
+	result := make(Roles, len(roles))
+	for i, role := range roles {
+		r, err := FromProtogenRole(role)
+		if err != nil {
+			return nil, err
+		}
+		result[i] = r
+	}
+
+	return result, nil
 }
 
 // FromProtogenRolePermissionsInput converts a slice of string to RolePermissionsInput
