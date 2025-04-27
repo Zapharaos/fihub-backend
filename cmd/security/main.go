@@ -5,6 +5,7 @@ import (
 	"github.com/Zapharaos/fihub-backend/cmd/security/app/service"
 	"github.com/Zapharaos/fihub-backend/internal/app"
 	"github.com/Zapharaos/fihub-backend/internal/database"
+	"github.com/Zapharaos/fihub-backend/internal/security"
 	"github.com/Zapharaos/fihub-backend/protogen"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
@@ -41,7 +42,12 @@ func main() {
 	s := grpc.NewServer()
 
 	// Register gRPC service
+	publicService := &service.PublicService{}
+	protogen.RegisterPublicSecurityServiceServer(s, publicService)
 	protogen.RegisterSecurityServiceServer(s, &service.Service{})
+
+	// Setup publicService facade for internal use by service
+	security.ReplaceGlobals(security.NewPublicSecurityFacade(publicService))
 
 	zap.L().Info("gRPC Security microservice is running on port : " + port)
 	if err := s.Serve(lis); err != nil {

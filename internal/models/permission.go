@@ -119,6 +119,38 @@ func FromProtogenPermission(p *protogen.Permission) (Permission, error) {
 	}, nil
 }
 
+// ToProtogenPermissions converts a slice of Permission to a slice of protogen.Permission
+func (p Permissions) ToProtogenPermissions() []*protogen.Permission {
+	if p == nil {
+		return nil
+	}
+
+	permissions := make([]*protogen.Permission, len(p))
+	for i, perm := range p {
+		permissions[i] = perm.ToProtogenPermission()
+	}
+
+	return permissions
+}
+
+// FromProtogenPermissions converts a slice of protogen.Permission to a slice of Permission
+func FromProtogenPermissions(p []*protogen.Permission) (Permissions, error) {
+	if p == nil {
+		return nil, errors.New("permissions are nil")
+	}
+
+	permissions := make(Permissions, len(p))
+	for i, protoPerm := range p {
+		perm, err := FromProtogenPermission(protoPerm)
+		if err != nil {
+			continue
+		}
+		permissions[i] = perm
+	}
+
+	return permissions, nil
+}
+
 // CheckScope checks if a scope is valid
 func CheckScope(scope Scope) bool {
 	for _, s := range validScopes {

@@ -11,6 +11,29 @@ service SecurityService {
 	rpc UpdatePermission(UpdatePermissionRequest) returns (UpdatePermissionResponse);
 	rpc DeletePermission(DeletePermissionRequest) returns (DeletePermissionResponse);
 	rpc ListPermissions(ListPermissionsRequest) returns (ListPermissionsResponse);
+
+	// Role management
+	rpc CreateRole(CreateRoleRequest) returns (CreateRoleResponse);
+	rpc GetRole(GetRoleRequest) returns (GetRoleResponse);
+	rpc UpdateRole(UpdateRoleRequest) returns (UpdateRoleResponse);
+	rpc DeleteRole(DeleteRoleRequest) returns (DeleteRoleResponse);
+	rpc ListRoles(ListRolesRequest) returns (ListRolesResponse);
+
+	/*	// Role-Permission management
+    rpc ListRolePermissions(ListRolePermissionsRequest) returns (ListRolePermissionsResponse);
+    rpc SetRolePermissions(SetRolePermissionsRequest) returns (SetRolePermissionsResponse);
+
+    // Role-Users management
+    rpc ListUsersForRole(ListRoleUsersRequest) returns (ListRoleUsersResponse);
+    rpc AddUsersToRole(AddUserToRoleRequest) returns (AddUserToRoleResponse);
+    rpc RemoveUsersFromRole(RemoveUserFromRoleRequest) returns (RemoveUserFromRoleResponse);
+
+    // User-Roles management
+    rpc ListRolesForUser(ListUserRolesRequest) returns (ListUserRolesResponse);
+    rpc SetRolesForUser(SetUserRolesRequest) returns (SetUserRolesResponse);
+
+    // Users-Roles-Permissions management
+    rpc ListUsersRolesPermissions(ListUsersRolesPermissionsRequest) returns (ListUsersRolesPermissionsResponse);*/
 }
 
 // Permission
@@ -64,4 +87,58 @@ message ListPermissionsRequest {
 
 message ListPermissionsResponse {
 	repeated Permission permissions = 1;
+}
+
+// Role
+
+message Role {
+	string id = 1;
+	string name = 2;
+}
+
+message RoleWithPermissions {
+	Role role = 1;
+	repeated Permission permissions = 2;
+}
+
+message CreateRoleRequest {
+	string name = 1;
+	repeated Permission permissions = 2;
+}
+
+message CreateRoleResponse {
+	RoleWithPermissions role = 1;
+}
+
+message GetRoleRequest {
+	string id = 1;
+}
+
+message GetRoleResponse {
+	RoleWithPermissions role = 1;
+}
+
+message UpdateRoleRequest {
+	string id = 1;
+	string name = 2;
+	repeated Permission permissions = 3;
+}
+
+message UpdateRoleResponse {
+	RoleWithPermissions role = 1;
+}
+
+message DeleteRoleRequest {
+	string id = 1;
+}
+
+message DeleteRoleResponse {
+	bool success = 1;
+}
+
+message ListRolesRequest {
+}
+
+message ListRolesResponse {
+	repeated RoleWithPermissions roles = 1;
 }

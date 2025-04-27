@@ -8,6 +8,7 @@ import (
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/router"
 	"github.com/Zapharaos/fihub-backend/internal/app"
 	"github.com/Zapharaos/fihub-backend/internal/database"
+	"github.com/Zapharaos/fihub-backend/internal/security"
 	"github.com/Zapharaos/fihub-backend/pkg/email"
 	"github.com/Zapharaos/fihub-backend/pkg/translation"
 	"github.com/Zapharaos/fihub-backend/protogen"
@@ -108,6 +109,7 @@ func main() {
 // initGrpcClients initializes the gRPC clients for the application.
 func initGrpcClients() {
 	// Connect to the gRPC service microservice
+	// TODO : refactor init into a function
 	healthHost := viper.GetString("HEALTH_MICROSERVICE_HOST")
 	healthPort := viper.GetString("HEALTH_MICROSERVICE_PORT")
 	healthConn, err := grpc.NewClient(healthHost+":"+healthPort, grpc.WithTransportCredentials(insecure.NewCredentials()))
@@ -140,6 +142,10 @@ func initGrpcClients() {
 	}
 	securityClient := protogen.NewSecurityServiceClient(securityConn)
 
+	// Connect to the gRPC public security microservice
+	publicSecurityClient := protogen.NewPublicSecurityServiceClient(securityConn)
+	security.ReplaceGlobals(security.NewPublicSecurityFacadeWithGrpcClient(publicSecurityClient))
+
 	// Connect to the gRPC broker microservice
 	brokerHost := viper.GetString("BROKER_MICROSERVICE_HOST")
 	brokerPort := viper.GetString("BROKER_MICROSERVICE_PORT")
@@ -170,6 +176,9 @@ func initGrpcClients() {
 		clients.WithBrokerClient(brokerClient),
 		clients.WithTransactionClient(transactionClient),
 	))
+
+	// Facades
+
 }
 
 func setup() {

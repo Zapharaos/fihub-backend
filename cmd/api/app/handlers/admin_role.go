@@ -2,10 +2,13 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
+	"github.com/Zapharaos/fihub-backend/cmd/api/app/clients"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/handlers/render"
 	"github.com/Zapharaos/fihub-backend/cmd/security/app/repositories"
 	"github.com/Zapharaos/fihub-backend/cmd/user/app/service"
 	"github.com/Zapharaos/fihub-backend/internal/models"
+	"github.com/Zapharaos/fihub-backend/protogen"
 	"net/http"
 
 	"github.com/google/uuid"
@@ -29,10 +32,6 @@ import (
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/roles [post]
 func CreateRole(w http.ResponseWriter, r *http.Request) {
-	if !U().CheckPermission(w, r, "admin.roles.create") {
-		return
-	}
-
 	var role models.RoleWithPermissions
 	err := json.NewDecoder(r.Body).Decode(&role)
 	if err != nil {
@@ -41,42 +40,24 @@ func CreateRole(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if ok, err := role.IsValid(); !ok {
-		zap.L().Warn("Role is not valid", zap.Error(err))
-		render.BadRequest(w, r, err)
-		return
+	// Create gRPC protogen.CreateRoleRequest
+	roleRequest := &protogen.CreateRoleRequest{
+		Name: role.Name,
 	}
 
-	var perms []uuid.UUID
-
-	// Enable permission update
-	if U().CheckPermission(w, r, "admin.roles.permissions.update") {
-
-		if ok, err := role.Permissions.IsValid(); !ok {
-			zap.L().Warn("Permissions are not valid", zap.Error(err))
-			render.BadRequest(w, r, err)
-			return
-		}
-
-		perms = role.Permissions.GetUUIDs()
-	}
-
-	roleID, err := repositories.R().R().Create(role.Role, perms)
+	// Create the role
+	response, err := clients.C().Security().CreateRole(r.Context(), roleRequest)
 	if err != nil {
-		zap.L().Error("Cannot create role", zap.Error(err))
-		render.Error(w, r, err, "Create role")
+		zap.L().Error("Create Role", zap.Error(err))
+		render.ErrorCodesCodeToHttpCode(w, r, err)
 		return
 	}
 
-	newRole, found, err := repositories.R().R().GetWithPermissions(roleID)
+	// Map the response to the RoleWithPermissions model
+	newRole, err := models.FromProtogenRoleWithPermissions(response.GetRole())
 	if err != nil {
-		zap.L().Error("Cannot get role", zap.String("uuid", roleID.String()), zap.Error(err))
-		render.Error(w, r, nil, "")
-		return
-	}
-	if !found {
-		zap.L().Error("Role not found after creation", zap.String("uuid", roleID.String()))
-		render.Error(w, r, nil, "")
+		zap.L().Error("Bad protogen role", zap.Error(err))
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
@@ -101,20 +82,25 @@ func CreateRole(w http.ResponseWriter, r *http.Request) {
 //	@Router			/api/v1/roles/{id} [get]
 func GetRole(w http.ResponseWriter, r *http.Request) {
 	roleID, ok := U().ParseParamUUID(w, r, "id")
-	if !ok || !U().CheckPermission(w, r, "admin.roles.read") {
+	if !ok {
 		return
 	}
 
-	role, found, err := repositories.R().R().GetWithPermissions(roleID)
+	// Get the role
+	response, err := clients.C().Security().GetRole(r.Context(), &protogen.GetRoleRequest{
+		Id: roleID.String(),
+	})
 	if err != nil {
-		zap.L().Error("Cannot load role", zap.String("uuid", roleID.String()), zap.Error(err))
-		render.Error(w, r, nil, "")
+		zap.L().Error("Get Role", zap.Error(err))
+		render.ErrorCodesCodeToHttpCode(w, r, err)
 		return
 	}
 
-	if !found {
-		zap.L().Debug("Role not found", zap.String("uuid", roleID.String()))
-		w.WriteHeader(http.StatusNotFound)
+	// Map the response to the RoleWithPermissions model
+	role, err := models.FromProtogenRoleWithPermissions(response.GetRole())
+	if err != nil {
+		zap.L().Error("Bad protogen roles", zap.Error(err))
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
@@ -136,17 +122,23 @@ func GetRole(w http.ResponseWriter, r *http.Request) {
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/roles [get]
 func GetRoles(w http.ResponseWriter, r *http.Request) {
-	if !U().CheckPermission(w, r, "admin.roles.list") {
-		return
-	}
-
-	result, err := repositories.R().R().GetAllWithPermissions()
+	// List the roles
+	response, err := clients.C().Security().ListRoles(r.Context(), nil)
 	if err != nil {
-		render.Error(w, r, err, "Get roles")
+		zap.L().Error("List Roles", zap.Error(err))
+		render.ErrorCodesCodeToHttpCode(w, r, err)
 		return
 	}
 
-	render.JSON(w, r, result)
+	// Map the response to the RolesWithPermissions model
+	roles, err := models.FromProtogenRolesWithPermissions(response.GetRoles())
+	if err != nil {
+		zap.L().Error("Bad protogen roles", zap.Error(err))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	render.JSON(w, r, roles)
 }
 
 // UpdateRole godoc
@@ -168,7 +160,7 @@ func GetRoles(w http.ResponseWriter, r *http.Request) {
 //	@Router			/api/v1/roles/{id} [put]
 func UpdateRole(w http.ResponseWriter, r *http.Request) {
 	roleID, ok := U().ParseParamUUID(w, r, "id")
-	if !ok || !U().CheckPermission(w, r, "admin.roles.update") {
+	if !ok {
 		return
 	}
 
@@ -180,46 +172,29 @@ func UpdateRole(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if ok, err := role.IsValid(); !ok {
-		render.BadRequest(w, r, err)
-		return
+	// Create gRPC protogen.UpdateRoleRequest
+	roleRequest := &protogen.UpdateRoleRequest{
+		Id:   roleID.String(),
+		Name: role.Name,
 	}
 
-	role.Id = roleID
-	var perms []uuid.UUID
-
-	// Enable permission update
-	if U().CheckPermission(w, r, "admin.roles.permissions.update") {
-
-		if ok, err := role.Permissions.IsValid(); !ok {
-			zap.L().Warn("Permissions are not valid", zap.Error(err))
-			render.BadRequest(w, r, err)
-			return
-		}
-
-		perms = role.Permissions.GetUUIDs()
-	}
-
-	err = repositories.R().R().Update(role.Role, perms)
+	// Update the role
+	response, err := clients.C().Security().UpdateRole(r.Context(), roleRequest)
 	if err != nil {
-		zap.L().Error("Cannot update role", zap.Error(err))
-		render.Error(w, r, err, "Update role")
+		zap.L().Error("Update Role", zap.Error(err))
+		render.ErrorCodesCodeToHttpCode(w, r, err)
 		return
 	}
 
-	role, found, err := repositories.R().R().GetWithPermissions(roleID)
+	// Map the response to the RoleWithPermissions model
+	newRole, err := models.FromProtogenRoleWithPermissions(response.GetRole())
 	if err != nil {
-		zap.L().Error("Cannot get role", zap.String("uuid", roleID.String()), zap.Error(err))
-		render.Error(w, r, nil, "")
-		return
-	}
-	if !found {
-		zap.L().Error("Role not found after update", zap.String("uuid", roleID.String()))
-		render.Error(w, r, nil, "")
+		zap.L().Error("Bad protogen role", zap.Error(err))
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	render.JSON(w, r, role)
+	render.JSON(w, r, newRole)
 }
 
 // DeleteRole godoc
@@ -239,13 +214,17 @@ func UpdateRole(w http.ResponseWriter, r *http.Request) {
 //	@Router			/api/v1/roles/{id} [delete]
 func DeleteRole(w http.ResponseWriter, r *http.Request) {
 	roleID, ok := U().ParseParamUUID(w, r, "id")
-	if !ok || !U().CheckPermission(w, r, "admin.roles.delete") {
+	if !ok {
 		return
 	}
 
-	err := repositories.R().R().Delete(roleID)
+	// Delete the role
+	_, err := clients.C().Security().DeleteRole(r.Context(), &protogen.DeleteRoleRequest{
+		Id: roleID.String(),
+	})
 	if err != nil {
-		render.Error(w, r, err, "Cannot delete role")
+		zap.L().Error("Delete Role", zap.Error(err))
+		render.ErrorCodesCodeToHttpCode(w, r, err)
 		return
 	}
 
@@ -330,6 +309,7 @@ func SetRolePermissions(w http.ResponseWriter, r *http.Request) {
 }
 
 // TODO : move to user private
+
 // GetRoleUsers godoc
 //
 //	@Id				GetRoleUsers
@@ -361,6 +341,7 @@ func SetRolePermissions(w http.ResponseWriter, r *http.Request) {
 }*/
 
 // TODO : move to user private
+
 // PutUsersRole godoc
 //
 //	@Id				PutUsersRole
@@ -407,6 +388,7 @@ func SetRolePermissions(w http.ResponseWriter, r *http.Request) {
 }*/
 
 // TODO : move to user private
+
 // DeleteUsersRole godoc
 //
 //	@Id				DeleteUsersRole
@@ -513,3 +495,57 @@ func GetAllUsersWithRoles(w http.ResponseWriter, r *http.Request) {
 
 	render.JSON(w, r, usersWithRoles)
 }*/
+
+// SetUserRoles godoc
+//
+//	@Id				SetUserRoles
+//
+//	@Summary		Set roles on a user
+//	@Description	Set roles on a user. (Permission: <b>admin.users.roles.update</b>)
+//	@Tags			Users, UserRoles
+//	@Accept			json
+//	@Produce		json
+//	@Param			id		path	string				true	"user ID"
+//	@Param			roles	body	[]string			true	"array of role UUIDs"
+//	@Security		Bearer
+//	@Success		200	{object}	models.UserWithRoles		"user"
+//	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
+//	@Failure		401	{string}	string					"Permission denied"
+//	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
+//	@Router			/api/v1/users/{id}/roles [put]
+func SetUserRoles(w http.ResponseWriter, r *http.Request) {
+	userId, ok := U().ParseParamUUID(w, r, "id")
+	if !ok || !U().CheckPermission(w, r, "admin.users.roles.update") {
+		return
+	}
+
+	var stringRoles []string
+	err := json.NewDecoder(r.Body).Decode(&stringRoles)
+	if err != nil {
+		zap.L().Warn("Role UUIDs json decode", zap.Error(err))
+		render.BadRequest(w, r, nil)
+		return
+	}
+
+	// Parse role UUIDs
+	uuidRoles := make([]uuid.UUID, 0, len(stringRoles))
+	for _, stringRole := range stringRoles {
+		uuidRole, err := uuid.Parse(stringRole)
+		if err != nil {
+			zap.L().Warn("Invalid role UUID", zap.String("uuid", stringRole), zap.Error(err))
+			render.BadRequest(w, r, fmt.Errorf("invalid role UUID: %s", stringRole))
+			return
+		}
+		uuidRoles = append(uuidRoles, uuidRole)
+	}
+
+	// Set roles on user
+	err = repositories.R().SetUserRoles(userId, uuidRoles)
+	if err != nil {
+		zap.L().Error("PutUser.Update", zap.Error(err))
+		render.Error(w, r, err, "Set roles on user")
+		return
+	}
+
+	render.OK(w, r)
+}
