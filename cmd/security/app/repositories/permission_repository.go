@@ -9,12 +9,9 @@ import (
 // (in-memory map, sql database, in-memory cache, file system, ...)
 // It allows standard CRUD operation on facts
 type PermissionRepository interface {
-	Get(uuid uuid.UUID) (models.Permission, bool, error)
 	Create(permission models.Permission) (uuid.UUID, error)
+	Get(uuid uuid.UUID) (models.Permission, bool, error)
 	Update(permission models.Permission) error
 	Delete(uuid uuid.UUID) error
-	GetAll() (models.Permissions, error)
-
-	GetAllByRoleId(roleUUID uuid.UUID) (models.Permissions, error)
-	GetAllForUser(userUUID uuid.UUID) (models.Permissions, error)
+	List() (models.Permissions, error)
 }

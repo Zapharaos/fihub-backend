@@ -22,26 +22,6 @@ func NewPermissionPostgresRepository(dbClient *sqlx.DB) PermissionRepository {
 	return rp
 }
 
-// Get search and returns a Permission from the repository by its id
-func (r *PermissionPostgresRepository) Get(permissionUUID uuid.UUID) (models.Permission, bool, error) {
-	// Prepare query
-	query := `SELECT *
-			  FROM permissions as p
-			  WHERE p.id = :id`
-	params := map[string]interface{}{
-		"id": permissionUUID,
-	}
-
-	// Execute query
-	rows, err := r.conn.NamedQuery(query, params)
-	if err != nil {
-		return models.Permission{}, false, err
-	}
-	defer rows.Close()
-
-	return utils.ScanFirst(rows, r.Scan)
-}
-
 // Create creates a new Permission in the repository
 func (r *PermissionPostgresRepository) Create(permission models.Permission) (uuid.UUID, error) {
 
@@ -64,6 +44,26 @@ func (r *PermissionPostgresRepository) Create(permission models.Permission) (uui
 	}
 
 	return newUUID, nil
+}
+
+// Get search and returns a Permission from the repository by its id
+func (r *PermissionPostgresRepository) Get(permissionUUID uuid.UUID) (models.Permission, bool, error) {
+	// Prepare query
+	query := `SELECT *
+			  FROM permissions as p
+			  WHERE p.id = :id`
+	params := map[string]interface{}{
+		"id": permissionUUID,
+	}
+
+	// Execute query
+	rows, err := r.conn.NamedQuery(query, params)
+	if err != nil {
+		return models.Permission{}, false, err
+	}
+	defer rows.Close()
+
+	return utils.ScanFirst(rows, ScanPermission)
 }
 
 // Update updates a Permission in the repository
@@ -106,8 +106,8 @@ func (r *PermissionPostgresRepository) Delete(uuid uuid.UUID) error {
 	return utils.CheckRowAffected(result, 1)
 }
 
-// GetAll returns all User Permissions in the repository
-func (r *PermissionPostgresRepository) GetAll() (models.Permissions, error) {
+// List returns all Permissions in the repository
+func (r *PermissionPostgresRepository) List() (models.Permissions, error) {
 	// Prepare query
 	query := `SELECT *
 			  FROM permissions`
@@ -119,64 +119,5 @@ func (r *PermissionPostgresRepository) GetAll() (models.Permissions, error) {
 	}
 	defer rows.Close()
 
-	return utils.ScanAll(rows, r.Scan)
-}
-
-// GetAllByRoleId returns all Permissions for a given Role
-func (r *PermissionPostgresRepository) GetAllByRoleId(roleUUID uuid.UUID) (models.Permissions, error) {
-	// Prepare query
-	query := `SELECT p.id, p.value, p.scope, p.description
-			  FROM permissions as p
-			  INNER JOIN role_permissions as rp on p.id = rp.permission_id
-			  WHERE rp.role_id = :id`
-	params := map[string]interface{}{
-		"id": roleUUID,
-	}
-
-	// Execute query
-	rows, err := r.conn.NamedQuery(query, params)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	return utils.ScanAll(rows, r.Scan)
-}
-
-// TODO : might need to move query
-// GetAllForUser returns all Permissions for a given User
-func (r *PermissionPostgresRepository) GetAllForUser(userUUID uuid.UUID) (models.Permissions, error) {
-	// Prepare query
-	query := `SELECT p.id, p.value, p.scope, p.description
-			  FROM permissions as p
-			  INNER JOIN role_permissions as rp on p.id = rp.permission_id
-			  INNER JOIN user_roles as ur on rp.role_id = ur.role_id
-			  WHERE ur.user_id = :id`
-	params := map[string]interface{}{
-		"id": userUUID,
-	}
-
-	// Execute query
-	rows, err := r.conn.NamedQuery(query, params)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	return utils.ScanAll(rows, r.Scan)
-}
-
-// Scan scans the retrieved data from the database and returns a Permission
-func (r *PermissionPostgresRepository) Scan(rows *sqlx.Rows) (models.Permission, error) {
-	var permission models.Permission
-	err := rows.Scan(
-		&permission.Id,
-		&permission.Value,
-		&permission.Scope,
-		&permission.Description,
-	)
-	if err != nil {
-		return models.Permission{}, err
-	}
-	return permission, nil
+	return utils.ScanAll(rows, ScanPermission)
 }

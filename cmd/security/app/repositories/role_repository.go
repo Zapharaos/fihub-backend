@@ -9,15 +9,21 @@ import (
 // (in-memory map, sql database, in-memory cache, file system, ...)
 // It allows standard CRUD operation on Role
 type RoleRepository interface {
+	Create(role models.Role, permissionUUIDs []uuid.UUID) (uuid.UUID, error)
 	Get(uuid uuid.UUID) (models.Role, bool, error)
 	GetByName(name string) (models.Role, bool, error)
 	GetWithPermissions(uuid uuid.UUID) (models.RoleWithPermissions, bool, error)
-	GetAll() ([]models.Role, error)
-	GetAllWithPermissions() (models.RolesWithPermissions, error)
-	Create(role models.Role, permissionUUIDs []uuid.UUID) (uuid.UUID, error)
 	Update(role models.Role, permissionUUIDs []uuid.UUID) error
 	Delete(uuid uuid.UUID) error
+	List() ([]models.Role, error)
+	ListByUserId(userUUID uuid.UUID) ([]models.Role, error)
+	ListWithPermissions() (models.RolesWithPermissions, error)
 
-	GetRolesByUserId(userUUID uuid.UUID) ([]models.Role, error)
-	SetRolePermissions(roleUUID uuid.UUID, permissionUUIDs []uuid.UUID) error
+	SetForUser(userUUID uuid.UUID, roleUUIDs []uuid.UUID) error
+	AddToUsers(userUUIDs []uuid.UUID, id uuid.UUID) error
+	RemoveFromUsers(userUUIDs []uuid.UUID, roleUUID uuid.UUID) error
+	
+	SetPermissionsByRoleId(roleUUID uuid.UUID, permissionUUIDs []uuid.UUID) error
+	ListPermissionsByRoleId(roleUUID uuid.UUID) (models.Permissions, error)
+	ListPermissionsByUserId(userUUID uuid.UUID) (models.Permissions, error)
 }

@@ -23,15 +23,19 @@ service SecurityService {
 	rpc ListRolePermissions(ListRolePermissionsRequest) returns (ListRolePermissionsResponse);
 	rpc SetRolePermissions(SetRolePermissionsRequest) returns (SetRolePermissionsResponse);
 
+	// Role-Users management
+	rpc AddUsersToRole(AddUsersToRoleRequest) returns (AddUsersToRoleResponse);
+	rpc RemoveUsersFromRole(RemoveUsersFromRoleRequest) returns (RemoveUsersFromRoleResponse);
+
+	// User-Roles management
+	rpc SetRolesForUser(SetRolesForUserRequest) returns (SetRolesForUserResponse);
+
 	/*
     // Role-Users management
     rpc ListUsersForRole(ListRoleUsersRequest) returns (ListRoleUsersResponse);
-    rpc AddUsersToRole(AddUserToRoleRequest) returns (AddUserToRoleResponse);
-    rpc RemoveUsersFromRole(RemoveUserFromRoleRequest) returns (RemoveUserFromRoleResponse);
 
     // User-Roles management
-    rpc ListRolesForUser(ListUserRolesRequest) returns (ListUserRolesResponse);
-    rpc SetRolesForUser(SetUserRolesRequest) returns (SetUserRolesResponse);
+		rpc ListRolesForUser(ListUserRolesRequest) returns (ListUserRolesResponse);
 
     // Users-Roles-Permissions management
 		rpc ListUsersRolesPermissions(ListUsersRolesPermissionsRequest) returns (ListUsersRolesPermissionsResponse);
@@ -161,5 +165,36 @@ message SetRolePermissionsRequest {
 }
 
 message SetRolePermissionsResponse {
+	bool success = 1;
+}
+
+// Role-Users management
+
+message AddUsersToRoleRequest {
+	string role_id = 1;
+	repeated string user_ids = 2;
+}
+
+message AddUsersToRoleResponse {
+	bool success = 1;
+}
+
+message RemoveUsersFromRoleRequest {
+	string role_id = 1;
+	repeated string user_ids = 2;
+}
+
+message RemoveUsersFromRoleResponse {
+	bool success = 1;
+}
+
+// User-Roles management
+
+message SetRolesForUserRequest {
+	string user_id = 1;
+	repeated string role_ids = 2;
+}
+
+message SetRolesForUserResponse {
 	bool success = 1;
 }

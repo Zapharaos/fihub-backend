@@ -2,16 +2,13 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/clients"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/handlers/render"
-	"github.com/Zapharaos/fihub-backend/cmd/security/app/repositories"
 	"github.com/Zapharaos/fihub-backend/cmd/user/app/service"
 	"github.com/Zapharaos/fihub-backend/internal/models"
 	"github.com/Zapharaos/fihub-backend/protogen"
 	"net/http"
 
-	"github.com/google/uuid"
 	"go.uber.org/zap"
 )
 
@@ -355,8 +352,6 @@ func SetRolePermissions(w http.ResponseWriter, r *http.Request) {
 	render.JSON(w, r, roleUsers)
 }*/
 
-// TODO : move to user private
-
 // PutUsersRole godoc
 //
 //	@Id				PutUsersRole
@@ -374,13 +369,13 @@ func SetRolePermissions(w http.ResponseWriter, r *http.Request) {
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/roles/{id}/users [put]
-/*func PutUsersRole(w http.ResponseWriter, r *http.Request) {
+func AddUsersToRole(w http.ResponseWriter, r *http.Request) {
 	roleId, ok := U().ParseParamUUID(w, r, "id")
-	if !ok || !U().CheckPermission(w, r, "admin.roles.users.update") {
+	if !ok {
 		return
 	}
 
-	var userUUIDs []uuid.UUID
+	var userUUIDs []string
 	err := json.NewDecoder(r.Body).Decode(&userUUIDs)
 	if err != nil {
 		zap.L().Warn("User UUIDs json decode", zap.Error(err))
@@ -388,21 +383,19 @@ func SetRolePermissions(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if len(userUUIDs) == 0 {
-		render.BadRequest(w, r, fmt.Errorf("empty user list"))
-		return
-	}
-
-	err = repositories.R().U().AddUsersRole(userUUIDs, roleId)
+	// Add users to the role
+	_, err = clients.C().Security().AddUsersToRole(r.Context(), &protogen.AddUsersToRoleRequest{
+		RoleId:  roleId.String(),
+		UserIds: userUUIDs,
+	})
 	if err != nil {
-		render.Error(w, r, err, "Set user roles")
+		zap.L().Error("Add Users To Role", zap.Error(err))
+		render.ErrorCodesCodeToHttpCode(w, r, err)
 		return
 	}
 
 	render.OK(w, r)
-}*/
-
-// TODO : move to user private
+}
 
 // DeleteUsersRole godoc
 //
@@ -421,13 +414,13 @@ func SetRolePermissions(w http.ResponseWriter, r *http.Request) {
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/roles/{id}/users [delete]
-/*func DeleteUsersRole(w http.ResponseWriter, r *http.Request) {
+func RemoveUsersFromRole(w http.ResponseWriter, r *http.Request) {
 	roleId, ok := U().ParseParamUUID(w, r, "id")
-	if !ok || !U().CheckPermission(w, r, "admin.roles.users.delete") {
+	if !ok {
 		return
 	}
 
-	var userUUIDs []uuid.UUID
+	var userUUIDs []string
 	err := json.NewDecoder(r.Body).Decode(&userUUIDs)
 	if err != nil {
 		zap.L().Warn("User UUIDs json decode", zap.Error(err))
@@ -435,19 +428,64 @@ func SetRolePermissions(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if len(userUUIDs) == 0 {
-		render.BadRequest(w, r, fmt.Errorf("empty user list"))
-		return
-	}
-
-	err = repositories.R().U().RemoveUsersRole(userUUIDs, roleId)
+	// Remove users from the role
+	_, err = clients.C().Security().RemoveUsersFromRole(r.Context(), &protogen.RemoveUsersFromRoleRequest{
+		RoleId:  roleId.String(),
+		UserIds: userUUIDs,
+	})
 	if err != nil {
-		render.Error(w, r, err, "Delete user roles")
+		zap.L().Error("Remove Users from Role", zap.Error(err))
+		render.ErrorCodesCodeToHttpCode(w, r, err)
 		return
 	}
 
 	render.OK(w, r)
-}*/
+}
+
+// SetUserRoles godoc
+//
+//	@Id				SetUserRoles
+//
+//	@Summary		Set roles on a user
+//	@Description	Set roles on a user. (Permission: <b>admin.users.roles.update</b>)
+//	@Tags			Users, UserRoles
+//	@Accept			json
+//	@Produce		json
+//	@Param			id		path	string				true	"user ID"
+//	@Param			roles	body	[]string			true	"array of role UUIDs"
+//	@Security		Bearer
+//	@Success		200	{object}	models.UserWithRoles		"user"
+//	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
+//	@Failure		401	{string}	string					"Permission denied"
+//	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
+//	@Router			/api/v1/users/{id}/roles [put]
+func SetRolesForUser(w http.ResponseWriter, r *http.Request) {
+	userId, ok := U().ParseParamUUID(w, r, "id")
+	if !ok {
+		return
+	}
+
+	var roleUUIDs []string
+	err := json.NewDecoder(r.Body).Decode(&roleUUIDs)
+	if err != nil {
+		zap.L().Warn("Role UUIDs json decode", zap.Error(err))
+		render.BadRequest(w, r, nil)
+		return
+	}
+
+	// Set roles for the user
+	_, err = clients.C().Security().SetRolesForUser(r.Context(), &protogen.SetRolesForUserRequest{
+		UserId:  userId.String(),
+		RoleIds: roleUUIDs,
+	})
+	if err != nil {
+		zap.L().Error("Set Roles for User", zap.Error(err))
+		render.ErrorCodesCodeToHttpCode(w, r, err)
+		return
+	}
+
+	render.OK(w, r)
+}
 
 // TODO : keep but return user with roleUUIDs instead of models.UserWithRoles
 
@@ -510,57 +548,3 @@ func GetAllUsersWithRoles(w http.ResponseWriter, r *http.Request) {
 
 	render.JSON(w, r, usersWithRoles)
 }*/
-
-// SetUserRoles godoc
-//
-//	@Id				SetUserRoles
-//
-//	@Summary		Set roles on a user
-//	@Description	Set roles on a user. (Permission: <b>admin.users.roles.update</b>)
-//	@Tags			Users, UserRoles
-//	@Accept			json
-//	@Produce		json
-//	@Param			id		path	string				true	"user ID"
-//	@Param			roles	body	[]string			true	"array of role UUIDs"
-//	@Security		Bearer
-//	@Success		200	{object}	models.UserWithRoles		"user"
-//	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
-//	@Failure		401	{string}	string					"Permission denied"
-//	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
-//	@Router			/api/v1/users/{id}/roles [put]
-func SetUserRoles(w http.ResponseWriter, r *http.Request) {
-	userId, ok := U().ParseParamUUID(w, r, "id")
-	if !ok || !U().CheckPermission(w, r, "admin.users.roles.update") {
-		return
-	}
-
-	var stringRoles []string
-	err := json.NewDecoder(r.Body).Decode(&stringRoles)
-	if err != nil {
-		zap.L().Warn("Role UUIDs json decode", zap.Error(err))
-		render.BadRequest(w, r, nil)
-		return
-	}
-
-	// Parse role UUIDs
-	uuidRoles := make([]uuid.UUID, 0, len(stringRoles))
-	for _, stringRole := range stringRoles {
-		uuidRole, err := uuid.Parse(stringRole)
-		if err != nil {
-			zap.L().Warn("Invalid role UUID", zap.String("uuid", stringRole), zap.Error(err))
-			render.BadRequest(w, r, fmt.Errorf("invalid role UUID: %s", stringRole))
-			return
-		}
-		uuidRoles = append(uuidRoles, uuidRole)
-	}
-
-	// Set roles on user
-	err = repositories.R().SetUserRoles(userId, uuidRoles)
-	if err != nil {
-		zap.L().Error("PutUser.Update", zap.Error(err))
-		render.Error(w, r, err, "Set roles on user")
-		return
-	}
-
-	render.OK(w, r)
-}

@@ -9,7 +9,6 @@ import (
 	"github.com/Zapharaos/fihub-backend/internal/utils"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
-	"github.com/lib/pq"
 	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
 	"time"
@@ -231,6 +230,7 @@ func (r *PostgresRepository) Delete(userID uuid.UUID) error {
 }
 
 // TODO : might need to move query
+
 // GetWithRoles returns a User with its roles in the repository
 func (r *PostgresRepository) GetWithRoles(userID uuid.UUID) (models.UserWithRoles, error) {
 	// Prepare query
@@ -259,6 +259,7 @@ func (r *PostgresRepository) GetWithRoles(userID uuid.UUID) (models.UserWithRole
 }
 
 // TODO : might need to move query
+
 // GetAllWithRoles returns a User with its roles in the repository
 func (r *PostgresRepository) GetAllWithRoles() ([]models.UserWithRoles, error) {
 	// Prepare query
@@ -278,7 +279,8 @@ func (r *PostgresRepository) GetAllWithRoles() ([]models.UserWithRoles, error) {
 	return r.ScanMultiplesWithRoles(rows)
 }
 
-// GetUsersByRoleID returns all User for a role in the repository
+// TODO : might need to move query
+
 func (r *PostgresRepository) GetUsersByRoleID(roleUUID uuid.UUID) ([]models.User, error) {
 	// Prepare query
 	query := `SELECT u.ID, u.email, u.password, u.created_at, u.updated_at
@@ -298,6 +300,8 @@ func (r *PostgresRepository) GetUsersByRoleID(roleUUID uuid.UUID) ([]models.User
 
 	return utils.ScanAll(rows, r.Scan)
 }
+
+// TODO : might need to move query
 
 // UpdateWithRoles updates a User with its roles in the repository
 func (r *PostgresRepository) UpdateWithRoles(user models.UserWithRoles, roleUUIDs []uuid.UUID) error {
@@ -357,147 +361,6 @@ func (r *PostgresRepository) UpdateWithRoles(user models.UserWithRoles, roleUUID
 
 	// Check if all roles were set
 	if err = utils.CheckRowAffected(result, int64(len(roleUUIDs))); err != nil {
-		if rollbackErr := tx.Rollback(); rollbackErr != nil {
-			return fmt.Errorf("main error: %v, rollback error: %v", err, rollbackErr)
-		}
-		return err
-	}
-
-	// Commit transaction
-	if err = tx.Commit(); err != nil {
-		return err
-	}
-	return nil
-}
-
-// SetUserRoles sets the roles of a User in the repository
-func (r *PostgresRepository) SetUserRoles(userUUID uuid.UUID, roleUUIDs []uuid.UUID) error {
-
-	// Start transaction
-	ctx := context.Background()
-	tx, err := r.conn.BeginTx(ctx, nil)
-	if err != nil {
-		zap.L().Error("Cannot start transaction", zap.Error(err))
-		return err
-	}
-
-	// Execute query to reset roles
-	query := `DELETE FROM user_roles as ur WHERE ur.user_id = $1`
-	_, err = tx.ExecContext(ctx, query, userUUID)
-	if err != nil {
-		if rollbackErr := tx.Rollback(); rollbackErr != nil {
-			return fmt.Errorf("main error: %v, rollback error: %v", err, rollbackErr)
-		}
-		return err
-	}
-
-	// If no roles are provided, we can commit and return
-	if len(roleUUIDs) == 0 {
-		if err = tx.Commit(); err != nil {
-			return err
-		}
-		return nil
-	}
-
-	// Prepare query to set new roles
-	query = `INSERT INTO user_roles (user_id, role_id) VALUES `
-	var values []interface{}
-	for i, roleUUID := range roleUUIDs {
-		query += fmt.Sprintf("($%d, $%d),", i*2+1, i*2+2)
-		values = append(values, userUUID, roleUUID)
-	}
-	query = query[:len(query)-1] // Remove the trailing comma
-
-	// Execute query
-	result, err := tx.ExecContext(ctx, query, values...)
-	if err != nil {
-		if rollbackErr := tx.Rollback(); rollbackErr != nil {
-			return fmt.Errorf("main error: %v, rollback error: %v", err, rollbackErr)
-		}
-		return err
-	}
-
-	// Check if all roles were set
-	if err = utils.CheckRowAffected(result, int64(len(roleUUIDs))); err != nil {
-		if rollbackErr := tx.Rollback(); rollbackErr != nil {
-			return fmt.Errorf("main error: %v, rollback error: %v", err, rollbackErr)
-		}
-		return err
-	}
-
-	// Commit transaction
-	if err = tx.Commit(); err != nil {
-		return err
-	}
-	return nil
-}
-
-// AddUsersRole adds a role to a list of User in the repository
-func (r *PostgresRepository) AddUsersRole(userUUIDs []uuid.UUID, roleUUID uuid.UUID) error {
-
-	// Start transaction
-	ctx := context.Background()
-	tx, err := r.conn.BeginTx(ctx, nil)
-	if err != nil {
-		zap.L().Error("Cannot start transaction", zap.Error(err))
-		return err
-	}
-
-	// Prepare query to add new role to Users
-	query := `INSERT INTO user_roles (user_id, role_id) VALUES `
-	var values []interface{}
-	for i, userUUID := range userUUIDs {
-		query += fmt.Sprintf("($%d, $%d),", i*2+1, i*2+2)
-		values = append(values, userUUID, roleUUID)
-	}
-	query = query[:len(query)-1] // Remove the trailing comma
-
-	// Execute query
-	result, err := tx.ExecContext(ctx, query, values...)
-	if err != nil {
-		if rollbackErr := tx.Rollback(); rollbackErr != nil {
-			return fmt.Errorf("main error: %v, rollback error: %v", err, rollbackErr)
-		}
-		return err
-	}
-
-	// Check if all roles were set
-	if err = utils.CheckRowAffected(result, int64(len(userUUIDs))); err != nil {
-		if rollbackErr := tx.Rollback(); rollbackErr != nil {
-			return fmt.Errorf("main error: %v, rollback error: %v", err, rollbackErr)
-		}
-		return err
-	}
-
-	// Commit transaction
-	if err = tx.Commit(); err != nil {
-		return err
-	}
-	return nil
-}
-
-// RemoveUsersRole removes a role from a list of User in the repository
-func (r *PostgresRepository) RemoveUsersRole(userUUIDs []uuid.UUID, roleUUID uuid.UUID) error {
-	// Start transaction
-	ctx := context.Background()
-	tx, err := r.conn.BeginTx(ctx, nil)
-	if err != nil {
-		zap.L().Error("Cannot start transaction", zap.Error(err))
-		return err
-	}
-
-	// Query to remove role from Users
-	query := `DELETE FROM user_roles WHERE user_id = ANY(?) AND role_id = ?`
-	result, err := tx.ExecContext(ctx, query, pq.Array(userUUIDs), roleUUID)
-	if err != nil {
-		if rollbackErr := tx.Rollback(); rollbackErr != nil {
-			return fmt.Errorf("main error: %v, rollback error: %v", err, rollbackErr)
-		}
-		return err
-	}
-
-	// Check if all roles were set
-	if err = utils.CheckRowAffected(result, int64(len(userUUIDs))); err != nil {
 		if rollbackErr := tx.Rollback(); rollbackErr != nil {
 			return fmt.Errorf("main error: %v, rollback error: %v", err, rollbackErr)
 		}

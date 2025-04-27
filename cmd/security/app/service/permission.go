@@ -156,7 +156,7 @@ func (s *Service) DeletePermission(ctx context.Context, req *protogen.DeletePerm
 // ListPermissions implements the ListPermissions RPC method.
 func (s *Service) ListPermissions(ctx context.Context, req *protogen.ListPermissionsRequest) (*protogen.ListPermissionsResponse, error) {
 	// Get all permissions from the database
-	result, err := repositories.R().P().GetAll()
+	result, err := repositories.R().P().List()
 	if err != nil {
 		zap.L().Error("Cannot list permissions", zap.Error(err))
 		return &protogen.ListPermissionsResponse{}, status.Error(codes.Internal, err.Error())

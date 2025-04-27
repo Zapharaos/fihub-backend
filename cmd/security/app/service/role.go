@@ -225,7 +225,7 @@ func (s *Service) ListRoles(ctx context.Context, req *protogen.ListRolesRequest)
 	}
 
 	// Get all roles from the database
-	result, err := repositories.R().R().GetAllWithPermissions()
+	result, err := repositories.R().R().ListWithPermissions()
 	if err != nil {
 		zap.L().Error("Cannot list roles", zap.Error(err))
 		return &protogen.ListRolesResponse{}, status.Error(codes.Internal, err.Error())
@@ -254,7 +254,7 @@ func (s *Service) ListRolePermissions(ctx context.Context, req *protogen.ListRol
 	}
 
 	// List all role permissions from the database
-	permissions, err := repositories.R().P().GetAllByRoleId(roleID)
+	permissions, err := repositories.R().R().ListPermissionsByRoleId(roleID)
 	if err != nil {
 		zap.L().Error("Cannot list role permissions", zap.String("uuid", roleID.String()), zap.Error(err))
 		return &protogen.ListRolePermissionsResponse{}, status.Error(codes.Internal, err.Error())
@@ -294,7 +294,8 @@ func (s *Service) SetRolePermissions(ctx context.Context, req *protogen.SetRoleP
 		return &protogen.SetRolePermissionsResponse{}, status.Error(codes.InvalidArgument, "Invalid user ID")
 	}
 
-	err = repositories.R().R().SetRolePermissions(roleID, permissions)
+	// Set the role permissions in the database
+	err = repositories.R().R().SetPermissionsByRoleId(roleID, permissions)
 	if err != nil {
 		zap.L().Error("Failed to set permissions", zap.Error(err))
 		return &protogen.SetRolePermissionsResponse{}, status.Error(codes.Internal, err.Error())
