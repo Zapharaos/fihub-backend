@@ -602,7 +602,7 @@ func TestGetUser(t *testing.T) {
 				r := mocks.NewSecurityRoleRepository(ctrl)
 				r.EXPECT().GetRolesByUserId(gomock.Any()).Return([]models.Role{{Id: uuid.Nil}}, nil)
 				p := mocks.NewSecurityPermissionRepository(ctrl)
-				p.EXPECT().GetAllByRoleId(gomock.Any()).Return([]models.Permission{}, nil)
+				p.EXPECT().GetAllByRoleId(gomock.Any()).Return(models.Permissions{}, nil)
 				securityrepositories.ReplaceGlobals(securityrepositories.NewRepository(r, p))
 			},
 			expectedStatus: http.StatusOK,
@@ -903,7 +903,7 @@ func TestGetUserRoles(t *testing.T) {
 				r := mocks.NewSecurityRoleRepository(ctrl)
 				r.EXPECT().GetRolesByUserId(gomock.Any()).Return([]models.Role{{Id: uuid.Nil}}, nil)
 				p := mocks.NewSecurityPermissionRepository(ctrl)
-				p.EXPECT().GetAllByRoleId(gomock.Any()).Return([]models.Permission{}, nil)
+				p.EXPECT().GetAllByRoleId(gomock.Any()).Return(models.Permissions{}, nil)
 				securityrepositories.ReplaceGlobals(securityrepositories.NewRepository(r, p))
 			},
 			expectedStatus: http.StatusOK,

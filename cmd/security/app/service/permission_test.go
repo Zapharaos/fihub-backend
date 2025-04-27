@@ -275,7 +275,7 @@ func TestListPermissions(t *testing.T) {
 			name: "With success",
 			mockSetup: func(ctrl *gomock.Controller) {
 				p := mocks.NewSecurityPermissionRepository(ctrl)
-				p.EXPECT().GetAll().Return([]models.Permission{}, nil)
+				p.EXPECT().GetAll().Return(models.Permissions{}, nil)
 				repositories.ReplaceGlobals(repositories.NewRepository(nil, p))
 			},
 			request:         nil,

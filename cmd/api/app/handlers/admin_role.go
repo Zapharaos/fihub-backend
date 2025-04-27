@@ -42,7 +42,8 @@ func CreateRole(w http.ResponseWriter, r *http.Request) {
 
 	// Create gRPC protogen.CreateRoleRequest
 	roleRequest := &protogen.CreateRoleRequest{
-		Name: role.Name,
+		Name:        role.Name,
+		Permissions: role.Permissions.ToProtogenPermissionsUuidInput(),
 	}
 
 	// Create the role
@@ -174,8 +175,9 @@ func UpdateRole(w http.ResponseWriter, r *http.Request) {
 
 	// Create gRPC protogen.UpdateRoleRequest
 	roleRequest := &protogen.UpdateRoleRequest{
-		Id:   roleID.String(),
-		Name: role.Name,
+		Id:          roleID.String(),
+		Name:        role.Name,
+		Permissions: role.Permissions.ToProtogenPermissionsUuidInput(),
 	}
 
 	// Update the role
@@ -248,17 +250,29 @@ func DeleteRole(w http.ResponseWriter, r *http.Request) {
 //	@Router			/api/v1/roles/{id}/permissions [get]
 func GetRolePermissions(w http.ResponseWriter, r *http.Request) {
 	roleId, ok := U().ParseParamUUID(w, r, "id")
-	if !ok || !U().CheckPermission(w, r, "admin.roles.permissions.list") {
+	if !ok {
 		return
 	}
 
-	perms, err := repositories.R().P().GetAllByRoleId(roleId)
+	// List the role permissions
+	response, err := clients.C().Security().ListRolePermissions(r.Context(), &protogen.ListRolePermissionsRequest{
+		Id: roleId.String(),
+	})
 	if err != nil {
-		render.Error(w, r, err, "Get role permissions")
+		zap.L().Error("List Role Permissions", zap.Error(err))
+		render.ErrorCodesCodeToHttpCode(w, r, err)
 		return
 	}
 
-	render.JSON(w, r, perms)
+	// Map the response to the Permissions model
+	permissions, err := models.FromProtogenPermissions(response.GetPermissions())
+	if err != nil {
+		zap.L().Error("Bad protogen roles", zap.Error(err))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	render.JSON(w, r, permissions)
 }
 
 // SetRolePermissions godoc
@@ -280,7 +294,7 @@ func GetRolePermissions(w http.ResponseWriter, r *http.Request) {
 //	@Router			/api/v1/roles/{id}/permissions [put]
 func SetRolePermissions(w http.ResponseWriter, r *http.Request) {
 	roleId, ok := U().ParseParamUUID(w, r, "id")
-	if !ok || !U().CheckPermission(w, r, "admin.roles.permissions.update") {
+	if !ok {
 		return
 	}
 
@@ -292,16 +306,17 @@ func SetRolePermissions(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if ok, err := perms.IsValid(); !ok {
-		zap.L().Warn("Permissions are not valid", zap.Error(err))
-		render.BadRequest(w, r, err)
-		return
+	// Create gRPC protogen.UpdateRoleRequest
+	roleRequest := &protogen.SetRolePermissionsRequest{
+		Id:          roleId.String(),
+		Permissions: perms.ToProtogenPermissionsUuidInput(),
 	}
 
-	err = repositories.R().R().SetRolePermissions(roleId, perms.GetUUIDs())
+	// Set the role permissions
+	_, err = clients.C().Security().SetRolePermissions(r.Context(), roleRequest)
 	if err != nil {
-		zap.L().Error("Failed to set permissions", zap.Error(err))
-		render.Error(w, r, err, "Set role permissions")
+		zap.L().Error("Set Role Permissions", zap.Error(err))
+		render.ErrorCodesCodeToHttpCode(w, r, err)
 		return
 	}
 

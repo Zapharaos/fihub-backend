@@ -285,7 +285,7 @@ func TestMiddleware(t *testing.T) {
 				r := mocks.NewSecurityRoleRepository(ctrl)
 				r.EXPECT().GetRolesByUserId(gomock.Any()).Return([]models.Role{{Id: uuid.New(), Name: "admin"}}, nil)
 				p := mocks.NewSecurityPermissionRepository(ctrl)
-				p.EXPECT().GetAllByRoleId(gomock.Any()).Return([]models.Permission{}, nil)
+				p.EXPECT().GetAllByRoleId(gomock.Any()).Return(models.Permissions{}, nil)
 				securityrepositories.ReplaceGlobals(securityrepositories.NewRepository(r, p))
 			},
 			expectErr:   false,

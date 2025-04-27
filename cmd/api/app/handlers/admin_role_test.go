@@ -47,7 +47,7 @@ func TestCreateRole(t *testing.T) {
 			Id:   uuid.Nil,
 			Name: "admin",
 		},
-		Permissions: make([]models.Permission, models.LimitMaxPermissions+1),
+		Permissions: make(models.Permissions, models.LimitMaxPermissions+1),
 	}
 	invalidRolePermsBody, _ := json.Marshal(invalidRolePerms)
 
@@ -389,7 +389,7 @@ func TestUpdateRole(t *testing.T) {
 			Id:   uuid.Nil,
 			Name: "admin",
 		},
-		Permissions: make([]models.Permission, models.LimitMaxPermissions+1),
+		Permissions: make(models.Permissions, models.LimitMaxPermissions+1),
 	}
 	invalidRolePermsBody, _ := json.Marshal(invalidRolePerms)
 
@@ -730,7 +730,7 @@ func TestSetRolePermissions(t *testing.T) {
 		models.Permission{Id: uuid.New()},
 	}
 	validPermsBody, _ := json.Marshal(validPerms)
-	invalidPerms := make([]models.Permission, models.LimitMaxPermissions+1)
+	invalidPerms := make(models.Permissions, models.LimitMaxPermissions+1)
 	invalidPermsBody, _ := json.Marshal(invalidPerms)
 
 	// Define the test cases

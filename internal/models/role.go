@@ -12,7 +12,8 @@ var (
 )
 
 const (
-	NameMinLength = 3
+	NameMinLength           = 3
+	LimitMaxRolePermissions = 250
 )
 
 // Role represents a role in the system
@@ -50,12 +51,36 @@ func (r RolesWithPermissions) GetUUIDs() []uuid.UUID {
 	return uuids
 }
 
+type RolePermissionsInput []uuid.UUID
+
+// IsValid checks if a RolePermissionsInput is valid
+func (rp RolePermissionsInput) IsValid() (bool, error) {
+	if len(rp) > LimitMaxRolePermissions {
+		return false, ErrLimitExceeded
+	}
+	return true, nil
+}
+
 // ToProtogenRole converts a Role to a protogen.Role
 func (r Role) ToProtogenRole() *protogen.Role {
 	return &protogen.Role{
 		Id:   r.Id.String(),
 		Name: r.Name,
 	}
+}
+
+// ToProtogenString converts a slice of RolePermissionsInput to a slice of strings
+func (r RolePermissionsInput) ToProtogenString() []string {
+	if r == nil {
+		return nil
+	}
+
+	permissions := make([]string, len(r))
+	for i, perm := range r {
+		permissions[i] = perm.String()
+	}
+
+	return permissions
 }
 
 // ToProtogenRoleWithPermissions converts a RoleWithPermissions to a protogen.RoleWithPermissions
@@ -95,6 +120,24 @@ func FromProtogenRole(r *protogen.Role) (Role, error) {
 		Id:   id,
 		Name: r.GetName(),
 	}, nil
+}
+
+// FromProtogenRolePermissionsInput converts a slice of string to RolePermissionsInput
+func FromProtogenRolePermissionsInput(s []string) (RolePermissionsInput, error) {
+	if s == nil {
+		return nil, errors.New("permissions is nil")
+	}
+
+	permissions := make(RolePermissionsInput, len(s))
+	for i, perm := range s {
+		id, err := uuid.Parse(perm)
+		if err != nil {
+			return nil, err
+		}
+		permissions[i] = id
+	}
+
+	return permissions, nil
 }
 
 // FromProtogenRoleWithPermissions converts a protogen.RoleWithPermissions to a RoleWithPermissions

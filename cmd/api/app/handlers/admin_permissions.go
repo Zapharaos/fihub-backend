@@ -149,7 +149,7 @@ func ListPermissions(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Map gRPC response to Permissions array
-	permissions := make([]models.Permission, len(response.Permissions))
+	permissions := make(models.Permissions, len(response.Permissions))
 	for i, protogenPermission := range response.Permissions {
 		p, err := models.FromProtogenPermission(protogenPermission)
 		if err != nil {

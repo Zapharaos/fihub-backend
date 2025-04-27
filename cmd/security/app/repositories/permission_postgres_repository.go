@@ -107,7 +107,7 @@ func (r *PermissionPostgresRepository) Delete(uuid uuid.UUID) error {
 }
 
 // GetAll returns all User Permissions in the repository
-func (r *PermissionPostgresRepository) GetAll() ([]models.Permission, error) {
+func (r *PermissionPostgresRepository) GetAll() (models.Permissions, error) {
 	// Prepare query
 	query := `SELECT *
 			  FROM permissions`
@@ -123,7 +123,7 @@ func (r *PermissionPostgresRepository) GetAll() ([]models.Permission, error) {
 }
 
 // GetAllByRoleId returns all Permissions for a given Role
-func (r *PermissionPostgresRepository) GetAllByRoleId(roleUUID uuid.UUID) ([]models.Permission, error) {
+func (r *PermissionPostgresRepository) GetAllByRoleId(roleUUID uuid.UUID) (models.Permissions, error) {
 	// Prepare query
 	query := `SELECT p.id, p.value, p.scope, p.description
 			  FROM permissions as p
@@ -145,7 +145,7 @@ func (r *PermissionPostgresRepository) GetAllByRoleId(roleUUID uuid.UUID) ([]mod
 
 // TODO : might need to move query
 // GetAllForUser returns all Permissions for a given User
-func (r *PermissionPostgresRepository) GetAllForUser(userUUID uuid.UUID) ([]models.Permission, error) {
+func (r *PermissionPostgresRepository) GetAllForUser(userUUID uuid.UUID) (models.Permissions, error) {
 	// Prepare query
 	query := `SELECT p.id, p.value, p.scope, p.description
 			  FROM permissions as p

@@ -87,10 +87,10 @@ func (mr *SecurityPermissionRepositoryMockRecorder) Get(uuid any) *gomock.Call {
 }
 
 // GetAll mocks base method.
-func (m *SecurityPermissionRepository) GetAll() ([]models.Permission, error) {
+func (m *SecurityPermissionRepository) GetAll() (models.Permissions, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetAll")
-	ret0, _ := ret[0].([]models.Permission)
+	ret0, _ := ret[0].(models.Permissions)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -102,10 +102,10 @@ func (mr *SecurityPermissionRepositoryMockRecorder) GetAll() *gomock.Call {
 }
 
 // GetAllByRoleId mocks base method.
-func (m *SecurityPermissionRepository) GetAllByRoleId(roleUUID uuid.UUID) ([]models.Permission, error) {
+func (m *SecurityPermissionRepository) GetAllByRoleId(roleUUID uuid.UUID) (models.Permissions, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetAllByRoleId", roleUUID)
-	ret0, _ := ret[0].([]models.Permission)
+	ret0, _ := ret[0].(models.Permissions)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -117,10 +117,10 @@ func (mr *SecurityPermissionRepositoryMockRecorder) GetAllByRoleId(roleUUID any)
 }
 
 // GetAllForUser mocks base method.
-func (m *SecurityPermissionRepository) GetAllForUser(userUUID uuid.UUID) ([]models.Permission, error) {
+func (m *SecurityPermissionRepository) GetAllForUser(userUUID uuid.UUID) (models.Permissions, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetAllForUser", userUUID)
-	ret0, _ := ret[0].([]models.Permission)
+	ret0, _ := ret[0].(models.Permissions)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

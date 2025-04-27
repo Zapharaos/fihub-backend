@@ -40,7 +40,7 @@ func (s *Service) CreateRole(ctx context.Context, req *protogen.CreateRoleReques
 	if err == nil {
 
 		// Construct the Permissions object from the request
-		permissions, err := models.FromProtogenPermissions(req.GetPermissions())
+		permissions, err := models.FromProtogenRolePermissionsInput(req.GetPermissions())
 		if err != nil {
 			zap.L().Warn("Cannot convert permissions", zap.Error(err))
 			return nil, status.Error(codes.InvalidArgument, err.Error())
@@ -51,9 +51,6 @@ func (s *Service) CreateRole(ctx context.Context, req *protogen.CreateRoleReques
 			zap.L().Warn("Permissions are not valid", zap.Error(err))
 			return nil, status.Error(codes.InvalidArgument, err.Error())
 		}
-
-		// Keep only the UUIDs of the permissions
-		perms = permissions.GetUUIDs()
 	}
 
 	// Create the role in the database
@@ -151,7 +148,7 @@ func (s *Service) UpdateRole(ctx context.Context, req *protogen.UpdateRoleReques
 	if err == nil {
 
 		// Construct the Permissions object from the request
-		permissions, err := models.FromProtogenPermissions(req.GetPermissions())
+		permissions, err := models.FromProtogenRolePermissionsInput(req.GetPermissions())
 		if err != nil {
 			zap.L().Warn("Cannot convert permissions", zap.Error(err))
 			return nil, status.Error(codes.InvalidArgument, err.Error())
@@ -162,9 +159,6 @@ func (s *Service) UpdateRole(ctx context.Context, req *protogen.UpdateRoleReques
 			zap.L().Warn("Permissions are not valid", zap.Error(err))
 			return nil, status.Error(codes.InvalidArgument, err.Error())
 		}
-
-		// Keep only the UUIDs of the permissions
-		perms = permissions.GetUUIDs()
 	}
 
 	// Update the role in the database
@@ -239,5 +233,74 @@ func (s *Service) ListRoles(ctx context.Context, req *protogen.ListRolesRequest)
 
 	return &protogen.ListRolesResponse{
 		Roles: result.ToProtogenRolesWithPermissions(),
+	}, nil
+}
+
+// ListRolePermissions implements the ListRolePermissions RPC method.
+func (s *Service) ListRolePermissions(ctx context.Context, req *protogen.ListRolePermissionsRequest) (*protogen.ListRolePermissionsResponse, error) {
+	// Check user permissions
+	err := security.Facade().CheckPermission(ctx, "admin.roles.permissions.list")
+	if err != nil {
+		zap.L().Error("CheckPermission", zap.Error(err))
+		return nil, err
+	}
+
+	// Parse the user ID from the request
+	roleID, err := uuid.Parse(req.GetId())
+	if err != nil {
+		// Log the error and return an invalid response
+		zap.L().Error("Invalid user ID", zap.String("user_id", req.GetId()), zap.Error(err))
+		return &protogen.ListRolePermissionsResponse{}, status.Error(codes.InvalidArgument, "Invalid user ID")
+	}
+
+	// List all role permissions from the database
+	permissions, err := repositories.R().P().GetAllByRoleId(roleID)
+	if err != nil {
+		zap.L().Error("Cannot list role permissions", zap.String("uuid", roleID.String()), zap.Error(err))
+		return &protogen.ListRolePermissionsResponse{}, status.Error(codes.Internal, err.Error())
+	}
+
+	return &protogen.ListRolePermissionsResponse{
+		Permissions: permissions.ToProtogenPermissions(),
+	}, nil
+}
+
+// SetRolePermissions implements the SetRolePermissions RPC method.
+func (s *Service) SetRolePermissions(ctx context.Context, req *protogen.SetRolePermissionsRequest) (*protogen.SetRolePermissionsResponse, error) {
+	// Check user permissions
+	err := security.Facade().CheckPermission(ctx, "admin.roles.permissions.update")
+	if err != nil {
+		zap.L().Error("CheckPermission", zap.Error(err))
+		return nil, err
+	}
+
+	// Construct the Permissions object from the request
+	permissions, err := models.FromProtogenRolePermissionsInput(req.GetPermissions())
+	if err != nil {
+		zap.L().Warn("Cannot convert permissions", zap.Error(err))
+		return nil, status.Error(codes.InvalidArgument, err.Error())
+	}
+
+	if ok, err := permissions.IsValid(); !ok {
+		zap.L().Warn("Permissions are not valid", zap.Error(err))
+		return nil, status.Error(codes.InvalidArgument, err.Error())
+	}
+
+	// Parse the user ID from the request
+	roleID, err := uuid.Parse(req.GetId())
+	if err != nil {
+		// Log the error and return an invalid response
+		zap.L().Error("Invalid user ID", zap.String("user_id", req.GetId()), zap.Error(err))
+		return &protogen.SetRolePermissionsResponse{}, status.Error(codes.InvalidArgument, "Invalid user ID")
+	}
+
+	err = repositories.R().R().SetRolePermissions(roleID, permissions)
+	if err != nil {
+		zap.L().Error("Failed to set permissions", zap.Error(err))
+		return &protogen.SetRolePermissionsResponse{}, status.Error(codes.Internal, err.Error())
+	}
+
+	return &protogen.SetRolePermissionsResponse{
+		Success: true,
 	}, nil
 }

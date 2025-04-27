@@ -19,10 +19,11 @@ service SecurityService {
 	rpc DeleteRole(DeleteRoleRequest) returns (DeleteRoleResponse);
 	rpc ListRoles(ListRolesRequest) returns (ListRolesResponse);
 
-	/*	// Role-Permission management
-    rpc ListRolePermissions(ListRolePermissionsRequest) returns (ListRolePermissionsResponse);
-    rpc SetRolePermissions(SetRolePermissionsRequest) returns (SetRolePermissionsResponse);
+	// Role-Permission management
+	rpc ListRolePermissions(ListRolePermissionsRequest) returns (ListRolePermissionsResponse);
+	rpc SetRolePermissions(SetRolePermissionsRequest) returns (SetRolePermissionsResponse);
 
+	/*
     // Role-Users management
     rpc ListUsersForRole(ListRoleUsersRequest) returns (ListRoleUsersResponse);
     rpc AddUsersToRole(AddUserToRoleRequest) returns (AddUserToRoleResponse);
@@ -33,7 +34,8 @@ service SecurityService {
     rpc SetRolesForUser(SetUserRolesRequest) returns (SetUserRolesResponse);
 
     // Users-Roles-Permissions management
-    rpc ListUsersRolesPermissions(ListUsersRolesPermissionsRequest) returns (ListUsersRolesPermissionsResponse);*/
+		rpc ListUsersRolesPermissions(ListUsersRolesPermissionsRequest) returns (ListUsersRolesPermissionsResponse);
+	*/
 }
 
 // Permission
@@ -103,7 +105,7 @@ message RoleWithPermissions {
 
 message CreateRoleRequest {
 	string name = 1;
-	repeated Permission permissions = 2;
+	repeated string permissions = 2;
 }
 
 message CreateRoleResponse {
@@ -121,7 +123,7 @@ message GetRoleResponse {
 message UpdateRoleRequest {
 	string id = 1;
 	string name = 2;
-	repeated Permission permissions = 3;
+	repeated string permissions = 3;
 }
 
 message UpdateRoleResponse {
@@ -141,4 +143,23 @@ message ListRolesRequest {
 
 message ListRolesResponse {
 	repeated RoleWithPermissions roles = 1;
+}
+
+// Role-Permission
+
+message ListRolePermissionsRequest {
+	string id = 1;
+}
+
+message ListRolePermissionsResponse {
+	repeated Permission permissions = 1;
+}
+
+message SetRolePermissionsRequest {
+	string id = 1;
+	repeated string permissions = 2;
+}
+
+message SetRolePermissionsResponse {
+	bool success = 1;
 }

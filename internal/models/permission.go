@@ -15,10 +15,6 @@ var (
 	ErrLimitExceeded = errors.New("permissions-limit-exceeded")
 )
 
-const (
-	LimitMaxPermissions = 250
-)
-
 type Permission struct {
 	Id          uuid.UUID `json:"id"`
 	Value       string    `json:"value"`
@@ -48,14 +44,6 @@ func (p Permission) IsValid() (bool, error) {
 	// check if the scope is valid
 	if !CheckScope(p.Scope) {
 		return false, ErrScopeInvalid
-	}
-	return true, nil
-}
-
-// IsValid checks if the permissions array is valid
-func (p Permissions) IsValid() (bool, error) {
-	if len(p) > LimitMaxPermissions {
-		return false, ErrLimitExceeded
 	}
 	return true, nil
 }
@@ -128,6 +116,20 @@ func (p Permissions) ToProtogenPermissions() []*protogen.Permission {
 	permissions := make([]*protogen.Permission, len(p))
 	for i, perm := range p {
 		permissions[i] = perm.ToProtogenPermission()
+	}
+
+	return permissions
+}
+
+// ToProtogenPermissionsUuidInput converts a slice of Permission to a slice of string
+func (p Permissions) ToProtogenPermissionsUuidInput() []string {
+	if p == nil {
+		return nil
+	}
+
+	permissions := make([]string, len(p))
+	for i, perm := range p {
+		permissions[i] = perm.Id.String()
 	}
 
 	return permissions

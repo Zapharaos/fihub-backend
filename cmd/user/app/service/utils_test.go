@@ -18,7 +18,7 @@ func TestLoadUserRoles(t *testing.T) {
 	// Define test data
 	role := models.Role{Id: uuid.New(), Name: "admin"}
 	perm := models.Permission{Id: uuid.New(), Value: "read", Scope: "scope"}
-	perms := []models.Permission{perm, perm, perm}
+	perms := models.Permissions{perm, perm, perm}
 
 	// Define test cases
 	tests := []struct {
@@ -68,11 +68,11 @@ func TestLoadUserRoles(t *testing.T) {
 				r := mocks.NewSecurityRoleRepository(ctrl)
 				r.EXPECT().GetRolesByUserId(gomock.Any()).Return([]models.Role{role}, nil)
 				p := mocks.NewSecurityPermissionRepository(ctrl)
-				p.EXPECT().GetAllByRoleId(gomock.Any()).Return([]models.Permission{}, nil)
+				p.EXPECT().GetAllByRoleId(gomock.Any()).Return(models.Permissions{}, nil)
 				securityrepositories.ReplaceGlobals(securityrepositories.NewRepository(r, p))
 			},
 			expected: models.RolesWithPermissions{
-				models.RoleWithPermissions{Role: role, Permissions: make([]models.Permission, 0)},
+				models.RoleWithPermissions{Role: role, Permissions: make(models.Permissions, 0)},
 			},
 			error: nil,
 		},
@@ -123,7 +123,7 @@ func TestLoadFullUser(t *testing.T) {
 	user := models.User{ID: uuid.New()}
 	role := models.Role{Id: uuid.New(), Name: "admin"}
 	perm := models.Permission{Id: uuid.New(), Value: "read", Scope: "scope"}
-	perms := []models.Permission{perm, perm, perm}
+	perms := models.Permissions{perm, perm, perm}
 	roleWP := models.RoleWithPermissions{Role: role, Permissions: perms}
 
 	// Define test cases

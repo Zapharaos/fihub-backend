@@ -13,8 +13,8 @@ type PermissionRepository interface {
 	Create(permission models.Permission) (uuid.UUID, error)
 	Update(permission models.Permission) error
 	Delete(uuid uuid.UUID) error
-	GetAll() ([]models.Permission, error)
+	GetAll() (models.Permissions, error)
 
-	GetAllByRoleId(roleUUID uuid.UUID) ([]models.Permission, error)
-	GetAllForUser(userUUID uuid.UUID) ([]models.Permission, error)
+	GetAllByRoleId(roleUUID uuid.UUID) (models.Permissions, error)
+	GetAllForUser(userUUID uuid.UUID) (models.Permissions, error)
 }

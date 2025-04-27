@@ -668,7 +668,7 @@ func (x *RoleWithPermissions) GetPermissions() []*Permission {
 type CreateRoleRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	Permissions   []*Permission          `protobuf:"bytes,2,rep,name=permissions,proto3" json:"permissions,omitempty"`
+	Permissions   []string               `protobuf:"bytes,2,rep,name=permissions,proto3" json:"permissions,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -710,7 +710,7 @@ func (x *CreateRoleRequest) GetName() string {
 	return ""
 }
 
-func (x *CreateRoleRequest) GetPermissions() []*Permission {
+func (x *CreateRoleRequest) GetPermissions() []string {
 	if x != nil {
 		return x.Permissions
 	}
@@ -853,7 +853,7 @@ type UpdateRoleRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	Permissions   []*Permission          `protobuf:"bytes,3,rep,name=permissions,proto3" json:"permissions,omitempty"`
+	Permissions   []string               `protobuf:"bytes,3,rep,name=permissions,proto3" json:"permissions,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -902,7 +902,7 @@ func (x *UpdateRoleRequest) GetName() string {
 	return ""
 }
 
-func (x *UpdateRoleRequest) GetPermissions() []*Permission {
+func (x *UpdateRoleRequest) GetPermissions() []string {
 	if x != nil {
 		return x.Permissions
 	}
@@ -1121,6 +1121,190 @@ func (x *ListRolesResponse) GetRoles() []*RoleWithPermissions {
 	return nil
 }
 
+type ListRolePermissionsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListRolePermissionsRequest) Reset() {
+	*x = ListRolePermissionsRequest{}
+	mi := &file_proto_security_proto_msgTypes[23]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListRolePermissionsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListRolePermissionsRequest) ProtoMessage() {}
+
+func (x *ListRolePermissionsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_security_proto_msgTypes[23]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListRolePermissionsRequest.ProtoReflect.Descriptor instead.
+func (*ListRolePermissionsRequest) Descriptor() ([]byte, []int) {
+	return file_proto_security_proto_rawDescGZIP(), []int{23}
+}
+
+func (x *ListRolePermissionsRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+type ListRolePermissionsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Permissions   []*Permission          `protobuf:"bytes,1,rep,name=permissions,proto3" json:"permissions,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListRolePermissionsResponse) Reset() {
+	*x = ListRolePermissionsResponse{}
+	mi := &file_proto_security_proto_msgTypes[24]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListRolePermissionsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListRolePermissionsResponse) ProtoMessage() {}
+
+func (x *ListRolePermissionsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_security_proto_msgTypes[24]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListRolePermissionsResponse.ProtoReflect.Descriptor instead.
+func (*ListRolePermissionsResponse) Descriptor() ([]byte, []int) {
+	return file_proto_security_proto_rawDescGZIP(), []int{24}
+}
+
+func (x *ListRolePermissionsResponse) GetPermissions() []*Permission {
+	if x != nil {
+		return x.Permissions
+	}
+	return nil
+}
+
+type SetRolePermissionsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Permissions   []string               `protobuf:"bytes,2,rep,name=permissions,proto3" json:"permissions,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SetRolePermissionsRequest) Reset() {
+	*x = SetRolePermissionsRequest{}
+	mi := &file_proto_security_proto_msgTypes[25]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetRolePermissionsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetRolePermissionsRequest) ProtoMessage() {}
+
+func (x *SetRolePermissionsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_security_proto_msgTypes[25]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetRolePermissionsRequest.ProtoReflect.Descriptor instead.
+func (*SetRolePermissionsRequest) Descriptor() ([]byte, []int) {
+	return file_proto_security_proto_rawDescGZIP(), []int{25}
+}
+
+func (x *SetRolePermissionsRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *SetRolePermissionsRequest) GetPermissions() []string {
+	if x != nil {
+		return x.Permissions
+	}
+	return nil
+}
+
+type SetRolePermissionsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SetRolePermissionsResponse) Reset() {
+	*x = SetRolePermissionsResponse{}
+	mi := &file_proto_security_proto_msgTypes[26]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetRolePermissionsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetRolePermissionsResponse) ProtoMessage() {}
+
+func (x *SetRolePermissionsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_security_proto_msgTypes[26]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetRolePermissionsResponse.ProtoReflect.Descriptor instead.
+func (*SetRolePermissionsResponse) Descriptor() ([]byte, []int) {
+	return file_proto_security_proto_rawDescGZIP(), []int{26}
+}
+
+func (x *SetRolePermissionsResponse) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
 var File_proto_security_proto protoreflect.FileDescriptor
 
 const file_proto_security_proto_rawDesc = "" +
@@ -1167,20 +1351,20 @@ const file_proto_security_proto_rawDesc = "" +
 	"\x04name\x18\x02 \x01(\tR\x04name\"q\n" +
 	"\x13RoleWithPermissions\x12\"\n" +
 	"\x04role\x18\x01 \x01(\v2\x0e.security.RoleR\x04role\x126\n" +
-	"\vpermissions\x18\x02 \x03(\v2\x14.security.PermissionR\vpermissions\"_\n" +
+	"\vpermissions\x18\x02 \x03(\v2\x14.security.PermissionR\vpermissions\"I\n" +
 	"\x11CreateRoleRequest\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\x126\n" +
-	"\vpermissions\x18\x02 \x03(\v2\x14.security.PermissionR\vpermissions\"G\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12 \n" +
+	"\vpermissions\x18\x02 \x03(\tR\vpermissions\"G\n" +
 	"\x12CreateRoleResponse\x121\n" +
 	"\x04role\x18\x01 \x01(\v2\x1d.security.RoleWithPermissionsR\x04role\" \n" +
 	"\x0eGetRoleRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\"D\n" +
 	"\x0fGetRoleResponse\x121\n" +
-	"\x04role\x18\x01 \x01(\v2\x1d.security.RoleWithPermissionsR\x04role\"o\n" +
+	"\x04role\x18\x01 \x01(\v2\x1d.security.RoleWithPermissionsR\x04role\"Y\n" +
 	"\x11UpdateRoleRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\x126\n" +
-	"\vpermissions\x18\x03 \x03(\v2\x14.security.PermissionR\vpermissions\"G\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12 \n" +
+	"\vpermissions\x18\x03 \x03(\tR\vpermissions\"G\n" +
 	"\x12UpdateRoleResponse\x121\n" +
 	"\x04role\x18\x01 \x01(\v2\x1d.security.RoleWithPermissionsR\x04role\"#\n" +
 	"\x11DeleteRoleRequest\x12\x0e\n" +
@@ -1189,7 +1373,16 @@ const file_proto_security_proto_rawDesc = "" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\"\x12\n" +
 	"\x10ListRolesRequest\"H\n" +
 	"\x11ListRolesResponse\x123\n" +
-	"\x05roles\x18\x01 \x03(\v2\x1d.security.RoleWithPermissionsR\x05roles2\xad\x06\n" +
+	"\x05roles\x18\x01 \x03(\v2\x1d.security.RoleWithPermissionsR\x05roles\",\n" +
+	"\x1aListRolePermissionsRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\"U\n" +
+	"\x1bListRolePermissionsResponse\x126\n" +
+	"\vpermissions\x18\x01 \x03(\v2\x14.security.PermissionR\vpermissions\"M\n" +
+	"\x19SetRolePermissionsRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12 \n" +
+	"\vpermissions\x18\x02 \x03(\tR\vpermissions\"6\n" +
+	"\x1aSetRolePermissionsResponse\x12\x18\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess2\xf2\a\n" +
 	"\x0fSecurityService\x12Y\n" +
 	"\x10CreatePermission\x12!.security.CreatePermissionRequest\x1a\".security.CreatePermissionResponse\x12P\n" +
 	"\rGetPermission\x12\x1e.security.GetPermissionRequest\x1a\x1f.security.GetPermissionResponse\x12Y\n" +
@@ -1203,7 +1396,9 @@ const file_proto_security_proto_rawDesc = "" +
 	"UpdateRole\x12\x1b.security.UpdateRoleRequest\x1a\x1c.security.UpdateRoleResponse\x12G\n" +
 	"\n" +
 	"DeleteRole\x12\x1b.security.DeleteRoleRequest\x1a\x1c.security.DeleteRoleResponse\x12D\n" +
-	"\tListRoles\x12\x1a.security.ListRolesRequest\x1a\x1b.security.ListRolesResponseB\fZ\n" +
+	"\tListRoles\x12\x1a.security.ListRolesRequest\x1a\x1b.security.ListRolesResponse\x12b\n" +
+	"\x13ListRolePermissions\x12$.security.ListRolePermissionsRequest\x1a%.security.ListRolePermissionsResponse\x12_\n" +
+	"\x12SetRolePermissions\x12#.security.SetRolePermissionsRequest\x1a$.security.SetRolePermissionsResponseB\fZ\n" +
 	"./protogenb\x06proto3"
 
 var (
@@ -1218,31 +1413,35 @@ func file_proto_security_proto_rawDescGZIP() []byte {
 	return file_proto_security_proto_rawDescData
 }
 
-var file_proto_security_proto_msgTypes = make([]protoimpl.MessageInfo, 23)
+var file_proto_security_proto_msgTypes = make([]protoimpl.MessageInfo, 27)
 var file_proto_security_proto_goTypes = []any{
-	(*Permission)(nil),               // 0: security.Permission
-	(*CreatePermissionRequest)(nil),  // 1: security.CreatePermissionRequest
-	(*CreatePermissionResponse)(nil), // 2: security.CreatePermissionResponse
-	(*GetPermissionRequest)(nil),     // 3: security.GetPermissionRequest
-	(*GetPermissionResponse)(nil),    // 4: security.GetPermissionResponse
-	(*UpdatePermissionRequest)(nil),  // 5: security.UpdatePermissionRequest
-	(*UpdatePermissionResponse)(nil), // 6: security.UpdatePermissionResponse
-	(*DeletePermissionRequest)(nil),  // 7: security.DeletePermissionRequest
-	(*DeletePermissionResponse)(nil), // 8: security.DeletePermissionResponse
-	(*ListPermissionsRequest)(nil),   // 9: security.ListPermissionsRequest
-	(*ListPermissionsResponse)(nil),  // 10: security.ListPermissionsResponse
-	(*Role)(nil),                     // 11: security.Role
-	(*RoleWithPermissions)(nil),      // 12: security.RoleWithPermissions
-	(*CreateRoleRequest)(nil),        // 13: security.CreateRoleRequest
-	(*CreateRoleResponse)(nil),       // 14: security.CreateRoleResponse
-	(*GetRoleRequest)(nil),           // 15: security.GetRoleRequest
-	(*GetRoleResponse)(nil),          // 16: security.GetRoleResponse
-	(*UpdateRoleRequest)(nil),        // 17: security.UpdateRoleRequest
-	(*UpdateRoleResponse)(nil),       // 18: security.UpdateRoleResponse
-	(*DeleteRoleRequest)(nil),        // 19: security.DeleteRoleRequest
-	(*DeleteRoleResponse)(nil),       // 20: security.DeleteRoleResponse
-	(*ListRolesRequest)(nil),         // 21: security.ListRolesRequest
-	(*ListRolesResponse)(nil),        // 22: security.ListRolesResponse
+	(*Permission)(nil),                  // 0: security.Permission
+	(*CreatePermissionRequest)(nil),     // 1: security.CreatePermissionRequest
+	(*CreatePermissionResponse)(nil),    // 2: security.CreatePermissionResponse
+	(*GetPermissionRequest)(nil),        // 3: security.GetPermissionRequest
+	(*GetPermissionResponse)(nil),       // 4: security.GetPermissionResponse
+	(*UpdatePermissionRequest)(nil),     // 5: security.UpdatePermissionRequest
+	(*UpdatePermissionResponse)(nil),    // 6: security.UpdatePermissionResponse
+	(*DeletePermissionRequest)(nil),     // 7: security.DeletePermissionRequest
+	(*DeletePermissionResponse)(nil),    // 8: security.DeletePermissionResponse
+	(*ListPermissionsRequest)(nil),      // 9: security.ListPermissionsRequest
+	(*ListPermissionsResponse)(nil),     // 10: security.ListPermissionsResponse
+	(*Role)(nil),                        // 11: security.Role
+	(*RoleWithPermissions)(nil),         // 12: security.RoleWithPermissions
+	(*CreateRoleRequest)(nil),           // 13: security.CreateRoleRequest
+	(*CreateRoleResponse)(nil),          // 14: security.CreateRoleResponse
+	(*GetRoleRequest)(nil),              // 15: security.GetRoleRequest
+	(*GetRoleResponse)(nil),             // 16: security.GetRoleResponse
+	(*UpdateRoleRequest)(nil),           // 17: security.UpdateRoleRequest
+	(*UpdateRoleResponse)(nil),          // 18: security.UpdateRoleResponse
+	(*DeleteRoleRequest)(nil),           // 19: security.DeleteRoleRequest
+	(*DeleteRoleResponse)(nil),          // 20: security.DeleteRoleResponse
+	(*ListRolesRequest)(nil),            // 21: security.ListRolesRequest
+	(*ListRolesResponse)(nil),           // 22: security.ListRolesResponse
+	(*ListRolePermissionsRequest)(nil),  // 23: security.ListRolePermissionsRequest
+	(*ListRolePermissionsResponse)(nil), // 24: security.ListRolePermissionsResponse
+	(*SetRolePermissionsRequest)(nil),   // 25: security.SetRolePermissionsRequest
+	(*SetRolePermissionsResponse)(nil),  // 26: security.SetRolePermissionsResponse
 }
 var file_proto_security_proto_depIdxs = []int32{
 	0,  // 0: security.CreatePermissionResponse.permission:type_name -> security.Permission
@@ -1251,37 +1450,40 @@ var file_proto_security_proto_depIdxs = []int32{
 	0,  // 3: security.ListPermissionsResponse.permissions:type_name -> security.Permission
 	11, // 4: security.RoleWithPermissions.role:type_name -> security.Role
 	0,  // 5: security.RoleWithPermissions.permissions:type_name -> security.Permission
-	0,  // 6: security.CreateRoleRequest.permissions:type_name -> security.Permission
-	12, // 7: security.CreateRoleResponse.role:type_name -> security.RoleWithPermissions
-	12, // 8: security.GetRoleResponse.role:type_name -> security.RoleWithPermissions
-	0,  // 9: security.UpdateRoleRequest.permissions:type_name -> security.Permission
-	12, // 10: security.UpdateRoleResponse.role:type_name -> security.RoleWithPermissions
-	12, // 11: security.ListRolesResponse.roles:type_name -> security.RoleWithPermissions
-	1,  // 12: security.SecurityService.CreatePermission:input_type -> security.CreatePermissionRequest
-	3,  // 13: security.SecurityService.GetPermission:input_type -> security.GetPermissionRequest
-	5,  // 14: security.SecurityService.UpdatePermission:input_type -> security.UpdatePermissionRequest
-	7,  // 15: security.SecurityService.DeletePermission:input_type -> security.DeletePermissionRequest
-	9,  // 16: security.SecurityService.ListPermissions:input_type -> security.ListPermissionsRequest
-	13, // 17: security.SecurityService.CreateRole:input_type -> security.CreateRoleRequest
-	15, // 18: security.SecurityService.GetRole:input_type -> security.GetRoleRequest
-	17, // 19: security.SecurityService.UpdateRole:input_type -> security.UpdateRoleRequest
-	19, // 20: security.SecurityService.DeleteRole:input_type -> security.DeleteRoleRequest
-	21, // 21: security.SecurityService.ListRoles:input_type -> security.ListRolesRequest
-	2,  // 22: security.SecurityService.CreatePermission:output_type -> security.CreatePermissionResponse
-	4,  // 23: security.SecurityService.GetPermission:output_type -> security.GetPermissionResponse
-	6,  // 24: security.SecurityService.UpdatePermission:output_type -> security.UpdatePermissionResponse
-	8,  // 25: security.SecurityService.DeletePermission:output_type -> security.DeletePermissionResponse
-	10, // 26: security.SecurityService.ListPermissions:output_type -> security.ListPermissionsResponse
-	14, // 27: security.SecurityService.CreateRole:output_type -> security.CreateRoleResponse
-	16, // 28: security.SecurityService.GetRole:output_type -> security.GetRoleResponse
-	18, // 29: security.SecurityService.UpdateRole:output_type -> security.UpdateRoleResponse
-	20, // 30: security.SecurityService.DeleteRole:output_type -> security.DeleteRoleResponse
-	22, // 31: security.SecurityService.ListRoles:output_type -> security.ListRolesResponse
-	22, // [22:32] is the sub-list for method output_type
-	12, // [12:22] is the sub-list for method input_type
-	12, // [12:12] is the sub-list for extension type_name
-	12, // [12:12] is the sub-list for extension extendee
-	0,  // [0:12] is the sub-list for field type_name
+	12, // 6: security.CreateRoleResponse.role:type_name -> security.RoleWithPermissions
+	12, // 7: security.GetRoleResponse.role:type_name -> security.RoleWithPermissions
+	12, // 8: security.UpdateRoleResponse.role:type_name -> security.RoleWithPermissions
+	12, // 9: security.ListRolesResponse.roles:type_name -> security.RoleWithPermissions
+	0,  // 10: security.ListRolePermissionsResponse.permissions:type_name -> security.Permission
+	1,  // 11: security.SecurityService.CreatePermission:input_type -> security.CreatePermissionRequest
+	3,  // 12: security.SecurityService.GetPermission:input_type -> security.GetPermissionRequest
+	5,  // 13: security.SecurityService.UpdatePermission:input_type -> security.UpdatePermissionRequest
+	7,  // 14: security.SecurityService.DeletePermission:input_type -> security.DeletePermissionRequest
+	9,  // 15: security.SecurityService.ListPermissions:input_type -> security.ListPermissionsRequest
+	13, // 16: security.SecurityService.CreateRole:input_type -> security.CreateRoleRequest
+	15, // 17: security.SecurityService.GetRole:input_type -> security.GetRoleRequest
+	17, // 18: security.SecurityService.UpdateRole:input_type -> security.UpdateRoleRequest
+	19, // 19: security.SecurityService.DeleteRole:input_type -> security.DeleteRoleRequest
+	21, // 20: security.SecurityService.ListRoles:input_type -> security.ListRolesRequest
+	23, // 21: security.SecurityService.ListRolePermissions:input_type -> security.ListRolePermissionsRequest
+	25, // 22: security.SecurityService.SetRolePermissions:input_type -> security.SetRolePermissionsRequest
+	2,  // 23: security.SecurityService.CreatePermission:output_type -> security.CreatePermissionResponse
+	4,  // 24: security.SecurityService.GetPermission:output_type -> security.GetPermissionResponse
+	6,  // 25: security.SecurityService.UpdatePermission:output_type -> security.UpdatePermissionResponse
+	8,  // 26: security.SecurityService.DeletePermission:output_type -> security.DeletePermissionResponse
+	10, // 27: security.SecurityService.ListPermissions:output_type -> security.ListPermissionsResponse
+	14, // 28: security.SecurityService.CreateRole:output_type -> security.CreateRoleResponse
+	16, // 29: security.SecurityService.GetRole:output_type -> security.GetRoleResponse
+	18, // 30: security.SecurityService.UpdateRole:output_type -> security.UpdateRoleResponse
+	20, // 31: security.SecurityService.DeleteRole:output_type -> security.DeleteRoleResponse
+	22, // 32: security.SecurityService.ListRoles:output_type -> security.ListRolesResponse
+	24, // 33: security.SecurityService.ListRolePermissions:output_type -> security.ListRolePermissionsResponse
+	26, // 34: security.SecurityService.SetRolePermissions:output_type -> security.SetRolePermissionsResponse
+	23, // [23:35] is the sub-list for method output_type
+	11, // [11:23] is the sub-list for method input_type
+	11, // [11:11] is the sub-list for extension type_name
+	11, // [11:11] is the sub-list for extension extendee
+	0,  // [0:11] is the sub-list for field type_name
 }
 
 func init() { file_proto_security_proto_init() }
@@ -1295,7 +1497,7 @@ func file_proto_security_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_security_proto_rawDesc), len(file_proto_security_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   23,
+			NumMessages:   27,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
