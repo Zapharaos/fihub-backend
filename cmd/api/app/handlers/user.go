@@ -26,7 +26,7 @@ import (
 //	@Success		200	{object}	models.User				"user"
 //	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
-//	@Router			/api/v1/users [post]
+//	@Router			/api/v1/user [post]
 func CreateUser(w http.ResponseWriter, r *http.Request) {
 	// Parse request body
 	var userInputCreate models.UserInputCreate
@@ -73,7 +73,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 //
 //	@Summary		Get a user by ID
 //	@Description	Get a user by ID. (Permission: <b>admin.users.read</b>)
-//	@Tags			Users
+//	@Tags			User
 //	@Produce		json
 //	@Param			id	path	string	true	"user ID"
 //	@Security		Bearer
@@ -82,7 +82,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		404	{string}	string					"User not found"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
-//	@Router			/api/v1/users/{id} [get]
+//	@Router			/api/v1/user/{id} [get]
 func GetUser(w http.ResponseWriter, r *http.Request) {
 	userId, ok := U().ParseParamUUID(w, r, "id")
 	if !ok || !U().CheckPermission(w, r, "admin.users.read") {
@@ -136,14 +136,14 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 //
 //	@Summary		Get the currently authenticated user
 //	@Description	Retrieves the currently authenticated user.
-//	@Tags			Users
+//	@Tags			User
 //	@Produce		json
 //	@Security		Bearer
 //	@Success		200	{object}	models.UserWithRoles		"user"
 //	@Failure		400	{string}	string					"Bad PasswordRequest"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
-//	@Router			/api/v1/users/me [get]
+//	@Router			/api/v1/user/me [get]
 func GetUserSelf(w http.ResponseWriter, r *http.Request) {
 	userCtx, found := U().GetUserFromContext(r)
 	if !found {
@@ -161,7 +161,7 @@ func GetUserSelf(w http.ResponseWriter, r *http.Request) {
 //
 //	@Summary		Update the currently authenticated user
 //	@Description	Updates the currently authenticated user.
-//	@Tags			Users
+//	@Tags			User
 //	@Accept			json
 //	@Produce		json
 //	@Param			user	body	models.User	true	"user (json)"
@@ -170,7 +170,7 @@ func GetUserSelf(w http.ResponseWriter, r *http.Request) {
 //	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
-//	@Router			/api/v1/users/me [put]
+//	@Router			/api/v1/user/me [put]
 func UpdateUserSelf(w http.ResponseWriter, r *http.Request) {
 	userCtx, found := U().GetUserFromContext(r)
 	if !found {
@@ -222,7 +222,7 @@ func UpdateUserSelf(w http.ResponseWriter, r *http.Request) {
 //
 //	@Summary		Update the password of the currently authenticated user
 //	@Description	Update the password of the currently authenticated user.
-//	@Tags			Users
+//	@Tags			User
 //	@Accept			json
 //	@Produce		json
 //	@Param			password	body	models.UserInputPassword	true	"password (json)"
@@ -231,7 +231,7 @@ func UpdateUserSelf(w http.ResponseWriter, r *http.Request) {
 //	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
-//	@Router			/api/v1/users/me/password [put]
+//	@Router			/api/v1/user/me/password [put]
 func UpdateUserPassword(w http.ResponseWriter, r *http.Request) {
 	userCtx, found := U().GetUserFromContext(r)
 	if !found {
@@ -276,12 +276,12 @@ func UpdateUserPassword(w http.ResponseWriter, r *http.Request) {
 //
 //	@Summary		Delete the currently authenticated user
 //	@Description	Deletes the currently authenticated user.
-//	@Tags			Users
+//	@Tags			User
 //	@Security		Bearer
 //	@Success		200	{string}	string					"status OK"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
-//	@Router			/api/v1/users/me [delete]
+//	@Router			/api/v1/user/me [delete]
 func DeleteUserSelf(w http.ResponseWriter, r *http.Request) {
 	userCtx, found := U().GetUserFromContext(r)
 	if !found {

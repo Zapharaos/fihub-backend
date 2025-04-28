@@ -27,7 +27,7 @@ import (
 // @Failure 			400 {object} 		render.ErrorResponse 			"Bad PasswordRequest"
 // @Failure 			401 {string} 		string 							"Permission denied"
 // @Failure 			500 {object} 		render.ErrorResponse 			"Internal Server Error"
-// @Router /api/v1/transactions [post]
+// @Router /api/v1/transaction [post]
 func CreateTransaction(w http.ResponseWriter, r *http.Request) {
 
 	// Get the authenticated user from the context
@@ -114,7 +114,7 @@ func CreateTransaction(w http.ResponseWriter, r *http.Request) {
 // @Failure 		401 {string} 	string 						"Permission denied"
 // @Failure 		404 {object} 	render.ErrorResponse 		"Not Found"
 // @Failure 		500 {object} 	render.ErrorResponse 		"Internal Server Error"
-// @Router /api/v1/transactions/{id} [get]
+// @Router /api/v1/transaction/{id} [get]
 func GetTransaction(w http.ResponseWriter, r *http.Request) {
 
 	// Retrieve transactionID
@@ -185,7 +185,7 @@ func GetTransaction(w http.ResponseWriter, r *http.Request) {
 // @Failure 		401 {string} 	string 						"Permission denied"
 // @Failure			404	{object}	render.ErrorResponse		"Not Found"
 // @Failure 		500 {object} 	render.ErrorResponse 		"Internal Server Error"
-// @Router /api/v1/transactions/{id} [put]
+// @Router /api/v1/transaction/{id} [put]
 func UpdateTransaction(w http.ResponseWriter, r *http.Request) {
 
 	// Retrieve transactionID
@@ -279,7 +279,7 @@ func UpdateTransaction(w http.ResponseWriter, r *http.Request) {
 // @Failure 		401 {string} 	string 					"Permission denied"
 // @Failure			404	{object}	render.ErrorResponse	"Not Found"
 // @Failure 		500 {object} 	render.ErrorResponse 	"Internal Server Error"
-// @Router /api/v1/transactions/{id} [delete]
+// @Router /api/v1/transaction/{id} [delete]
 func DeleteTransaction(w http.ResponseWriter, r *http.Request) {
 
 	// Retrieve transactionID
@@ -324,7 +324,7 @@ func DeleteTransaction(w http.ResponseWriter, r *http.Request) {
 // @Success 		200 {array} 	models.Transaction 	"List of transactions"
 // @Failure 		401 {string} 	string 						"Permission denied"
 // @Failure 		500 {object} 	render.ErrorResponse 		"Internal Server Error"
-// @Router /api/v1/transactions [get]
+// @Router /api/v1/transaction [get]
 func ListTransactions(w http.ResponseWriter, r *http.Request) {
 
 	// Get the authenticated user from the context

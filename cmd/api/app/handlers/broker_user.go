@@ -17,7 +17,7 @@ import (
 //
 //	@Summary		Create a new user broker
 //	@Description	Create a new user broker.
-//	@Tags			BrokerUser
+//	@Tags			Broker, User
 //	@Accept			json
 //	@Produce		json
 //	@Param			userBroker	body	models.BrokerUserInput	true	"userBroker (json)"
@@ -26,7 +26,7 @@ import (
 //	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
-//	@Router			/api/v1/users/brokers [post]
+//	@Router			/api/v1/broker/user [post]
 func CreateUserBroker(w http.ResponseWriter, r *http.Request) {
 	// Get the authenticated user from the context
 	user, ok := U().GetUserFromContext(r)
@@ -76,7 +76,7 @@ func CreateUserBroker(w http.ResponseWriter, r *http.Request) {
 //
 //	@Summary		Delete a user broker
 //	@Description	Delete a user broker.
-//	@Tags			BrokerUser
+//	@Tags			Broker, User
 //	@Produce		json
 //	@Param			id	path	string	true	"broker ID"
 //	@Security		Bearer
@@ -84,7 +84,7 @@ func CreateUserBroker(w http.ResponseWriter, r *http.Request) {
 //	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
-//	@Router			/api/v1/users/brokers/{id} [delete]
+//	@Router			/api/v1/broker/{id}/user [delete]
 func DeleteUserBroker(w http.ResponseWriter, r *http.Request) {
 	// Retrieve brokerID
 	brokerID, ok := U().ParseParamUUID(w, r, "id")
@@ -136,13 +136,13 @@ func DeleteUserBroker(w http.ResponseWriter, r *http.Request) {
 //
 //	@Summary		Get all user's brokers
 //	@Description	Gets a list of all user's brokers.
-//	@Tags			BrokerUser
+//	@Tags			Broker, User
 //	@Produce		json
 //	@Security		Bearer
 //	@Success		200	{array}		models.BrokerUser		"List of brokers"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
-//	@Router			/api/v1/users/brokers [get]
+//	@Router			/api/v1/broker/user [get]
 func ListUserBrokers(w http.ResponseWriter, r *http.Request) {
 
 	// Get the authenticated user from the context

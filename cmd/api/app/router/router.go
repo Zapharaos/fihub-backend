@@ -106,9 +106,8 @@ func buildProtectedRoutes(a *auth.Auth) func(r chi.Router) {
 		}
 
 		// Users
-		r.Route("/users", func(r chi.Router) {
+		r.Route("/user", func(r chi.Router) {
 			r.Post("/", handlers.CreateUser)
-			// r.Get("/", handlers.GetAllUsersWithRoles)
 
 			// User's self profile : retrieving userID through context
 			r.Route("/me", func(r chi.Router) {
@@ -123,14 +122,6 @@ func buildProtectedRoutes(a *auth.Auth) func(r chi.Router) {
 			// User specific
 			r.Route("/{id}", func(r chi.Router) {
 				r.Get("/", handlers.GetUser)
-			})
-
-			// User's brokers : retrieving userID through context
-			r.Route("/brokers", func(r chi.Router) {
-				r.Post("/", handlers.CreateUserBroker)
-				r.Get("/", handlers.ListUserBrokers)
-
-				r.Delete("/{id}", handlers.DeleteUserBroker)
 			})
 		})
 
@@ -187,11 +178,12 @@ func buildProtectedRoutes(a *auth.Auth) func(r chi.Router) {
 			})
 		})
 
-		// Brokers
-		r.Route("/brokers", func(r chi.Router) {
+		// Broker
+		r.Route("/broker", func(r chi.Router) {
 			r.Post("/", handlers.CreateBroker)
 			r.Get("/", handlers.ListBrokers)
 
+			// Broker specific
 			r.Route("/{id}", func(r chi.Router) {
 				r.Get("/", handlers.GetBroker)
 				r.Put("/", handlers.UpdateBroker)
@@ -207,12 +199,20 @@ func buildProtectedRoutes(a *auth.Auth) func(r chi.Router) {
 						r.Delete("/", handlers.DeleteBrokerImage)
 					})
 				})
+
+				// User specific : retrieving userID through context
+				r.Delete("/user", handlers.DeleteUserBroker)
 			})
 
+			// Broker user specific : retrieving userID through context
+			r.Route("/user", func(r chi.Router) {
+				r.Post("/", handlers.CreateUserBroker)
+				r.Get("/", handlers.ListUserBrokers)
+			})
 		})
 
-		// Transactions : retrieving userID through context
-		r.Route("/transactions", func(r chi.Router) {
+		// Transaction : retrieving userID through context
+		r.Route("/transaction", func(r chi.Router) {
 			r.Post("/", handlers.CreateTransaction)
 			r.Get("/", handlers.ListTransactions)
 

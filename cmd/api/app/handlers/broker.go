@@ -17,7 +17,7 @@ import (
 //
 //	@Summary		Create a new broker
 //	@Description	Create a new broker. (Permission: <b>admin.brokers.create</b>)
-//	@Tags			Brokers
+//	@Tags			Broker
 //	@Accept			json
 //	@Produce		json
 //	@Param			broker	body	models.Broker	true	"broker (json)"
@@ -25,7 +25,7 @@ import (
 //	@Success		200	{object}	models.Broker			"broker"
 //	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
-//	@Router			/api/v1/brokers [post]
+//	@Router			/api/v1/broker [post]
 func CreateBroker(w http.ResponseWriter, r *http.Request) {
 
 	if !U().CheckPermission(w, r, "admin.brokers.create") {
@@ -67,7 +67,7 @@ func CreateBroker(w http.ResponseWriter, r *http.Request) {
 //
 //	@Summary		Get a broker
 //	@Description	Gets a broker.
-//	@Tags			Brokers
+//	@Tags			Broker
 //	@Produce		json
 //	@Param			id	path	string	true	"broker id"
 //	@Security		Bearer
@@ -75,7 +75,7 @@ func CreateBroker(w http.ResponseWriter, r *http.Request) {
 //	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		404	{object}	render.ErrorResponse	"Not Found"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
-//	@Router			/api/v1/brokers/{id} [get]
+//	@Router			/api/v1/broker/{id} [get]
 func GetBroker(w http.ResponseWriter, r *http.Request) {
 
 	// Retrieve brokerID
@@ -109,7 +109,7 @@ func GetBroker(w http.ResponseWriter, r *http.Request) {
 //
 //	@Summary		Update a broker
 //	@Description	Updates a broker. (Permission: <b>admin.brokers.update</b>)
-//	@Tags			Brokers
+//	@Tags			Broker
 //	@Accept			json
 //	@Produce		json
 //	@Param			id			path	string					true	"broker ID"
@@ -119,7 +119,7 @@ func GetBroker(w http.ResponseWriter, r *http.Request) {
 //	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		404	{object}	render.ErrorResponse	"Not Found"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
-//	@Router			/api/v1/brokers/{id} [put]
+//	@Router			/api/v1/broker/{id} [put]
 func UpdateBroker(w http.ResponseWriter, r *http.Request) {
 
 	if !U().CheckPermission(w, r, "admin.brokers.update") {
@@ -168,7 +168,7 @@ func UpdateBroker(w http.ResponseWriter, r *http.Request) {
 //
 //	@Summary		Delete a broker
 //	@Description	Deletes a broker. (Permission: <b>admin.brokers.delete</b>)
-//	@Tags			Brokers
+//	@Tags			Broker
 //	@Produce		json
 //	@Param			id	path	string	true	"broker ID"
 //	@Security		Bearer
@@ -176,7 +176,7 @@ func UpdateBroker(w http.ResponseWriter, r *http.Request) {
 //	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		404	{object}	render.ErrorResponse	"Not Found"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
-//	@Router			/api/v1/brokers/{id} [delete]
+//	@Router			/api/v1/broker/{id} [delete]
 func DeleteBroker(w http.ResponseWriter, r *http.Request) {
 
 	if !U().CheckPermission(w, r, "admin.brokers.delete") {
@@ -214,13 +214,13 @@ func DeleteBroker(w http.ResponseWriter, r *http.Request) {
 //
 //	@Summary		Get all brokers
 //	@Description	Gets a list of all brokers.
-//	@Tags			Brokers
+//	@Tags			Broker
 //	@Produce		json
 //	@Param			enabled	query	string	false	"enabled only"
 //	@Security		Bearer
 //	@Success		200	{array}		models.Broker			"list of brokers"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
-//	@Router			/api/v1/brokers [get]
+//	@Router			/api/v1/broker [get]
 func ListBrokers(w http.ResponseWriter, r *http.Request) {
 
 	enabled, ok := U().ParseParamBool(w, r, "enabled")

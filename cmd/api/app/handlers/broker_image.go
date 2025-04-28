@@ -16,7 +16,7 @@ import (
 //
 //	@Summary		Create a new broker image
 //	@Description	Create a new broker image. (Permission: <b>admin.brokers.create</b>)
-//	@Tags			BrokerImages
+//	@Tags			Broker, Image
 //	@Accept			multipart/form-data
 //	@Produce		json
 //	@Param			id		path		string	true	"broker ID"
@@ -25,7 +25,7 @@ import (
 //	@Success		200	{object}	models.BrokerImage		"broker image"
 //	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
-//	@Router			/api/v1/brokers/{id}/image [post]
+//	@Router			/api/v1/broker/{id}/image [post]
 func CreateBrokerImage(w http.ResponseWriter, r *http.Request) {
 
 	if !U().CheckPermission(w, r, "admin.brokers.create") {
@@ -72,7 +72,7 @@ func CreateBrokerImage(w http.ResponseWriter, r *http.Request) {
 //
 //	@Summary		Get a broker image
 //	@Description	Get a broker image.
-//	@Tags			BrokerImages
+//	@Tags			Broker, Image
 //	@Accept			json
 //	@Produce		image/jpeg
 //	@Produce		image/png
@@ -83,7 +83,7 @@ func CreateBrokerImage(w http.ResponseWriter, r *http.Request) {
 //	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		404	{object}	render.ErrorResponse	"Not Found"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
-//	@Router			/api/v1/brokers/{id}/image/{image_id} [get]
+//	@Router			/api/v1/broker/{id}/image/{image_id} [get]
 func GetBrokerImage(w http.ResponseWriter, r *http.Request) {
 	imageID, ok := U().ParseParamUUID(w, r, "image_id")
 	if !ok {
@@ -124,7 +124,7 @@ func GetBrokerImage(w http.ResponseWriter, r *http.Request) {
 //
 //	@Summary		Update a broker image
 //	@Description	Update a broker image. (Permission: <b>admin.brokers.update</b>)
-//	@Tags			BrokerImages
+//	@Tags			Broker, Image
 //	@Accept			multipart/form-data
 //	@Produce		json
 //	@Param			id			path		string	true	"broker ID"
@@ -135,7 +135,7 @@ func GetBrokerImage(w http.ResponseWriter, r *http.Request) {
 //	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		404	{object}	render.ErrorResponse	"Not Found"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
-//	@Router			/api/v1/brokers/{id}/image/{image_id} [put]
+//	@Router			/api/v1/broker/{id}/image/{image_id} [put]
 func UpdateBrokerImage(w http.ResponseWriter, r *http.Request) {
 
 	if !U().CheckPermission(w, r, "admin.brokers.update") {
@@ -183,7 +183,7 @@ func UpdateBrokerImage(w http.ResponseWriter, r *http.Request) {
 //
 //	@Summary		Delete a broker image
 //	@Description	Delete a broker image. (Permission: <b>admin.brokers.delete</b>)
-//	@Tags			BrokerImages
+//	@Tags			Broker, Image
 //	@Produce		json
 //	@Param			id			path	string	true	"broker ID"
 //	@Param			image_id	path	string	true	"image ID"
@@ -192,7 +192,7 @@ func UpdateBrokerImage(w http.ResponseWriter, r *http.Request) {
 //	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		404	{object}	render.ErrorResponse	"Not Found"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
-//	@Router			/api/v1/brokers/{id}/image/{image_id} [delete]
+//	@Router			/api/v1/broker/{id}/image/{image_id} [delete]
 func DeleteBrokerImage(w http.ResponseWriter, r *http.Request) {
 
 	if !U().CheckPermission(w, r, "admin.brokers.delete") {
