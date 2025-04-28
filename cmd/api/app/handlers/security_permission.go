@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"context"
 	"encoding/json"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/clients"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/handlers/render"
@@ -44,11 +43,8 @@ func CreatePermission(w http.ResponseWriter, r *http.Request) {
 		Description: permission.Description,
 	}
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
 	// Create the Permission
-	response, err := clients.C().Security().CreatePermission(ctx, permissionRequest)
+	response, err := clients.C().Security().CreatePermission(r.Context(), permissionRequest)
 	if err != nil {
 		zap.L().Error("Create Permission", zap.Error(err))
 		render.ErrorCodesCodeToHttpCode(w, r, err)
@@ -93,11 +89,8 @@ func GetPermission(w http.ResponseWriter, r *http.Request) {
 		Id: permissionID.String(),
 	}
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
 	// Get the Permission
-	response, err := clients.C().Security().GetPermission(ctx, permissionRequest)
+	response, err := clients.C().Security().GetPermission(r.Context(), permissionRequest)
 	if err != nil {
 		zap.L().Error("Get Permission", zap.Error(err))
 		render.ErrorCodesCodeToHttpCode(w, r, err)
@@ -154,11 +147,8 @@ func UpdatePermission(w http.ResponseWriter, r *http.Request) {
 		Description: permission.Description,
 	}
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
 	// Update the Permission
-	response, err := clients.C().Security().UpdatePermission(ctx, permissionRequest)
+	response, err := clients.C().Security().UpdatePermission(r.Context(), permissionRequest)
 	if err != nil {
 		zap.L().Error("Update Permission", zap.Error(err))
 		render.ErrorCodesCodeToHttpCode(w, r, err)
@@ -202,11 +192,8 @@ func DeletePermission(w http.ResponseWriter, r *http.Request) {
 		Id: permissionID.String(),
 	}
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
 	// Delete the Permission
-	_, err := clients.C().Security().DeletePermission(ctx, permissionRequest)
+	_, err := clients.C().Security().DeletePermission(r.Context(), permissionRequest)
 	if err != nil {
 		zap.L().Error("Delete Permission", zap.Error(err))
 		render.ErrorCodesCodeToHttpCode(w, r, err)
@@ -230,11 +217,8 @@ func DeletePermission(w http.ResponseWriter, r *http.Request) {
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/security/permission [get]
 func ListPermissions(w http.ResponseWriter, r *http.Request) {
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
 	// List the Broker
-	response, err := clients.C().Security().ListPermissions(ctx, &protogen.ListPermissionsRequest{})
+	response, err := clients.C().Security().ListPermissions(r.Context(), &protogen.ListPermissionsRequest{})
 	if err != nil {
 		zap.L().Error("List Permissions", zap.Error(err))
 		render.ErrorCodesCodeToHttpCode(w, r, err)

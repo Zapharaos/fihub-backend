@@ -4,12 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"github.com/Zapharaos/fihub-backend/cmd/api/app/clients"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/handlers/render"
 	"github.com/Zapharaos/fihub-backend/cmd/user/app/repositories"
-	"github.com/Zapharaos/fihub-backend/cmd/user/app/service"
 	"github.com/Zapharaos/fihub-backend/internal/app"
 	"github.com/Zapharaos/fihub-backend/internal/models"
 	"github.com/Zapharaos/fihub-backend/internal/utils"
+	"github.com/Zapharaos/fihub-backend/protogen"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 	"github.com/spf13/viper"
@@ -201,19 +202,44 @@ func (a *Auth) Middleware(next http.Handler) http.Handler {
 			return
 		}
 
-		// get the user from the repository
-		user, found, err := service.LoadFullUser(userId)
+		// Get user for app context from the database
+		userResponse, err := clients.C().User().GetUser(r.Context(), &protogen.GetUserRequest{
+			Id: userId.String(),
+		})
 		if err != nil {
-			zap.L().Error("Cannot load full user", zap.Error(err))
-			w.WriteHeader(http.StatusUnauthorized)
-			return
-		}
-		if !found {
-			w.WriteHeader(http.StatusUnauthorized)
+			zap.L().Error("Get user", zap.Error(err))
+			render.ErrorCodesCodeToHttpCode(w, r, err)
 			return
 		}
 
-		ctx := context.WithValue(r.Context(), app.ContextKeyUser, *user)
+		// Map the response to the models.User struct
+		user, err := models.FromProtogenUser(userResponse.User)
+		if err != nil {
+			zap.L().Error("Bad protogen user", zap.Error(err))
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		// Get user roles with permissions for app context from the database
+		rolesWithPermissionsResponse, err := clients.C().Security().ListRolesWithPermissionsForUser(r.Context(), &protogen.ListRolesWithPermissionsForUserRequest{
+			UserId: user.ID.String(),
+		})
+		if err != nil {
+			zap.L().Error("List a user roles with permissions", zap.Error(err))
+			render.ErrorCodesCodeToHttpCode(w, r, err)
+			return
+		}
+
+		// Map the response to the models.RolesWithPermissions struct
+		rolesWithPermissions, err := models.FromProtogenRolesWithPermissions(rolesWithPermissionsResponse.Roles)
+		if err != nil {
+			zap.L().Error("Bad protogen roles with permissions", zap.Error(err))
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		ctx := context.WithValue(r.Context(), app.ContextKeyUser, user)
+		ctx = context.WithValue(ctx, app.ContextKeyUserRolesWithPermissions, rolesWithPermissions)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }

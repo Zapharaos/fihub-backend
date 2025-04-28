@@ -19,24 +19,25 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	SecurityService_CreatePermission_FullMethodName    = "/security.SecurityService/CreatePermission"
-	SecurityService_GetPermission_FullMethodName       = "/security.SecurityService/GetPermission"
-	SecurityService_UpdatePermission_FullMethodName    = "/security.SecurityService/UpdatePermission"
-	SecurityService_DeletePermission_FullMethodName    = "/security.SecurityService/DeletePermission"
-	SecurityService_ListPermissions_FullMethodName     = "/security.SecurityService/ListPermissions"
-	SecurityService_CreateRole_FullMethodName          = "/security.SecurityService/CreateRole"
-	SecurityService_GetRole_FullMethodName             = "/security.SecurityService/GetRole"
-	SecurityService_UpdateRole_FullMethodName          = "/security.SecurityService/UpdateRole"
-	SecurityService_DeleteRole_FullMethodName          = "/security.SecurityService/DeleteRole"
-	SecurityService_ListRoles_FullMethodName           = "/security.SecurityService/ListRoles"
-	SecurityService_ListRolePermissions_FullMethodName = "/security.SecurityService/ListRolePermissions"
-	SecurityService_SetRolePermissions_FullMethodName  = "/security.SecurityService/SetRolePermissions"
-	SecurityService_AddUsersToRole_FullMethodName      = "/security.SecurityService/AddUsersToRole"
-	SecurityService_RemoveUsersFromRole_FullMethodName = "/security.SecurityService/RemoveUsersFromRole"
-	SecurityService_ListUsersForRole_FullMethodName    = "/security.SecurityService/ListUsersForRole"
-	SecurityService_SetRolesForUser_FullMethodName     = "/security.SecurityService/SetRolesForUser"
-	SecurityService_ListRolesForUser_FullMethodName    = "/security.SecurityService/ListRolesForUser"
-	SecurityService_ListUsers_FullMethodName           = "/security.SecurityService/ListUsers"
+	SecurityService_CreatePermission_FullMethodName                = "/security.SecurityService/CreatePermission"
+	SecurityService_GetPermission_FullMethodName                   = "/security.SecurityService/GetPermission"
+	SecurityService_UpdatePermission_FullMethodName                = "/security.SecurityService/UpdatePermission"
+	SecurityService_DeletePermission_FullMethodName                = "/security.SecurityService/DeletePermission"
+	SecurityService_ListPermissions_FullMethodName                 = "/security.SecurityService/ListPermissions"
+	SecurityService_CreateRole_FullMethodName                      = "/security.SecurityService/CreateRole"
+	SecurityService_GetRole_FullMethodName                         = "/security.SecurityService/GetRole"
+	SecurityService_UpdateRole_FullMethodName                      = "/security.SecurityService/UpdateRole"
+	SecurityService_DeleteRole_FullMethodName                      = "/security.SecurityService/DeleteRole"
+	SecurityService_ListRoles_FullMethodName                       = "/security.SecurityService/ListRoles"
+	SecurityService_ListRolePermissions_FullMethodName             = "/security.SecurityService/ListRolePermissions"
+	SecurityService_SetRolePermissions_FullMethodName              = "/security.SecurityService/SetRolePermissions"
+	SecurityService_AddUsersToRole_FullMethodName                  = "/security.SecurityService/AddUsersToRole"
+	SecurityService_RemoveUsersFromRole_FullMethodName             = "/security.SecurityService/RemoveUsersFromRole"
+	SecurityService_ListUsersForRole_FullMethodName                = "/security.SecurityService/ListUsersForRole"
+	SecurityService_SetRolesForUser_FullMethodName                 = "/security.SecurityService/SetRolesForUser"
+	SecurityService_ListRolesForUser_FullMethodName                = "/security.SecurityService/ListRolesForUser"
+	SecurityService_ListRolesWithPermissionsForUser_FullMethodName = "/security.SecurityService/ListRolesWithPermissionsForUser"
+	SecurityService_ListUsers_FullMethodName                       = "/security.SecurityService/ListUsers"
 )
 
 // SecurityServiceClient is the client API for SecurityService service.
@@ -65,6 +66,7 @@ type SecurityServiceClient interface {
 	// User-Roles management
 	SetRolesForUser(ctx context.Context, in *SetRolesForUserRequest, opts ...grpc.CallOption) (*SetRolesForUserResponse, error)
 	ListRolesForUser(ctx context.Context, in *ListRolesForUserRequest, opts ...grpc.CallOption) (*ListRolesForUserResponse, error)
+	ListRolesWithPermissionsForUser(ctx context.Context, in *ListRolesWithPermissionsForUserRequest, opts ...grpc.CallOption) (*ListRolesWithPermissionsForUserResponse, error)
 	// Users-Roles management
 	ListUsers(ctx context.Context, in *ListUsersRequest, opts ...grpc.CallOption) (*ListUsersResponse, error)
 }
@@ -247,6 +249,16 @@ func (c *securityServiceClient) ListRolesForUser(ctx context.Context, in *ListRo
 	return out, nil
 }
 
+func (c *securityServiceClient) ListRolesWithPermissionsForUser(ctx context.Context, in *ListRolesWithPermissionsForUserRequest, opts ...grpc.CallOption) (*ListRolesWithPermissionsForUserResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListRolesWithPermissionsForUserResponse)
+	err := c.cc.Invoke(ctx, SecurityService_ListRolesWithPermissionsForUser_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *securityServiceClient) ListUsers(ctx context.Context, in *ListUsersRequest, opts ...grpc.CallOption) (*ListUsersResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ListUsersResponse)
@@ -283,6 +295,7 @@ type SecurityServiceServer interface {
 	// User-Roles management
 	SetRolesForUser(context.Context, *SetRolesForUserRequest) (*SetRolesForUserResponse, error)
 	ListRolesForUser(context.Context, *ListRolesForUserRequest) (*ListRolesForUserResponse, error)
+	ListRolesWithPermissionsForUser(context.Context, *ListRolesWithPermissionsForUserRequest) (*ListRolesWithPermissionsForUserResponse, error)
 	// Users-Roles management
 	ListUsers(context.Context, *ListUsersRequest) (*ListUsersResponse, error)
 	mustEmbedUnimplementedSecurityServiceServer()
@@ -345,6 +358,9 @@ func (UnimplementedSecurityServiceServer) SetRolesForUser(context.Context, *SetR
 }
 func (UnimplementedSecurityServiceServer) ListRolesForUser(context.Context, *ListRolesForUserRequest) (*ListRolesForUserResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListRolesForUser not implemented")
+}
+func (UnimplementedSecurityServiceServer) ListRolesWithPermissionsForUser(context.Context, *ListRolesWithPermissionsForUserRequest) (*ListRolesWithPermissionsForUserResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListRolesWithPermissionsForUser not implemented")
 }
 func (UnimplementedSecurityServiceServer) ListUsers(context.Context, *ListUsersRequest) (*ListUsersResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListUsers not implemented")
@@ -676,6 +692,24 @@ func _SecurityService_ListRolesForUser_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _SecurityService_ListRolesWithPermissionsForUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListRolesWithPermissionsForUserRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SecurityServiceServer).ListRolesWithPermissionsForUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SecurityService_ListRolesWithPermissionsForUser_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SecurityServiceServer).ListRolesWithPermissionsForUser(ctx, req.(*ListRolesWithPermissionsForUserRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _SecurityService_ListUsers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ListUsersRequest)
 	if err := dec(in); err != nil {
@@ -768,6 +802,10 @@ var SecurityService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListRolesForUser",
 			Handler:    _SecurityService_ListRolesForUser_Handler,
+		},
+		{
+			MethodName: "ListRolesWithPermissionsForUser",
+			Handler:    _SecurityService_ListRolesWithPermissionsForUser_Handler,
 		},
 		{
 			MethodName: "ListUsers",

@@ -31,6 +31,7 @@ service SecurityService {
 	// User-Roles management
 	rpc SetRolesForUser(SetRolesForUserRequest) returns (SetRolesForUserResponse);
 	rpc ListRolesForUser(ListRolesForUserRequest) returns (ListRolesForUserResponse);
+	rpc ListRolesWithPermissionsForUser(ListRolesWithPermissionsForUserRequest) returns (ListRolesWithPermissionsForUserResponse);
 
 	// Users-Roles management
 	rpc ListUsers(ListUsersRequest) returns (ListUsersResponse);
@@ -207,6 +208,14 @@ message ListRolesForUserRequest {
 
 message ListRolesForUserResponse {
 	repeated Role roles = 1;
+}
+
+message ListRolesWithPermissionsForUserRequest {
+	string user_id = 1;
+}
+
+message ListRolesWithPermissionsForUserResponse {
+	repeated RoleWithPermissions roles = 1;
 }
 
 // Users-Roles management

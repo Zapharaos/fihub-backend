@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"context"
 	"encoding/json"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/clients"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/handlers/render"
@@ -36,9 +35,6 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
 	// Map UserInputCreate to gRPC CreateUserRequest
 	createUserRequest := &protogen.CreateUserRequest{
 		Email:        userInputCreate.Email,
@@ -48,7 +44,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Create user
-	createUserResponse, err := clients.C().User().CreateUser(ctx, createUserRequest)
+	createUserResponse, err := clients.C().User().CreateUser(r.Context(), createUserRequest)
 	if err != nil {
 		zap.L().Error("Create user", zap.Error(err))
 		render.ErrorCodesCodeToHttpCode(w, r, err)
@@ -76,7 +72,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 //	@Produce		json
 //	@Param			id	path	string	true	"user ID"
 //	@Security		Bearer
-//	@Success		200	{object}	models.UserWithRoles		"user"
+//	@Success		200	{object}	models.User				"user"
 //	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		404	{string}	string					"User not found"
@@ -84,15 +80,12 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 //	@Router			/api/v1/user/{id} [get]
 func GetUser(w http.ResponseWriter, r *http.Request) {
 	userId, ok := U().ParseParamUUID(w, r, "id")
-	if !ok || !U().CheckPermission(w, r, "admin.users.read") {
+	if !ok {
 		return
 	}
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
 	// Get user
-	userResponse, err := clients.C().User().GetUser(ctx, &protogen.GetUserRequest{
+	userResponse, err := clients.C().User().GetUser(r.Context(), &protogen.GetUserRequest{
 		Id: userId.String(),
 	})
 	if err != nil {
@@ -121,7 +114,7 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 //	@Tags			User
 //	@Produce		json
 //	@Security		Bearer
-//	@Success		200	{object}	models.UserWithRoles		"user"
+//	@Success		200	{object}	models.User				"user"
 //	@Failure		400	{string}	string					"Bad PasswordRequest"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
@@ -170,9 +163,6 @@ func UpdateUserSelf(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
 	// Map User to gRPC UpdateUserRequest
 	updateUserRequest := &protogen.UpdateUserRequest{
 		Id:    userCtx.ID.String(),
@@ -180,7 +170,7 @@ func UpdateUserSelf(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Update user
-	updateUserResponse, err := clients.C().User().UpdateUser(ctx, updateUserRequest)
+	updateUserResponse, err := clients.C().User().UpdateUser(r.Context(), updateUserRequest)
 	if err != nil {
 		zap.L().Error("Update user", zap.Error(err))
 		render.ErrorCodesCodeToHttpCode(w, r, err)
@@ -231,9 +221,6 @@ func UpdateUserPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
 	// Map UserInputPassword to gRPC UpdateUserRequest
 	updateUserRequest := &protogen.UpdateUserPasswordRequest{
 		Id:           userCtx.ID.String(),
@@ -242,7 +229,7 @@ func UpdateUserPassword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Update user password
-	_, err = clients.C().User().UpdateUserPassword(ctx, updateUserRequest)
+	_, err = clients.C().User().UpdateUserPassword(r.Context(), updateUserRequest)
 	if err != nil {
 		zap.L().Error("Update user password", zap.Error(err))
 		render.ErrorCodesCodeToHttpCode(w, r, err)
@@ -272,11 +259,8 @@ func DeleteUserSelf(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
 	// Delete user
-	_, err := clients.C().User().DeleteUser(ctx, &protogen.DeleteUserRequest{
+	_, err := clients.C().User().DeleteUser(r.Context(), &protogen.DeleteUserRequest{
 		Id: userCtx.ID.String(),
 	})
 	if err != nil {

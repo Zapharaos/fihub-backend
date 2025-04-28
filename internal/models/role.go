@@ -53,6 +53,19 @@ func (r RolesWithPermissions) GetUUIDs() []uuid.UUID {
 	return uuids
 }
 
+// HasPermission returns true if the User has the given permission.
+// Wildcards (*) in permissions are supported.
+func (r RolesWithPermissions) HasPermission(permission string) bool {
+	for _, role := range r {
+		for _, p := range role.Permissions {
+			if p.Match(permission) {
+				return true
+			}
+		}
+	}
+	return false
+}
+
 type RolePermissionsInput []uuid.UUID
 
 // IsValid checks if a RolePermissionsInput is valid

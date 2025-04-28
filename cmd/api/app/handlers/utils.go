@@ -21,8 +21,7 @@ import (
 
 // Utils defines the interface for handler utility functions
 type Utils interface {
-	CheckPermission(w http.ResponseWriter, r *http.Request, permission string) bool
-	GetUserFromContext(r *http.Request) (models.UserWithRoles, bool)
+	GetUserFromContext(r *http.Request) (models.User, bool)
 	ParseParamString(w http.ResponseWriter, r *http.Request, key string) (string, bool)
 	ParseParamUUID(w http.ResponseWriter, r *http.Request, key string) (uuid.UUID, bool)
 	ParseParamLanguage(w http.ResponseWriter, r *http.Request) language.Tag
@@ -63,37 +62,17 @@ func NewUtils() Utils {
 	return utils
 }
 
-// CheckPermission checks if context user has permission
-// if user has no permission, it returns 403 status code
-// returns true to indicate that the user has the permission
-// returns false to indicate that the user has not the permission and the request should be stopped
-func (u *utils) CheckPermission(w http.ResponseWriter, r *http.Request, permission string) bool {
-	user, ok := U().GetUserFromContext(r)
-	if !ok {
-		w.WriteHeader(http.StatusUnauthorized)
-		return false
-	}
-
-	// check if the user has the permission
-	if !user.HasPermission(permission) {
-		w.WriteHeader(http.StatusForbidden)
-		return false
-	}
-
-	return true
-}
-
 // GetUserFromContext extract the logged user from the request context
-func (u *utils) GetUserFromContext(r *http.Request) (models.UserWithRoles, bool) {
+func (u *utils) GetUserFromContext(r *http.Request) (models.User, bool) {
 	_user := r.Context().Value(app.ContextKeyUser)
 	if _user == nil {
 		zap.L().Warn("No context user provided")
-		return models.UserWithRoles{}, false
+		return models.User{}, false
 	}
-	user, ok := _user.(models.UserWithRoles)
+	user, ok := _user.(models.User)
 	if !ok {
 		zap.L().Warn("Invalid user type in context")
-		return models.UserWithRoles{}, false
+		return models.User{}, false
 	}
 	return user, true
 }

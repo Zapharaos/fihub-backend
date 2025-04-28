@@ -42,12 +42,6 @@ type UserWithPassword struct {
 	Password string `json:"password"`
 }
 
-// UserWithRoles extends User with a roles field for authorization purposes
-type UserWithRoles struct {
-	User
-	Roles RolesWithPermissions `json:"roles"`
-}
-
 // User represents a User entity in the system
 type User struct {
 	ID        uuid.UUID `json:"ID"`
@@ -143,19 +137,6 @@ func (u UserInputPassword) IsValidPassword() (bool, error) {
 		return false, err
 	}
 	return true, nil
-}
-
-// HasPermission returns true if the User has the given permission.
-// Wildcards (*) in permissions are supported.
-func (u *UserWithRoles) HasPermission(permission string) bool {
-	for _, r := range u.Roles {
-		for _, p := range r.Permissions {
-			if p.Match(permission) {
-				return true
-			}
-		}
-	}
-	return false
 }
 
 // ToProtogenUser converts a User model to a protogen.User

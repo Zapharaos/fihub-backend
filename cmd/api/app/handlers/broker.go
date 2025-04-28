@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"context"
 	"encoding/json"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/clients"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/handlers/render"
@@ -42,11 +41,8 @@ func CreateBroker(w http.ResponseWriter, r *http.Request) {
 		Disabled: broker.Disabled,
 	}
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
 	// Create the Broker
-	response, err := clients.C().Broker().CreateBroker(ctx, brokerUserRequest)
+	response, err := clients.C().Broker().CreateBroker(r.Context(), brokerUserRequest)
 	if err != nil {
 		zap.L().Error("Create Broker", zap.Error(err))
 		render.ErrorCodesCodeToHttpCode(w, r, err)
@@ -83,11 +79,8 @@ func GetBroker(w http.ResponseWriter, r *http.Request) {
 		Id: brokerID.String(),
 	}
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
 	// Get the Broker
-	response, err := clients.C().Broker().GetBroker(ctx, brokerUserRequest)
+	response, err := clients.C().Broker().GetBroker(r.Context(), brokerUserRequest)
 	if err != nil {
 		zap.L().Error("Create Broker", zap.Error(err))
 		render.ErrorCodesCodeToHttpCode(w, r, err)
@@ -137,11 +130,8 @@ func UpdateBroker(w http.ResponseWriter, r *http.Request) {
 		Disabled: broker.Disabled,
 	}
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
 	// Update the Broker
-	response, err := clients.C().Broker().UpdateBroker(ctx, brokerUserRequest)
+	response, err := clients.C().Broker().UpdateBroker(r.Context(), brokerUserRequest)
 	if err != nil {
 		zap.L().Error("Update Broker", zap.Error(err))
 		render.ErrorCodesCodeToHttpCode(w, r, err)
@@ -178,11 +168,8 @@ func DeleteBroker(w http.ResponseWriter, r *http.Request) {
 		Id: brokerID.String(),
 	}
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
 	// Delete the Broker
-	_, err := clients.C().Broker().DeleteBroker(ctx, brokerUserRequest)
+	_, err := clients.C().Broker().DeleteBroker(r.Context(), brokerUserRequest)
 	if err != nil {
 		zap.L().Error("Delete Broker", zap.Error(err))
 		render.ErrorCodesCodeToHttpCode(w, r, err)
@@ -216,11 +203,8 @@ func ListBrokers(w http.ResponseWriter, r *http.Request) {
 		EnabledOnly: enabled,
 	}
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
 	// List the Broker
-	response, err := clients.C().Broker().ListBrokers(ctx, brokerUserRequest)
+	response, err := clients.C().Broker().ListBrokers(r.Context(), brokerUserRequest)
 	if err != nil {
 		zap.L().Error("List Broker", zap.Error(err))
 		render.ErrorCodesCodeToHttpCode(w, r, err)

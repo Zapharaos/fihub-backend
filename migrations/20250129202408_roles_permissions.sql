@@ -66,6 +66,7 @@ VALUES
     ('c6ea4ccc-5d10-43ea-995c-6edf21fe5ad9', 'front.admin.users', 'front', 'Admin users view'),
     ('341ce3de-136a-419e-b837-3dc3d5aa8f2d', 'admin.users.read', 'admin', 'Read user'),
     ('ca0e7cc2-55f4-4700-a84b-a5e5694f697f', 'admin.users.update', 'admin', 'Update user'),
+    ('04ed608a-bef4-4297-a74f-952dae44c7f0', 'admin.users.delete', 'admin', 'Delete user'),
     ('55363c9b-f8db-4d37-8fb7-df1f3674897e', 'admin.users.list', 'admin', 'List users'),
 
     -- User roles

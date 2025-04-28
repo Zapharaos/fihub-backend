@@ -3,6 +3,7 @@ package security
 import (
 	"context"
 	"github.com/Zapharaos/fihub-backend/protogen"
+	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -48,10 +49,16 @@ func NewPublicSecurityFacadeWithGrpcClient(client protogen.PublicSecurityService
 }
 
 // CheckPermission wraps the CheckPermission call
-func (s *PublicSecurityFacade) CheckPermission(ctx context.Context, permission string) error {
-	response, err := s.service.CheckPermission(ctx, &protogen.CheckPermissionRequest{
+func (s *PublicSecurityFacade) CheckPermission(ctx context.Context, permission string, userIDs ...uuid.UUID) error {
+	req := &protogen.CheckPermissionRequest{
 		Permission: permission,
-	})
+	}
+
+	if len(userIDs) > 0 {
+		req.UserId = userIDs[0].String()
+	}
+
+	response, err := s.service.CheckPermission(ctx, req)
 	if err != nil {
 		zap.L().Error("PublicSecurityFacade.CheckPermission", zap.Error(err))
 		return err

@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/Zapharaos/fihub-backend/cmd/user/app/repositories"
 	"github.com/Zapharaos/fihub-backend/internal/models"
+	"github.com/Zapharaos/fihub-backend/internal/security"
 	"github.com/Zapharaos/fihub-backend/protogen"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
@@ -83,6 +84,13 @@ func (s *Service) GetUser(ctx context.Context, req *protogen.GetUserRequest) (*p
 		return &protogen.GetUserResponse{}, status.Error(codes.InvalidArgument, "Invalid user ID")
 	}
 
+	// Check user permissions
+	err = security.Facade().CheckPermission(ctx, "admin.users.read", userID)
+	if err != nil {
+		zap.L().Error("CheckPermission", zap.Error(err))
+		return nil, err
+	}
+
 	// the user default accessible data
 	user, found, err := repositories.R().Get(userID)
 	if err != nil {
@@ -107,6 +115,12 @@ func (s *Service) UpdateUser(ctx context.Context, req *protogen.UpdateUserReques
 		// Log the error and return an invalid response
 		zap.L().Error("Invalid user ID", zap.String("user_id", req.GetId()), zap.Error(err))
 		return &protogen.UpdateUserResponse{}, status.Error(codes.InvalidArgument, "Invalid user ID")
+	}
+
+	err = security.Facade().CheckPermission(ctx, "admin.users.update", userID)
+	if err != nil {
+		zap.L().Error("CheckPermission", zap.Error(err))
+		return nil, err
 	}
 
 	// Construct the user object
@@ -154,6 +168,12 @@ func (s *Service) UpdateUserPassword(ctx context.Context, req *protogen.UpdateUs
 		return &protogen.UpdateUserPasswordResponse{}, status.Error(codes.InvalidArgument, "Invalid user ID")
 	}
 
+	err = security.Facade().CheckPermission(ctx, "admin.users.update", userID)
+	if err != nil {
+		zap.L().Error("CheckPermission", zap.Error(err))
+		return nil, err
+	}
+
 	// Construct the user input object
 	userInputPassword := models.UserInputPassword{
 		UserWithPassword: models.UserWithPassword{
@@ -191,6 +211,12 @@ func (s *Service) DeleteUser(ctx context.Context, req *protogen.DeleteUserReques
 		// Log the error and return an invalid response
 		zap.L().Error("Invalid user ID", zap.String("user_id", req.GetId()), zap.Error(err))
 		return &protogen.DeleteUserResponse{}, status.Error(codes.InvalidArgument, "Invalid user ID")
+	}
+
+	err = security.Facade().CheckPermission(ctx, "admin.users.delete", userID)
+	if err != nil {
+		zap.L().Error("CheckPermission", zap.Error(err))
+		return nil, err
 	}
 
 	err = repositories.R().Delete(userID)

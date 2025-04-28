@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"context"
 	"encoding/json"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/clients"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/handlers/render"
@@ -50,11 +49,8 @@ func CreateUserBroker(w http.ResponseWriter, r *http.Request) {
 		BrokerId: brokerUserInput.BrokerID,
 	}
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
 	// Create the BrokerUser
-	response, err := clients.C().Broker().CreateBrokerUser(ctx, brokerUserRequest)
+	response, err := clients.C().Broker().CreateBrokerUser(r.Context(), brokerUserRequest)
 	if err != nil {
 		zap.L().Error("Create BrokerUser", zap.Error(err))
 		render.ErrorCodesCodeToHttpCode(w, r, err)
@@ -105,11 +101,8 @@ func DeleteUserBroker(w http.ResponseWriter, r *http.Request) {
 		BrokerId: brokerID.String(),
 	}
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
 	// Delete the BrokerUser
-	_, err := clients.C().Broker().DeleteBrokerUser(ctx, brokerUserRequest)
+	_, err := clients.C().Broker().DeleteBrokerUser(r.Context(), brokerUserRequest)
 	if err != nil {
 		zap.L().Error("Delete BrokerUser", zap.Error(err))
 		render.ErrorCodesCodeToHttpCode(w, r, err)
@@ -117,7 +110,7 @@ func DeleteUserBroker(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Delete Transactions related to the BrokerUser
-	_, err = clients.C().Transaction().DeleteTransactionByBroker(ctx, &protogen.DeleteTransactionByBrokerRequest{
+	_, err = clients.C().Transaction().DeleteTransactionByBroker(r.Context(), &protogen.DeleteTransactionByBrokerRequest{
 		UserId:   user.ID.String(),
 		BrokerId: brokerID.String(),
 	})
@@ -157,11 +150,8 @@ func ListUserBrokers(w http.ResponseWriter, r *http.Request) {
 		UserId: user.ID.String(),
 	}
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
 	// Get the userBrokers
-	response, err := clients.C().Broker().ListUserBrokers(ctx, brokerUserRequest)
+	response, err := clients.C().Broker().ListUserBrokers(r.Context(), brokerUserRequest)
 	if err != nil {
 		zap.L().Error("Get BrokerUsers", zap.Error(err))
 		render.ErrorCodesCodeToHttpCode(w, r, err)

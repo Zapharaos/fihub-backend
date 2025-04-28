@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"context"
 	"encoding/json"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/clients"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/handlers/render"
@@ -46,11 +45,8 @@ func CreateTransaction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
 	// Verify BrokerUser existence
-	_, err = clients.C().Broker().GetBrokerUser(ctx, &protogen.GetBrokerUserRequest{
+	_, err = clients.C().Broker().GetBrokerUser(r.Context(), &protogen.GetBrokerUserRequest{
 		UserId:   user.ID.String(),
 		BrokerId: transactionInput.BrokerID.String(),
 	})
@@ -73,7 +69,7 @@ func CreateTransaction(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Create the transaction
-	response, err := clients.C().Transaction().CreateTransaction(ctx, transactionRequest)
+	response, err := clients.C().Transaction().CreateTransaction(r.Context(), transactionRequest)
 	if err != nil {
 		zap.L().Error("Create transaction", zap.Error(err))
 		render.ErrorCodesCodeToHttpCode(w, r, err)
@@ -84,7 +80,7 @@ func CreateTransaction(w http.ResponseWriter, r *http.Request) {
 	transaction := models.FromProtogenTransaction(response.Transaction)
 
 	// Retrieve broker object
-	responseBroker, err := clients.C().Broker().GetBroker(ctx, &protogen.GetBrokerRequest{
+	responseBroker, err := clients.C().Broker().GetBroker(r.Context(), &protogen.GetBrokerRequest{
 		Id: transaction.Broker.ID.String(),
 	})
 	if err != nil {
@@ -123,11 +119,8 @@ func GetTransaction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
 	// Retrieve the transaction
-	response, err := clients.C().Transaction().GetTransaction(ctx, &protogen.GetTransactionRequest{
+	response, err := clients.C().Transaction().GetTransaction(r.Context(), &protogen.GetTransactionRequest{
 		TransactionId: transactionID.String(),
 	})
 	if err != nil {
@@ -154,7 +147,7 @@ func GetTransaction(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Retrieve broker object
-	responseBroker, err := clients.C().Broker().GetBroker(ctx, &protogen.GetBrokerRequest{
+	responseBroker, err := clients.C().Broker().GetBroker(r.Context(), &protogen.GetBrokerRequest{
 		Id: transaction.Broker.ID.String(),
 	})
 	if err != nil {
@@ -210,11 +203,8 @@ func UpdateTransaction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
 	// Verify BrokerUser existence
-	_, err = clients.C().Broker().GetBrokerUser(ctx, &protogen.GetBrokerUserRequest{
+	_, err = clients.C().Broker().GetBrokerUser(r.Context(), &protogen.GetBrokerUserRequest{
 		UserId:   user.ID.String(),
 		BrokerId: transactionInput.BrokerID.String(),
 	})
@@ -238,7 +228,7 @@ func UpdateTransaction(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Create the transaction
-	response, err := clients.C().Transaction().UpdateTransaction(ctx, transactionRequest)
+	response, err := clients.C().Transaction().UpdateTransaction(r.Context(), transactionRequest)
 	if err != nil {
 		zap.L().Error("Update transaction", zap.Error(err))
 		render.ErrorCodesCodeToHttpCode(w, r, err)
@@ -249,7 +239,7 @@ func UpdateTransaction(w http.ResponseWriter, r *http.Request) {
 	transaction := models.FromProtogenTransaction(response.Transaction)
 
 	// Retrieve broker object
-	responseBroker, err := clients.C().Broker().GetBroker(ctx, &protogen.GetBrokerRequest{
+	responseBroker, err := clients.C().Broker().GetBroker(r.Context(), &protogen.GetBrokerRequest{
 		Id: transaction.Broker.ID.String(),
 	})
 	if err != nil {
@@ -295,11 +285,8 @@ func DeleteTransaction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
 	// Retrieve the transaction
-	_, err := clients.C().Transaction().DeleteTransaction(ctx, &protogen.DeleteTransactionRequest{
+	_, err := clients.C().Transaction().DeleteTransaction(r.Context(), &protogen.DeleteTransactionRequest{
 		TransactionId: transactionID.String(),
 		UserId:        user.ID.String(),
 	})
@@ -334,11 +321,8 @@ func ListTransactions(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
 	// List transactions
-	response, err := clients.C().Transaction().ListTransactions(ctx, &protogen.ListTransactionsRequest{
+	response, err := clients.C().Transaction().ListTransactions(r.Context(), &protogen.ListTransactionsRequest{
 		UserId: user.ID.String(),
 	})
 	if err != nil {
@@ -348,7 +332,7 @@ func ListTransactions(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Retrieve broker objects
-	responseBrokers, err := clients.C().Broker().ListBrokers(ctx, &protogen.ListBrokersRequest{
+	responseBrokers, err := clients.C().Broker().ListBrokers(r.Context(), &protogen.ListBrokersRequest{
 		EnabledOnly: false,
 	})
 	if err != nil {

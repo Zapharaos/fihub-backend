@@ -271,6 +271,7 @@ func GetRolePermissions(w http.ResponseWriter, r *http.Request) {
 	render.JSON(w, r, permissions)
 }
 
+// TODO : check return value
 // SetRolePermissions godoc
 //
 //	@Id				SetRolePermissions
@@ -443,6 +444,7 @@ func ListUsersForRole(w http.ResponseWriter, r *http.Request) {
 	render.JSON(w, r, users)
 }
 
+// TODO : check return value
 // SetRolesForUser godoc
 //
 //	@Id				SetRolesForUser
@@ -498,7 +500,7 @@ func SetRolesForUser(w http.ResponseWriter, r *http.Request) {
 //	@Produce		json
 //	@Param			id	path	string	true	"user ID"
 //	@Security		Bearer
-//	@Success		200	{array}		models.RoleWithPermissions	"list of roles"
+//	@Success		200	{array}		models.Role					"list of roles"
 //	@Failure		400	{object}	render.ErrorResponse		"Bad PasswordRequest"
 //	@Failure		401	{string}	string						"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse		"Internal Server Error"
@@ -552,6 +554,7 @@ func ListUsersWithRoles(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// TODO : swagger
 	// TODO : retrieve associated users
 
 	render.JSON(w, r, response)

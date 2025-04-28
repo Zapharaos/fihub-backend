@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"context"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/clients"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/handlers/render"
 	"github.com/Zapharaos/fihub-backend/internal/models"
@@ -46,11 +45,8 @@ func CreateBrokerImage(w http.ResponseWriter, r *http.Request) {
 		Data:     data,
 	}
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
 	// Create the BrokerImage
-	response, err := clients.C().Broker().CreateBrokerImage(ctx, brokerUserRequest)
+	response, err := clients.C().Broker().CreateBrokerImage(r.Context(), brokerUserRequest)
 	if err != nil {
 		zap.L().Error("Create BrokerImage", zap.Error(err))
 		render.ErrorCodesCodeToHttpCode(w, r, err)
@@ -90,11 +86,8 @@ func GetBrokerImage(w http.ResponseWriter, r *http.Request) {
 		ImageId: imageID.String(),
 	}
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
 	// Get the BrokerImage
-	response, err := clients.C().Broker().GetBrokerImage(ctx, brokerUserRequest)
+	response, err := clients.C().Broker().GetBrokerImage(r.Context(), brokerUserRequest)
 	if err != nil {
 		zap.L().Error("Get BrokerImage", zap.Error(err))
 		render.ErrorCodesCodeToHttpCode(w, r, err)
@@ -152,11 +145,8 @@ func UpdateBrokerImage(w http.ResponseWriter, r *http.Request) {
 		Data:     data,
 	}
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
 	// Create the BrokerImage
-	response, err := clients.C().Broker().UpdateBrokerImage(ctx, brokerUserRequest)
+	response, err := clients.C().Broker().UpdateBrokerImage(r.Context(), brokerUserRequest)
 	if err != nil {
 		zap.L().Error("Create BrokerImage", zap.Error(err))
 		render.ErrorCodesCodeToHttpCode(w, r, err)
@@ -196,11 +186,8 @@ func DeleteBrokerImage(w http.ResponseWriter, r *http.Request) {
 		BrokerId: brokerID.String(),
 	}
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
 	// Create the BrokerImage
-	_, err := clients.C().Broker().DeleteBrokerImage(ctx, brokerUserRequest)
+	_, err := clients.C().Broker().DeleteBrokerImage(r.Context(), brokerUserRequest)
 	if err != nil {
 		zap.L().Error("Create BrokerImage", zap.Error(err))
 		render.ErrorCodesCodeToHttpCode(w, r, err)
