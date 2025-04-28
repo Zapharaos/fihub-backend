@@ -28,10 +28,6 @@ import (
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/security/permission [post]
 func CreatePermission(w http.ResponseWriter, r *http.Request) {
-	if !U().CheckPermission(w, r, "admin.permissions.create") {
-		return
-	}
-
 	// Parse request body
 	var permission models.Permission
 	err := json.NewDecoder(r.Body).Decode(&permission)
@@ -88,7 +84,7 @@ func CreatePermission(w http.ResponseWriter, r *http.Request) {
 //	@Router			/api/v1/security/permission/{id} [get]
 func GetPermission(w http.ResponseWriter, r *http.Request) {
 	permissionID, ok := U().ParseParamUUID(w, r, "id")
-	if !ok || !U().CheckPermission(w, r, "admin.permissions.read") {
+	if !ok {
 		return
 	}
 
@@ -138,7 +134,7 @@ func GetPermission(w http.ResponseWriter, r *http.Request) {
 //	@Router			/api/v1/security/permission/{id} [put]
 func UpdatePermission(w http.ResponseWriter, r *http.Request) {
 	permissionID, ok := U().ParseParamUUID(w, r, "id")
-	if !ok || !U().CheckPermission(w, r, "admin.permissions.update") {
+	if !ok {
 		return
 	}
 
@@ -197,7 +193,7 @@ func UpdatePermission(w http.ResponseWriter, r *http.Request) {
 //	@Router			/api/v1/security/permission/{id} [delete]
 func DeletePermission(w http.ResponseWriter, r *http.Request) {
 	permissionID, ok := U().ParseParamUUID(w, r, "id")
-	if !ok || !U().CheckPermission(w, r, "admin.permissions.delete") {
+	if !ok {
 		return
 	}
 
@@ -234,10 +230,6 @@ func DeletePermission(w http.ResponseWriter, r *http.Request) {
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/security/permission [get]
 func ListPermissions(w http.ResponseWriter, r *http.Request) {
-	if !U().CheckPermission(w, r, "admin.permissions.list") {
-		return
-	}
-
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 

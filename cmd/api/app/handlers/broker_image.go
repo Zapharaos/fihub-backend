@@ -27,11 +27,6 @@ import (
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/broker/{id}/image [post]
 func CreateBrokerImage(w http.ResponseWriter, r *http.Request) {
-
-	if !U().CheckPermission(w, r, "admin.brokers.create") {
-		return
-	}
-
 	// Get the broker ID
 	brokerID, ok := U().ParseParamUUID(w, r, "id")
 	if !ok {
@@ -137,11 +132,6 @@ func GetBrokerImage(w http.ResponseWriter, r *http.Request) {
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/broker/{id}/image/{image_id} [put]
 func UpdateBrokerImage(w http.ResponseWriter, r *http.Request) {
-
-	if !U().CheckPermission(w, r, "admin.brokers.update") {
-		return
-	}
-
 	// Get the broker ID
 	brokerID, imageID, ok := U().ParseUUIDPair(w, r, "image_id")
 	if !ok {
@@ -194,11 +184,6 @@ func UpdateBrokerImage(w http.ResponseWriter, r *http.Request) {
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/broker/{id}/image/{image_id} [delete]
 func DeleteBrokerImage(w http.ResponseWriter, r *http.Request) {
-
-	if !U().CheckPermission(w, r, "admin.brokers.delete") {
-		return
-	}
-
 	// Get the broker ID
 	brokerID, imageID, ok := U().ParseUUIDPair(w, r, "image_id")
 	if !ok {

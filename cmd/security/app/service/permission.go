@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/Zapharaos/fihub-backend/cmd/security/app/repositories"
 	"github.com/Zapharaos/fihub-backend/internal/models"
+	"github.com/Zapharaos/fihub-backend/internal/security"
 	"github.com/Zapharaos/fihub-backend/protogen"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
@@ -13,6 +14,12 @@ import (
 
 // CreatePermission implements the CreatePermission RPC method.
 func (s *Service) CreatePermission(ctx context.Context, req *protogen.CreatePermissionRequest) (*protogen.CreatePermissionResponse, error) {
+	// Check user permissions
+	err := security.Facade().CheckPermission(ctx, "admin.permissions.create")
+	if err != nil {
+		zap.L().Error("CheckPermission", zap.Error(err))
+		return nil, err
+	}
 
 	// Construct the Permission object from the request
 	permission := models.Permission{
@@ -53,6 +60,12 @@ func (s *Service) CreatePermission(ctx context.Context, req *protogen.CreatePerm
 
 // GetPermission implements the GetPermission RPC method.
 func (s *Service) GetPermission(ctx context.Context, req *protogen.GetPermissionRequest) (*protogen.GetPermissionResponse, error) {
+	// Check user permissions
+	err := security.Facade().CheckPermission(ctx, "admin.permissions.read")
+	if err != nil {
+		zap.L().Error("CheckPermission", zap.Error(err))
+		return nil, err
+	}
 
 	// Parse the permission ID from the request
 	permissionID, err := uuid.Parse(req.GetId())
@@ -80,6 +93,12 @@ func (s *Service) GetPermission(ctx context.Context, req *protogen.GetPermission
 
 // UpdatePermission implements the UpdatePermission RPC method.
 func (s *Service) UpdatePermission(ctx context.Context, req *protogen.UpdatePermissionRequest) (*protogen.UpdatePermissionResponse, error) {
+	// Check user permissions
+	err := security.Facade().CheckPermission(ctx, "admin.permissions.update")
+	if err != nil {
+		zap.L().Error("CheckPermission", zap.Error(err))
+		return nil, err
+	}
 
 	// Parse the permission ID from the request
 	permissionID, err := uuid.Parse(req.GetId())
@@ -128,6 +147,12 @@ func (s *Service) UpdatePermission(ctx context.Context, req *protogen.UpdatePerm
 
 // DeletePermission implements the DeletePermission RPC method.
 func (s *Service) DeletePermission(ctx context.Context, req *protogen.DeletePermissionRequest) (*protogen.DeletePermissionResponse, error) {
+	// Check user permissions
+	err := security.Facade().CheckPermission(ctx, "admin.permissions.delete")
+	if err != nil {
+		zap.L().Error("CheckPermission", zap.Error(err))
+		return nil, err
+	}
 
 	// Parse the permission ID from the request
 	permissionID, err := uuid.Parse(req.GetId())
@@ -155,6 +180,13 @@ func (s *Service) DeletePermission(ctx context.Context, req *protogen.DeletePerm
 
 // ListPermissions implements the ListPermissions RPC method.
 func (s *Service) ListPermissions(ctx context.Context, req *protogen.ListPermissionsRequest) (*protogen.ListPermissionsResponse, error) {
+	// Check user permissions
+	err := security.Facade().CheckPermission(ctx, "admin.permissions.list")
+	if err != nil {
+		zap.L().Error("CheckPermission", zap.Error(err))
+		return nil, err
+	}
+
 	// Get all permissions from the database
 	result, err := repositories.R().P().List()
 	if err != nil {

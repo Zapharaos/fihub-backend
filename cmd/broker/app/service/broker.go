@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/Zapharaos/fihub-backend/cmd/broker/app/repositories"
 	"github.com/Zapharaos/fihub-backend/internal/models"
+	"github.com/Zapharaos/fihub-backend/internal/security"
 	"github.com/Zapharaos/fihub-backend/protogen"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
@@ -13,6 +14,12 @@ import (
 
 // CreateBroker implements the CreateBroker RPC method.
 func (h *Service) CreateBroker(ctx context.Context, req *protogen.CreateBrokerRequest) (*protogen.CreateBrokerResponse, error) {
+	// Check user permissions
+	err := security.Facade().CheckPermission(ctx, "admin.brokers.create")
+	if err != nil {
+		zap.L().Error("CheckPermission", zap.Error(err))
+		return nil, err
+	}
 
 	// Construct the Broker object from the request
 	broker := models.Broker{
@@ -91,6 +98,13 @@ func (h *Service) GetBroker(ctx context.Context, req *protogen.GetBrokerRequest)
 // UpdateBroker implements the UpdateBroker RPC method.
 func (h *Service) UpdateBroker(ctx context.Context, req *protogen.UpdateBrokerRequest) (*protogen.UpdateBrokerResponse, error) {
 
+	// Check user permissions
+	err := security.Facade().CheckPermission(ctx, "admin.brokers.update")
+	if err != nil {
+		zap.L().Error("CheckPermission", zap.Error(err))
+		return nil, err
+	}
+
 	// Parse the broker ID from the request
 	brokerID, err := uuid.Parse(req.GetId())
 	if err != nil {
@@ -162,6 +176,13 @@ func (h *Service) UpdateBroker(ctx context.Context, req *protogen.UpdateBrokerRe
 
 // DeleteBroker implements the DeleteBroker RPC method.
 func (h *Service) DeleteBroker(ctx context.Context, req *protogen.DeleteBrokerRequest) (*protogen.DeleteBrokerResponse, error) {
+
+	// Check user permissions
+	err := security.Facade().CheckPermission(ctx, "admin.brokers.delete")
+	if err != nil {
+		zap.L().Error("CheckPermission", zap.Error(err))
+		return nil, err
+	}
 
 	// Parse the broker ID from the request
 	brokerID, err := uuid.Parse(req.GetId())

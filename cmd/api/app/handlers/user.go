@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/clients"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/handlers/render"
-	"github.com/Zapharaos/fihub-backend/cmd/user/app/service"
 	"github.com/Zapharaos/fihub-backend/internal/models"
 	"github.com/Zapharaos/fihub-backend/protogen"
 	"go.uber.org/zap"
@@ -110,24 +109,7 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO : keep but return user with roleUUIDs instead of models.UserWithRoles
-	userRoles := models.UserWithRoles{
-		User: user,
-	}
-
-	// Check if the user can retrieve the user roles as well
-	if U().CheckPermission(w, r, "admin.users.roles.list") {
-		roles, err := service.LoadUserRoles(userId)
-		if err != nil {
-			zap.L().Error("GetUser.LoadUserRoles", zap.Error(err))
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-
-		userRoles.Roles = roles
-	}
-
-	render.JSON(w, r, userRoles)
+	render.JSON(w, r, user)
 }
 
 // GetUserSelf godoc

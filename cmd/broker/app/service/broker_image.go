@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/Zapharaos/fihub-backend/cmd/broker/app/repositories"
 	"github.com/Zapharaos/fihub-backend/internal/models"
+	"github.com/Zapharaos/fihub-backend/internal/security"
 	"github.com/Zapharaos/fihub-backend/protogen"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
@@ -13,6 +14,12 @@ import (
 
 // CreateBrokerImage implements the CreateBrokerImage RPC method.
 func (h *Service) CreateBrokerImage(ctx context.Context, req *protogen.CreateBrokerImageRequest) (*protogen.CreateBrokerImageResponse, error) {
+	// Check user permissions
+	err := security.Facade().CheckPermission(ctx, "admin.brokers.create")
+	if err != nil {
+		zap.L().Error("CheckPermission", zap.Error(err))
+		return nil, err
+	}
 
 	// Parse the broker ID from the request
 	brokerID, err := uuid.Parse(req.GetBrokerId())
@@ -79,7 +86,6 @@ func (h *Service) CreateBrokerImage(ctx context.Context, req *protogen.CreateBro
 
 // GetBrokerImage implements the GetBrokerImage RPC method.
 func (h *Service) GetBrokerImage(ctx context.Context, req *protogen.GetBrokerImageRequest) (*protogen.GetBrokerImageResponse, error) {
-
 	// Parse the image ID from the request
 	imageID, err := uuid.Parse(req.GetImageId())
 	if err != nil {
@@ -107,6 +113,12 @@ func (h *Service) GetBrokerImage(ctx context.Context, req *protogen.GetBrokerIma
 
 // UpdateBrokerImage implements the UpdateBrokerImage RPC method.
 func (h *Service) UpdateBrokerImage(ctx context.Context, req *protogen.UpdateBrokerImageRequest) (*protogen.UpdateBrokerImageResponse, error) {
+	// Check user permissions
+	err := security.Facade().CheckPermission(ctx, "admin.brokers.update")
+	if err != nil {
+		zap.L().Error("CheckPermission", zap.Error(err))
+		return nil, err
+	}
 
 	// Parse the image ID from the request
 	imageID, err := uuid.Parse(req.GetImageId())
@@ -174,6 +186,12 @@ func (h *Service) UpdateBrokerImage(ctx context.Context, req *protogen.UpdateBro
 
 // DeleteBrokerImage implements the DeleteBrokerImage RPC method.
 func (h *Service) DeleteBrokerImage(ctx context.Context, req *protogen.DeleteBrokerImageRequest) (*protogen.DeleteBrokerImageResponse, error) {
+	// Check user permissions
+	err := security.Facade().CheckPermission(ctx, "admin.brokers.delete")
+	if err != nil {
+		zap.L().Error("CheckPermission", zap.Error(err))
+		return nil, err
+	}
 
 	// Parse the image ID from the request
 	imageID, err := uuid.Parse(req.GetImageId())

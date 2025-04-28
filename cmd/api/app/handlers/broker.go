@@ -27,11 +27,6 @@ import (
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/broker [post]
 func CreateBroker(w http.ResponseWriter, r *http.Request) {
-
-	if !U().CheckPermission(w, r, "admin.brokers.create") {
-		return
-	}
-
 	// Parse request body
 	var broker models.Broker
 	err := json.NewDecoder(r.Body).Decode(&broker)
@@ -77,7 +72,6 @@ func CreateBroker(w http.ResponseWriter, r *http.Request) {
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/broker/{id} [get]
 func GetBroker(w http.ResponseWriter, r *http.Request) {
-
 	// Retrieve brokerID
 	brokerID, ok := U().ParseParamUUID(w, r, "id")
 	if !ok {
@@ -121,11 +115,6 @@ func GetBroker(w http.ResponseWriter, r *http.Request) {
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/broker/{id} [put]
 func UpdateBroker(w http.ResponseWriter, r *http.Request) {
-
-	if !U().CheckPermission(w, r, "admin.brokers.update") {
-		return
-	}
-
 	// Retrieve brokerID
 	brokerID, ok := U().ParseParamUUID(w, r, "id")
 	if !ok {
@@ -178,11 +167,6 @@ func UpdateBroker(w http.ResponseWriter, r *http.Request) {
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/broker/{id} [delete]
 func DeleteBroker(w http.ResponseWriter, r *http.Request) {
-
-	if !U().CheckPermission(w, r, "admin.brokers.delete") {
-		return
-	}
-
 	// Retrieve brokerID
 	brokerID, ok := U().ParseParamUUID(w, r, "id")
 	if !ok {
@@ -222,7 +206,6 @@ func DeleteBroker(w http.ResponseWriter, r *http.Request) {
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/broker [get]
 func ListBrokers(w http.ResponseWriter, r *http.Request) {
-
 	enabled, ok := U().ParseParamBool(w, r, "enabled")
 	if !ok {
 		return

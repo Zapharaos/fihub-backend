@@ -505,7 +505,7 @@ func SetRolesForUser(w http.ResponseWriter, r *http.Request) {
 //	@Router			/api/v1/security/role/user/{id} [get]
 func ListRolesForUser(w http.ResponseWriter, r *http.Request) {
 	userId, ok := U().ParseParamUUID(w, r, "id")
-	if !ok || !U().CheckPermission(w, r, "admin.users.roles.list") {
+	if !ok {
 		return
 	}
 
