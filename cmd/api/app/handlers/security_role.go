@@ -17,7 +17,7 @@ import (
 //
 //	@Summary		Create a new role
 //	@Description	Create a new role. (Permission: <b>admin.roles.create</b>)
-//	@Tags			Roles
+//	@Tags			Security, Role
 //	@Accept			json
 //	@Produce		json
 //	@Param			role	body	models.RoleWithPermissions	true	"role (json)"
@@ -26,7 +26,7 @@ import (
 //	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
-//	@Router			/api/v1/roles [post]
+//	@Router			/api/v1/security/role [post]
 func CreateRole(w http.ResponseWriter, r *http.Request) {
 	var role models.RoleWithPermissions
 	err := json.NewDecoder(r.Body).Decode(&role)
@@ -67,7 +67,7 @@ func CreateRole(w http.ResponseWriter, r *http.Request) {
 //
 //	@Summary		Get a role
 //	@Description	Get a role by id. (Permission: <b>admin.roles.read</b>)
-//	@Tags			Roles
+//	@Tags			Security, Role
 //	@Produce		json
 //	@Param			id	path	string	true	"role id"
 //	@Security		Bearer
@@ -76,7 +76,7 @@ func CreateRole(w http.ResponseWriter, r *http.Request) {
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		404	{string}	string					"Role not found"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
-//	@Router			/api/v1/roles/{id} [get]
+//	@Router			/api/v1/security/role/{id} [get]
 func GetRole(w http.ResponseWriter, r *http.Request) {
 	roleID, ok := U().ParseParamUUID(w, r, "id")
 	if !ok {
@@ -104,21 +104,21 @@ func GetRole(w http.ResponseWriter, r *http.Request) {
 	render.JSON(w, r, role)
 }
 
-// GetRoles godoc
+// ListRoles godoc
 //
-//	@Id				GetRoles
+//	@Id				ListRoles
 //
-//	@Summary		Get all roles
-//	@Description	Gets a list of all roles. (Permission: <b>admin.roles.list</b>)
-//	@Tags			Roles
+//	@Summary		List all roles
+//	@Description	List all roles. (Permission: <b>admin.roles.list</b>)
+//	@Tags			Security, Role
 //	@Produce		json
 //	@Security		Bearer
 //	@Success		200	{array}		models.RoleWithPermissions				"list of roles"
 //	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
-//	@Router			/api/v1/roles [get]
-func GetRoles(w http.ResponseWriter, r *http.Request) {
+//	@Router			/api/v1/security/role [get]
+func ListRoles(w http.ResponseWriter, r *http.Request) {
 	// List the roles
 	response, err := clients.C().Security().ListRoles(r.Context(), nil)
 	if err != nil {
@@ -144,7 +144,7 @@ func GetRoles(w http.ResponseWriter, r *http.Request) {
 //
 //	@Summary		Update role
 //	@Description	Updates the role. (Permission: <b>admin.roles.update</b>)
-//	@Tags			Roles
+//	@Tags			Security, Role
 //	@Accept			json
 //	@Produce		json
 //	@Param			id		path	string		true	"role ID"
@@ -154,7 +154,7 @@ func GetRoles(w http.ResponseWriter, r *http.Request) {
 //	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
-//	@Router			/api/v1/roles/{id} [put]
+//	@Router			/api/v1/security/role/{id} [put]
 func UpdateRole(w http.ResponseWriter, r *http.Request) {
 	roleID, ok := U().ParseParamUUID(w, r, "id")
 	if !ok {
@@ -201,7 +201,7 @@ func UpdateRole(w http.ResponseWriter, r *http.Request) {
 //
 //	@Summary		Delete role
 //	@Description	Deletes a role. (Permission: <b>admin.roles.delete</b>)
-//	@Tags			Roles
+//	@Tags			Security, Role
 //	@Produce		json
 //	@Param			id	path	string	true	"role ID"
 //	@Security		Bearer
@@ -209,7 +209,7 @@ func UpdateRole(w http.ResponseWriter, r *http.Request) {
 //	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
-//	@Router			/api/v1/roles/{id} [delete]
+//	@Router			/api/v1/security/role/{id} [delete]
 func DeleteRole(w http.ResponseWriter, r *http.Request) {
 	roleID, ok := U().ParseParamUUID(w, r, "id")
 	if !ok {
@@ -235,7 +235,7 @@ func DeleteRole(w http.ResponseWriter, r *http.Request) {
 //
 //	@Summary		Get all permissions for a specified role id
 //	@Description	Gets a list of all role permissions. (Permission: <b>admin.roles.permissions.list</b>)
-//	@Tags			Roles, RolePermissions
+//	@Tags			Security, Role, Permission
 //	@Produce		json
 //	@Param			id	path	string	true	"role ID"
 //	@Security		Bearer
@@ -243,7 +243,7 @@ func DeleteRole(w http.ResponseWriter, r *http.Request) {
 //	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
-//	@Router			/api/v1/roles/{id}/permissions [get]
+//	@Router			/api/v1/security/role/{id}/permission [get]
 func GetRolePermissions(w http.ResponseWriter, r *http.Request) {
 	roleId, ok := U().ParseParamUUID(w, r, "id")
 	if !ok {
@@ -277,7 +277,7 @@ func GetRolePermissions(w http.ResponseWriter, r *http.Request) {
 //
 //	@Summary		Set permissions for a given role
 //	@Description	Updates the role. (Permission: <b>admin.roles.permissions.update</b>)
-//	@Tags			Roles, RolePermissions
+//	@Tags			Security, Role, Permission
 //	@Accept			json
 //	@Produce		json
 //	@Param			id		path	string						true	"role ID"
@@ -287,7 +287,7 @@ func GetRolePermissions(w http.ResponseWriter, r *http.Request) {
 //	@Failure		400	{object}	render.ErrorResponse		"Bad PasswordRequest"
 //	@Failure		401	{string}	string						"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse		"Internal Server Error"
-//	@Router			/api/v1/roles/{id}/permissions [put]
+//	@Router			/api/v1/security/role/{id}/permission [put]
 func SetRolePermissions(w http.ResponseWriter, r *http.Request) {
 	roleId, ok := U().ParseParamUUID(w, r, "id")
 	if !ok {
@@ -319,13 +319,13 @@ func SetRolePermissions(w http.ResponseWriter, r *http.Request) {
 	render.OK(w, r)
 }
 
-// PutUsersRole godoc
+// AddUsersToRole godoc
 //
-//	@Id				PutUsersRole
+//	@Id				AddUsersToRole
 //
 //	@Summary		Add users to a given role
 //	@Description	Updates the role. (Permission: <b>admin.roles.users.update</b>)
-//	@Tags			Roles, RoleUsers
+//	@Tags			Security, Role, User
 //	@Accept			json
 //	@Produce		json
 //	@Param			id		path	string		true	"role ID"
@@ -335,7 +335,7 @@ func SetRolePermissions(w http.ResponseWriter, r *http.Request) {
 //	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
-//	@Router			/api/v1/roles/{id}/users [put]
+//	@Router			/api/v1/security/role/{id}/user [put]
 func AddUsersToRole(w http.ResponseWriter, r *http.Request) {
 	roleId, ok := U().ParseParamUUID(w, r, "id")
 	if !ok {
@@ -364,13 +364,13 @@ func AddUsersToRole(w http.ResponseWriter, r *http.Request) {
 	render.OK(w, r)
 }
 
-// DeleteUsersRole godoc
+// RemoveUsersFromRole godoc
 //
-//	@Id				DeleteUsersRole
+//	@Id				RemoveUsersFromRole
 //
 //	@Summary		Remove users from a given role
 //	@Description	Updates the role. (Permission: <b>admin.roles.users.delete</b>)
-//	@Tags			Roles, RoleUsers
+//	@Tags			Security, Role, User
 //	@Accept			json
 //	@Produce		json
 //	@Param			id		path	string		true	"role ID"
@@ -380,7 +380,7 @@ func AddUsersToRole(w http.ResponseWriter, r *http.Request) {
 //	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
-//	@Router			/api/v1/roles/{id}/users [delete]
+//	@Router			/api/v1/security/role/{id}/user [delete]
 func RemoveUsersFromRole(w http.ResponseWriter, r *http.Request) {
 	roleId, ok := U().ParseParamUUID(w, r, "id")
 	if !ok {
@@ -411,11 +411,11 @@ func RemoveUsersFromRole(w http.ResponseWriter, r *http.Request) {
 
 // ListUsersForRole godoc
 //
-//	@Id				GetRoleUsers
+//	@Id				ListUsersForRole
 //
-//	@Summary		Get all users for a specified role id
-//	@Description	Gets a list of all role users. (Permission: <b>admin.roles.users.list</b>)
-//	@Tags			Roles, RoleUsers
+//	@Summary		List all users for a specified role id
+//	@Description	List all role users. (Permission: <b>admin.roles.users.list</b>)
+//	@Tags			Security, Role, User
 //	@Produce		json
 //	@Param			id	path	string	true	"role ID"
 //	@Security		Bearer
@@ -423,7 +423,7 @@ func RemoveUsersFromRole(w http.ResponseWriter, r *http.Request) {
 //	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
-//	@Router			/api/v1/roles/{id}/users [get]
+//	@Router			/api/v1/security/role/{id}/user [get]
 func ListUsersForRole(w http.ResponseWriter, r *http.Request) {
 	roleId, ok := U().ParseParamUUID(w, r, "id")
 	if !ok {
@@ -443,13 +443,13 @@ func ListUsersForRole(w http.ResponseWriter, r *http.Request) {
 	render.JSON(w, r, users)
 }
 
-// SetUserRoles godoc
+// SetRolesForUser godoc
 //
-//	@Id				SetUserRoles
+//	@Id				SetRolesForUser
 //
 //	@Summary		Set roles on a user
 //	@Description	Set roles on a user. (Permission: <b>admin.users.roles.update</b>)
-//	@Tags			Users, UserRoles
+//	@Tags			Security, Role, User
 //	@Accept			json
 //	@Produce		json
 //	@Param			id		path	string				true	"user ID"
@@ -459,7 +459,7 @@ func ListUsersForRole(w http.ResponseWriter, r *http.Request) {
 //	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
-//	@Router			/api/v1/users/{id}/roles [put]
+//	@Router			/api/v1/security/role/user/{id} [put]
 func SetRolesForUser(w http.ResponseWriter, r *http.Request) {
 	userId, ok := U().ParseParamUUID(w, r, "id")
 	if !ok {
@@ -488,13 +488,13 @@ func SetRolesForUser(w http.ResponseWriter, r *http.Request) {
 	render.OK(w, r)
 }
 
-// GetUserRoles godoc
+// ListRolesForUser godoc
 //
-//	@Id				GetUserRoles
+//	@Id				ListRolesForUser
 //
-//	@Summary		Get all roles for a specified user id
-//	@Description	Gets a list of all roles. (Permission: <b>admin.users.roles.list</b>)
-//	@Tags			Users, UserRoles
+//	@Summary		List all roles for a specified user id
+//	@Description	List of all roles. (Permission: <b>admin.users.roles.list</b>)
+//	@Tags			Security, Role, User
 //	@Produce		json
 //	@Param			id	path	string	true	"user ID"
 //	@Security		Bearer
@@ -502,7 +502,7 @@ func SetRolesForUser(w http.ResponseWriter, r *http.Request) {
 //	@Failure		400	{object}	render.ErrorResponse		"Bad PasswordRequest"
 //	@Failure		401	{string}	string						"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse		"Internal Server Error"
-//	@Router			/api/v1/users/{id}/roles [get]
+//	@Router			/api/v1/security/role/user/{id} [get]
 func ListRolesForUser(w http.ResponseWriter, r *http.Request) {
 	userId, ok := U().ParseParamUUID(w, r, "id")
 	if !ok || !U().CheckPermission(w, r, "admin.users.roles.list") {
@@ -530,20 +530,20 @@ func ListRolesForUser(w http.ResponseWriter, r *http.Request) {
 	render.JSON(w, r, roles)
 }
 
-// GetAllUsersWithRoles godoc
+// ListUsersWithRoles godoc
 //
-//	@Id				GetAllUsersWithRoles
+//	@Id				ListUsersWithRoles
 //
-//	@Summary		Get all users with their roles
-//	@Description	Gets a list of all users with their roles. (Permission: <b>admin.users.list</b>)
-//	@Tags			Users, UserRoles
+//	@Summary		List users with their roles
+//	@Description	List of all users with their roles. (Permission: <b>admin.users.list</b>)
+//	@Tags			Security, Role, User
 //	@Produce		json
 //	@Security		Bearer
 //	@Success		200	{array}		models.UserWithRoles	"list of users"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
-//	@Router			/api/v1/users [get]
-func GetAllUsersWithRoles(w http.ResponseWriter, r *http.Request) {
+//	@Router			/api/v1/security/role/user [get]
+func ListUsersWithRoles(w http.ResponseWriter, r *http.Request) {
 	// List roles for the user
 	response, err := clients.C().Security().ListUsers(r.Context(), &protogen.ListUsersRequest{})
 	if err != nil {

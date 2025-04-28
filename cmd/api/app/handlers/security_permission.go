@@ -17,7 +17,7 @@ import (
 //
 //	@Summary		Create a new permission
 //	@Description	Create a new permission. (Permission: <b>admin.permissions.create</b>)
-//	@Tags			Permissions
+//	@Tags			Permission
 //	@Accept			json
 //	@Produce		json
 //	@Param			permission	body	models.Permission	true	"permission (json)"
@@ -26,7 +26,7 @@ import (
 //	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
-//	@Router			/api/v1/permissions [post]
+//	@Router			/api/v1/security/permission [post]
 func CreatePermission(w http.ResponseWriter, r *http.Request) {
 	if !U().CheckPermission(w, r, "admin.permissions.create") {
 		return
@@ -76,7 +76,7 @@ func CreatePermission(w http.ResponseWriter, r *http.Request) {
 //
 //	@Summary		Get a permission
 //	@Description	Get a permission by id. (Permission: <b>permissions.read</b>)
-//	@Tags			Permissions
+//	@Tags			Permission
 //	@Produce		json
 //	@Param			id	path	string	true	"permission id"
 //	@Security		Bearer
@@ -85,7 +85,7 @@ func CreatePermission(w http.ResponseWriter, r *http.Request) {
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		404	{string}	string					"Not Found"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
-//	@Router			/api/v1/permissions/{id} [get]
+//	@Router			/api/v1/security/permission/{id} [get]
 func GetPermission(w http.ResponseWriter, r *http.Request) {
 	permissionID, ok := U().ParseParamUUID(w, r, "id")
 	if !ok || !U().CheckPermission(w, r, "admin.permissions.read") {
@@ -119,57 +119,13 @@ func GetPermission(w http.ResponseWriter, r *http.Request) {
 	render.JSON(w, r, p)
 }
 
-// ListPermissions godoc
-//
-//	@Id				ListPermissions
-//
-//	@Summary		Get all permissions
-//	@Description	Gets a list of all permissions. (Permission: <b>admin.permissions.list</b>)
-//	@Tags			Permissions
-//	@Produce		json
-//	@Security		Bearer
-//	@Success		200	{array}		models.Permission	"list of permissions"
-//	@Failure		401	{string}	string					"Permission denied"
-//	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
-//	@Router			/api/v1/permissions [get]
-func ListPermissions(w http.ResponseWriter, r *http.Request) {
-	if !U().CheckPermission(w, r, "admin.permissions.list") {
-		return
-	}
-
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	// List the Broker
-	response, err := clients.C().Security().ListPermissions(ctx, &protogen.ListPermissionsRequest{})
-	if err != nil {
-		zap.L().Error("List Permissions", zap.Error(err))
-		render.ErrorCodesCodeToHttpCode(w, r, err)
-		return
-	}
-
-	// Map gRPC response to Permissions array
-	permissions := make(models.Permissions, len(response.Permissions))
-	for i, protogenPermission := range response.Permissions {
-		p, err := models.FromProtogenPermission(protogenPermission)
-		if err != nil {
-			zap.L().Error("Bad protogen permission", zap.Error(err))
-			// Skip this item and continue with others
-			continue
-		}
-		permissions[i] = p
-	}
-
-	render.JSON(w, r, permissions)
-}
-
 // UpdatePermission godoc
 //
 //	@Id				UpdatePermission
 //
 //	@Summary		Update permission
 //	@Description	Updates the permission. (Permission: <b>admin.permissions.update</b>)
-//	@Tags			Permissions
+//	@Tags			Permission
 //	@Accept			json
 //	@Produce		json
 //	@Param			id			path	string					true	"permission ID"
@@ -179,7 +135,7 @@ func ListPermissions(w http.ResponseWriter, r *http.Request) {
 //	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
-//	@Router			/api/v1/permissions/{id} [put]
+//	@Router			/api/v1/security/permission/{id} [put]
 func UpdatePermission(w http.ResponseWriter, r *http.Request) {
 	permissionID, ok := U().ParseParamUUID(w, r, "id")
 	if !ok || !U().CheckPermission(w, r, "admin.permissions.update") {
@@ -230,7 +186,7 @@ func UpdatePermission(w http.ResponseWriter, r *http.Request) {
 //
 //	@Summary		Delete permission
 //	@Description	Deletes a permission. (Permission: <b>admin.permissions.delete</b>)
-//	@Tags			Permissions
+//	@Tags			Permission
 //	@Produce		json
 //	@Param			id	path	string	true	"permission ID"
 //	@Security		Bearer
@@ -238,7 +194,7 @@ func UpdatePermission(w http.ResponseWriter, r *http.Request) {
 //	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
-//	@Router			/api/v1/permissions/{id} [delete]
+//	@Router			/api/v1/security/permission/{id} [delete]
 func DeletePermission(w http.ResponseWriter, r *http.Request) {
 	permissionID, ok := U().ParseParamUUID(w, r, "id")
 	if !ok || !U().CheckPermission(w, r, "admin.permissions.delete") {
@@ -262,4 +218,48 @@ func DeletePermission(w http.ResponseWriter, r *http.Request) {
 	}
 
 	render.OK(w, r)
+}
+
+// ListPermissions godoc
+//
+//	@Id				ListPermissions
+//
+//	@Summary		Get all permissions
+//	@Description	Gets a list of all permissions. (Permission: <b>admin.permissions.list</b>)
+//	@Tags			Permission
+//	@Produce		json
+//	@Security		Bearer
+//	@Success		200	{array}		models.Permission	"list of permissions"
+//	@Failure		401	{string}	string					"Permission denied"
+//	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
+//	@Router			/api/v1/security/permission [get]
+func ListPermissions(w http.ResponseWriter, r *http.Request) {
+	if !U().CheckPermission(w, r, "admin.permissions.list") {
+		return
+	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	// List the Broker
+	response, err := clients.C().Security().ListPermissions(ctx, &protogen.ListPermissionsRequest{})
+	if err != nil {
+		zap.L().Error("List Permissions", zap.Error(err))
+		render.ErrorCodesCodeToHttpCode(w, r, err)
+		return
+	}
+
+	// Map gRPC response to Permissions array
+	permissions := make(models.Permissions, len(response.Permissions))
+	for i, protogenPermission := range response.Permissions {
+		p, err := models.FromProtogenPermission(protogenPermission)
+		if err != nil {
+			zap.L().Error("Bad protogen permission", zap.Error(err))
+			// Skip this item and continue with others
+			continue
+		}
+		permissions[i] = p
+	}
+
+	render.JSON(w, r, permissions)
 }
