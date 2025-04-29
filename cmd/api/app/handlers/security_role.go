@@ -261,17 +261,9 @@ func GetRolePermissions(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Map the response to the Permissions model
-	permissions, err := models.FromProtogenPermissions(response.GetPermissions())
-	if err != nil {
-		zap.L().Error("Bad protogen roles", zap.Error(err))
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	render.JSON(w, r, permissions)
+	render.JSON(w, r, models.FromProtogenPermissions(response.GetPermissions()))
 }
 
-// TODO : check return value
 // SetRolePermissions godoc
 //
 //	@Id				SetRolePermissions
@@ -284,7 +276,7 @@ func GetRolePermissions(w http.ResponseWriter, r *http.Request) {
 //	@Param			id		path	string						true	"role ID"
 //	@Param			role	body	models.Permissions	true	"List of permissions (json)"
 //	@Security		Bearer
-//	@Success		200	{object}	models.RoleWithPermissions	"role"
+//	@Success		200	{array}		models.Permission	"list of permissions"
 //	@Failure		400	{object}	render.ErrorResponse		"Bad PasswordRequest"
 //	@Failure		401	{string}	string						"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse		"Internal Server Error"
@@ -310,14 +302,15 @@ func SetRolePermissions(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Set the role permissions
-	_, err = clients.C().Security().SetRolePermissions(r.Context(), roleRequest)
+	response, err := clients.C().Security().SetRolePermissions(r.Context(), roleRequest)
 	if err != nil {
 		zap.L().Error("Set Role Permissions", zap.Error(err))
 		render.ErrorCodesCodeToHttpCode(w, r, err)
 		return
 	}
 
-	render.OK(w, r)
+	// Map the response to the Permissions model
+	render.JSON(w, r, models.FromProtogenPermissions(response.GetPermissions()))
 }
 
 // AddUsersToRole godoc
@@ -332,7 +325,7 @@ func SetRolePermissions(w http.ResponseWriter, r *http.Request) {
 //	@Param			id		path	string		true	"role ID"
 //	@Param			role	body	[]string	true	"List of user UUIDs (json)"
 //	@Security		Bearer
-//	@Success		200	{string}	string					"status OK"
+//	@Success		200	{array}		string				"list of users ids"
 //	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
@@ -352,7 +345,7 @@ func AddUsersToRole(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Add users to the role
-	_, err = clients.C().Security().AddUsersToRole(r.Context(), &protogen.AddUsersToRoleRequest{
+	response, err := clients.C().Security().AddUsersToRole(r.Context(), &protogen.AddUsersToRoleRequest{
 		RoleId:  roleId.String(),
 		UserIds: userUUIDs,
 	})
@@ -362,7 +355,7 @@ func AddUsersToRole(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	render.OK(w, r)
+	render.JSON(w, r, response.GetUserIds())
 }
 
 // RemoveUsersFromRole godoc
@@ -377,7 +370,7 @@ func AddUsersToRole(w http.ResponseWriter, r *http.Request) {
 //	@Param			id		path	string		true	"role ID"
 //	@Param			role	body	[]string	true	"List of user UUIDs (json)"
 //	@Security		Bearer
-//	@Success		200	{string}	string					"status OK"
+//	@Success		200	{array}		string				"list of users ids"
 //	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
@@ -397,7 +390,7 @@ func RemoveUsersFromRole(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Remove users from the role
-	_, err = clients.C().Security().RemoveUsersFromRole(r.Context(), &protogen.RemoveUsersFromRoleRequest{
+	response, err := clients.C().Security().RemoveUsersFromRole(r.Context(), &protogen.RemoveUsersFromRoleRequest{
 		RoleId:  roleId.String(),
 		UserIds: userUUIDs,
 	})
@@ -407,7 +400,7 @@ func RemoveUsersFromRole(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	render.OK(w, r)
+	render.JSON(w, r, response.GetUserIds())
 }
 
 // ListUsersForRole godoc
@@ -420,7 +413,7 @@ func RemoveUsersFromRole(w http.ResponseWriter, r *http.Request) {
 //	@Produce		json
 //	@Param			id	path	string	true	"role ID"
 //	@Security		Bearer
-//	@Success		200	{array}		models.User				"list of users"
+//	@Success		200	{array}		string				"list of users ids"
 //	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
@@ -432,7 +425,7 @@ func ListUsersForRole(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// List users for the role
-	users, err := clients.C().Security().ListUsersForRole(r.Context(), &protogen.ListUsersForRoleRequest{
+	response, err := clients.C().Security().ListUsersForRole(r.Context(), &protogen.ListUsersForRoleRequest{
 		RoleId: roleId.String(),
 	})
 	if err != nil {
@@ -441,10 +434,9 @@ func ListUsersForRole(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	render.JSON(w, r, users)
+	render.JSON(w, r, response.GetUserIds())
 }
 
-// TODO : check return value
 // SetRolesForUser godoc
 //
 //	@Id				SetRolesForUser
@@ -457,7 +449,7 @@ func ListUsersForRole(w http.ResponseWriter, r *http.Request) {
 //	@Param			id		path	string				true	"user ID"
 //	@Param			roles	body	[]string			true	"array of role UUIDs"
 //	@Security		Bearer
-//	@Success		200	{object}	models.UserWithRoles		"user"
+//	@Success		200	{array}		models.RoleWithPermissions	"list of roles with permissions"
 //	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
@@ -490,39 +482,39 @@ func SetRolesForUser(w http.ResponseWriter, r *http.Request) {
 	render.OK(w, r)
 }
 
-// ListRolesForUser godoc
+// ListRolesWithPermissionsForUser godoc
 //
-//	@Id				ListRolesForUser
+//	@Id				ListRolesWithPermissionsForUser
 //
-//	@Summary		List all roles for a specified user id
-//	@Description	List of all roles. (Permission: <b>admin.users.roles.list</b>)
+//	@Summary		List all roles with permissions for a specified user id
+//	@Description	List of all roles with permissions. (Permission: <b>admin.users.roles.list</b>)
 //	@Tags			Security, Role, User
 //	@Produce		json
 //	@Param			id	path	string	true	"user ID"
 //	@Security		Bearer
-//	@Success		200	{array}		models.Role					"list of roles"
+//	@Success		200	{array}		models.RoleWithPermissions	"list of roles with permissions"
 //	@Failure		400	{object}	render.ErrorResponse		"Bad PasswordRequest"
 //	@Failure		401	{string}	string						"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse		"Internal Server Error"
 //	@Router			/api/v1/security/role/user/{id} [get]
-func ListRolesForUser(w http.ResponseWriter, r *http.Request) {
+func ListRolesWithPermissionsForUser(w http.ResponseWriter, r *http.Request) {
 	userId, ok := U().ParseParamUUID(w, r, "id")
 	if !ok {
 		return
 	}
 
 	// List roles for the user
-	response, err := clients.C().Security().ListRolesForUser(r.Context(), &protogen.ListRolesForUserRequest{
+	response, err := clients.C().Security().ListRolesWithPermissionsForUser(r.Context(), &protogen.ListRolesWithPermissionsForUserRequest{
 		UserId: userId.String(),
 	})
 	if err != nil {
-		zap.L().Error("List Roles for User", zap.Error(err))
+		zap.L().Error("List Roles with Permissions for User", zap.Error(err))
 		render.ErrorCodesCodeToHttpCode(w, r, err)
 		return
 	}
 
 	// Map the response to the RolesWithPermissions model
-	roles, err := models.FromProtogenRoles(response.GetRoles())
+	roles, err := models.FromProtogenRolesWithPermissions(response.GetRoles())
 	if err != nil {
 		zap.L().Error("Bad protogen roles", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
@@ -541,7 +533,7 @@ func ListRolesForUser(w http.ResponseWriter, r *http.Request) {
 //	@Tags			Security, Role, User
 //	@Produce		json
 //	@Security		Bearer
-//	@Success		200	{array}		models.UserWithRoles	"list of users"
+//	@Success		200	{array}		models.User				"list of users"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/security/role/user [get]

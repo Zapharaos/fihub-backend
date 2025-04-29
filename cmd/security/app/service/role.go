@@ -36,11 +36,11 @@ func (s *Service) CreateRole(ctx context.Context, req *protogen.CreateRoleReques
 	err = security.Facade().CheckPermission(ctx, "admin.roles.permissions.update")
 
 	// If the user has permission to update role permissions, validate and set them
-	var perms []uuid.UUID
+	var permissions models.RolePermissionsInput
 	if err == nil {
 
 		// Construct the Permissions object from the request
-		permissions, err := models.FromProtogenRolePermissionsInput(req.GetPermissions())
+		permissions, err = models.FromProtogenRolePermissionsInput(req.GetPermissions())
 		if err != nil {
 			zap.L().Warn("Cannot convert permissions", zap.Error(err))
 			return nil, status.Error(codes.InvalidArgument, err.Error())
@@ -54,7 +54,7 @@ func (s *Service) CreateRole(ctx context.Context, req *protogen.CreateRoleReques
 	}
 
 	// Create the role in the database
-	roleID, err := repositories.R().R().Create(role, perms)
+	roleID, err := repositories.R().R().Create(role, permissions)
 	if err != nil {
 		zap.L().Error("Cannot create role", zap.Error(err))
 		return nil, status.Error(codes.Internal, err.Error())
@@ -144,11 +144,11 @@ func (s *Service) UpdateRole(ctx context.Context, req *protogen.UpdateRoleReques
 	err = security.Facade().CheckPermission(ctx, "admin.roles.permissions.update")
 
 	// If the user has permission to update role permissions, validate and set them
-	var perms []uuid.UUID
+	var permissions models.RolePermissionsInput
 	if err == nil {
 
 		// Construct the Permissions object from the request
-		permissions, err := models.FromProtogenRolePermissionsInput(req.GetPermissions())
+		permissions, err = models.FromProtogenRolePermissionsInput(req.GetPermissions())
 		if err != nil {
 			zap.L().Warn("Cannot convert permissions", zap.Error(err))
 			return nil, status.Error(codes.InvalidArgument, err.Error())
@@ -162,7 +162,7 @@ func (s *Service) UpdateRole(ctx context.Context, req *protogen.UpdateRoleReques
 	}
 
 	// Update the role in the database
-	err = repositories.R().R().Update(role, perms)
+	err = repositories.R().R().Update(role, permissions)
 	if err != nil {
 		zap.L().Error("Cannot update role", zap.Error(err))
 		return nil, status.Error(codes.Internal, err.Error())
@@ -275,13 +275,13 @@ func (s *Service) SetRolePermissions(ctx context.Context, req *protogen.SetRoleP
 	}
 
 	// Construct the Permissions object from the request
-	permissions, err := models.FromProtogenRolePermissionsInput(req.GetPermissions())
+	permissionsInput, err := models.FromProtogenRolePermissionsInput(req.GetPermissions())
 	if err != nil {
 		zap.L().Warn("Cannot convert permissions", zap.Error(err))
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
-	if ok, err := permissions.IsValid(); !ok {
+	if ok, err := permissionsInput.IsValid(); !ok {
 		zap.L().Warn("Permissions are not valid", zap.Error(err))
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
@@ -295,13 +295,20 @@ func (s *Service) SetRolePermissions(ctx context.Context, req *protogen.SetRoleP
 	}
 
 	// Set the role permissions in the database
-	err = repositories.R().R().SetPermissionsByRoleId(roleID, permissions)
+	err = repositories.R().R().SetPermissionsByRoleId(roleID, permissionsInput)
 	if err != nil {
 		zap.L().Error("Failed to set permissions", zap.Error(err))
 		return &protogen.SetRolePermissionsResponse{}, status.Error(codes.Internal, err.Error())
 	}
 
+	// List all role permissions from the database
+	permissions, err := repositories.R().R().ListPermissionsByRoleId(roleID)
+	if err != nil {
+		zap.L().Error("Cannot list role permissions", zap.String("uuid", roleID.String()), zap.Error(err))
+		return &protogen.SetRolePermissionsResponse{}, status.Error(codes.Internal, err.Error())
+	}
+
 	return &protogen.SetRolePermissionsResponse{
-		Success: true,
+		Permissions: permissions.ToProtogenPermissions(),
 	}, nil
 }

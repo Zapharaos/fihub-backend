@@ -16,7 +16,7 @@ import (
 //
 //	@Summary		Create a new permission
 //	@Description	Create a new permission. (Permission: <b>admin.permissions.create</b>)
-//	@Tags			Permission
+//	@Tags			Security, Permission
 //	@Accept			json
 //	@Produce		json
 //	@Param			permission	body	models.Permission	true	"permission (json)"
@@ -68,7 +68,7 @@ func CreatePermission(w http.ResponseWriter, r *http.Request) {
 //
 //	@Summary		Get a permission
 //	@Description	Get a permission by id. (Permission: <b>permissions.read</b>)
-//	@Tags			Permission
+//	@Tags			Security, Permission
 //	@Produce		json
 //	@Param			id	path	string	true	"permission id"
 //	@Security		Bearer
@@ -114,7 +114,7 @@ func GetPermission(w http.ResponseWriter, r *http.Request) {
 //
 //	@Summary		Update permission
 //	@Description	Updates the permission. (Permission: <b>admin.permissions.update</b>)
-//	@Tags			Permission
+//	@Tags			Security, Permission
 //	@Accept			json
 //	@Produce		json
 //	@Param			id			path	string					true	"permission ID"
@@ -172,7 +172,7 @@ func UpdatePermission(w http.ResponseWriter, r *http.Request) {
 //
 //	@Summary		Delete permission
 //	@Description	Deletes a permission. (Permission: <b>admin.permissions.delete</b>)
-//	@Tags			Permission
+//	@Tags			Security, Permission
 //	@Produce		json
 //	@Param			id	path	string	true	"permission ID"
 //	@Security		Bearer
@@ -209,7 +209,7 @@ func DeletePermission(w http.ResponseWriter, r *http.Request) {
 //
 //	@Summary		Get all permissions
 //	@Description	Gets a list of all permissions. (Permission: <b>admin.permissions.list</b>)
-//	@Tags			Permission
+//	@Tags			Security, Permission
 //	@Produce		json
 //	@Security		Bearer
 //	@Success		200	{array}		models.Permission	"list of permissions"

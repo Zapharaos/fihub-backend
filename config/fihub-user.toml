@@ -16,6 +16,11 @@ LOGGER_LEVEL = "debug"
 # Default value: "50002"
 USER_MICROSERVICE_PORT = "50002"
 
+# Specify the port for the Security microservice
+# This port is used to run the gRPC SecurityService
+# Default value: "50004"
+SECURITY_MICROSERVICE_PORT = "50004"
+
 # Specify the PostgreSQL username
 # Used to authenticate with the PostgreSQL database
 # Default value: "postgres"

@@ -5,6 +5,8 @@ import (
 	"github.com/Zapharaos/fihub-backend/cmd/broker/app/service"
 	"github.com/Zapharaos/fihub-backend/internal/app"
 	"github.com/Zapharaos/fihub-backend/internal/database"
+	"github.com/Zapharaos/fihub-backend/internal/grpcconn"
+	"github.com/Zapharaos/fihub-backend/internal/security"
 	"github.com/Zapharaos/fihub-backend/protogen"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
@@ -31,6 +33,11 @@ func main() {
 	userBrokerRepository := repositories.NewUserPostgresRepository(database.DB().Postgres())
 	imageBrokerRepository := repositories.NewImagePostgresRepository(database.DB().Postgres())
 	repositories.ReplaceGlobals(repositories.NewRepository(brokerRepository, userBrokerRepository, imageBrokerRepository))
+
+	// gRPC clients
+	securityConn := grpcconn.ConnectGRPCService("SECURITY")
+	publicSecurityClient := protogen.NewPublicSecurityServiceClient(securityConn)
+	security.ReplaceGlobals(security.NewPublicSecurityFacadeWithGrpcClient(publicSecurityClient))
 
 	// Start gRPC microservice
 	port := viper.GetString("BROKER_MICROSERVICE_PORT")

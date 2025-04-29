@@ -194,23 +194,16 @@ func FromProtogenRoleWithPermissions(r *protogen.RoleWithPermissions) (RoleWithP
 		return RoleWithPermissions{}, err
 	}
 
-	permissions, err := FromProtogenPermissions(r.GetPermissions())
-	if err != nil {
-		return RoleWithPermissions{
-			Role: role,
-		}, err
-	}
-
 	return RoleWithPermissions{
 		Role:        role,
-		Permissions: permissions,
+		Permissions: FromProtogenPermissions(r.GetPermissions()),
 	}, nil
 }
 
 // FromProtogenRolesWithPermissions converts a slice of protogen.RoleWithPermissions to a slice of RoleWithPermissions
 func FromProtogenRolesWithPermissions(roles []*protogen.RoleWithPermissions) (RolesWithPermissions, error) {
 	if roles == nil {
-		return nil, errors.New("roles is nil")
+		return RolesWithPermissions{}, errors.New("roles is nil")
 	}
 
 	result := make(RolesWithPermissions, len(roles))

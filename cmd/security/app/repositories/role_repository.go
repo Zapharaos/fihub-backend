@@ -9,11 +9,11 @@ import (
 // (in-memory map, sql database, in-memory cache, file system, ...)
 // It allows standard CRUD operation on Role
 type RoleRepository interface {
-	Create(role models.Role, permissionUUIDs []uuid.UUID) (uuid.UUID, error)
+	Create(role models.Role, permissions models.RolePermissionsInput) (uuid.UUID, error)
 	Get(uuid uuid.UUID) (models.Role, bool, error)
 	GetByName(name string) (models.Role, bool, error)
 	GetWithPermissions(uuid uuid.UUID) (models.RoleWithPermissions, bool, error)
-	Update(role models.Role, permissionUUIDs []uuid.UUID) error
+	Update(role models.Role, permissions models.RolePermissionsInput) error
 	Delete(uuid uuid.UUID) error
 	List() (models.Roles, error)
 	ListByUserId(userUUID uuid.UUID) (models.Roles, error)

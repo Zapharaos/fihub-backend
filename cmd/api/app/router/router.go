@@ -171,7 +171,7 @@ func buildProtectedRoutes(a *auth.Auth) func(r chi.Router) {
 					r.Get("/", handlers.ListUsersWithRoles)
 
 					r.Route("/{id}", func(r chi.Router) {
-						r.Get("/", handlers.ListRolesForUser)
+						r.Get("/", handlers.ListRolesWithPermissionsForUser)
 						r.Put("/", handlers.SetRolesForUser)
 					})
 				})

@@ -42,8 +42,15 @@ func (s *Service) AddUsersToRole(ctx context.Context, req *protogen.AddUsersToRo
 		return &protogen.AddUsersToRoleResponse{}, status.Error(codes.Internal, "Failed to add users to role")
 	}
 
+	// Retrieve users by role ID from database
+	users, err := repositories.R().R().ListUsersByRoleId(roleID)
+	if err != nil {
+		zap.L().Error("ListUsersForRole", zap.Error(err))
+		return &protogen.AddUsersToRoleResponse{}, status.Error(codes.Internal, "Failed to list users for role")
+	}
+
 	return &protogen.AddUsersToRoleResponse{
-		Success: true,
+		UserIds: users,
 	}, nil
 }
 
@@ -77,8 +84,15 @@ func (s *Service) RemoveUsersFromRole(ctx context.Context, req *protogen.RemoveU
 		return &protogen.RemoveUsersFromRoleResponse{}, status.Error(codes.Internal, "Failed to remove users from role")
 	}
 
+	// Retrieve users by role ID from database
+	users, err := repositories.R().R().ListUsersByRoleId(roleID)
+	if err != nil {
+		zap.L().Error("ListUsersForRole", zap.Error(err))
+		return &protogen.RemoveUsersFromRoleResponse{}, status.Error(codes.Internal, "Failed to list users for role")
+	}
+
 	return &protogen.RemoveUsersFromRoleResponse{
-		Success: true,
+		UserIds: users,
 	}, nil
 }
 
@@ -142,8 +156,15 @@ func (s *Service) SetRolesForUser(ctx context.Context, req *protogen.SetRolesFor
 		return &protogen.SetRolesForUserResponse{}, status.Error(codes.Internal, "Failed to set user roles")
 	}
 
+	// Get all roles with permissions for user from the database
+	roles, err := repositories.R().R().ListWithPermissionsByUserId(userID)
+	if err != nil {
+		zap.L().Error("Cannot list roles with permissions", zap.Error(err))
+		return &protogen.SetRolesForUserResponse{}, status.Error(codes.Internal, err.Error())
+	}
+
 	return &protogen.SetRolesForUserResponse{
-		Success: true,
+		Roles: roles.ToProtogenRolesWithPermissions(),
 	}, nil
 }
 

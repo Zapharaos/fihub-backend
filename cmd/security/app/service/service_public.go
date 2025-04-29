@@ -3,11 +3,11 @@ package service
 import (
 	"context"
 	"github.com/Zapharaos/fihub-backend/cmd/security/app/repositories"
-	"github.com/Zapharaos/fihub-backend/internal/app"
-	"github.com/Zapharaos/fihub-backend/internal/models"
 	"github.com/Zapharaos/fihub-backend/protogen"
+	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 )
 
@@ -18,53 +18,38 @@ type PublicService struct {
 
 // CheckPermission implements the CheckPermission RPC method.
 func (s *PublicService) CheckPermission(ctx context.Context, req *protogen.CheckPermissionRequest) (*protogen.CheckPermissionResponse, error) {
-	// Retrieve the user from the context
-	_ctxUser := ctx.Value(app.ContextKeyUser)
-	if _ctxUser != nil {
-		zap.L().Warn("No context user provided")
-		return &protogen.CheckPermissionResponse{
-			HasPermission: false,
-		}, nil
-	}
-	user, ok := _ctxUser.(models.User)
+	// Retrieve the metadata
+	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
-		zap.L().Warn("Invalid user type in context")
 		return &protogen.CheckPermissionResponse{
 			HasPermission: false,
-		}, nil
+		}, status.Error(codes.Unauthenticated, "Missing metadata")
 	}
 
-	// If the user ID is provided in the request, we should check if it matches the user ID in the context
-	if req.GetUserId() != "" && user.ID.String() == req.GetUserId() {
+	// Check if the user ID is provided in the metadata
+	userIDs := md.Get("x-user-id")
+	if len(userIDs) == 0 {
+		return &protogen.CheckPermissionResponse{
+			HasPermission: false,
+		}, status.Error(codes.Unauthenticated, "Missing user ID in metadata")
+	}
+
+	// If the user ID is provided in the request, we should check if it matches the user ID in the metadata
+	userID := userIDs[0]
+	if req.GetUserId() != "" && userID == req.GetUserId() {
 		// User is performing request for himself : authorized
 		return &protogen.CheckPermissionResponse{
 			HasPermission: true,
 		}, nil
 	}
 
-	// Prepare roles data
-	userRolesWithPermissions := models.RolesWithPermissions{}
-
-	// Retrieve the userRoles from the context
-	_ctxUserRolesWithPermissions := ctx.Value(app.ContextKeyUserRolesWithPermissions)
-	if _ctxUserRolesWithPermissions != nil {
-		// _ctxUserRoles to models.Roles
-		_userRolesWithPermissions, ok := _ctxUserRolesWithPermissions.(models.RolesWithPermissions)
-		if ok {
-			userRolesWithPermissions = _userRolesWithPermissions
-		}
-	}
-
-	// Could not retrieve userRoles from context, retrieving from database
-	if len(userRolesWithPermissions) == 0 {
-		result, err := repositories.R().R().ListWithPermissionsByUserId(user.ID)
-		if err != nil {
-			zap.L().Error("Cannot list a user roles with permissions", zap.String("uuid", user.ID.String()), zap.Error(err))
-			return &protogen.CheckPermissionResponse{
-				HasPermission: false,
-			}, status.Error(codes.Internal, err.Error())
-		}
-		userRolesWithPermissions = result
+	// Retrieve the user roles with permissions from the repository
+	userRolesWithPermissions, err := repositories.R().R().ListWithPermissionsByUserId(uuid.MustParse(userID))
+	if err != nil {
+		zap.L().Error("Cannot list a user roles with permissions", zap.String("uuid", userID), zap.Error(err))
+		return &protogen.CheckPermissionResponse{
+			HasPermission: false,
+		}, status.Error(codes.Internal, err.Error())
 	}
 
 	// Check if the user has the permission

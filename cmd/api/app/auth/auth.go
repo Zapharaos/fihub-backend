@@ -15,6 +15,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
+	"google.golang.org/grpc/metadata"
 	"io"
 	"net/http"
 	"time"
@@ -202,6 +203,11 @@ func (a *Auth) Middleware(next http.Handler) http.Handler {
 			return
 		}
 
+		// Setup metadata for gRPC clients as context
+		md := metadata.Pairs("x-user-id", userId.String())
+		ctx := metadata.NewOutgoingContext(r.Context(), md)
+		r = r.WithContext(ctx)
+
 		// Get user for app context from the database
 		userResponse, err := clients.C().User().GetUser(r.Context(), &protogen.GetUserRequest{
 			Id: userId.String(),
@@ -220,26 +226,7 @@ func (a *Auth) Middleware(next http.Handler) http.Handler {
 			return
 		}
 
-		// Get user roles with permissions for app context from the database
-		rolesWithPermissionsResponse, err := clients.C().Security().ListRolesWithPermissionsForUser(r.Context(), &protogen.ListRolesWithPermissionsForUserRequest{
-			UserId: user.ID.String(),
-		})
-		if err != nil {
-			zap.L().Error("List a user roles with permissions", zap.Error(err))
-			render.ErrorCodesCodeToHttpCode(w, r, err)
-			return
-		}
-
-		// Map the response to the models.RolesWithPermissions struct
-		rolesWithPermissions, err := models.FromProtogenRolesWithPermissions(rolesWithPermissionsResponse.Roles)
-		if err != nil {
-			zap.L().Error("Bad protogen roles with permissions", zap.Error(err))
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-
-		ctx := context.WithValue(r.Context(), app.ContextKeyUser, user)
-		ctx = context.WithValue(ctx, app.ContextKeyUserRolesWithPermissions, rolesWithPermissions)
+		ctx = context.WithValue(r.Context(), app.ContextKeyUser, user)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }

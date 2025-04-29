@@ -29,7 +29,7 @@ func NewRolePostgresRepository(dbClient *sqlx.DB) RoleRepository {
 }
 
 // Create creates a new Role in the repository
-func (r *RolePostgresRepository) Create(role models.Role, permissionUUIDs []uuid.UUID) (uuid.UUID, error) {
+func (r *RolePostgresRepository) Create(role models.Role, permissions models.RolePermissionsInput) (uuid.UUID, error) {
 
 	roleUUID := uuid.New()
 
@@ -52,7 +52,7 @@ func (r *RolePostgresRepository) Create(role models.Role, permissionUUIDs []uuid
 	}
 
 	// If no permissions are provided, we can commit and return
-	if len(permissionUUIDs) == 0 {
+	if len(permissions) == 0 {
 		if err = tx.Commit(); err != nil {
 			return uuid.Nil, err
 		}
@@ -62,7 +62,7 @@ func (r *RolePostgresRepository) Create(role models.Role, permissionUUIDs []uuid
 	// Prepare query to set new permissions
 	query = `INSERT INTO role_permissions (role_id, permission_id) VALUES `
 	var values []interface{}
-	for i, permissionUUID := range permissionUUIDs {
+	for i, permissionUUID := range permissions {
 		query += fmt.Sprintf("($%d, $%d),", i*2+1, i*2+2)
 		values = append(values, roleUUID, permissionUUID)
 	}
@@ -78,7 +78,7 @@ func (r *RolePostgresRepository) Create(role models.Role, permissionUUIDs []uuid
 	}
 
 	// Check if all permissions were set
-	if err = utils.CheckRowAffected(result, int64(len(permissionUUIDs))); err != nil {
+	if err = utils.CheckRowAffected(result, int64(len(permissions))); err != nil {
 		if rollbackErr := tx.Rollback(); rollbackErr != nil {
 			return uuid.Nil, fmt.Errorf("main error: %v, rollback error: %v", err, rollbackErr)
 		}
@@ -154,7 +154,7 @@ func (r *RolePostgresRepository) GetWithPermissions(uuid uuid.UUID) (models.Role
 }
 
 // Update updates a Role in the repository
-func (r *RolePostgresRepository) Update(role models.Role, permissionUUIDs []uuid.UUID) error {
+func (r *RolePostgresRepository) Update(role models.Role, permissions models.RolePermissionsInput) error {
 	// Start transaction
 	ctx := context.Background()
 	tx, err := r.conn.BeginTx(ctx, nil)
@@ -184,7 +184,7 @@ func (r *RolePostgresRepository) Update(role models.Role, permissionUUIDs []uuid
 	}
 
 	// If no permissions are provided, we can commit and return
-	if len(permissionUUIDs) == 0 {
+	if len(permissions) == 0 {
 		if err = tx.Commit(); err != nil {
 			return err
 		}
@@ -194,7 +194,7 @@ func (r *RolePostgresRepository) Update(role models.Role, permissionUUIDs []uuid
 	// Prepare query to set new permissions
 	query = `INSERT INTO role_permissions (role_id, permission_id) VALUES `
 	var values []interface{}
-	for i, permissionUUID := range permissionUUIDs {
+	for i, permissionUUID := range permissions {
 		query += fmt.Sprintf("($%d, $%d),", i*2+1, i*2+2)
 		values = append(values, role.Id, permissionUUID)
 	}
@@ -210,7 +210,7 @@ func (r *RolePostgresRepository) Update(role models.Role, permissionUUIDs []uuid
 	}
 
 	// Check if all permissions were set
-	if err = utils.CheckRowAffected(result, int64(len(permissionUUIDs))); err != nil {
+	if err = utils.CheckRowAffected(result, int64(len(permissions))); err != nil {
 		if rollbackErr := tx.Rollback(); rollbackErr != nil {
 			return fmt.Errorf("main error: %v, rollback error: %v", err, rollbackErr)
 		}

@@ -8,6 +8,7 @@ import (
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/router"
 	"github.com/Zapharaos/fihub-backend/internal/app"
 	"github.com/Zapharaos/fihub-backend/internal/database"
+	"github.com/Zapharaos/fihub-backend/internal/grpcconn"
 	"github.com/Zapharaos/fihub-backend/internal/security"
 	"github.com/Zapharaos/fihub-backend/pkg/email"
 	"github.com/Zapharaos/fihub-backend/pkg/translation"
@@ -15,8 +16,6 @@ import (
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 	"golang.org/x/text/language"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 	"net/http"
 	"os"
 	"os/signal"
@@ -108,65 +107,23 @@ func main() {
 
 // initGrpcClients initializes the gRPC clients for the application.
 func initGrpcClients() {
-	// Connect to the gRPC service microservice
-	// TODO : refactor init into a function
-	healthHost := viper.GetString("HEALTH_MICROSERVICE_HOST")
-	healthPort := viper.GetString("HEALTH_MICROSERVICE_PORT")
-	healthConn, err := grpc.NewClient(healthHost+":"+healthPort, grpc.WithTransportCredentials(insecure.NewCredentials()))
-	if err != nil {
-		zap.L().Fatal("Failed to connect to health gRPC service", zap.Error(err))
-	} else {
-		zap.L().Info("Connected to health gRPC service", zap.String("address", healthConn.Target()))
-	}
+	// Connect to microservices
+	healthConn := grpcconn.ConnectGRPCService("HEALTH")
+	userConn := grpcconn.ConnectGRPCService("USER")
+	securityConn := grpcconn.ConnectGRPCService("SECURITY")
+	brokerConn := grpcconn.ConnectGRPCService("BROKER")
+	transactionConn := grpcconn.ConnectGRPCService("TRANSACTION")
+
+	// Create gRPC clients
 	healthClient := protogen.NewHealthServiceClient(healthConn)
-
-	// Connect to the gRPC user microservice
-	userHost := viper.GetString("USER_MICROSERVICE_HOST")
-	userPort := viper.GetString("USER_MICROSERVICE_PORT")
-	userConn, err := grpc.NewClient(userHost+":"+userPort, grpc.WithTransportCredentials(insecure.NewCredentials()))
-	if err != nil {
-		zap.L().Fatal("Failed to connect to User gRPC service", zap.Error(err))
-	} else {
-		zap.L().Info("Connected to User gRPC service", zap.String("address", userConn.Target()))
-	}
 	userClient := protogen.NewUserServiceClient(userConn)
-
-	// Connect to the gRPC security microservice
-	securityHost := viper.GetString("SECURITY_MICROSERVICE_HOST")
-	securityPort := viper.GetString("SECURITY_MICROSERVICE_PORT")
-	securityConn, err := grpc.NewClient(securityHost+":"+securityPort, grpc.WithTransportCredentials(insecure.NewCredentials()))
-	if err != nil {
-		zap.L().Fatal("Failed to connect to Security gRPC service", zap.Error(err))
-	} else {
-		zap.L().Info("Connected to Security gRPC service", zap.String("address", securityConn.Target()))
-	}
 	securityClient := protogen.NewSecurityServiceClient(securityConn)
-
-	// Connect to the gRPC public security microservice
 	publicSecurityClient := protogen.NewPublicSecurityServiceClient(securityConn)
-	security.ReplaceGlobals(security.NewPublicSecurityFacadeWithGrpcClient(publicSecurityClient))
-
-	// Connect to the gRPC broker microservice
-	brokerHost := viper.GetString("BROKER_MICROSERVICE_HOST")
-	brokerPort := viper.GetString("BROKER_MICROSERVICE_PORT")
-	brokerConn, err := grpc.NewClient(brokerHost+":"+brokerPort, grpc.WithTransportCredentials(insecure.NewCredentials()))
-	if err != nil {
-		zap.L().Fatal("Failed to connect to Broker gRPC service", zap.Error(err))
-	} else {
-		zap.L().Info("Connected to Broker gRPC service", zap.String("address", brokerConn.Target()))
-	}
 	brokerClient := protogen.NewBrokerServiceClient(brokerConn)
-
-	// Connect to the gRPC transaction microservice
-	transactionHost := viper.GetString("TRANSACTION_MICROSERVICE_HOST")
-	transactionPort := viper.GetString("TRANSACTION_MICROSERVICE_PORT")
-	transactionConn, err := grpc.NewClient(transactionHost+":"+transactionPort, grpc.WithTransportCredentials(insecure.NewCredentials()))
-	if err != nil {
-		zap.L().Fatal("Failed to connect to Transaction gRPC service", zap.Error(err))
-	} else {
-		zap.L().Info("Connected to transaction gRPC service", zap.String("address", transactionConn.Target()))
-	}
 	transactionClient := protogen.NewTransactionServiceClient(transactionConn)
+
+	// Setup facades
+	security.ReplaceGlobals(security.NewPublicSecurityFacadeWithGrpcClient(publicSecurityClient))
 
 	// Initialize the gRPC clients
 	clients.ReplaceGlobals(clients.NewClients(
@@ -176,9 +133,6 @@ func initGrpcClients() {
 		clients.WithBrokerClient(brokerClient),
 		clients.WithTransactionClient(transactionClient),
 	))
-
-	// Facades
-
 }
 
 func setup() {

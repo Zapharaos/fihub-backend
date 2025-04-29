@@ -16,7 +16,7 @@ import (
 //
 //	@Summary		Create a new user
 //	@Description	Create a new user.
-//	@Tags			Users
+//	@Tags			User
 //	@Accept			json
 //	@Produce		json
 //	@Param			user	body	models.UserInputCreate	true	"user (json)"

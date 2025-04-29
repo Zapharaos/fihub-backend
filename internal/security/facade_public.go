@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 )
 
@@ -50,6 +51,13 @@ func NewPublicSecurityFacadeWithGrpcClient(client protogen.PublicSecurityService
 
 // CheckPermission wraps the CheckPermission call
 func (s *PublicSecurityFacade) CheckPermission(ctx context.Context, permission string, userIDs ...uuid.UUID) error {
+	// If any, propagate metadata from the incoming context to the outgoing context
+	md, ok := metadata.FromIncomingContext(ctx)
+	if ok {
+		ctx = metadata.NewOutgoingContext(ctx, md)
+	}
+
+	// Setup the request
 	req := &protogen.CheckPermissionRequest{
 		Permission: permission,
 	}

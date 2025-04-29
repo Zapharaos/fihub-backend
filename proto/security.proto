@@ -160,7 +160,7 @@ message SetRolePermissionsRequest {
 }
 
 message SetRolePermissionsResponse {
-	bool success = 1;
+	repeated Permission permissions = 1;
 }
 
 // Role-Users management
@@ -171,7 +171,7 @@ message AddUsersToRoleRequest {
 }
 
 message AddUsersToRoleResponse {
-	bool success = 1;
+	repeated string user_ids = 1;
 }
 
 message RemoveUsersFromRoleRequest {
@@ -180,7 +180,7 @@ message RemoveUsersFromRoleRequest {
 }
 
 message RemoveUsersFromRoleResponse {
-	bool success = 1;
+	repeated string user_ids = 1;
 }
 
 message ListUsersForRoleRequest {
@@ -199,7 +199,7 @@ message SetRolesForUserRequest {
 }
 
 message SetRolesForUserResponse {
-	bool success = 1;
+	repeated RoleWithPermissions roles = 1;
 }
 
 message ListRolesForUserRequest {
