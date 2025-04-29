@@ -73,7 +73,7 @@ swagger-ui:
 	@echo "Swagger UI is available at http://localhost:$(SWAGGER_UI_PORT)"
 
 swagger-gen:
-	docker run --rm -v `pwd`:/local openapitools/openapi-generator-cli generate -i /local/docs/swagger.yaml -g typescript-angular -o /local/docs/angular
+	docker run --rm -v `pwd`:/local openapitools/openapi-generator-cli:v7.11.0 generate -i /local/docs/swagger.yaml -g typescript-angular -o /local/docs/angular
 
 # Help command to display usage
 help:

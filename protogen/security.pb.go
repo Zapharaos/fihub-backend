@@ -1909,26 +1909,26 @@ func (x *UserWithRoles) GetRoles() []*Role {
 	return nil
 }
 
-type ListUsersRequest struct {
+type ListUsersFullRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListUsersRequest) Reset() {
-	*x = ListUsersRequest{}
+func (x *ListUsersFullRequest) Reset() {
+	*x = ListUsersFullRequest{}
 	mi := &file_proto_security_proto_msgTypes[40]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListUsersRequest) String() string {
+func (x *ListUsersFullRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListUsersRequest) ProtoMessage() {}
+func (*ListUsersFullRequest) ProtoMessage() {}
 
-func (x *ListUsersRequest) ProtoReflect() protoreflect.Message {
+func (x *ListUsersFullRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_proto_security_proto_msgTypes[40]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1940,32 +1940,32 @@ func (x *ListUsersRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListUsersRequest.ProtoReflect.Descriptor instead.
-func (*ListUsersRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListUsersFullRequest.ProtoReflect.Descriptor instead.
+func (*ListUsersFullRequest) Descriptor() ([]byte, []int) {
 	return file_proto_security_proto_rawDescGZIP(), []int{40}
 }
 
-type ListUsersResponse struct {
+type ListUsersFullResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Users         []*UserWithRoles       `protobuf:"bytes,1,rep,name=users,proto3" json:"users,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListUsersResponse) Reset() {
-	*x = ListUsersResponse{}
+func (x *ListUsersFullResponse) Reset() {
+	*x = ListUsersFullResponse{}
 	mi := &file_proto_security_proto_msgTypes[41]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListUsersResponse) String() string {
+func (x *ListUsersFullResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListUsersResponse) ProtoMessage() {}
+func (*ListUsersFullResponse) ProtoMessage() {}
 
-func (x *ListUsersResponse) ProtoReflect() protoreflect.Message {
+func (x *ListUsersFullResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_proto_security_proto_msgTypes[41]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1977,12 +1977,12 @@ func (x *ListUsersResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListUsersResponse.ProtoReflect.Descriptor instead.
-func (*ListUsersResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListUsersFullResponse.ProtoReflect.Descriptor instead.
+func (*ListUsersFullResponse) Descriptor() ([]byte, []int) {
 	return file_proto_security_proto_rawDescGZIP(), []int{41}
 }
 
-func (x *ListUsersResponse) GetUsers() []*UserWithRoles {
+func (x *ListUsersFullResponse) GetUsers() []*UserWithRoles {
 	if x != nil {
 		return x.Users
 	}
@@ -2096,10 +2096,10 @@ const file_proto_security_proto_rawDesc = "" +
 	"\x05roles\x18\x01 \x03(\v2\x1d.security.RoleWithPermissionsR\x05roles\"N\n" +
 	"\rUserWithRoles\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x12$\n" +
-	"\x05roles\x18\x02 \x03(\v2\x0e.security.RoleR\x05roles\"\x12\n" +
-	"\x10ListUsersRequest\"B\n" +
-	"\x11ListUsersResponse\x12-\n" +
-	"\x05users\x18\x01 \x03(\v2\x17.security.UserWithRolesR\x05users2\x88\r\n" +
+	"\x05roles\x18\x02 \x03(\v2\x0e.security.RoleR\x05roles\"\x16\n" +
+	"\x14ListUsersFullRequest\"F\n" +
+	"\x15ListUsersFullResponse\x12-\n" +
+	"\x05users\x18\x01 \x03(\v2\x17.security.UserWithRolesR\x05users2\x94\r\n" +
 	"\x0fSecurityService\x12Y\n" +
 	"\x10CreatePermission\x12!.security.CreatePermissionRequest\x1a\".security.CreatePermissionResponse\x12P\n" +
 	"\rGetPermission\x12\x1e.security.GetPermissionRequest\x1a\x1f.security.GetPermissionResponse\x12Y\n" +
@@ -2121,8 +2121,8 @@ const file_proto_security_proto_rawDesc = "" +
 	"\x10ListUsersForRole\x12!.security.ListUsersForRoleRequest\x1a\".security.ListUsersForRoleResponse\x12V\n" +
 	"\x0fSetRolesForUser\x12 .security.SetRolesForUserRequest\x1a!.security.SetRolesForUserResponse\x12Y\n" +
 	"\x10ListRolesForUser\x12!.security.ListRolesForUserRequest\x1a\".security.ListRolesForUserResponse\x12\x86\x01\n" +
-	"\x1fListRolesWithPermissionsForUser\x120.security.ListRolesWithPermissionsForUserRequest\x1a1.security.ListRolesWithPermissionsForUserResponse\x12D\n" +
-	"\tListUsers\x12\x1a.security.ListUsersRequest\x1a\x1b.security.ListUsersResponseB\fZ\n" +
+	"\x1fListRolesWithPermissionsForUser\x120.security.ListRolesWithPermissionsForUserRequest\x1a1.security.ListRolesWithPermissionsForUserResponse\x12P\n" +
+	"\rListUsersFull\x12\x1e.security.ListUsersFullRequest\x1a\x1f.security.ListUsersFullResponseB\fZ\n" +
 	"./protogenb\x06proto3"
 
 var (
@@ -2179,8 +2179,8 @@ var file_proto_security_proto_goTypes = []any{
 	(*ListRolesWithPermissionsForUserRequest)(nil),  // 37: security.ListRolesWithPermissionsForUserRequest
 	(*ListRolesWithPermissionsForUserResponse)(nil), // 38: security.ListRolesWithPermissionsForUserResponse
 	(*UserWithRoles)(nil),                           // 39: security.UserWithRoles
-	(*ListUsersRequest)(nil),                        // 40: security.ListUsersRequest
-	(*ListUsersResponse)(nil),                       // 41: security.ListUsersResponse
+	(*ListUsersFullRequest)(nil),                    // 40: security.ListUsersFullRequest
+	(*ListUsersFullResponse)(nil),                   // 41: security.ListUsersFullResponse
 }
 var file_proto_security_proto_depIdxs = []int32{
 	0,  // 0: security.CreatePermissionResponse.permission:type_name -> security.Permission
@@ -2199,7 +2199,7 @@ var file_proto_security_proto_depIdxs = []int32{
 	11, // 13: security.ListRolesForUserResponse.roles:type_name -> security.Role
 	12, // 14: security.ListRolesWithPermissionsForUserResponse.roles:type_name -> security.RoleWithPermissions
 	11, // 15: security.UserWithRoles.roles:type_name -> security.Role
-	39, // 16: security.ListUsersResponse.users:type_name -> security.UserWithRoles
+	39, // 16: security.ListUsersFullResponse.users:type_name -> security.UserWithRoles
 	1,  // 17: security.SecurityService.CreatePermission:input_type -> security.CreatePermissionRequest
 	3,  // 18: security.SecurityService.GetPermission:input_type -> security.GetPermissionRequest
 	5,  // 19: security.SecurityService.UpdatePermission:input_type -> security.UpdatePermissionRequest
@@ -2218,7 +2218,7 @@ var file_proto_security_proto_depIdxs = []int32{
 	33, // 32: security.SecurityService.SetRolesForUser:input_type -> security.SetRolesForUserRequest
 	35, // 33: security.SecurityService.ListRolesForUser:input_type -> security.ListRolesForUserRequest
 	37, // 34: security.SecurityService.ListRolesWithPermissionsForUser:input_type -> security.ListRolesWithPermissionsForUserRequest
-	40, // 35: security.SecurityService.ListUsers:input_type -> security.ListUsersRequest
+	40, // 35: security.SecurityService.ListUsersFull:input_type -> security.ListUsersFullRequest
 	2,  // 36: security.SecurityService.CreatePermission:output_type -> security.CreatePermissionResponse
 	4,  // 37: security.SecurityService.GetPermission:output_type -> security.GetPermissionResponse
 	6,  // 38: security.SecurityService.UpdatePermission:output_type -> security.UpdatePermissionResponse
@@ -2237,7 +2237,7 @@ var file_proto_security_proto_depIdxs = []int32{
 	34, // 51: security.SecurityService.SetRolesForUser:output_type -> security.SetRolesForUserResponse
 	36, // 52: security.SecurityService.ListRolesForUser:output_type -> security.ListRolesForUserResponse
 	38, // 53: security.SecurityService.ListRolesWithPermissionsForUser:output_type -> security.ListRolesWithPermissionsForUserResponse
-	41, // 54: security.SecurityService.ListUsers:output_type -> security.ListUsersResponse
+	41, // 54: security.SecurityService.ListUsersFull:output_type -> security.ListUsersFullResponse
 	36, // [36:55] is the sub-list for method output_type
 	17, // [17:36] is the sub-list for method input_type
 	17, // [17:17] is the sub-list for extension type_name

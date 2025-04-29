@@ -34,7 +34,7 @@ service SecurityService {
 	rpc ListRolesWithPermissionsForUser(ListRolesWithPermissionsForUserRequest) returns (ListRolesWithPermissionsForUserResponse);
 
 	// Users-Roles management
-	rpc ListUsers(ListUsersRequest) returns (ListUsersResponse);
+	rpc ListUsersFull(ListUsersFullRequest) returns (ListUsersFullResponse);
 }
 
 // Permission
@@ -225,9 +225,9 @@ message UserWithRoles {
 	repeated Role roles = 2;
 }
 
-message ListUsersRequest {
+message ListUsersFullRequest {
 }
 
-message ListUsersResponse {
+message ListUsersFullResponse {
 	repeated UserWithRoles users = 1;
 }

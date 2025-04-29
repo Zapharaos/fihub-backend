@@ -225,6 +225,22 @@ func (r *PostgresRepository) Delete(userID uuid.UUID) error {
 	return utils.CheckRowAffected(result, 1)
 }
 
+// List method used to list all Users
+func (r *PostgresRepository) List() (models.Users, error) {
+	// Prepare query
+	query := `SELECT *
+			  FROM Users as u`
+
+	// Execute query
+	rows, err := r.conn.Queryx(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	return utils.ScanAll(rows, r.Scan)
+}
+
 func (r *PostgresRepository) Scan(rows *sqlx.Rows) (models.User, error) {
 
 	userWithPassword, err := r.ScanWithPassword(rows)

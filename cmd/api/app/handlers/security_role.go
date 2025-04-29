@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/clients"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/handlers/render"
+	apimodels "github.com/Zapharaos/fihub-backend/cmd/api/app/models"
 	"github.com/Zapharaos/fihub-backend/internal/models"
 	"github.com/Zapharaos/fihub-backend/protogen"
 	"net/http"
@@ -51,14 +52,7 @@ func CreateRole(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Map the response to the RoleWithPermissions model
-	newRole, err := models.FromProtogenRoleWithPermissions(response.GetRole())
-	if err != nil {
-		zap.L().Error("Bad protogen role", zap.Error(err))
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	render.JSON(w, r, newRole)
+	render.JSON(w, r, models.FromProtogenRoleWithPermissions(response.GetRole()))
 }
 
 // GetRole godoc
@@ -94,14 +88,7 @@ func GetRole(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Map the response to the RoleWithPermissions model
-	role, err := models.FromProtogenRoleWithPermissions(response.GetRole())
-	if err != nil {
-		zap.L().Error("Bad protogen roles", zap.Error(err))
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	render.JSON(w, r, role)
+	render.JSON(w, r, models.FromProtogenRoleWithPermissions(response.GetRole()))
 }
 
 // ListRoles godoc
@@ -128,14 +115,7 @@ func ListRoles(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Map the response to the RolesWithPermissions model
-	roles, err := models.FromProtogenRolesWithPermissions(response.GetRoles())
-	if err != nil {
-		zap.L().Error("Bad protogen roles", zap.Error(err))
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	render.JSON(w, r, roles)
+	render.JSON(w, r, models.FromProtogenRolesWithPermissions(response.GetRoles()))
 }
 
 // UpdateRole godoc
@@ -185,14 +165,7 @@ func UpdateRole(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Map the response to the RoleWithPermissions model
-	newRole, err := models.FromProtogenRoleWithPermissions(response.GetRole())
-	if err != nil {
-		zap.L().Error("Bad protogen role", zap.Error(err))
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	render.JSON(w, r, newRole)
+	render.JSON(w, r, models.FromProtogenRoleWithPermissions(response.GetRole()))
 }
 
 // DeleteRole godoc
@@ -514,14 +487,7 @@ func ListRolesWithPermissionsForUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Map the response to the RolesWithPermissions model
-	roles, err := models.FromProtogenRolesWithPermissions(response.GetRoles())
-	if err != nil {
-		zap.L().Error("Bad protogen roles", zap.Error(err))
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	render.JSON(w, r, roles)
+	render.JSON(w, r, models.FromProtogenRolesWithPermissions(response.GetRoles()))
 }
 
 // ListUsersWithRoles godoc
@@ -533,21 +499,53 @@ func ListRolesWithPermissionsForUser(w http.ResponseWriter, r *http.Request) {
 //	@Tags			Security, Role, User
 //	@Produce		json
 //	@Security		Bearer
-//	@Success		200	{array}		models.User				"list of users"
+//	@Success		200	{array}		apimodels.UserWithRoles "list of users with roles"
 //	@Failure		401	{string}	string					"Permission denied"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/security/role/user [get]
 func ListUsersWithRoles(w http.ResponseWriter, r *http.Request) {
-	// List roles for the user
-	response, err := clients.C().Security().ListUsers(r.Context(), &protogen.ListUsersRequest{})
+	// List roles for the users
+	respSecurityUsers, err := clients.C().Security().ListUsersFull(r.Context(), &protogen.ListUsersFullRequest{})
 	if err != nil {
-		zap.L().Error("List Users", zap.Error(err))
+		zap.L().Error("List Security Users", zap.Error(err))
 		render.ErrorCodesCodeToHttpCode(w, r, err)
 		return
 	}
 
-	// TODO : swagger
-	// TODO : retrieve associated users
+	// Create a map of user IDs to roles (for faster lookup)
+	userRolesMap := make(map[string]models.Roles)
+	for _, user := range respSecurityUsers.GetUsers() {
+		userID := user.GetUserId()
+		userRoles := models.FromProtogenRoles(user.GetRoles())
+		userRolesMap[userID] = userRoles
+	}
 
-	render.JSON(w, r, response)
+	// Retrieve all app users
+	respUserUsers, err := clients.C().User().ListUsers(r.Context(), &protogen.ListUsersRequest{})
+	if err != nil {
+		zap.L().Error("List User Users", zap.Error(err))
+		render.ErrorCodesCodeToHttpCode(w, r, err)
+		return
+	}
+
+	// Link the users with their roles
+	users := make([]apimodels.UserWithRoles, len(respUserUsers.GetUsers()))
+	for i, u := range respUserUsers.GetUsers() {
+		// Map the user to the UserWithRoles model
+		user := models.FromProtogenUser(u)
+
+		// Retrieve user roles from userRolesMap
+		userRoles, ok := userRolesMap[user.ID.String()]
+		if !ok {
+			userRoles = models.Roles{}
+		}
+
+		// Link user to his roles
+		users[i] = apimodels.UserWithRoles{
+			User:  user,
+			Roles: userRoles,
+		}
+	}
+
+	render.JSON(w, r, users)
 }

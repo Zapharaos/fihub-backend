@@ -52,14 +52,7 @@ func CreatePermission(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Map the response to the models.Permission struct
-	p, err := models.FromProtogenPermission(response.Permission)
-	if err != nil {
-		zap.L().Error("Bad protogen permission", zap.Error(err))
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	render.JSON(w, r, p)
+	render.JSON(w, r, models.FromProtogenPermission(response.Permission))
 }
 
 // GetPermission godoc
@@ -98,14 +91,7 @@ func GetPermission(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Map the response to the models.Permission struct
-	p, err := models.FromProtogenPermission(response.Permission)
-	if err != nil {
-		zap.L().Error("Bad protogen permission", zap.Error(err))
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	render.JSON(w, r, p)
+	render.JSON(w, r, models.FromProtogenPermission(response.Permission))
 }
 
 // UpdatePermission godoc
@@ -156,14 +142,7 @@ func UpdatePermission(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Map the response to the models.Permission struct
-	p, err := models.FromProtogenPermission(response.Permission)
-	if err != nil {
-		zap.L().Error("Bad protogen permission", zap.Error(err))
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	render.JSON(w, r, p)
+	render.JSON(w, r, models.FromProtogenPermission(response.Permission))
 }
 
 // DeletePermission godoc
@@ -228,12 +207,7 @@ func ListPermissions(w http.ResponseWriter, r *http.Request) {
 	// Map gRPC response to Permissions array
 	permissions := make(models.Permissions, len(response.Permissions))
 	for i, protogenPermission := range response.Permissions {
-		p, err := models.FromProtogenPermission(protogenPermission)
-		if err != nil {
-			zap.L().Error("Bad protogen permission", zap.Error(err))
-			// Skip this item and continue with others
-			continue
-		}
+		p := models.FromProtogenPermission(protogenPermission)
 		permissions[i] = p
 	}
 

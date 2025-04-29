@@ -52,14 +52,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Map the response to the models.User struct
-	user, err := models.FromProtogenUser(createUserResponse.User)
-	if err != nil {
-		zap.L().Error("Bad protogen user", zap.Error(err))
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	render.JSON(w, r, user)
+	render.JSON(w, r, models.FromProtogenUser(createUserResponse.User))
 }
 
 // GetUser godoc
@@ -95,14 +88,7 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Map the response to the models.User struct
-	user, err := models.FromProtogenUser(userResponse.User)
-	if err != nil {
-		zap.L().Error("Bad protogen user", zap.Error(err))
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	render.JSON(w, r, user)
+	render.JSON(w, r, models.FromProtogenUser(userResponse.User))
 }
 
 // GetUserSelf godoc
@@ -178,14 +164,7 @@ func UpdateUserSelf(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Map the response to the models.User struct
-	user, err = models.FromProtogenUser(updateUserResponse.User)
-	if err != nil {
-		zap.L().Error("Bad protogen user", zap.Error(err))
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	render.JSON(w, r, user)
+	render.JSON(w, r, models.FromProtogenUser(updateUserResponse.User))
 }
 
 // UpdateUserPassword godoc

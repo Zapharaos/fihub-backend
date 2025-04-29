@@ -89,14 +89,14 @@ func (p Permission) ToProtogenPermission() *protogen.Permission {
 }
 
 // FromProtogenPermission converts a protogen.Permission to a Permission
-func FromProtogenPermission(p *protogen.Permission) (Permission, error) {
+func FromProtogenPermission(p *protogen.Permission) Permission {
 	if p == nil {
-		return Permission{}, errors.New("permission is nil")
+		return Permission{}
 	}
 
 	id, err := uuid.Parse(p.GetId())
 	if err != nil {
-		return Permission{}, err
+		return Permission{}
 	}
 
 	return Permission{
@@ -104,7 +104,7 @@ func FromProtogenPermission(p *protogen.Permission) (Permission, error) {
 		Value:       p.GetValue(),
 		Scope:       p.GetScope(),
 		Description: p.GetDescription(),
-	}, nil
+	}
 }
 
 // ToProtogenPermissions converts a slice of Permission to a slice of protogen.Permission
@@ -143,10 +143,7 @@ func FromProtogenPermissions(p []*protogen.Permission) Permissions {
 
 	permissions := make(Permissions, len(p))
 	for i, protoPerm := range p {
-		perm, err := FromProtogenPermission(protoPerm)
-		if err != nil {
-			continue
-		}
+		perm := FromProtogenPermission(protoPerm)
 		permissions[i] = perm
 	}
 

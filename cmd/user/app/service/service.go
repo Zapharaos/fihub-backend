@@ -229,3 +229,24 @@ func (s *Service) DeleteUser(ctx context.Context, req *protogen.DeleteUserReques
 		Success: true,
 	}, nil
 }
+
+// ListUsers implements the ListUsers RPC method.
+func (s *Service) ListUsers(ctx context.Context, req *protogen.ListUsersRequest) (*protogen.ListUsersResponse, error) {
+	// Check user permissions
+	err := security.Facade().CheckPermission(ctx, "admin.users.list")
+	if err != nil {
+		zap.L().Error("CheckPermission", zap.Error(err))
+		return nil, err
+	}
+
+	// List users
+	users, err := repositories.R().List()
+	if err != nil {
+		zap.L().Error("GetUsers.List", zap.Error(err))
+		return &protogen.ListUsersResponse{}, status.Error(codes.Internal, err.Error())
+	}
+
+	return &protogen.ListUsersResponse{
+		Users: users.ToProtogenUsers(),
+	}, nil
+}

@@ -226,8 +226,8 @@ func (s *Service) ListRolesWithPermissionsForUser(ctx context.Context, req *prot
 	}, nil
 }
 
-// ListUsers implements the ListUsers RPC method.
-func (s *Service) ListUsers(ctx context.Context, req *protogen.ListUsersRequest) (*protogen.ListUsersResponse, error) {
+// ListUsersFull implements the ListUsersFull RPC method.
+func (s *Service) ListUsersFull(ctx context.Context, req *protogen.ListUsersFullRequest) (*protogen.ListUsersFullResponse, error) {
 	// Check user permissions for creating a role
 	err := security.Facade().CheckPermission(ctx, "admin.users.list")
 	if err != nil {
@@ -239,7 +239,7 @@ func (s *Service) ListUsers(ctx context.Context, req *protogen.ListUsersRequest)
 	userIds, err := repositories.R().R().ListUsers()
 	if err != nil {
 		zap.L().Error("ListUsers", zap.Error(err))
-		return &protogen.ListUsersResponse{}, status.Error(codes.Internal, "Failed to list users")
+		return &protogen.ListUsersFullResponse{}, status.Error(codes.Internal, "Failed to list users")
 	}
 
 	users := make([]*protogen.UserWithRoles, 0, len(userIds))
@@ -247,7 +247,7 @@ func (s *Service) ListUsers(ctx context.Context, req *protogen.ListUsersRequest)
 		roles, err := repositories.R().R().ListByUserId(uuid.MustParse(userID))
 		if err != nil {
 			zap.L().Error("Cannot list roles", zap.Error(err))
-			return &protogen.ListUsersResponse{}, status.Error(codes.Internal, err.Error())
+			return &protogen.ListUsersFullResponse{}, status.Error(codes.Internal, err.Error())
 		}
 
 		users = append(users, &protogen.UserWithRoles{
@@ -256,7 +256,7 @@ func (s *Service) ListUsers(ctx context.Context, req *protogen.ListUsersRequest)
 		})
 	}
 
-	return &protogen.ListUsersResponse{
+	return &protogen.ListUsersFullResponse{
 		Users: users,
 	}, nil
 }

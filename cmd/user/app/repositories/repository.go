@@ -18,6 +18,7 @@ type Repository interface {
 	Update(user models.User) error
 	UpdateWithPassword(user models.UserWithPassword) error
 	Delete(userID uuid.UUID) error
+	List() (models.Users, error)
 }
 
 var (

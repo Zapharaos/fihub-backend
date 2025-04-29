@@ -40,11 +40,7 @@ func (s *Service) CreateRole(ctx context.Context, req *protogen.CreateRoleReques
 	if err == nil {
 
 		// Construct the Permissions object from the request
-		permissions, err = models.FromProtogenRolePermissionsInput(req.GetPermissions())
-		if err != nil {
-			zap.L().Warn("Cannot convert permissions", zap.Error(err))
-			return nil, status.Error(codes.InvalidArgument, err.Error())
-		}
+		permissions = models.FromProtogenRolePermissionsInput(req.GetPermissions())
 
 		// Validate the permissions
 		if ok, err := permissions.IsValid(); !ok {
@@ -148,11 +144,7 @@ func (s *Service) UpdateRole(ctx context.Context, req *protogen.UpdateRoleReques
 	if err == nil {
 
 		// Construct the Permissions object from the request
-		permissions, err = models.FromProtogenRolePermissionsInput(req.GetPermissions())
-		if err != nil {
-			zap.L().Warn("Cannot convert permissions", zap.Error(err))
-			return nil, status.Error(codes.InvalidArgument, err.Error())
-		}
+		permissions = models.FromProtogenRolePermissionsInput(req.GetPermissions())
 
 		// Validate the permissions
 		if ok, err := permissions.IsValid(); !ok {
@@ -275,12 +267,7 @@ func (s *Service) SetRolePermissions(ctx context.Context, req *protogen.SetRoleP
 	}
 
 	// Construct the Permissions object from the request
-	permissionsInput, err := models.FromProtogenRolePermissionsInput(req.GetPermissions())
-	if err != nil {
-		zap.L().Warn("Cannot convert permissions", zap.Error(err))
-		return nil, status.Error(codes.InvalidArgument, err.Error())
-	}
-
+	permissionsInput := models.FromProtogenRolePermissionsInput(req.GetPermissions())
 	if ok, err := permissionsInput.IsValid(); !ok {
 		zap.L().Warn("Permissions are not valid", zap.Error(err))
 		return nil, status.Error(codes.InvalidArgument, err.Error())

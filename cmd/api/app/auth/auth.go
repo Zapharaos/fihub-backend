@@ -219,13 +219,7 @@ func (a *Auth) Middleware(next http.Handler) http.Handler {
 		}
 
 		// Map the response to the models.User struct
-		user, err := models.FromProtogenUser(userResponse.User)
-		if err != nil {
-			zap.L().Error("Bad protogen user", zap.Error(err))
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-
+		user := models.FromProtogenUser(userResponse.User)
 		ctx = context.WithValue(r.Context(), app.ContextKeyUser, user)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})

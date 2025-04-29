@@ -37,7 +37,7 @@ const (
 	SecurityService_SetRolesForUser_FullMethodName                 = "/security.SecurityService/SetRolesForUser"
 	SecurityService_ListRolesForUser_FullMethodName                = "/security.SecurityService/ListRolesForUser"
 	SecurityService_ListRolesWithPermissionsForUser_FullMethodName = "/security.SecurityService/ListRolesWithPermissionsForUser"
-	SecurityService_ListUsers_FullMethodName                       = "/security.SecurityService/ListUsers"
+	SecurityService_ListUsersFull_FullMethodName                   = "/security.SecurityService/ListUsersFull"
 )
 
 // SecurityServiceClient is the client API for SecurityService service.
@@ -68,7 +68,7 @@ type SecurityServiceClient interface {
 	ListRolesForUser(ctx context.Context, in *ListRolesForUserRequest, opts ...grpc.CallOption) (*ListRolesForUserResponse, error)
 	ListRolesWithPermissionsForUser(ctx context.Context, in *ListRolesWithPermissionsForUserRequest, opts ...grpc.CallOption) (*ListRolesWithPermissionsForUserResponse, error)
 	// Users-Roles management
-	ListUsers(ctx context.Context, in *ListUsersRequest, opts ...grpc.CallOption) (*ListUsersResponse, error)
+	ListUsersFull(ctx context.Context, in *ListUsersFullRequest, opts ...grpc.CallOption) (*ListUsersFullResponse, error)
 }
 
 type securityServiceClient struct {
@@ -259,10 +259,10 @@ func (c *securityServiceClient) ListRolesWithPermissionsForUser(ctx context.Cont
 	return out, nil
 }
 
-func (c *securityServiceClient) ListUsers(ctx context.Context, in *ListUsersRequest, opts ...grpc.CallOption) (*ListUsersResponse, error) {
+func (c *securityServiceClient) ListUsersFull(ctx context.Context, in *ListUsersFullRequest, opts ...grpc.CallOption) (*ListUsersFullResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ListUsersResponse)
-	err := c.cc.Invoke(ctx, SecurityService_ListUsers_FullMethodName, in, out, cOpts...)
+	out := new(ListUsersFullResponse)
+	err := c.cc.Invoke(ctx, SecurityService_ListUsersFull_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -297,7 +297,7 @@ type SecurityServiceServer interface {
 	ListRolesForUser(context.Context, *ListRolesForUserRequest) (*ListRolesForUserResponse, error)
 	ListRolesWithPermissionsForUser(context.Context, *ListRolesWithPermissionsForUserRequest) (*ListRolesWithPermissionsForUserResponse, error)
 	// Users-Roles management
-	ListUsers(context.Context, *ListUsersRequest) (*ListUsersResponse, error)
+	ListUsersFull(context.Context, *ListUsersFullRequest) (*ListUsersFullResponse, error)
 	mustEmbedUnimplementedSecurityServiceServer()
 }
 
@@ -362,8 +362,8 @@ func (UnimplementedSecurityServiceServer) ListRolesForUser(context.Context, *Lis
 func (UnimplementedSecurityServiceServer) ListRolesWithPermissionsForUser(context.Context, *ListRolesWithPermissionsForUserRequest) (*ListRolesWithPermissionsForUserResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListRolesWithPermissionsForUser not implemented")
 }
-func (UnimplementedSecurityServiceServer) ListUsers(context.Context, *ListUsersRequest) (*ListUsersResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ListUsers not implemented")
+func (UnimplementedSecurityServiceServer) ListUsersFull(context.Context, *ListUsersFullRequest) (*ListUsersFullResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListUsersFull not implemented")
 }
 func (UnimplementedSecurityServiceServer) mustEmbedUnimplementedSecurityServiceServer() {}
 func (UnimplementedSecurityServiceServer) testEmbeddedByValue()                         {}
@@ -710,20 +710,20 @@ func _SecurityService_ListRolesWithPermissionsForUser_Handler(srv interface{}, c
 	return interceptor(ctx, in, info, handler)
 }
 
-func _SecurityService_ListUsers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListUsersRequest)
+func _SecurityService_ListUsersFull_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListUsersFullRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(SecurityServiceServer).ListUsers(ctx, in)
+		return srv.(SecurityServiceServer).ListUsersFull(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: SecurityService_ListUsers_FullMethodName,
+		FullMethod: SecurityService_ListUsersFull_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SecurityServiceServer).ListUsers(ctx, req.(*ListUsersRequest))
+		return srv.(SecurityServiceServer).ListUsersFull(ctx, req.(*ListUsersFullRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -808,8 +808,8 @@ var SecurityService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _SecurityService_ListRolesWithPermissionsForUser_Handler,
 		},
 		{
-			MethodName: "ListUsers",
-			Handler:    _SecurityService_ListUsers_Handler,
+			MethodName: "ListUsersFull",
+			Handler:    _SecurityService_ListUsersFull_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
