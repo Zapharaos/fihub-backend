@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"github.com/Zapharaos/fihub-backend/cmd/transaction/app/repositories"
+	"github.com/Zapharaos/fihub-backend/internal/mappers"
 	"github.com/Zapharaos/fihub-backend/internal/models"
 	"github.com/Zapharaos/fihub-backend/protogen"
 	"github.com/google/uuid"
@@ -43,7 +44,7 @@ func (s *Service) CreateTransaction(ctx context.Context, req *protogen.CreateTra
 		UserID:    userID,
 		BrokerID:  brokerID,
 		Date:      req.GetDate().AsTime(),
-		Type:      models.FromProtogenTransactionType(req.GetTransactionType()),
+		Type:      mappers.TransactionTypeFromProto(req.GetTransactionType()),
 		Asset:     req.GetAsset(),
 		Quantity:  req.GetQuantity(),
 		Price:     req.GetPrice(),
@@ -87,7 +88,7 @@ func (s *Service) CreateTransaction(ctx context.Context, req *protogen.CreateTra
 
 	// Return the created transaction
 	return &protogen.CreateTransactionResponse{
-		Transaction: t.ToProtogenTransaction(),
+		Transaction: mappers.TransactionToProto(t),
 	}, nil
 }
 
@@ -119,7 +120,7 @@ func (s *Service) GetTransaction(ctx context.Context, req *protogen.GetTransacti
 
 	// Return the transaction
 	return &protogen.GetTransactionResponse{
-		Transaction: t.ToProtogenTransaction(),
+		Transaction: mappers.TransactionToProto(t),
 	}, nil
 }
 
@@ -145,14 +146,8 @@ func (s *Service) ListTransactions(ctx context.Context, req *protogen.ListTransa
 	}
 
 	// Convert transactions to gRPC format
-	list := make([]*protogen.Transaction, len(t))
-	for i, item := range t {
-		list[i] = item.ToProtogenTransaction()
-	}
-
-	// Return the list of transactions
 	return &protogen.ListTransactionsResponse{
-		Transactions: list,
+		Transactions: mappers.TransactionsToProto(t),
 	}, nil
 }
 
@@ -195,7 +190,7 @@ func (s *Service) UpdateTransaction(ctx context.Context, req *protogen.UpdateTra
 		UserID:    userID,
 		BrokerID:  brokerID,
 		Date:      req.GetDate().AsTime(),
-		Type:      models.FromProtogenTransactionType(req.GetTransactionType()),
+		Type:      mappers.TransactionTypeFromProto(req.GetTransactionType()),
 		Asset:     req.GetAsset(),
 		Quantity:  req.GetQuantity(),
 		Price:     req.GetPrice(),
@@ -260,7 +255,7 @@ func (s *Service) UpdateTransaction(ctx context.Context, req *protogen.UpdateTra
 
 	// Return the created transaction
 	return &protogen.UpdateTransactionResponse{
-		Transaction: t.ToProtogenTransaction(),
+		Transaction: mappers.TransactionToProto(t),
 	}, nil
 }
 

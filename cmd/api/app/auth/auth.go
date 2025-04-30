@@ -8,6 +8,7 @@ import (
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/handlers/render"
 	"github.com/Zapharaos/fihub-backend/cmd/user/app/repositories"
 	"github.com/Zapharaos/fihub-backend/internal/app"
+	"github.com/Zapharaos/fihub-backend/internal/mappers"
 	"github.com/Zapharaos/fihub-backend/internal/models"
 	"github.com/Zapharaos/fihub-backend/internal/utils"
 	"github.com/Zapharaos/fihub-backend/protogen"
@@ -219,7 +220,7 @@ func (a *Auth) Middleware(next http.Handler) http.Handler {
 		}
 
 		// Map the response to the models.User struct
-		user := models.FromProtogenUser(userResponse.User)
+		user := mappers.UserFromProto(userResponse.User)
 		ctx = context.WithValue(r.Context(), app.ContextKeyUser, user)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})

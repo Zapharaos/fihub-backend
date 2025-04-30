@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"github.com/Zapharaos/fihub-backend/cmd/broker/app/repositories"
+	"github.com/Zapharaos/fihub-backend/internal/mappers"
 	"github.com/Zapharaos/fihub-backend/internal/models"
 	"github.com/Zapharaos/fihub-backend/internal/security"
 	"github.com/Zapharaos/fihub-backend/protogen"
@@ -64,7 +65,7 @@ func (h *Service) CreateBroker(ctx context.Context, req *protogen.CreateBrokerRe
 	}
 
 	return &protogen.CreateBrokerResponse{
-		Broker: broker.ToProtogenBroker(),
+		Broker: mappers.BrokerToProto(broker),
 	}, nil
 }
 
@@ -91,7 +92,7 @@ func (h *Service) GetBroker(ctx context.Context, req *protogen.GetBrokerRequest)
 	}
 
 	return &protogen.GetBrokerResponse{
-		Broker: broker.ToProtogenBroker(),
+		Broker: mappers.BrokerToProto(broker),
 	}, nil
 }
 
@@ -170,7 +171,7 @@ func (h *Service) UpdateBroker(ctx context.Context, req *protogen.UpdateBrokerRe
 	}
 
 	return &protogen.UpdateBrokerResponse{
-		Broker: broker.ToProtogenBroker(),
+		Broker: mappers.BrokerToProto(broker),
 	}, nil
 }
 
@@ -243,12 +244,7 @@ func (h *Service) ListBrokers(ctx context.Context, req *protogen.ListBrokersRequ
 	}
 
 	// Convert userBrokers to gRPC format
-	list := make([]*protogen.Broker, len(result))
-	for i, item := range result {
-		list[i] = item.ToProtogenBroker()
-	}
-
 	return &protogen.ListBrokersResponse{
-		Brokers: list,
+		Brokers: mappers.BrokersToProto(result),
 	}, nil
 }

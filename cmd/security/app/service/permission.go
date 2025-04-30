@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"github.com/Zapharaos/fihub-backend/cmd/security/app/repositories"
+	"github.com/Zapharaos/fihub-backend/internal/mappers"
 	"github.com/Zapharaos/fihub-backend/internal/models"
 	"github.com/Zapharaos/fihub-backend/internal/security"
 	"github.com/Zapharaos/fihub-backend/protogen"
@@ -54,7 +55,7 @@ func (s *Service) CreatePermission(ctx context.Context, req *protogen.CreatePerm
 	}
 
 	return &protogen.CreatePermissionResponse{
-		Permission: permission.ToProtogenPermission(),
+		Permission: mappers.PermissionToProto(permission),
 	}, nil
 }
 
@@ -87,7 +88,7 @@ func (s *Service) GetPermission(ctx context.Context, req *protogen.GetPermission
 	}
 
 	return &protogen.GetPermissionResponse{
-		Permission: permission.ToProtogenPermission(),
+		Permission: mappers.PermissionToProto(permission),
 	}, nil
 }
 
@@ -141,7 +142,7 @@ func (s *Service) UpdatePermission(ctx context.Context, req *protogen.UpdatePerm
 	}
 
 	return &protogen.UpdatePermissionResponse{
-		Permission: permission.ToProtogenPermission(),
+		Permission: mappers.PermissionToProto(permission),
 	}, nil
 }
 
@@ -195,12 +196,7 @@ func (s *Service) ListPermissions(ctx context.Context, req *protogen.ListPermiss
 	}
 
 	// Convert the permissions to the protogen format
-	protogenPermissions := make([]*protogen.Permission, len(result))
-	for i, permission := range result {
-		protogenPermissions[i] = permission.ToProtogenPermission()
-	}
-
 	return &protogen.ListPermissionsResponse{
-		Permissions: protogenPermissions,
+		Permissions: mappers.PermissionsToProto(result),
 	}, nil
 }

@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"github.com/Zapharaos/fihub-backend/cmd/security/app/repositories"
+	"github.com/Zapharaos/fihub-backend/internal/mappers"
 	"github.com/Zapharaos/fihub-backend/internal/security"
 	"github.com/Zapharaos/fihub-backend/internal/utils"
 	"github.com/Zapharaos/fihub-backend/protogen"
@@ -164,7 +165,7 @@ func (s *Service) SetRolesForUser(ctx context.Context, req *protogen.SetRolesFor
 	}
 
 	return &protogen.SetRolesForUserResponse{
-		Roles: roles.ToProtogenRolesWithPermissions(),
+		Roles: mappers.RolesWithPermissionsToProto(roles),
 	}, nil
 }
 
@@ -193,7 +194,7 @@ func (s *Service) ListRolesForUser(ctx context.Context, req *protogen.ListRolesF
 	}
 
 	return &protogen.ListRolesForUserResponse{
-		Roles: roles.ToProtogenRoles(),
+		Roles: mappers.RolesToProto(roles),
 	}, nil
 }
 
@@ -222,7 +223,7 @@ func (s *Service) ListRolesWithPermissionsForUser(ctx context.Context, req *prot
 	}
 
 	return &protogen.ListRolesWithPermissionsForUserResponse{
-		Roles: roles.ToProtogenRolesWithPermissions(),
+		Roles: mappers.RolesWithPermissionsToProto(roles),
 	}, nil
 }
 
@@ -252,7 +253,7 @@ func (s *Service) ListUsersFull(ctx context.Context, req *protogen.ListUsersFull
 
 		users = append(users, &protogen.UserWithRoles{
 			UserId: userID,
-			Roles:  roles.ToProtogenRoles(),
+			Roles:  mappers.RolesToProto(roles),
 		})
 	}
 

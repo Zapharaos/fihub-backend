@@ -2,7 +2,6 @@ package models
 
 import (
 	"errors"
-	"github.com/Zapharaos/fihub-backend/protogen"
 	"github.com/google/uuid"
 )
 
@@ -76,26 +75,8 @@ func (rp RolePermissionsInput) IsValid() (bool, error) {
 	return true, nil
 }
 
-// ToProtogenRole converts a Role to a protogen.Role
-func (r Role) ToProtogenRole() *protogen.Role {
-	return &protogen.Role{
-		Id:   r.Id.String(),
-		Name: r.Name,
-	}
-}
-
-// ToProtogenRoles converts a slice of Roles to a slice of protogen.Role
-func (r Roles) ToProtogenRoles() []*protogen.Role {
-	roles := make([]*protogen.Role, 0)
-	for _, role := range r {
-		roles = append(roles, role.ToProtogenRole())
-	}
-
-	return roles
-}
-
-// ToProtogenString converts a slice of RolePermissionsInput to a slice of strings
-func (r RolePermissionsInput) ToProtogenString() []string {
+// ToUUIDs converts a slice of RolePermissionsInput to a slice of string uuids
+func (r RolePermissionsInput) ToUUIDs() []string {
 	if r == nil {
 		return nil
 	}
@@ -108,62 +89,8 @@ func (r RolePermissionsInput) ToProtogenString() []string {
 	return permissions
 }
 
-// ToProtogenRoleWithPermissions converts a RoleWithPermissions to a protogen.RoleWithPermissions
-func (r RoleWithPermissions) ToProtogenRoleWithPermissions() *protogen.RoleWithPermissions {
-	return &protogen.RoleWithPermissions{
-		Role:        r.Role.ToProtogenRole(),
-		Permissions: r.Permissions.ToProtogenPermissions(),
-	}
-}
-
-// ToProtogenRolesWithPermissions converts a slice of RolesWithPermissions to a slice of protogen.RoleWithPermissions
-func (r RolesWithPermissions) ToProtogenRolesWithPermissions() []*protogen.RoleWithPermissions {
-	if r == nil {
-		return nil
-	}
-
-	roles := make([]*protogen.RoleWithPermissions, len(r))
-	for i, role := range r {
-		roles[i] = role.ToProtogenRoleWithPermissions()
-	}
-
-	return roles
-}
-
-// FromProtogenRole converts a protogen.Role to a Role
-func FromProtogenRole(r *protogen.Role) Role {
-	if r == nil {
-		return Role{}
-	}
-
-	id, err := uuid.Parse(r.GetId())
-	if err != nil {
-		return Role{}
-	}
-
-	return Role{
-		Id:   id,
-		Name: r.GetName(),
-	}
-}
-
-// FromProtogenRoles converts a slice of protogen.Role to Roles
-func FromProtogenRoles(roles []*protogen.Role) Roles {
-	if roles == nil {
-		return Roles{}
-	}
-
-	result := make(Roles, len(roles))
-	for i, role := range roles {
-		r := FromProtogenRole(role)
-		result[i] = r
-	}
-
-	return result
-}
-
-// FromProtogenRolePermissionsInput converts a slice of string to RolePermissionsInput
-func FromProtogenRolePermissionsInput(s []string) RolePermissionsInput {
+// RolePermissionsInputFromUUIDs converts a slice of string uuids to RolePermissionsInput
+func RolePermissionsInputFromUUIDs(s []string) RolePermissionsInput {
 	if s == nil {
 		return RolePermissionsInput{}
 	}
@@ -178,31 +105,4 @@ func FromProtogenRolePermissionsInput(s []string) RolePermissionsInput {
 	}
 
 	return permissions
-}
-
-// FromProtogenRoleWithPermissions converts a protogen.RoleWithPermissions to a RoleWithPermissions
-func FromProtogenRoleWithPermissions(r *protogen.RoleWithPermissions) RoleWithPermissions {
-	if r == nil {
-		return RoleWithPermissions{}
-	}
-
-	return RoleWithPermissions{
-		Role:        FromProtogenRole(r.GetRole()),
-		Permissions: FromProtogenPermissions(r.GetPermissions()),
-	}
-}
-
-// FromProtogenRolesWithPermissions converts a slice of protogen.RoleWithPermissions to a slice of RoleWithPermissions
-func FromProtogenRolesWithPermissions(roles []*protogen.RoleWithPermissions) RolesWithPermissions {
-	if roles == nil {
-		return RolesWithPermissions{}
-	}
-
-	result := make(RolesWithPermissions, len(roles))
-	for i, role := range roles {
-		r := FromProtogenRoleWithPermissions(role)
-		result[i] = r
-	}
-
-	return result
 }

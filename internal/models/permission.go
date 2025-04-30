@@ -2,7 +2,6 @@ package models
 
 import (
 	"errors"
-	"github.com/Zapharaos/fihub-backend/protogen"
 	"github.com/google/uuid"
 	"regexp"
 	"strings"
@@ -78,51 +77,8 @@ func (p Permission) Match(permission string) bool {
 	return re.MatchString(permission)
 }
 
-// ToProtogenPermission converts a Permission to a protogen.Permission
-func (p Permission) ToProtogenPermission() *protogen.Permission {
-	return &protogen.Permission{
-		Id:          p.Id.String(),
-		Value:       p.Value,
-		Scope:       p.Scope,
-		Description: p.Description,
-	}
-}
-
-// FromProtogenPermission converts a protogen.Permission to a Permission
-func FromProtogenPermission(p *protogen.Permission) Permission {
-	if p == nil {
-		return Permission{}
-	}
-
-	id, err := uuid.Parse(p.GetId())
-	if err != nil {
-		return Permission{}
-	}
-
-	return Permission{
-		Id:          id,
-		Value:       p.GetValue(),
-		Scope:       p.GetScope(),
-		Description: p.GetDescription(),
-	}
-}
-
-// ToProtogenPermissions converts a slice of Permission to a slice of protogen.Permission
-func (p Permissions) ToProtogenPermissions() []*protogen.Permission {
-	if p == nil {
-		return []*protogen.Permission{}
-	}
-
-	permissions := make([]*protogen.Permission, len(p))
-	for i, perm := range p {
-		permissions[i] = perm.ToProtogenPermission()
-	}
-
-	return permissions
-}
-
-// ToProtogenPermissionsUuidInput converts a slice of Permission to a slice of string
-func (p Permissions) ToProtogenPermissionsUuidInput() []string {
+// ToUUIDs converts a slice of Permission to a slice of string uuids
+func (p Permissions) ToUUIDs() []string {
 	if p == nil {
 		return []string{}
 	}
@@ -130,21 +86,6 @@ func (p Permissions) ToProtogenPermissionsUuidInput() []string {
 	permissions := make([]string, len(p))
 	for i, perm := range p {
 		permissions[i] = perm.Id.String()
-	}
-
-	return permissions
-}
-
-// FromProtogenPermissions converts a slice of protogen.Permission to a slice of Permission
-func FromProtogenPermissions(p []*protogen.Permission) Permissions {
-	if p == nil {
-		return Permissions{}
-	}
-
-	permissions := make(Permissions, len(p))
-	for i, protoPerm := range p {
-		perm := FromProtogenPermission(protoPerm)
-		permissions[i] = perm
 	}
 
 	return permissions

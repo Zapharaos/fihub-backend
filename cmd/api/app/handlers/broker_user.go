@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/clients"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/handlers/render"
+	"github.com/Zapharaos/fihub-backend/internal/mappers"
 	"github.com/Zapharaos/fihub-backend/internal/models"
 	"github.com/Zapharaos/fihub-backend/protogen"
 	"go.uber.org/zap"
@@ -60,7 +61,7 @@ func CreateUserBroker(w http.ResponseWriter, r *http.Request) {
 	// Map gRPC response to UserBrokers array
 	userBrokers := make([]models.BrokerUser, len(response.UserBrokers))
 	for i, protogenBrokerUser := range response.UserBrokers {
-		userBrokers[i] = models.FromProtogenBrokerUser(protogenBrokerUser)
+		userBrokers[i] = mappers.BrokerUserFromProto(protogenBrokerUser)
 	}
 
 	render.JSON(w, r, userBrokers)
@@ -161,7 +162,7 @@ func ListUserBrokers(w http.ResponseWriter, r *http.Request) {
 	// Map gRPC response to UserBrokers array
 	userBrokers := make([]models.BrokerUser, len(response.UserBrokers))
 	for i, protogenBrokerUser := range response.UserBrokers {
-		userBrokers[i] = models.FromProtogenBrokerUser(protogenBrokerUser)
+		userBrokers[i] = mappers.BrokerUserFromProto(protogenBrokerUser)
 	}
 
 	render.JSON(w, r, userBrokers)

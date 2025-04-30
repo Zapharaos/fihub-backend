@@ -1,7 +1,6 @@
 package models
 
 import (
-	"github.com/Zapharaos/fihub-backend/protogen"
 	"github.com/google/uuid"
 )
 
@@ -34,21 +33,5 @@ func (u *BrokerUserInput) ToUser() BrokerUser {
 	return BrokerUser{
 		UserID: userID,
 		Broker: Broker{ID: brokerID},
-	}
-}
-
-// ToProtogenBrokerUser converts a BrokerUser to a protogen.BrokerUser
-func (ub *BrokerUser) ToProtogenBrokerUser() *protogen.BrokerUser {
-	return &protogen.BrokerUser{
-		UserId: ub.UserID.String(),
-		Broker: ub.Broker.ToProtogenBroker(),
-	}
-}
-
-// FromProtogenBrokerUser converts a protogen.BrokerUser to a BrokerUser
-func FromProtogenBrokerUser(ub *protogen.BrokerUser) BrokerUser {
-	return BrokerUser{
-		UserID: uuid.MustParse(ub.GetUserId()),
-		Broker: FromProtogenBroker(ub.Broker),
 	}
 }

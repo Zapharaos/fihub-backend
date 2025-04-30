@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/clients"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/handlers/render"
+	"github.com/Zapharaos/fihub-backend/internal/mappers"
 	"github.com/Zapharaos/fihub-backend/internal/models"
 	"github.com/Zapharaos/fihub-backend/protogen"
 	"go.uber.org/zap"
@@ -52,7 +53,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Map the response to the models.User struct
-	render.JSON(w, r, models.FromProtogenUser(createUserResponse.User))
+	render.JSON(w, r, mappers.UserFromProto(createUserResponse.User))
 }
 
 // GetUser godoc
@@ -88,7 +89,7 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Map the response to the models.User struct
-	render.JSON(w, r, models.FromProtogenUser(userResponse.User))
+	render.JSON(w, r, mappers.UserFromProto(userResponse.User))
 }
 
 // GetUserSelf godoc
@@ -164,7 +165,7 @@ func UpdateUserSelf(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Map the response to the models.User struct
-	render.JSON(w, r, models.FromProtogenUser(updateUserResponse.User))
+	render.JSON(w, r, mappers.UserFromProto(updateUserResponse.User))
 }
 
 // UpdateUserPassword godoc

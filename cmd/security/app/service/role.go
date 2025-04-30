@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"github.com/Zapharaos/fihub-backend/cmd/security/app/repositories"
+	"github.com/Zapharaos/fihub-backend/internal/mappers"
 	"github.com/Zapharaos/fihub-backend/internal/models"
 	"github.com/Zapharaos/fihub-backend/internal/security"
 	"github.com/Zapharaos/fihub-backend/protogen"
@@ -40,7 +41,7 @@ func (s *Service) CreateRole(ctx context.Context, req *protogen.CreateRoleReques
 	if err == nil {
 
 		// Construct the Permissions object from the request
-		permissions = models.FromProtogenRolePermissionsInput(req.GetPermissions())
+		permissions = models.RolePermissionsInputFromUUIDs(req.GetPermissions())
 
 		// Validate the permissions
 		if ok, err := permissions.IsValid(); !ok {
@@ -69,7 +70,7 @@ func (s *Service) CreateRole(ctx context.Context, req *protogen.CreateRoleReques
 
 	// Convert the role to the protogen format
 	return &protogen.CreateRoleResponse{
-		Role: result.ToProtogenRoleWithPermissions(),
+		Role: mappers.RoleWithPermissionsToProto(result),
 	}, nil
 }
 
@@ -104,7 +105,7 @@ func (s *Service) GetRole(ctx context.Context, req *protogen.GetRoleRequest) (*p
 
 	// Convert the role to the protogen format
 	return &protogen.GetRoleResponse{
-		Role: role.ToProtogenRoleWithPermissions(),
+		Role: mappers.RoleWithPermissionsToProto(role),
 	}, nil
 }
 
@@ -144,7 +145,7 @@ func (s *Service) UpdateRole(ctx context.Context, req *protogen.UpdateRoleReques
 	if err == nil {
 
 		// Construct the Permissions object from the request
-		permissions = models.FromProtogenRolePermissionsInput(req.GetPermissions())
+		permissions = models.RolePermissionsInputFromUUIDs(req.GetPermissions())
 
 		// Validate the permissions
 		if ok, err := permissions.IsValid(); !ok {
@@ -173,7 +174,7 @@ func (s *Service) UpdateRole(ctx context.Context, req *protogen.UpdateRoleReques
 
 	// Convert the role to the protogen format
 	return &protogen.UpdateRoleResponse{
-		Role: result.ToProtogenRoleWithPermissions(),
+		Role: mappers.RoleWithPermissionsToProto(result),
 	}, nil
 }
 
@@ -224,7 +225,7 @@ func (s *Service) ListRoles(ctx context.Context, req *protogen.ListRolesRequest)
 	}
 
 	return &protogen.ListRolesResponse{
-		Roles: result.ToProtogenRolesWithPermissions(),
+		Roles: mappers.RolesWithPermissionsToProto(result),
 	}, nil
 }
 
@@ -253,7 +254,7 @@ func (s *Service) ListRolePermissions(ctx context.Context, req *protogen.ListRol
 	}
 
 	return &protogen.ListRolePermissionsResponse{
-		Permissions: permissions.ToProtogenPermissions(),
+		Permissions: mappers.PermissionsToProto(permissions),
 	}, nil
 }
 
@@ -267,7 +268,7 @@ func (s *Service) SetRolePermissions(ctx context.Context, req *protogen.SetRoleP
 	}
 
 	// Construct the Permissions object from the request
-	permissionsInput := models.FromProtogenRolePermissionsInput(req.GetPermissions())
+	permissionsInput := models.RolePermissionsInputFromUUIDs(req.GetPermissions())
 	if ok, err := permissionsInput.IsValid(); !ok {
 		zap.L().Warn("Permissions are not valid", zap.Error(err))
 		return nil, status.Error(codes.InvalidArgument, err.Error())
@@ -296,6 +297,6 @@ func (s *Service) SetRolePermissions(ctx context.Context, req *protogen.SetRoleP
 	}
 
 	return &protogen.SetRolePermissionsResponse{
-		Permissions: permissions.ToProtogenPermissions(),
+		Permissions: mappers.PermissionsToProto(permissions),
 	}, nil
 }

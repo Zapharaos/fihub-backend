@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"github.com/Zapharaos/fihub-backend/cmd/user/app/repositories"
+	"github.com/Zapharaos/fihub-backend/internal/mappers"
 	"github.com/Zapharaos/fihub-backend/internal/models"
 	"github.com/Zapharaos/fihub-backend/internal/security"
 	"github.com/Zapharaos/fihub-backend/protogen"
@@ -70,7 +71,7 @@ func (s *Service) CreateUser(ctx context.Context, req *protogen.CreateUserReques
 	}
 
 	return &protogen.CreateUserResponse{
-		User: user.ToProtogenUser(),
+		User: mappers.UserToProto(user),
 	}, nil
 }
 
@@ -103,7 +104,7 @@ func (s *Service) GetUser(ctx context.Context, req *protogen.GetUserRequest) (*p
 	}
 
 	return &protogen.GetUserResponse{
-		User: user.ToProtogenUser(),
+		User: mappers.UserToProto(user),
 	}, nil
 }
 
@@ -154,7 +155,7 @@ func (s *Service) UpdateUser(ctx context.Context, req *protogen.UpdateUserReques
 	}
 
 	return &protogen.UpdateUserResponse{
-		User: user.ToProtogenUser(),
+		User: mappers.UserToProto(user),
 	}, nil
 }
 
@@ -247,6 +248,6 @@ func (s *Service) ListUsers(ctx context.Context, req *protogen.ListUsersRequest)
 	}
 
 	return &protogen.ListUsersResponse{
-		Users: users.ToProtogenUsers(),
+		Users: mappers.UsersToProto(users),
 	}, nil
 }

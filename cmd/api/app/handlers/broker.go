@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/clients"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/handlers/render"
+	"github.com/Zapharaos/fihub-backend/internal/mappers"
 	"github.com/Zapharaos/fihub-backend/internal/models"
 	"github.com/Zapharaos/fihub-backend/protogen"
 	"go.uber.org/zap"
@@ -49,7 +50,7 @@ func CreateBroker(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	render.JSON(w, r, models.FromProtogenBroker(response.Broker))
+	render.JSON(w, r, mappers.BrokerFromProto(response.Broker))
 }
 
 // GetBroker godoc
@@ -87,7 +88,7 @@ func GetBroker(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	render.JSON(w, r, models.FromProtogenBroker(response.Broker))
+	render.JSON(w, r, mappers.BrokerFromProto(response.Broker))
 }
 
 // UpdateBroker godoc
@@ -138,7 +139,7 @@ func UpdateBroker(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	render.JSON(w, r, models.FromProtogenBroker(response.Broker))
+	render.JSON(w, r, mappers.BrokerFromProto(response.Broker))
 }
 
 // DeleteBroker godoc
@@ -214,7 +215,7 @@ func ListBrokers(w http.ResponseWriter, r *http.Request) {
 	// Map gRPC response to Brokers array
 	brokers := make([]models.Broker, len(response.Brokers))
 	for i, protogenBroker := range response.Brokers {
-		brokers[i] = models.FromProtogenBroker(protogenBroker)
+		brokers[i] = mappers.BrokerFromProto(protogenBroker)
 	}
 
 	render.JSON(w, r, brokers)

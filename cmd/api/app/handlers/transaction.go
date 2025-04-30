@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/clients"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/handlers/render"
+	"github.com/Zapharaos/fihub-backend/internal/mappers"
 	"github.com/Zapharaos/fihub-backend/internal/models"
 	"github.com/Zapharaos/fihub-backend/protogen"
 	"go.uber.org/zap"
@@ -61,7 +62,7 @@ func CreateTransaction(w http.ResponseWriter, r *http.Request) {
 		UserId:          user.ID.String(),
 		BrokerId:        transactionInput.BrokerID.String(),
 		Date:            timestamppb.New(transactionInput.Date),
-		TransactionType: transactionInput.Type.ToProtogenTransactionType(),
+		TransactionType: mappers.TransactionTypeToProto(transactionInput.Type),
 		Asset:           transactionInput.Asset,
 		Quantity:        transactionInput.Quantity,
 		Price:           transactionInput.Price,
@@ -77,7 +78,7 @@ func CreateTransaction(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Map gRPC response to Transaction
-	transaction := models.FromProtogenTransaction(response.Transaction)
+	transaction := mappers.TransactionFromProto(response.Transaction)
 
 	// Retrieve broker object
 	responseBroker, err := clients.C().Broker().GetBroker(r.Context(), &protogen.GetBrokerRequest{
@@ -90,7 +91,7 @@ func CreateTransaction(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Put the broker object into the transaction
-	transaction.Broker = models.FromProtogenBroker(responseBroker.Broker)
+	transaction.Broker = mappers.BrokerFromProto(responseBroker.Broker)
 	render.JSON(w, r, transaction)
 }
 
@@ -137,7 +138,7 @@ func GetTransaction(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Map gRPC response to Transaction
-	transaction := models.FromProtogenTransaction(response.Transaction)
+	transaction := mappers.TransactionFromProto(response.Transaction)
 
 	// Check if the transaction belongs to the user
 	if transaction.UserID != user.ID {
@@ -157,7 +158,7 @@ func GetTransaction(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Put the broker object in the transaction
-	transaction.Broker = models.FromProtogenBroker(responseBroker.Broker)
+	transaction.Broker = mappers.BrokerFromProto(responseBroker.Broker)
 	render.JSON(w, r, transaction)
 }
 
@@ -220,7 +221,7 @@ func UpdateTransaction(w http.ResponseWriter, r *http.Request) {
 		UserId:          user.ID.String(),
 		BrokerId:        transactionInput.BrokerID.String(),
 		Date:            timestamppb.New(transactionInput.Date),
-		TransactionType: transactionInput.Type.ToProtogenTransactionType(),
+		TransactionType: mappers.TransactionTypeToProto(transactionInput.Type),
 		Asset:           transactionInput.Asset,
 		Quantity:        transactionInput.Quantity,
 		Price:           transactionInput.Price,
@@ -236,7 +237,7 @@ func UpdateTransaction(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Map gRPC response to Transaction
-	transaction := models.FromProtogenTransaction(response.Transaction)
+	transaction := mappers.TransactionFromProto(response.Transaction)
 
 	// Retrieve broker object
 	responseBroker, err := clients.C().Broker().GetBroker(r.Context(), &protogen.GetBrokerRequest{
@@ -249,7 +250,7 @@ func UpdateTransaction(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Put the broker object in the transaction
-	transaction.Broker = models.FromProtogenBroker(responseBroker.Broker)
+	transaction.Broker = mappers.BrokerFromProto(responseBroker.Broker)
 	render.JSON(w, r, transaction)
 }
 
@@ -344,14 +345,14 @@ func ListTransactions(w http.ResponseWriter, r *http.Request) {
 	// Create a map of brokers indexed by broker ID for faster lookup
 	brokersMap := make(map[string]models.Broker)
 	for _, b := range responseBrokers.Brokers {
-		broker := models.FromProtogenBroker(b)
+		broker := mappers.BrokerFromProto(b)
 		brokersMap[broker.ID.String()] = broker
 	}
 
 	// Map gRPC response to Transaction array
 	t := make([]models.Transaction, len(response.Transactions))
 	for i, protogenTransaction := range response.Transactions {
-		transaction := models.FromProtogenTransaction(protogenTransaction)
+		transaction := mappers.TransactionFromProto(protogenTransaction)
 		transaction.Broker = brokersMap[transaction.Broker.ID.String()]
 		t[i] = transaction
 	}

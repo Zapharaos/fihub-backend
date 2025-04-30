@@ -3,9 +3,7 @@ package models
 import (
 	"errors"
 	"github.com/Zapharaos/fihub-backend/pkg/email"
-	"github.com/Zapharaos/fihub-backend/protogen"
 	"github.com/google/uuid"
-	"google.golang.org/protobuf/types/known/timestamppb"
 	"time"
 )
 
@@ -139,43 +137,4 @@ func (u UserInputPassword) IsValidPassword() (bool, error) {
 		return false, err
 	}
 	return true, nil
-}
-
-// ToProtogenUser converts a User model to a protogen.User
-func (u User) ToProtogenUser() *protogen.User {
-	return &protogen.User{
-		Id:        u.ID.String(),
-		Email:     u.Email,
-		CreatedAt: timestamppb.New(u.CreatedAt),
-		UpdatedAt: timestamppb.New(u.UpdatedAt),
-	}
-}
-
-func (u Users) ToProtogenUsers() []*protogen.User {
-	protoUsers := make([]*protogen.User, len(u))
-	for i, user := range u {
-		protoUsers[i] = user.ToProtogenUser()
-	}
-	return protoUsers
-}
-
-// FromProtogenUser converts a protogen.User to a User model
-func FromProtogenUser(protoUser *protogen.User) User {
-	id := uuid.MustParse(protoUser.Id)
-
-	return User{
-		ID:        id,
-		Email:     protoUser.Email,
-		CreatedAt: protoUser.CreatedAt.AsTime(),
-		UpdatedAt: protoUser.UpdatedAt.AsTime(),
-	}
-}
-
-func FromProtogenUsers(protoUsers []*protogen.User) Users {
-	users := make(Users, len(protoUsers))
-	for i, protoUser := range protoUsers {
-		user := FromProtogenUser(protoUser)
-		users[i] = user
-	}
-	return users
 }

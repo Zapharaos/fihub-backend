@@ -5,6 +5,7 @@ import (
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/clients"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/handlers/render"
 	apimodels "github.com/Zapharaos/fihub-backend/cmd/api/app/models"
+	"github.com/Zapharaos/fihub-backend/internal/mappers"
 	"github.com/Zapharaos/fihub-backend/internal/models"
 	"github.com/Zapharaos/fihub-backend/protogen"
 	"net/http"
@@ -40,7 +41,7 @@ func CreateRole(w http.ResponseWriter, r *http.Request) {
 	// Create gRPC protogen.CreateRoleRequest
 	roleRequest := &protogen.CreateRoleRequest{
 		Name:        role.Name,
-		Permissions: role.Permissions.ToProtogenPermissionsUuidInput(),
+		Permissions: role.Permissions.ToUUIDs(),
 	}
 
 	// Create the role
@@ -52,7 +53,7 @@ func CreateRole(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Map the response to the RoleWithPermissions model
-	render.JSON(w, r, models.FromProtogenRoleWithPermissions(response.GetRole()))
+	render.JSON(w, r, mappers.RoleWithPermissionsFromProto(response.GetRole()))
 }
 
 // GetRole godoc
@@ -88,7 +89,7 @@ func GetRole(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Map the response to the RoleWithPermissions model
-	render.JSON(w, r, models.FromProtogenRoleWithPermissions(response.GetRole()))
+	render.JSON(w, r, mappers.RoleWithPermissionsFromProto(response.GetRole()))
 }
 
 // ListRoles godoc
@@ -115,7 +116,7 @@ func ListRoles(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Map the response to the RolesWithPermissions model
-	render.JSON(w, r, models.FromProtogenRolesWithPermissions(response.GetRoles()))
+	render.JSON(w, r, mappers.RolesWithPermissionsFromProto(response.GetRoles()))
 }
 
 // UpdateRole godoc
@@ -153,7 +154,7 @@ func UpdateRole(w http.ResponseWriter, r *http.Request) {
 	roleRequest := &protogen.UpdateRoleRequest{
 		Id:          roleID.String(),
 		Name:        role.Name,
-		Permissions: role.Permissions.ToProtogenPermissionsUuidInput(),
+		Permissions: role.Permissions.ToUUIDs(),
 	}
 
 	// Update the role
@@ -165,7 +166,7 @@ func UpdateRole(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Map the response to the RoleWithPermissions model
-	render.JSON(w, r, models.FromProtogenRoleWithPermissions(response.GetRole()))
+	render.JSON(w, r, mappers.RoleWithPermissionsFromProto(response.GetRole()))
 }
 
 // DeleteRole godoc
@@ -234,7 +235,7 @@ func GetRolePermissions(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Map the response to the Permissions model
-	render.JSON(w, r, models.FromProtogenPermissions(response.GetPermissions()))
+	render.JSON(w, r, mappers.PermissionsFromProto(response.GetPermissions()))
 }
 
 // SetRolePermissions godoc
@@ -271,7 +272,7 @@ func SetRolePermissions(w http.ResponseWriter, r *http.Request) {
 	// Create gRPC protogen.UpdateRoleRequest
 	roleRequest := &protogen.SetRolePermissionsRequest{
 		Id:          roleId.String(),
-		Permissions: perms.ToProtogenPermissionsUuidInput(),
+		Permissions: perms.ToUUIDs(),
 	}
 
 	// Set the role permissions
@@ -283,7 +284,7 @@ func SetRolePermissions(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Map the response to the Permissions model
-	render.JSON(w, r, models.FromProtogenPermissions(response.GetPermissions()))
+	render.JSON(w, r, mappers.PermissionsFromProto(response.GetPermissions()))
 }
 
 // AddUsersToRole godoc
@@ -487,7 +488,7 @@ func ListRolesWithPermissionsForUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Map the response to the RolesWithPermissions model
-	render.JSON(w, r, models.FromProtogenRolesWithPermissions(response.GetRoles()))
+	render.JSON(w, r, mappers.RolesWithPermissionsFromProto(response.GetRoles()))
 }
 
 // ListUsersWithRoles godoc
@@ -516,7 +517,7 @@ func ListUsersWithRoles(w http.ResponseWriter, r *http.Request) {
 	userRolesMap := make(map[string]models.Roles)
 	for _, user := range respSecurityUsers.GetUsers() {
 		userID := user.GetUserId()
-		userRoles := models.FromProtogenRoles(user.GetRoles())
+		userRoles := mappers.RolesFromProto(user.GetRoles())
 		userRolesMap[userID] = userRoles
 	}
 
@@ -532,7 +533,7 @@ func ListUsersWithRoles(w http.ResponseWriter, r *http.Request) {
 	users := make([]apimodels.UserWithRoles, len(respUserUsers.GetUsers()))
 	for i, u := range respUserUsers.GetUsers() {
 		// Map the user to the UserWithRoles model
-		user := models.FromProtogenUser(u)
+		user := mappers.UserFromProto(u)
 
 		// Retrieve user roles from userRolesMap
 		userRoles, ok := userRolesMap[user.ID.String()]

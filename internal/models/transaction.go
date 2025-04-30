@@ -2,9 +2,7 @@ package models
 
 import (
 	"errors"
-	"github.com/Zapharaos/fihub-backend/protogen"
 	"github.com/google/uuid"
-	"google.golang.org/protobuf/types/known/timestamppb"
 	"time"
 )
 
@@ -113,75 +111,4 @@ func (t *TransactionInput) IsValid() (bool, error) {
 	}
 
 	return true, nil
-}
-
-// ToProtogenTransactionType converts a TransactionType to a protogen.TransactionType
-func (t TransactionType) ToProtogenTransactionType() protogen.TransactionType {
-	switch t {
-	case BUY:
-		return protogen.TransactionType_BUY
-	case SELL:
-		return protogen.TransactionType_SELL
-	default:
-		return protogen.TransactionType_TRANSACTION_TYPE_UNSPECIFIED
-	}
-}
-
-// ToProtogenTransaction converts a Transaction to a protogen.Transaction
-func (t Transaction) ToProtogenTransaction() *protogen.Transaction {
-	return &protogen.Transaction{
-		Id:              t.ID.String(),
-		UserId:          t.UserID.String(),
-		BrokerId:        t.Broker.ID.String(),
-		Date:            timestamppb.New(t.Date),
-		TransactionType: t.Type.ToProtogenTransactionType(),
-		Asset:           t.Asset,
-		Quantity:        t.Quantity,
-		Price:           t.Price,
-		Fee:             t.Fee,
-		PriceUnit:       t.PriceUnit,
-	}
-}
-
-// FromProtogenTransactionType converts a protogen.TransactionType to a TransactionType
-func FromProtogenTransactionType(t protogen.TransactionType) TransactionType {
-	switch t {
-	case protogen.TransactionType_BUY:
-		return BUY
-	case protogen.TransactionType_SELL:
-		return SELL
-	default:
-		return ""
-	}
-}
-
-// FromProtogenTransaction converts a protogen.Transaction to a Transaction
-func FromProtogenTransaction(t *protogen.Transaction) Transaction {
-	id, err := uuid.Parse(t.Id)
-	if err != nil {
-		return Transaction{}
-	}
-	userId, err := uuid.Parse(t.UserId)
-	if err != nil {
-		return Transaction{}
-	}
-	brokerId, err := uuid.Parse(t.BrokerId)
-	if err != nil {
-		return Transaction{}
-	}
-
-	return Transaction{
-		ID:     id,
-		UserID: userId,
-		Broker: Broker{
-			ID: brokerId,
-		},
-		Date:      t.Date.AsTime(),
-		Type:      TransactionType(t.TransactionType.String()),
-		Asset:     t.Asset,
-		Quantity:  t.Quantity,
-		Price:     t.Price,
-		Fee:       t.Fee,
-		PriceUnit: t.PriceUnit,
-	}
 }

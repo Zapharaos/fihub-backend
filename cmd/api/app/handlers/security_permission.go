@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/clients"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/handlers/render"
+	"github.com/Zapharaos/fihub-backend/internal/mappers"
 	"github.com/Zapharaos/fihub-backend/internal/models"
 	"github.com/Zapharaos/fihub-backend/protogen"
 	"go.uber.org/zap"
@@ -52,7 +53,7 @@ func CreatePermission(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Map the response to the models.Permission struct
-	render.JSON(w, r, models.FromProtogenPermission(response.Permission))
+	render.JSON(w, r, mappers.PermissionFromProto(response.Permission))
 }
 
 // GetPermission godoc
@@ -91,7 +92,7 @@ func GetPermission(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Map the response to the models.Permission struct
-	render.JSON(w, r, models.FromProtogenPermission(response.Permission))
+	render.JSON(w, r, mappers.PermissionFromProto(response.Permission))
 }
 
 // UpdatePermission godoc
@@ -142,7 +143,7 @@ func UpdatePermission(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Map the response to the models.Permission struct
-	render.JSON(w, r, models.FromProtogenPermission(response.Permission))
+	render.JSON(w, r, mappers.PermissionFromProto(response.Permission))
 }
 
 // DeletePermission godoc
@@ -204,12 +205,5 @@ func ListPermissions(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Map gRPC response to Permissions array
-	permissions := make(models.Permissions, len(response.Permissions))
-	for i, protogenPermission := range response.Permissions {
-		p := models.FromProtogenPermission(protogenPermission)
-		permissions[i] = p
-	}
-
-	render.JSON(w, r, permissions)
+	render.JSON(w, r, mappers.PermissionsFromProto(response.Permissions))
 }

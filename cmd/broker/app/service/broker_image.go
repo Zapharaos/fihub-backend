@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"github.com/Zapharaos/fihub-backend/cmd/broker/app/repositories"
+	"github.com/Zapharaos/fihub-backend/internal/mappers"
 	"github.com/Zapharaos/fihub-backend/internal/models"
 	"github.com/Zapharaos/fihub-backend/internal/security"
 	"github.com/Zapharaos/fihub-backend/protogen"
@@ -80,7 +81,7 @@ func (h *Service) CreateBrokerImage(ctx context.Context, req *protogen.CreateBro
 	}
 
 	return &protogen.CreateBrokerImageResponse{
-		Image: brokerImage.ToProtogenBrokerImage(),
+		Image: mappers.BrokerImageToProto(brokerImage),
 	}, nil
 }
 
@@ -180,7 +181,7 @@ func (h *Service) UpdateBrokerImage(ctx context.Context, req *protogen.UpdateBro
 	}
 
 	return &protogen.UpdateBrokerImageResponse{
-		Image: brokerImage.ToProtogenBrokerImage(),
+		Image: mappers.BrokerImageToProto(brokerImage),
 	}, nil
 }
 

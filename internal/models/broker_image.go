@@ -2,7 +2,6 @@ package models
 
 import (
 	"errors"
-	"github.com/Zapharaos/fihub-backend/protogen"
 	"github.com/google/uuid"
 )
 
@@ -39,24 +38,4 @@ func (i BrokerImage) IsValid() (bool, error) {
 		return false, errImageDataRequired
 	}
 	return true, nil
-}
-
-// ToProtogenBrokerImage converts a BrokerImage to a protogen.BrokerImage
-func (i BrokerImage) ToProtogenBrokerImage() *protogen.BrokerImage {
-	return &protogen.BrokerImage{
-		Id:       i.ID.String(),
-		BrokerId: i.BrokerID.String(),
-		Name:     i.Name,
-		Data:     i.Data,
-	}
-}
-
-// FromProtogenBrokerImage converts a protogen.BrokerImage to a BrokerImage
-func FromProtogenBrokerImage(i *protogen.BrokerImage) BrokerImage {
-	return BrokerImage{
-		ID:       uuid.MustParse(i.GetId()),
-		BrokerID: uuid.MustParse(i.GetBrokerId()),
-		Name:     i.GetName(),
-		Data:     i.GetData(),
-	}
 }

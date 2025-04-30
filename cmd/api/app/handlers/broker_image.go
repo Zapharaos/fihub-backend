@@ -3,7 +3,7 @@ package handlers
 import (
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/clients"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/handlers/render"
-	"github.com/Zapharaos/fihub-backend/internal/models"
+	"github.com/Zapharaos/fihub-backend/internal/mappers"
 	"github.com/Zapharaos/fihub-backend/protogen"
 	"go.uber.org/zap"
 	"net/http"
@@ -54,7 +54,7 @@ func CreateBrokerImage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Return the broker image
-	render.JSON(w, r, models.FromProtogenBrokerImage(response.Image))
+	render.JSON(w, r, mappers.BrokerImageFromProto(response.Image))
 }
 
 // GetBrokerImage godoc
@@ -154,7 +154,7 @@ func UpdateBrokerImage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Return the broker image
-	render.JSON(w, r, models.FromProtogenBrokerImage(response.Image))
+	render.JSON(w, r, mappers.BrokerImageFromProto(response.Image))
 }
 
 // DeleteBrokerImage godoc
