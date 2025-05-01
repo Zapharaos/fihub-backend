@@ -3,7 +3,7 @@ package service
 import (
 	"context"
 	"errors"
-	"github.com/Zapharaos/fihub-backend/cmd/user/app/repositories"
+	"github.com/Zapharaos/fihub-backend/internal/mappers"
 	"github.com/Zapharaos/fihub-backend/internal/models"
 	"github.com/Zapharaos/fihub-backend/internal/utils"
 	"github.com/Zapharaos/fihub-backend/protogen"
@@ -16,13 +16,15 @@ import (
 type AuthService struct {
 	protogen.UnimplementedAuthServiceServer
 	signingKey []byte
+	userClient protogen.UserServiceClient
 }
 
 const (
 	JwtUserIDKey = "id"
 )
 
-func NewAuthService() *AuthService {
+// NewAuthService creates a new AuthService instance
+func NewAuthService(userClient protogen.UserServiceClient) *AuthService {
 	var signingKey []byte
 	if viper.GetString("APP_ENV") != "production" {
 		signingKey = []byte("dev-signing-key")
@@ -32,26 +34,34 @@ func NewAuthService() *AuthService {
 
 	return &AuthService{
 		signingKey: signingKey,
+		userClient: userClient,
 	}
 }
 
+// GenerateToken authenticates a user and generates a JWT token for them
 func (s *AuthService) GenerateToken(ctx context.Context, req *protogen.GenerateTokenRequest) (*protogen.GenerateTokenResponse, error) {
-	// TODO : replace with call to user service
-	user, found, err := repositories.R().Authenticate(req.Email, req.Password)
-	if err != nil || !found {
-		zap.L().Warn("AuthService.GenerateToken.Authenticate", zap.Error(err))
-		return nil, errors.New("invalid credentials")
+	// Try to authenticate the user
+	response, err := s.userClient.AuthenticateUser(ctx, &protogen.AuthenticateUserRequest{
+		Email:    req.Email,
+		Password: req.Password,
+	})
+	if err != nil {
+		zap.L().Error("failed to authenticate user", zap.Error(err))
+		return nil, err
 	}
 
+	// Generate a token for the authenticated user
+	user := mappers.UserFromProto(response.GetUser())
 	token, err := s.createToken(user)
 	if err != nil {
-		zap.L().Error("AuthService.GenerateToken", zap.Error(err))
+		zap.L().Error("failed to create token", zap.Error(err))
 		return nil, err
 	}
 
 	return &protogen.GenerateTokenResponse{Token: token}, nil
 }
 
+// ValidateToken validates the JWT token and extracts the user ID
 func (s *AuthService) ValidateToken(ctx context.Context, req *protogen.ValidateTokenRequest) (*protogen.ValidateTokenResponse, error) {
 	claims, err := s.parseToken(req.Token)
 	if err != nil {
@@ -66,6 +76,7 @@ func (s *AuthService) ValidateToken(ctx context.Context, req *protogen.ValidateT
 	return &protogen.ValidateTokenResponse{UserId: userID}, nil
 }
 
+// ExtractUserID extracts the user ID from the JWT token without verifying the signature
 func (s *AuthService) ExtractUserID(ctx context.Context, req *protogen.ExtractUserIDRequest) (*protogen.ExtractUserIDResponse, error) {
 	// Decode token without verifying signature
 	token, _, err := jwt.NewParser().ParseUnverified(req.GetToken(), jwt.MapClaims{})

@@ -13,6 +13,7 @@ service UserService {
 	rpc UpdateUserPassword(UpdateUserPasswordRequest) returns (UpdateUserPasswordResponse);
 	rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse);
 	rpc ListUsers(ListUsersRequest) returns (ListUsersResponse);
+	rpc AuthenticateUser(AuthenticateUserRequest) returns (AuthenticateUserResponse);
 }
 
 message User {
@@ -73,4 +74,13 @@ message ListUsersRequest {
 
 message ListUsersResponse {
 	repeated User users = 1;
+}
+
+message AuthenticateUserRequest {
+	string email = 1;
+	string password = 2;
+}
+
+message AuthenticateUserResponse {
+	User user = 2;
 }

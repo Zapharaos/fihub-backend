@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 	"github.com/Zapharaos/fihub-backend/cmd/user/app/repositories"
 	"github.com/Zapharaos/fihub-backend/internal/mappers"
 	"github.com/Zapharaos/fihub-backend/internal/models"
@@ -249,5 +250,19 @@ func (s *Service) ListUsers(ctx context.Context, req *protogen.ListUsersRequest)
 
 	return &protogen.ListUsersResponse{
 		Users: mappers.UsersToProto(users),
+	}, nil
+}
+
+// AuthenticateUser implements the AuthenticateUser RPC method.
+func (s *Service) AuthenticateUser(ctx context.Context, req *protogen.AuthenticateUserRequest) (*protogen.AuthenticateUserResponse, error) {
+	// Try to authenticate the user
+	user, found, err := repositories.R().Authenticate(req.Email, req.Password)
+	if err != nil || !found {
+		zap.L().Error("AuthenticateUser", zap.Error(err))
+		return nil, errors.New("invalid credentials")
+	}
+
+	return &protogen.AuthenticateUserResponse{
+		User: mappers.UserToProto(user),
 	}, nil
 }
