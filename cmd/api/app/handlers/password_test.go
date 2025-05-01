@@ -213,7 +213,7 @@ func TestCreatePasswordResetRequest(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			apiBasePath := viper.GetString("API_BASE_PATH")
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest("POST", apiBasePath+"/auth/password/reset", bytes.NewBuffer(tt.body))
+			r := httptest.NewRequest("POST", apiBasePath+"/server/password/reset", bytes.NewBuffer(tt.body))
 
 			// Apply mocks
 			ctrl := gomock.NewController(t)
@@ -304,7 +304,7 @@ func TestGetPasswordResetRequestID(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			apiBasePath := viper.GetString("API_BASE_PATH")
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest("GET", apiBasePath+"/auth/password/{id}/{token}", nil)
+			r := httptest.NewRequest("GET", apiBasePath+"/server/password/{id}/{token}", nil)
 
 			// Apply mocks
 			ctrl := gomock.NewController(t)
@@ -475,7 +475,7 @@ func TestResetPassword(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			apiBasePath := viper.GetString("API_BASE_PATH")
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest("PUT", apiBasePath+"/auth/password/{id}/{request_id}", bytes.NewBuffer(tt.body))
+			r := httptest.NewRequest("PUT", apiBasePath+"/server/password/{id}/{request_id}", bytes.NewBuffer(tt.body))
 
 			// Apply mocks
 			ctrl := gomock.NewController(t)

@@ -83,6 +83,16 @@ USER_MICROSERVICE_PORT = "50002"
 # Default value: "user"
 USER_MICROSERVICE_HOST = "user"
 
+# Specify the port for the Auth microservice
+# This port is used to run the gRPC AuthService
+# Default value: "50003"
+AUTH_MICROSERVICE_PORT = "50003"
+
+# Specify the host for the Auth microservice
+# Use "server" when running through Docker, "localhost" otherwise
+# Default value: "auth"
+AUTH_MICROSERVICE_HOST = "auth"
+
 # Specify the port for the Security microservice
 # This port is used to run the gRPC SecurityService
 # Default value: "50004"

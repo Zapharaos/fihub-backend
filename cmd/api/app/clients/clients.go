@@ -7,6 +7,7 @@ import (
 type Clients struct {
 	health      protogen.HealthServiceClient
 	user        protogen.UserServiceClient
+	auth        protogen.AuthServiceClient
 	security    protogen.SecurityServiceClient
 	broker      protogen.BrokerServiceClient
 	transaction protogen.TransactionServiceClient
@@ -20,6 +21,10 @@ func WithHealthClient(health protogen.HealthServiceClient) ClientOption {
 
 func WithUserClient(user protogen.UserServiceClient) ClientOption {
 	return func(c *Clients) { c.user = user }
+}
+
+func WithAuthClient(auth protogen.AuthServiceClient) ClientOption {
+	return func(c *Clients) { c.auth = auth }
 }
 
 func WithSecurityClient(security protogen.SecurityServiceClient) ClientOption {
@@ -48,6 +53,10 @@ func (c Clients) Health() protogen.HealthServiceClient {
 
 func (c Clients) User() protogen.UserServiceClient {
 	return c.user
+}
+
+func (c Clients) Auth() protogen.AuthServiceClient {
+	return c.auth
 }
 
 func (c Clients) Security() protogen.SecurityServiceClient {

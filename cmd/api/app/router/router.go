@@ -1,10 +1,11 @@
 package router
 
 import (
-	"github.com/Zapharaos/fihub-backend/cmd/api/app/auth"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/handlers"
+	"github.com/Zapharaos/fihub-backend/cmd/api/app/middleware"
+	"github.com/Zapharaos/fihub-backend/cmd/api/app/server"
 	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
+	mw "github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 	"github.com/go-chi/httprate"
 	"github.com/spf13/viper"
@@ -13,22 +14,16 @@ import (
 )
 
 // New Sets up the api's router
-func New(config auth.Config) *chi.Mux {
+func New(config server.Config) *chi.Mux {
 
 	// Create router
 	r := chi.NewRouter()
 
-	// Create auth
-	var a *auth.Auth
-	if config.Security {
-		a = auth.New(auth.CheckHeader, config)
-	}
-
 	// Setup router
-	r.Use(middleware.RequestID)
-	r.Use(middleware.RealIP)
-	r.Use(middleware.Logger)
-	r.Use(middleware.Recoverer)
+	r.Use(mw.RequestID)
+	r.Use(mw.RealIP)
+	r.Use(mw.Logger)
+	r.Use(mw.Recoverer)
 
 	// CORS
 	if config.CORS {
@@ -45,7 +40,7 @@ func New(config auth.Config) *chi.Mux {
 	// Set a timeout value on the request context (ctx), that will signal
 	// through ctx.Done() that the request has timed out and further
 	// processing should be stopped.
-	r.Use(middleware.Timeout(60 * time.Second))
+	r.Use(mw.Timeout(60 * time.Second))
 
 	// Setup handler utils
 	handlers.ReplaceGlobals(handlers.NewUtils())
@@ -61,9 +56,10 @@ func New(config auth.Config) *chi.Mux {
 		r.Route("/auth", func(r chi.Router) {
 
 			// Token
-			if config.Security {
-				r.Post("/token", a.GetToken)
-			}
+			r.Post("/token", handlers.GetToken)
+
+			// User registration
+			r.Post("/register", handlers.CreateUser)
 
 			// Password routes
 			r.Route("/password", func(r chi.Router) {
@@ -90,24 +86,21 @@ func New(config auth.Config) *chi.Mux {
 		})
 
 		// Protected routes
-		r.Group(buildProtectedRoutes(a))
+		r.Group(buildProtectedRoutes(config))
 	})
 
 	// Return router
 	return r
 }
 
-func buildProtectedRoutes(a *auth.Auth) func(r chi.Router) {
+func buildProtectedRoutes(config server.Config) func(r chi.Router) {
 	return func(r chi.Router) {
 
-		// Apply auth middleware only if security is enabled
-		if a != nil && a.Config.Security {
-			r.Use(a.Middleware)
-		}
+		// Apply auth middleware to protected routes
+		r.Use(middleware.AuthMiddleware(config))
 
 		// Users
 		r.Route("/user", func(r chi.Router) {
-			r.Post("/", handlers.CreateUser)
 
 			// User's self profile : retrieving userID through context
 			r.Route("/me", func(r chi.Router) {

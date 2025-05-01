@@ -25,7 +25,7 @@ import (
 //	@Success		200	{object}	models.User				"user"
 //	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
-//	@Router			/api/v1/user [post]
+//	@Router			/api/v1/auth/register [post]
 func CreateUser(w http.ResponseWriter, r *http.Request) {
 	// Parse request body
 	var userInputCreate models.UserInputCreate
@@ -107,14 +107,24 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/user/me [get]
 func GetUserSelf(w http.ResponseWriter, r *http.Request) {
-	userCtx, found := U().GetUserFromContext(r)
+	userID, found := U().GetUserIDFromContext(r)
 	if !found {
 		zap.L().Debug("No context user provided")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	render.JSON(w, r, userCtx)
+	// Call gRPC to get user
+	response, err := clients.C().User().GetUser(r.Context(), &protogen.GetUserRequest{
+		Id: userID,
+	})
+	if err != nil {
+		zap.L().Error("Get user", zap.Error(err))
+		render.ErrorCodesCodeToHttpCode(w, r, err)
+		return
+	}
+
+	render.JSON(w, r, mappers.UserFromProto(response.GetUser()))
 }
 
 // UpdateUserSelf godoc
@@ -134,7 +144,7 @@ func GetUserSelf(w http.ResponseWriter, r *http.Request) {
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/user/me [put]
 func UpdateUserSelf(w http.ResponseWriter, r *http.Request) {
-	userCtx, found := U().GetUserFromContext(r)
+	userID, found := U().GetUserIDFromContext(r)
 	if !found {
 		zap.L().Debug("No context user provided")
 		w.WriteHeader(http.StatusUnauthorized)
@@ -152,7 +162,7 @@ func UpdateUserSelf(w http.ResponseWriter, r *http.Request) {
 
 	// Map User to gRPC UpdateUserRequest
 	updateUserRequest := &protogen.UpdateUserRequest{
-		Id:    userCtx.ID.String(),
+		Id:    userID,
 		Email: user.Email,
 	}
 
@@ -185,7 +195,7 @@ func UpdateUserSelf(w http.ResponseWriter, r *http.Request) {
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/user/me/password [put]
 func UpdateUserPassword(w http.ResponseWriter, r *http.Request) {
-	userCtx, found := U().GetUserFromContext(r)
+	userID, found := U().GetUserIDFromContext(r)
 	if !found {
 		zap.L().Debug("No context user provided")
 		w.WriteHeader(http.StatusUnauthorized)
@@ -203,7 +213,7 @@ func UpdateUserPassword(w http.ResponseWriter, r *http.Request) {
 
 	// Map UserInputPassword to gRPC UpdateUserRequest
 	updateUserRequest := &protogen.UpdateUserPasswordRequest{
-		Id:           userCtx.ID.String(),
+		Id:           userID,
 		Password:     userPassword.Password,
 		Confirmation: userPassword.Confirmation,
 	}
@@ -232,7 +242,7 @@ func UpdateUserPassword(w http.ResponseWriter, r *http.Request) {
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/user/me [delete]
 func DeleteUserSelf(w http.ResponseWriter, r *http.Request) {
-	userCtx, found := U().GetUserFromContext(r)
+	userID, found := U().GetUserIDFromContext(r)
 	if !found {
 		zap.L().Debug("No context user provided")
 		w.WriteHeader(http.StatusUnauthorized)
@@ -241,7 +251,7 @@ func DeleteUserSelf(w http.ResponseWriter, r *http.Request) {
 
 	// Delete user
 	_, err := clients.C().User().DeleteUser(r.Context(), &protogen.DeleteUserRequest{
-		Id: userCtx.ID.String(),
+		Id: userID,
 	})
 	if err != nil {
 		zap.L().Error("Delete user", zap.Error(err))

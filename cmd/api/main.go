@@ -3,9 +3,9 @@ package main
 import (
 	"context"
 	"errors"
-	"github.com/Zapharaos/fihub-backend/cmd/api/app/auth"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/clients"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/router"
+	"github.com/Zapharaos/fihub-backend/cmd/api/app/server"
 	"github.com/Zapharaos/fihub-backend/internal/app"
 	"github.com/Zapharaos/fihub-backend/internal/database"
 	"github.com/Zapharaos/fihub-backend/internal/grpcconn"
@@ -50,7 +50,7 @@ func main() {
 	serverTLSKey := viper.GetString("HTTP_SERVER_TLS_FILE_KEY")
 
 	// Auth configuration
-	authConfig := auth.Config{
+	authConfig := server.Config{
 		CORS:        viper.GetBool("HTTP_SERVER_API_ENABLE_CORS"),
 		Security:    viper.GetBool("HTTP_SERVER_API_ENABLE_SECURITY"),
 		GatewayMode: viper.GetBool("HTTP_SERVER_API_ENABLE_GATEWAY_MODE"),
@@ -110,6 +110,7 @@ func initGrpcClients() {
 	// Connect to microservices
 	healthConn := grpcconn.ConnectGRPCService("HEALTH")
 	userConn := grpcconn.ConnectGRPCService("USER")
+	authConn := grpcconn.ConnectGRPCService("AUTH")
 	securityConn := grpcconn.ConnectGRPCService("SECURITY")
 	brokerConn := grpcconn.ConnectGRPCService("BROKER")
 	transactionConn := grpcconn.ConnectGRPCService("TRANSACTION")
@@ -117,6 +118,7 @@ func initGrpcClients() {
 	// Create gRPC clients
 	healthClient := protogen.NewHealthServiceClient(healthConn)
 	userClient := protogen.NewUserServiceClient(userConn)
+	authClient := protogen.NewAuthServiceClient(authConn)
 	securityClient := protogen.NewSecurityServiceClient(securityConn)
 	publicSecurityClient := protogen.NewPublicSecurityServiceClient(securityConn)
 	brokerClient := protogen.NewBrokerServiceClient(brokerConn)
@@ -128,8 +130,9 @@ func initGrpcClients() {
 	// Initialize the gRPC clients
 	clients.ReplaceGlobals(clients.NewClients(
 		clients.WithHealthClient(healthClient),
-		clients.WithSecurityClient(securityClient),
 		clients.WithUserClient(userClient),
+		clients.WithAuthClient(authClient),
+		clients.WithSecurityClient(securityClient),
 		clients.WithBrokerClient(brokerClient),
 		clients.WithTransactionClient(transactionClient),
 	))

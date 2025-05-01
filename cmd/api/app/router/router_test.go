@@ -1,8 +1,8 @@
 package router
 
 import (
-	"github.com/Zapharaos/fihub-backend/cmd/api/app/auth"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/clients"
+	"github.com/Zapharaos/fihub-backend/cmd/api/app/server"
 	"github.com/Zapharaos/fihub-backend/protogen"
 	"github.com/Zapharaos/fihub-backend/test/mocks"
 	"github.com/spf13/viper"
@@ -17,7 +17,7 @@ import (
 // Verifies that the health check route is working correctly.
 func TestNewRouter(t *testing.T) {
 	viper.Set("API_BASE_PATH", "/api/v1")
-	r := New(auth.Config{
+	r := New(server.Config{
 		CORS:        true,
 		Security:    true,
 		GatewayMode: true,

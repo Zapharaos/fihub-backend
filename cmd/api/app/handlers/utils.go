@@ -1,13 +1,10 @@
 package handlers
 
-//go:generate mockgen -source=utils.go -destination=../../test/mocks/handlers_utils.go --package=mocks Utils
-
 import (
 	"errors"
 	"fmt"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/handlers/render"
 	"github.com/Zapharaos/fihub-backend/internal/app"
-	"github.com/Zapharaos/fihub-backend/internal/models"
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 	"github.com/spf13/viper"
@@ -21,7 +18,7 @@ import (
 
 // Utils defines the interface for handler utility functions
 type Utils interface {
-	GetUserFromContext(r *http.Request) (models.User, bool)
+	GetUserIDFromContext(r *http.Request) (string, bool)
 	ParseParamString(w http.ResponseWriter, r *http.Request, key string) (string, bool)
 	ParseParamUUID(w http.ResponseWriter, r *http.Request, key string) (uuid.UUID, bool)
 	ParseParamLanguage(w http.ResponseWriter, r *http.Request) language.Tag
@@ -62,19 +59,19 @@ func NewUtils() Utils {
 	return utils
 }
 
-// GetUserFromContext extract the logged user from the request context
-func (u *utils) GetUserFromContext(r *http.Request) (models.User, bool) {
-	_user := r.Context().Value(app.ContextKeyUser)
-	if _user == nil {
-		zap.L().Warn("No context user provided")
-		return models.User{}, false
+// GetUserIDFromContext extract the logged user ID from the request context
+func (u *utils) GetUserIDFromContext(r *http.Request) (string, bool) {
+	_userID := r.Context().Value(app.ContextKeyUserID)
+	if _userID == nil {
+		zap.L().Warn("No context userID provided")
+		return "", false
 	}
-	user, ok := _user.(models.User)
+	userID, ok := _userID.(string)
 	if !ok {
-		zap.L().Warn("Invalid user type in context")
-		return models.User{}, false
+		zap.L().Warn("Invalid userID type in context")
+		return "", false
 	}
-	return user, true
+	return userID, true
 }
 
 // ParseParamString parses a string from the request parameters (using key parameter)

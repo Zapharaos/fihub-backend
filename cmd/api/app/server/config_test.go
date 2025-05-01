@@ -1,10 +1,10 @@
-package auth_test
+package server_test
 
 import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"github.com/Zapharaos/fihub-backend/cmd/api/app/auth"
+	"github.com/Zapharaos/fihub-backend/cmd/api/app/server"
 	securityrepositories "github.com/Zapharaos/fihub-backend/cmd/security/app/repositories"
 	"github.com/Zapharaos/fihub-backend/cmd/user/app/repositories"
 	"github.com/Zapharaos/fihub-backend/internal/app"
@@ -23,18 +23,18 @@ import (
 // TestNew tests the New function
 func TestNew(t *testing.T) {
 	// Create a new instance of Auth
-	a := auth.New(auth.CheckHeader|auth.CheckQuery, auth.Config{})
+	a := server.New(server.CheckHeader|server.CheckQuery, server.Config{})
 
 	// Check the instance
 	assert.NotNil(t, a)
 	assert.NotEmpty(t, a.SigningKey)
-	assert.Equal(t, int8(auth.CheckHeader|auth.CheckQuery), a.Checks)
+	assert.Equal(t, int8(server.CheckHeader|server.CheckQuery), a.Checks)
 }
 
 // TestGetToken tests the GetToken function
 func TestGetToken(t *testing.T) {
 	// Define test data
-	a := auth.New(auth.CheckHeader, auth.Config{})
+	a := server.New(server.CheckHeader, server.Config{})
 	userWithPassword := models.UserWithPassword{
 		User:     models.User{Email: "test@example.com"},
 		Password: "password",
@@ -100,7 +100,7 @@ func TestGetToken(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			// Create a new request to the test server
 			apiBasePath := viper.GetString("API_BASE_PATH")
-			r := httptest.NewRequest("POST", ts.URL+apiBasePath+"/auth/token", bytes.NewBuffer(tt.body))
+			r := httptest.NewRequest("POST", ts.URL+apiBasePath+"/server/token", bytes.NewBuffer(tt.body))
 			w := httptest.NewRecorder()
 
 			// Apply mocks
@@ -114,7 +114,7 @@ func TestGetToken(t *testing.T) {
 			defer response.Body.Close()
 
 			// Get the response body
-			var token auth.JwtToken
+			var token server.JwtToken
 			data, err := io.ReadAll(response.Body)
 			if err != nil {
 				assert.Fail(t, "failed to decode response")
@@ -136,7 +136,7 @@ func TestGetToken(t *testing.T) {
 // TestGenerateToken tests the GenerateToken function
 func TestGenerateToken(t *testing.T) {
 	// Define test data
-	a := auth.New(auth.CheckHeader, auth.Config{})
+	a := server.New(server.CheckHeader, server.Config{})
 	user := models.User{
 		ID: uuid.New(),
 	}
@@ -152,7 +152,7 @@ func TestGenerateToken(t *testing.T) {
 // TestValidateToken tests the ValidateToken function
 func TestValidateToken(t *testing.T) {
 	// Define test data
-	a := auth.New(auth.CheckHeader, auth.Config{})
+	a := server.New(server.CheckHeader, server.Config{})
 	user := models.User{
 		ID: uuid.New(),
 	}
@@ -203,7 +203,7 @@ func TestValidateToken(t *testing.T) {
 // TestMiddleware tests the Middleware function
 func TestMiddleware(t *testing.T) {
 	// Define test data
-	a := auth.New(auth.CheckHeader, auth.Config{})
+	a := server.New(server.CheckHeader, server.Config{})
 	user := models.User{
 		ID: uuid.New(),
 	}

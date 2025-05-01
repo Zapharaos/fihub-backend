@@ -31,7 +31,7 @@ import (
 func CreateTransaction(w http.ResponseWriter, r *http.Request) {
 
 	// Get the authenticated user from the context
-	user, ok := U().GetUserFromContext(r)
+	userID, ok := U().GetUserIDFromContext(r)
 	if !ok {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
@@ -48,7 +48,7 @@ func CreateTransaction(w http.ResponseWriter, r *http.Request) {
 
 	// Verify BrokerUser existence
 	_, err = clients.C().Broker().GetBrokerUser(r.Context(), &protogen.GetBrokerUserRequest{
-		UserId:   user.ID.String(),
+		UserId:   userID,
 		BrokerId: transactionInput.BrokerID.String(),
 	})
 	if err != nil {
@@ -59,7 +59,7 @@ func CreateTransaction(w http.ResponseWriter, r *http.Request) {
 
 	// Map TransactionInput to gRPC ValidateTransactionRequest
 	transactionRequest := &protogen.CreateTransactionRequest{
-		UserId:          user.ID.String(),
+		UserId:          userID,
 		BrokerId:        transactionInput.BrokerID.String(),
 		Date:            timestamppb.New(transactionInput.Date),
 		TransactionType: mappers.TransactionTypeToProto(transactionInput.Type),
@@ -131,7 +131,7 @@ func GetTransaction(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get the authenticated user from the context
-	user, ok := U().GetUserFromContext(r)
+	userID, ok := U().GetUserIDFromContext(r)
 	if !ok {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
@@ -141,7 +141,7 @@ func GetTransaction(w http.ResponseWriter, r *http.Request) {
 	transaction := mappers.TransactionFromProto(response.Transaction)
 
 	// Check if the transaction belongs to the user
-	if transaction.UserID != user.ID {
+	if transaction.UserID.String() != userID {
 		zap.L().Warn("Transaction does not belong to user", zap.String("uuid", transactionID.String()))
 		w.WriteHeader(http.StatusUnauthorized)
 		return
@@ -189,7 +189,7 @@ func UpdateTransaction(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get the authenticated user from the context
-	user, ok := U().GetUserFromContext(r)
+	userID, ok := U().GetUserIDFromContext(r)
 	if !ok {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
@@ -206,7 +206,7 @@ func UpdateTransaction(w http.ResponseWriter, r *http.Request) {
 
 	// Verify BrokerUser existence
 	_, err = clients.C().Broker().GetBrokerUser(r.Context(), &protogen.GetBrokerUserRequest{
-		UserId:   user.ID.String(),
+		UserId:   userID,
 		BrokerId: transactionInput.BrokerID.String(),
 	})
 	if err != nil {
@@ -218,7 +218,7 @@ func UpdateTransaction(w http.ResponseWriter, r *http.Request) {
 	// Map TransactionInput to gRPC ValidateTransactionRequest
 	transactionRequest := &protogen.UpdateTransactionRequest{
 		TransactionId:   transactionID.String(),
-		UserId:          user.ID.String(),
+		UserId:          userID,
 		BrokerId:        transactionInput.BrokerID.String(),
 		Date:            timestamppb.New(transactionInput.Date),
 		TransactionType: mappers.TransactionTypeToProto(transactionInput.Type),
@@ -280,7 +280,7 @@ func DeleteTransaction(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get the authenticated user from the context
-	user, ok := U().GetUserFromContext(r)
+	userID, ok := U().GetUserIDFromContext(r)
 	if !ok {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
@@ -289,7 +289,7 @@ func DeleteTransaction(w http.ResponseWriter, r *http.Request) {
 	// Retrieve the transaction
 	_, err := clients.C().Transaction().DeleteTransaction(r.Context(), &protogen.DeleteTransactionRequest{
 		TransactionId: transactionID.String(),
-		UserId:        user.ID.String(),
+		UserId:        userID,
 	})
 	if err != nil {
 		zap.L().Error("Delete transaction", zap.Error(err))
@@ -316,7 +316,7 @@ func DeleteTransaction(w http.ResponseWriter, r *http.Request) {
 func ListTransactions(w http.ResponseWriter, r *http.Request) {
 
 	// Get the authenticated user from the context
-	user, ok := U().GetUserFromContext(r)
+	userID, ok := U().GetUserIDFromContext(r)
 	if !ok {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
@@ -324,7 +324,7 @@ func ListTransactions(w http.ResponseWriter, r *http.Request) {
 
 	// List transactions
 	response, err := clients.C().Transaction().ListTransactions(r.Context(), &protogen.ListTransactionsRequest{
-		UserId: user.ID.String(),
+		UserId: userID,
 	})
 	if err != nil {
 		zap.L().Error("List transactions", zap.Error(err))

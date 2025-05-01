@@ -29,7 +29,7 @@ import (
 //	@Router			/api/v1/broker/user [post]
 func CreateUserBroker(w http.ResponseWriter, r *http.Request) {
 	// Get the authenticated user from the context
-	user, ok := U().GetUserFromContext(r)
+	userID, ok := U().GetUserIDFromContext(r)
 	if !ok {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
@@ -46,7 +46,7 @@ func CreateUserBroker(w http.ResponseWriter, r *http.Request) {
 
 	// Map models.BrokerUserInput to gRPC protogen.CreateBrokerUserRequest
 	brokerUserRequest := &protogen.CreateBrokerUserRequest{
-		UserId:   user.ID.String(),
+		UserId:   userID,
 		BrokerId: brokerUserInput.BrokerID,
 	}
 
@@ -90,7 +90,7 @@ func DeleteUserBroker(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get the authenticated user from the context
-	user, ok := U().GetUserFromContext(r)
+	userID, ok := U().GetUserIDFromContext(r)
 	if !ok {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
@@ -98,7 +98,7 @@ func DeleteUserBroker(w http.ResponseWriter, r *http.Request) {
 
 	// Map models.BrokerUserInput to gRPC protogen.DeleteBrokerUserRequest
 	brokerUserRequest := &protogen.DeleteBrokerUserRequest{
-		UserId:   user.ID.String(),
+		UserId:   userID,
 		BrokerId: brokerID.String(),
 	}
 
@@ -112,7 +112,7 @@ func DeleteUserBroker(w http.ResponseWriter, r *http.Request) {
 
 	// Delete Transactions related to the BrokerUser
 	_, err = clients.C().Transaction().DeleteTransactionByBroker(r.Context(), &protogen.DeleteTransactionByBrokerRequest{
-		UserId:   user.ID.String(),
+		UserId:   userID,
 		BrokerId: brokerID.String(),
 	})
 	if err != nil {
@@ -140,7 +140,7 @@ func DeleteUserBroker(w http.ResponseWriter, r *http.Request) {
 func ListUserBrokers(w http.ResponseWriter, r *http.Request) {
 
 	// Get the authenticated user from the context
-	user, ok := U().GetUserFromContext(r)
+	userID, ok := U().GetUserIDFromContext(r)
 	if !ok {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
@@ -148,7 +148,7 @@ func ListUserBrokers(w http.ResponseWriter, r *http.Request) {
 
 	// Map props to gRPC protogen.GetUserBrokersRequest
 	brokerUserRequest := &protogen.ListUserBrokersRequest{
-		UserId: user.ID.String(),
+		UserId: userID,
 	}
 
 	// Get the userBrokers
