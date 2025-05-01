@@ -1,7 +1,7 @@
 package models
 
 import (
-	"github.com/Zapharaos/fihub-backend/protogen"
+	"github.com/Zapharaos/fihub-backend/gen"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"testing"

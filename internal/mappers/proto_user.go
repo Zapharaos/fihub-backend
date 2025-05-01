@@ -1,15 +1,15 @@
 package mappers
 
 import (
+	"github.com/Zapharaos/fihub-backend/gen/go/userpb"
 	"github.com/Zapharaos/fihub-backend/internal/models"
-	"github.com/Zapharaos/fihub-backend/protogen"
 	"github.com/google/uuid"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-// UserToProto converts a models.User to a protogen.User
-func UserToProto(user models.User) *protogen.User {
-	return &protogen.User{
+// UserToProto converts a models.User to a userpb.User
+func UserToProto(user models.User) *userpb.User {
+	return &userpb.User{
 		Id:        user.ID.String(),
 		Email:     user.Email,
 		CreatedAt: timestamppb.New(user.CreatedAt),
@@ -17,8 +17,8 @@ func UserToProto(user models.User) *protogen.User {
 	}
 }
 
-// UserFromProto converts a protogen.User to a models.User
-func UserFromProto(user *protogen.User) models.User {
+// UserFromProto converts a userpb.User to a models.User
+func UserFromProto(user *userpb.User) models.User {
 	return models.User{
 		ID:        uuid.MustParse(user.GetId()),
 		Email:     user.GetEmail(),
@@ -27,17 +27,17 @@ func UserFromProto(user *protogen.User) models.User {
 	}
 }
 
-// UsersToProto converts a slice of models.User to a slice of protogen.User
-func UsersToProto(users models.Users) []*protogen.User {
-	protoUsers := make([]*protogen.User, len(users))
+// UsersToProto converts a slice of models.User to a slice of userpb.User
+func UsersToProto(users models.Users) []*userpb.User {
+	protoUsers := make([]*userpb.User, len(users))
 	for i, user := range users {
 		protoUsers[i] = UserToProto(user)
 	}
 	return protoUsers
 }
 
-// UsersFromProto converts a slice of protogen.User to a slice of models.User
-func UsersFromProto(users []*protogen.User) models.Users {
+// UsersFromProto converts a slice of userpb.User to a slice of models.User
+func UsersFromProto(users []*userpb.User) models.Users {
 	protoUsers := make(models.Users, len(users))
 	for i, user := range users {
 		protoUsers[i] = UserFromProto(user)

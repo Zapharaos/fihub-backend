@@ -4,8 +4,8 @@ import (
 	"context"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/clients"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/server"
+	"github.com/Zapharaos/fihub-backend/gen/go/authpb"
 	"github.com/Zapharaos/fihub-backend/internal/app"
-	"github.com/Zapharaos/fihub-backend/protogen"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/metadata"
 	"net/http"
@@ -36,7 +36,7 @@ func AuthMiddleware(config server.Config) func(http.Handler) http.Handler {
 			// WARNING: this is a security risk, don't use unless you know what you're doing.
 			if config.GatewayMode {
 				// Extract user ID from token
-				response, err := clients.C().Auth().ExtractUserID(r.Context(), &protogen.ExtractUserIDRequest{
+				response, err := clients.C().Auth().ExtractUserID(r.Context(), &authpb.ExtractUserIDRequest{
 					Token: token,
 				})
 				if err != nil {
@@ -47,7 +47,7 @@ func AuthMiddleware(config server.Config) func(http.Handler) http.Handler {
 				userID = response.GetUserId()
 			} else {
 				// Validate token
-				response, err := clients.C().Auth().ValidateToken(r.Context(), &protogen.ValidateTokenRequest{
+				response, err := clients.C().Auth().ValidateToken(r.Context(), &authpb.ValidateTokenRequest{
 					Token: token,
 				})
 				if err != nil {

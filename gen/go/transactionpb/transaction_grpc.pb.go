@@ -2,9 +2,9 @@
 // versions:
 // - protoc-gen-go-grpc v1.5.1
 // - protoc             v6.30.2
-// source: proto/transaction.proto
+// source: transaction.proto
 
-package protogen
+package transactionpb
 
 import (
 	context "context"
@@ -311,5 +311,5 @@ var TransactionService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "proto/transaction.proto",
+	Metadata: "transaction.proto",
 }

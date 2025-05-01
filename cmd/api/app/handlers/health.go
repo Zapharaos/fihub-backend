@@ -3,7 +3,7 @@ package handlers
 import (
 	"context"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/clients"
-	"github.com/Zapharaos/fihub-backend/protogen"
+	"github.com/Zapharaos/fihub-backend/gen/go/healthpb"
 	"log"
 	"net/http"
 )
@@ -13,7 +13,7 @@ func HealthCheckHandler(w http.ResponseWriter, r *http.Request) {
 	defer cancel()
 
 	// Call the health check method on the gRPC client
-	_, err := clients.C().Health().CheckHealth(ctx, &protogen.HealthRequest{
+	_, err := clients.C().Health().CheckHealth(ctx, &healthpb.HealthRequest{
 		ServiceName: "fihub-backend",
 	})
 	if err != nil {

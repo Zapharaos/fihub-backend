@@ -2,9 +2,9 @@
 // versions:
 // - protoc-gen-go-grpc v1.5.1
 // - protoc             v6.30.2
-// source: proto/broker.proto
+// source: broker.proto
 
-package protogen
+package brokerpb
 
 import (
 	context "context"
@@ -579,5 +579,5 @@ var BrokerService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "proto/broker.proto",
+	Metadata: "broker.proto",
 }

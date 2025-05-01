@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 	"github.com/Zapharaos/fihub-backend/cmd/broker/app/repositories"
+	"github.com/Zapharaos/fihub-backend/gen"
 	"github.com/Zapharaos/fihub-backend/internal/models"
-	"github.com/Zapharaos/fihub-backend/protogen"
 	"github.com/Zapharaos/fihub-backend/test/mocks"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
@@ -67,11 +67,11 @@ func TestCreateUserBroker(t *testing.T) {
 				bb.EXPECT().Get(gomock.Any()).Times(0)
 				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
-			request: &protogen.CreateBrokerUserRequest{
+			request: &gen.CreateBrokerUserRequest{
 				UserId:   uuid.Nil.String(),
 				BrokerId: uuid.Nil.String(),
 			},
-			expected:        &protogen.CreateBrokerUserResponse{},
+			expected:        &gen.CreateBrokerUserResponse{},
 			expectedErrCode: codes.InvalidArgument,
 		},*/
 		{

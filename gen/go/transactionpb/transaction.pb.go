@@ -2,9 +2,9 @@
 // versions:
 // 	protoc-gen-go v1.36.6
 // 	protoc        v6.30.2
-// source: proto/transaction.proto
+// source: transaction.proto
 
-package protogen
+package transactionpb
 
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -56,11 +56,11 @@ func (x TransactionType) String() string {
 }
 
 func (TransactionType) Descriptor() protoreflect.EnumDescriptor {
-	return file_proto_transaction_proto_enumTypes[0].Descriptor()
+	return file_transaction_proto_enumTypes[0].Descriptor()
 }
 
 func (TransactionType) Type() protoreflect.EnumType {
-	return &file_proto_transaction_proto_enumTypes[0]
+	return &file_transaction_proto_enumTypes[0]
 }
 
 func (x TransactionType) Number() protoreflect.EnumNumber {
@@ -69,7 +69,7 @@ func (x TransactionType) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use TransactionType.Descriptor instead.
 func (TransactionType) EnumDescriptor() ([]byte, []int) {
-	return file_proto_transaction_proto_rawDescGZIP(), []int{0}
+	return file_transaction_proto_rawDescGZIP(), []int{0}
 }
 
 // Request message for creating a transaction
@@ -89,7 +89,7 @@ type CreateTransactionRequest struct {
 
 func (x *CreateTransactionRequest) Reset() {
 	*x = CreateTransactionRequest{}
-	mi := &file_proto_transaction_proto_msgTypes[0]
+	mi := &file_transaction_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -101,7 +101,7 @@ func (x *CreateTransactionRequest) String() string {
 func (*CreateTransactionRequest) ProtoMessage() {}
 
 func (x *CreateTransactionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_transaction_proto_msgTypes[0]
+	mi := &file_transaction_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -114,7 +114,7 @@ func (x *CreateTransactionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateTransactionRequest.ProtoReflect.Descriptor instead.
 func (*CreateTransactionRequest) Descriptor() ([]byte, []int) {
-	return file_proto_transaction_proto_rawDescGZIP(), []int{0}
+	return file_transaction_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *CreateTransactionRequest) GetUserId() string {
@@ -183,7 +183,7 @@ type CreateTransactionResponse struct {
 
 func (x *CreateTransactionResponse) Reset() {
 	*x = CreateTransactionResponse{}
-	mi := &file_proto_transaction_proto_msgTypes[1]
+	mi := &file_transaction_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -195,7 +195,7 @@ func (x *CreateTransactionResponse) String() string {
 func (*CreateTransactionResponse) ProtoMessage() {}
 
 func (x *CreateTransactionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_transaction_proto_msgTypes[1]
+	mi := &file_transaction_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -208,7 +208,7 @@ func (x *CreateTransactionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateTransactionResponse.ProtoReflect.Descriptor instead.
 func (*CreateTransactionResponse) Descriptor() ([]byte, []int) {
-	return file_proto_transaction_proto_rawDescGZIP(), []int{1}
+	return file_transaction_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *CreateTransactionResponse) GetTransaction() *Transaction {
@@ -228,7 +228,7 @@ type GetTransactionRequest struct {
 
 func (x *GetTransactionRequest) Reset() {
 	*x = GetTransactionRequest{}
-	mi := &file_proto_transaction_proto_msgTypes[2]
+	mi := &file_transaction_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -240,7 +240,7 @@ func (x *GetTransactionRequest) String() string {
 func (*GetTransactionRequest) ProtoMessage() {}
 
 func (x *GetTransactionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_transaction_proto_msgTypes[2]
+	mi := &file_transaction_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -253,7 +253,7 @@ func (x *GetTransactionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetTransactionRequest.ProtoReflect.Descriptor instead.
 func (*GetTransactionRequest) Descriptor() ([]byte, []int) {
-	return file_proto_transaction_proto_rawDescGZIP(), []int{2}
+	return file_transaction_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *GetTransactionRequest) GetTransactionId() string {
@@ -273,7 +273,7 @@ type GetTransactionResponse struct {
 
 func (x *GetTransactionResponse) Reset() {
 	*x = GetTransactionResponse{}
-	mi := &file_proto_transaction_proto_msgTypes[3]
+	mi := &file_transaction_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -285,7 +285,7 @@ func (x *GetTransactionResponse) String() string {
 func (*GetTransactionResponse) ProtoMessage() {}
 
 func (x *GetTransactionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_transaction_proto_msgTypes[3]
+	mi := &file_transaction_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -298,7 +298,7 @@ func (x *GetTransactionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetTransactionResponse.ProtoReflect.Descriptor instead.
 func (*GetTransactionResponse) Descriptor() ([]byte, []int) {
-	return file_proto_transaction_proto_rawDescGZIP(), []int{3}
+	return file_transaction_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *GetTransactionResponse) GetTransaction() *Transaction {
@@ -326,7 +326,7 @@ type UpdateTransactionRequest struct {
 
 func (x *UpdateTransactionRequest) Reset() {
 	*x = UpdateTransactionRequest{}
-	mi := &file_proto_transaction_proto_msgTypes[4]
+	mi := &file_transaction_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -338,7 +338,7 @@ func (x *UpdateTransactionRequest) String() string {
 func (*UpdateTransactionRequest) ProtoMessage() {}
 
 func (x *UpdateTransactionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_transaction_proto_msgTypes[4]
+	mi := &file_transaction_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -351,7 +351,7 @@ func (x *UpdateTransactionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateTransactionRequest.ProtoReflect.Descriptor instead.
 func (*UpdateTransactionRequest) Descriptor() ([]byte, []int) {
-	return file_proto_transaction_proto_rawDescGZIP(), []int{4}
+	return file_transaction_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *UpdateTransactionRequest) GetTransactionId() string {
@@ -427,7 +427,7 @@ type UpdateTransactionResponse struct {
 
 func (x *UpdateTransactionResponse) Reset() {
 	*x = UpdateTransactionResponse{}
-	mi := &file_proto_transaction_proto_msgTypes[5]
+	mi := &file_transaction_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -439,7 +439,7 @@ func (x *UpdateTransactionResponse) String() string {
 func (*UpdateTransactionResponse) ProtoMessage() {}
 
 func (x *UpdateTransactionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_transaction_proto_msgTypes[5]
+	mi := &file_transaction_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -452,7 +452,7 @@ func (x *UpdateTransactionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateTransactionResponse.ProtoReflect.Descriptor instead.
 func (*UpdateTransactionResponse) Descriptor() ([]byte, []int) {
-	return file_proto_transaction_proto_rawDescGZIP(), []int{5}
+	return file_transaction_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *UpdateTransactionResponse) GetTransaction() *Transaction {
@@ -473,7 +473,7 @@ type DeleteTransactionRequest struct {
 
 func (x *DeleteTransactionRequest) Reset() {
 	*x = DeleteTransactionRequest{}
-	mi := &file_proto_transaction_proto_msgTypes[6]
+	mi := &file_transaction_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -485,7 +485,7 @@ func (x *DeleteTransactionRequest) String() string {
 func (*DeleteTransactionRequest) ProtoMessage() {}
 
 func (x *DeleteTransactionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_transaction_proto_msgTypes[6]
+	mi := &file_transaction_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -498,7 +498,7 @@ func (x *DeleteTransactionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteTransactionRequest.ProtoReflect.Descriptor instead.
 func (*DeleteTransactionRequest) Descriptor() ([]byte, []int) {
-	return file_proto_transaction_proto_rawDescGZIP(), []int{6}
+	return file_transaction_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *DeleteTransactionRequest) GetTransactionId() string {
@@ -524,7 +524,7 @@ type DeleteTransactionResponse struct {
 
 func (x *DeleteTransactionResponse) Reset() {
 	*x = DeleteTransactionResponse{}
-	mi := &file_proto_transaction_proto_msgTypes[7]
+	mi := &file_transaction_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -536,7 +536,7 @@ func (x *DeleteTransactionResponse) String() string {
 func (*DeleteTransactionResponse) ProtoMessage() {}
 
 func (x *DeleteTransactionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_transaction_proto_msgTypes[7]
+	mi := &file_transaction_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -549,7 +549,7 @@ func (x *DeleteTransactionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteTransactionResponse.ProtoReflect.Descriptor instead.
 func (*DeleteTransactionResponse) Descriptor() ([]byte, []int) {
-	return file_proto_transaction_proto_rawDescGZIP(), []int{7}
+	return file_transaction_proto_rawDescGZIP(), []int{7}
 }
 
 // Request message for deleting a transaction by broker
@@ -563,7 +563,7 @@ type DeleteTransactionByBrokerRequest struct {
 
 func (x *DeleteTransactionByBrokerRequest) Reset() {
 	*x = DeleteTransactionByBrokerRequest{}
-	mi := &file_proto_transaction_proto_msgTypes[8]
+	mi := &file_transaction_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -575,7 +575,7 @@ func (x *DeleteTransactionByBrokerRequest) String() string {
 func (*DeleteTransactionByBrokerRequest) ProtoMessage() {}
 
 func (x *DeleteTransactionByBrokerRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_transaction_proto_msgTypes[8]
+	mi := &file_transaction_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -588,7 +588,7 @@ func (x *DeleteTransactionByBrokerRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteTransactionByBrokerRequest.ProtoReflect.Descriptor instead.
 func (*DeleteTransactionByBrokerRequest) Descriptor() ([]byte, []int) {
-	return file_proto_transaction_proto_rawDescGZIP(), []int{8}
+	return file_transaction_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *DeleteTransactionByBrokerRequest) GetBrokerId() string {
@@ -614,7 +614,7 @@ type DeleteTransactionByBrokerResponse struct {
 
 func (x *DeleteTransactionByBrokerResponse) Reset() {
 	*x = DeleteTransactionByBrokerResponse{}
-	mi := &file_proto_transaction_proto_msgTypes[9]
+	mi := &file_transaction_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -626,7 +626,7 @@ func (x *DeleteTransactionByBrokerResponse) String() string {
 func (*DeleteTransactionByBrokerResponse) ProtoMessage() {}
 
 func (x *DeleteTransactionByBrokerResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_transaction_proto_msgTypes[9]
+	mi := &file_transaction_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -639,7 +639,7 @@ func (x *DeleteTransactionByBrokerResponse) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use DeleteTransactionByBrokerResponse.ProtoReflect.Descriptor instead.
 func (*DeleteTransactionByBrokerResponse) Descriptor() ([]byte, []int) {
-	return file_proto_transaction_proto_rawDescGZIP(), []int{9}
+	return file_transaction_proto_rawDescGZIP(), []int{9}
 }
 
 // Request message for listing all transactions
@@ -652,7 +652,7 @@ type ListTransactionsRequest struct {
 
 func (x *ListTransactionsRequest) Reset() {
 	*x = ListTransactionsRequest{}
-	mi := &file_proto_transaction_proto_msgTypes[10]
+	mi := &file_transaction_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -664,7 +664,7 @@ func (x *ListTransactionsRequest) String() string {
 func (*ListTransactionsRequest) ProtoMessage() {}
 
 func (x *ListTransactionsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_transaction_proto_msgTypes[10]
+	mi := &file_transaction_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -677,7 +677,7 @@ func (x *ListTransactionsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListTransactionsRequest.ProtoReflect.Descriptor instead.
 func (*ListTransactionsRequest) Descriptor() ([]byte, []int) {
-	return file_proto_transaction_proto_rawDescGZIP(), []int{10}
+	return file_transaction_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *ListTransactionsRequest) GetUserId() string {
@@ -697,7 +697,7 @@ type ListTransactionsResponse struct {
 
 func (x *ListTransactionsResponse) Reset() {
 	*x = ListTransactionsResponse{}
-	mi := &file_proto_transaction_proto_msgTypes[11]
+	mi := &file_transaction_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -709,7 +709,7 @@ func (x *ListTransactionsResponse) String() string {
 func (*ListTransactionsResponse) ProtoMessage() {}
 
 func (x *ListTransactionsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_transaction_proto_msgTypes[11]
+	mi := &file_transaction_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -722,7 +722,7 @@ func (x *ListTransactionsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListTransactionsResponse.ProtoReflect.Descriptor instead.
 func (*ListTransactionsResponse) Descriptor() ([]byte, []int) {
-	return file_proto_transaction_proto_rawDescGZIP(), []int{11}
+	return file_transaction_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *ListTransactionsResponse) GetTransactions() []*Transaction {
@@ -751,7 +751,7 @@ type Transaction struct {
 
 func (x *Transaction) Reset() {
 	*x = Transaction{}
-	mi := &file_proto_transaction_proto_msgTypes[12]
+	mi := &file_transaction_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -763,7 +763,7 @@ func (x *Transaction) String() string {
 func (*Transaction) ProtoMessage() {}
 
 func (x *Transaction) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_transaction_proto_msgTypes[12]
+	mi := &file_transaction_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -776,7 +776,7 @@ func (x *Transaction) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Transaction.ProtoReflect.Descriptor instead.
 func (*Transaction) Descriptor() ([]byte, []int) {
-	return file_proto_transaction_proto_rawDescGZIP(), []int{12}
+	return file_transaction_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *Transaction) GetId() string {
@@ -849,11 +849,11 @@ func (x *Transaction) GetFee() float64 {
 	return 0
 }
 
-var File_proto_transaction_proto protoreflect.FileDescriptor
+var File_transaction_proto protoreflect.FileDescriptor
 
-const file_proto_transaction_proto_rawDesc = "" +
+const file_transaction_proto_rawDesc = "" +
 	"\n" +
-	"\x17proto/transaction.proto\x12\vtransaction\x1a\x1fgoogle/protobuf/timestamp.proto\"\xa3\x02\n" +
+	"\x11transaction.proto\x12\vtransaction\x1a\x1fgoogle/protobuf/timestamp.proto\"\xa3\x02\n" +
 	"\x18CreateTransactionRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x1b\n" +
 	"\tbroker_id\x18\x02 \x01(\tR\bbrokerId\x12.\n" +
@@ -916,24 +916,23 @@ const file_proto_transaction_proto_rawDesc = "" +
 	"\x11UpdateTransaction\x12%.transaction.UpdateTransactionRequest\x1a&.transaction.UpdateTransactionResponse\x12b\n" +
 	"\x11DeleteTransaction\x12%.transaction.DeleteTransactionRequest\x1a&.transaction.DeleteTransactionResponse\x12z\n" +
 	"\x19DeleteTransactionByBroker\x12-.transaction.DeleteTransactionByBrokerRequest\x1a..transaction.DeleteTransactionByBrokerResponse\x12_\n" +
-	"\x10ListTransactions\x12$.transaction.ListTransactionsRequest\x1a%.transaction.ListTransactionsResponseB\fZ\n" +
-	"./protogenb\x06proto3"
+	"\x10ListTransactions\x12$.transaction.ListTransactionsRequest\x1a%.transaction.ListTransactionsResponseB\x11Z\x0f./transactionpbb\x06proto3"
 
 var (
-	file_proto_transaction_proto_rawDescOnce sync.Once
-	file_proto_transaction_proto_rawDescData []byte
+	file_transaction_proto_rawDescOnce sync.Once
+	file_transaction_proto_rawDescData []byte
 )
 
-func file_proto_transaction_proto_rawDescGZIP() []byte {
-	file_proto_transaction_proto_rawDescOnce.Do(func() {
-		file_proto_transaction_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_proto_transaction_proto_rawDesc), len(file_proto_transaction_proto_rawDesc)))
+func file_transaction_proto_rawDescGZIP() []byte {
+	file_transaction_proto_rawDescOnce.Do(func() {
+		file_transaction_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_transaction_proto_rawDesc), len(file_transaction_proto_rawDesc)))
 	})
-	return file_proto_transaction_proto_rawDescData
+	return file_transaction_proto_rawDescData
 }
 
-var file_proto_transaction_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_proto_transaction_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
-var file_proto_transaction_proto_goTypes = []any{
+var file_transaction_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_transaction_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
+var file_transaction_proto_goTypes = []any{
 	(TransactionType)(0),                      // 0: transaction.TransactionType
 	(*CreateTransactionRequest)(nil),          // 1: transaction.CreateTransactionRequest
 	(*CreateTransactionResponse)(nil),         // 2: transaction.CreateTransactionResponse
@@ -950,7 +949,7 @@ var file_proto_transaction_proto_goTypes = []any{
 	(*Transaction)(nil),                       // 13: transaction.Transaction
 	(*timestamppb.Timestamp)(nil),             // 14: google.protobuf.Timestamp
 }
-var file_proto_transaction_proto_depIdxs = []int32{
+var file_transaction_proto_depIdxs = []int32{
 	14, // 0: transaction.CreateTransactionRequest.date:type_name -> google.protobuf.Timestamp
 	0,  // 1: transaction.CreateTransactionRequest.transaction_type:type_name -> transaction.TransactionType
 	13, // 2: transaction.CreateTransactionResponse.transaction:type_name -> transaction.Transaction
@@ -980,27 +979,27 @@ var file_proto_transaction_proto_depIdxs = []int32{
 	0,  // [0:10] is the sub-list for field type_name
 }
 
-func init() { file_proto_transaction_proto_init() }
-func file_proto_transaction_proto_init() {
-	if File_proto_transaction_proto != nil {
+func init() { file_transaction_proto_init() }
+func file_transaction_proto_init() {
+	if File_transaction_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_transaction_proto_rawDesc), len(file_proto_transaction_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_transaction_proto_rawDesc), len(file_transaction_proto_rawDesc)),
 			NumEnums:      1,
 			NumMessages:   13,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_proto_transaction_proto_goTypes,
-		DependencyIndexes: file_proto_transaction_proto_depIdxs,
-		EnumInfos:         file_proto_transaction_proto_enumTypes,
-		MessageInfos:      file_proto_transaction_proto_msgTypes,
+		GoTypes:           file_transaction_proto_goTypes,
+		DependencyIndexes: file_transaction_proto_depIdxs,
+		EnumInfos:         file_transaction_proto_enumTypes,
+		MessageInfos:      file_transaction_proto_msgTypes,
 	}.Build()
-	File_proto_transaction_proto = out.File
-	file_proto_transaction_proto_goTypes = nil
-	file_proto_transaction_proto_depIdxs = nil
+	File_transaction_proto = out.File
+	file_transaction_proto_goTypes = nil
+	file_transaction_proto_depIdxs = nil
 }

@@ -4,9 +4,10 @@ import (
 	"encoding/json"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/clients"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/handlers/render"
+	"github.com/Zapharaos/fihub-backend/gen/go/brokerpb"
+	"github.com/Zapharaos/fihub-backend/gen/go/transactionpb"
 	"github.com/Zapharaos/fihub-backend/internal/mappers"
 	"github.com/Zapharaos/fihub-backend/internal/models"
-	"github.com/Zapharaos/fihub-backend/protogen"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"net/http"
@@ -47,7 +48,7 @@ func CreateTransaction(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Verify BrokerUser existence
-	_, err = clients.C().Broker().GetBrokerUser(r.Context(), &protogen.GetBrokerUserRequest{
+	_, err = clients.C().Broker().GetBrokerUser(r.Context(), &brokerpb.GetBrokerUserRequest{
 		UserId:   userID,
 		BrokerId: transactionInput.BrokerID.String(),
 	})
@@ -58,7 +59,7 @@ func CreateTransaction(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Map TransactionInput to gRPC ValidateTransactionRequest
-	transactionRequest := &protogen.CreateTransactionRequest{
+	transactionRequest := &transactionpb.CreateTransactionRequest{
 		UserId:          userID,
 		BrokerId:        transactionInput.BrokerID.String(),
 		Date:            timestamppb.New(transactionInput.Date),
@@ -81,7 +82,7 @@ func CreateTransaction(w http.ResponseWriter, r *http.Request) {
 	transaction := mappers.TransactionFromProto(response.Transaction)
 
 	// Retrieve broker object
-	responseBroker, err := clients.C().Broker().GetBroker(r.Context(), &protogen.GetBrokerRequest{
+	responseBroker, err := clients.C().Broker().GetBroker(r.Context(), &brokerpb.GetBrokerRequest{
 		Id: transaction.Broker.ID.String(),
 	})
 	if err != nil {
@@ -121,7 +122,7 @@ func GetTransaction(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Retrieve the transaction
-	response, err := clients.C().Transaction().GetTransaction(r.Context(), &protogen.GetTransactionRequest{
+	response, err := clients.C().Transaction().GetTransaction(r.Context(), &transactionpb.GetTransactionRequest{
 		TransactionId: transactionID.String(),
 	})
 	if err != nil {
@@ -148,7 +149,7 @@ func GetTransaction(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Retrieve broker object
-	responseBroker, err := clients.C().Broker().GetBroker(r.Context(), &protogen.GetBrokerRequest{
+	responseBroker, err := clients.C().Broker().GetBroker(r.Context(), &brokerpb.GetBrokerRequest{
 		Id: transaction.Broker.ID.String(),
 	})
 	if err != nil {
@@ -205,7 +206,7 @@ func UpdateTransaction(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Verify BrokerUser existence
-	_, err = clients.C().Broker().GetBrokerUser(r.Context(), &protogen.GetBrokerUserRequest{
+	_, err = clients.C().Broker().GetBrokerUser(r.Context(), &brokerpb.GetBrokerUserRequest{
 		UserId:   userID,
 		BrokerId: transactionInput.BrokerID.String(),
 	})
@@ -216,7 +217,7 @@ func UpdateTransaction(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Map TransactionInput to gRPC ValidateTransactionRequest
-	transactionRequest := &protogen.UpdateTransactionRequest{
+	transactionRequest := &transactionpb.UpdateTransactionRequest{
 		TransactionId:   transactionID.String(),
 		UserId:          userID,
 		BrokerId:        transactionInput.BrokerID.String(),
@@ -240,7 +241,7 @@ func UpdateTransaction(w http.ResponseWriter, r *http.Request) {
 	transaction := mappers.TransactionFromProto(response.Transaction)
 
 	// Retrieve broker object
-	responseBroker, err := clients.C().Broker().GetBroker(r.Context(), &protogen.GetBrokerRequest{
+	responseBroker, err := clients.C().Broker().GetBroker(r.Context(), &brokerpb.GetBrokerRequest{
 		Id: transaction.Broker.ID.String(),
 	})
 	if err != nil {
@@ -287,7 +288,7 @@ func DeleteTransaction(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Retrieve the transaction
-	_, err := clients.C().Transaction().DeleteTransaction(r.Context(), &protogen.DeleteTransactionRequest{
+	_, err := clients.C().Transaction().DeleteTransaction(r.Context(), &transactionpb.DeleteTransactionRequest{
 		TransactionId: transactionID.String(),
 		UserId:        userID,
 	})
@@ -323,7 +324,7 @@ func ListTransactions(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// List transactions
-	response, err := clients.C().Transaction().ListTransactions(r.Context(), &protogen.ListTransactionsRequest{
+	response, err := clients.C().Transaction().ListTransactions(r.Context(), &transactionpb.ListTransactionsRequest{
 		UserId: userID,
 	})
 	if err != nil {
@@ -333,7 +334,7 @@ func ListTransactions(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Retrieve broker objects
-	responseBrokers, err := clients.C().Broker().ListBrokers(r.Context(), &protogen.ListBrokersRequest{
+	responseBrokers, err := clients.C().Broker().ListBrokers(r.Context(), &brokerpb.ListBrokersRequest{
 		EnabledOnly: false,
 	})
 	if err != nil {

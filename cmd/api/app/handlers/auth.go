@@ -5,8 +5,8 @@ import (
 	"errors"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/clients"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/handlers/render"
+	"github.com/Zapharaos/fihub-backend/gen/go/authpb"
 	"github.com/Zapharaos/fihub-backend/internal/models"
-	"github.com/Zapharaos/fihub-backend/protogen"
 	"go.uber.org/zap"
 	"io"
 	"net/http"
@@ -44,7 +44,7 @@ func GetToken(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Validate the credentials and return the token
-	response, err := clients.C().Auth().GenerateToken(r.Context(), &protogen.GenerateTokenRequest{
+	response, err := clients.C().Auth().GenerateToken(r.Context(), &authpb.GenerateTokenRequest{
 		Email:    creds.Email,
 		Password: creds.Password,
 	})

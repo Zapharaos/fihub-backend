@@ -63,7 +63,7 @@ mocks:
 
 # Proto commands
 proto-gen:
-	protoc --go_out=./ --go-grpc_out=./ ./proto/*.proto
+	protoc proto/*.proto --proto_path=proto --go_out=gen/go --go-grpc_out=gen/go
 
 # Swagger commands
 swagger: swagger-init swagger-ui swagger-gen

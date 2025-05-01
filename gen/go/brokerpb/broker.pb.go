@@ -2,9 +2,9 @@
 // versions:
 // 	protoc-gen-go v1.36.6
 // 	protoc        v6.30.2
-// source: proto/broker.proto
+// source: broker.proto
 
-package protogen
+package brokerpb
 
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -33,7 +33,7 @@ type Broker struct {
 
 func (x *Broker) Reset() {
 	*x = Broker{}
-	mi := &file_proto_broker_proto_msgTypes[0]
+	mi := &file_broker_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -45,7 +45,7 @@ func (x *Broker) String() string {
 func (*Broker) ProtoMessage() {}
 
 func (x *Broker) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_broker_proto_msgTypes[0]
+	mi := &file_broker_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -58,7 +58,7 @@ func (x *Broker) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Broker.ProtoReflect.Descriptor instead.
 func (*Broker) Descriptor() ([]byte, []int) {
-	return file_proto_broker_proto_rawDescGZIP(), []int{0}
+	return file_broker_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *Broker) GetId() string {
@@ -99,7 +99,7 @@ type CreateBrokerRequest struct {
 
 func (x *CreateBrokerRequest) Reset() {
 	*x = CreateBrokerRequest{}
-	mi := &file_proto_broker_proto_msgTypes[1]
+	mi := &file_broker_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -111,7 +111,7 @@ func (x *CreateBrokerRequest) String() string {
 func (*CreateBrokerRequest) ProtoMessage() {}
 
 func (x *CreateBrokerRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_broker_proto_msgTypes[1]
+	mi := &file_broker_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -124,7 +124,7 @@ func (x *CreateBrokerRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateBrokerRequest.ProtoReflect.Descriptor instead.
 func (*CreateBrokerRequest) Descriptor() ([]byte, []int) {
-	return file_proto_broker_proto_rawDescGZIP(), []int{1}
+	return file_broker_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *CreateBrokerRequest) GetName() string {
@@ -150,7 +150,7 @@ type CreateBrokerResponse struct {
 
 func (x *CreateBrokerResponse) Reset() {
 	*x = CreateBrokerResponse{}
-	mi := &file_proto_broker_proto_msgTypes[2]
+	mi := &file_broker_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -162,7 +162,7 @@ func (x *CreateBrokerResponse) String() string {
 func (*CreateBrokerResponse) ProtoMessage() {}
 
 func (x *CreateBrokerResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_broker_proto_msgTypes[2]
+	mi := &file_broker_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -175,7 +175,7 @@ func (x *CreateBrokerResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateBrokerResponse.ProtoReflect.Descriptor instead.
 func (*CreateBrokerResponse) Descriptor() ([]byte, []int) {
-	return file_proto_broker_proto_rawDescGZIP(), []int{2}
+	return file_broker_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *CreateBrokerResponse) GetBroker() *Broker {
@@ -194,7 +194,7 @@ type GetBrokerRequest struct {
 
 func (x *GetBrokerRequest) Reset() {
 	*x = GetBrokerRequest{}
-	mi := &file_proto_broker_proto_msgTypes[3]
+	mi := &file_broker_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -206,7 +206,7 @@ func (x *GetBrokerRequest) String() string {
 func (*GetBrokerRequest) ProtoMessage() {}
 
 func (x *GetBrokerRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_broker_proto_msgTypes[3]
+	mi := &file_broker_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -219,7 +219,7 @@ func (x *GetBrokerRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetBrokerRequest.ProtoReflect.Descriptor instead.
 func (*GetBrokerRequest) Descriptor() ([]byte, []int) {
-	return file_proto_broker_proto_rawDescGZIP(), []int{3}
+	return file_broker_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *GetBrokerRequest) GetId() string {
@@ -238,7 +238,7 @@ type GetBrokerResponse struct {
 
 func (x *GetBrokerResponse) Reset() {
 	*x = GetBrokerResponse{}
-	mi := &file_proto_broker_proto_msgTypes[4]
+	mi := &file_broker_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -250,7 +250,7 @@ func (x *GetBrokerResponse) String() string {
 func (*GetBrokerResponse) ProtoMessage() {}
 
 func (x *GetBrokerResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_broker_proto_msgTypes[4]
+	mi := &file_broker_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -263,7 +263,7 @@ func (x *GetBrokerResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetBrokerResponse.ProtoReflect.Descriptor instead.
 func (*GetBrokerResponse) Descriptor() ([]byte, []int) {
-	return file_proto_broker_proto_rawDescGZIP(), []int{4}
+	return file_broker_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *GetBrokerResponse) GetBroker() *Broker {
@@ -285,7 +285,7 @@ type UpdateBrokerRequest struct {
 
 func (x *UpdateBrokerRequest) Reset() {
 	*x = UpdateBrokerRequest{}
-	mi := &file_proto_broker_proto_msgTypes[5]
+	mi := &file_broker_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -297,7 +297,7 @@ func (x *UpdateBrokerRequest) String() string {
 func (*UpdateBrokerRequest) ProtoMessage() {}
 
 func (x *UpdateBrokerRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_broker_proto_msgTypes[5]
+	mi := &file_broker_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -310,7 +310,7 @@ func (x *UpdateBrokerRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateBrokerRequest.ProtoReflect.Descriptor instead.
 func (*UpdateBrokerRequest) Descriptor() ([]byte, []int) {
-	return file_proto_broker_proto_rawDescGZIP(), []int{5}
+	return file_broker_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *UpdateBrokerRequest) GetId() string {
@@ -350,7 +350,7 @@ type UpdateBrokerResponse struct {
 
 func (x *UpdateBrokerResponse) Reset() {
 	*x = UpdateBrokerResponse{}
-	mi := &file_proto_broker_proto_msgTypes[6]
+	mi := &file_broker_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -362,7 +362,7 @@ func (x *UpdateBrokerResponse) String() string {
 func (*UpdateBrokerResponse) ProtoMessage() {}
 
 func (x *UpdateBrokerResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_broker_proto_msgTypes[6]
+	mi := &file_broker_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -375,7 +375,7 @@ func (x *UpdateBrokerResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateBrokerResponse.ProtoReflect.Descriptor instead.
 func (*UpdateBrokerResponse) Descriptor() ([]byte, []int) {
-	return file_proto_broker_proto_rawDescGZIP(), []int{6}
+	return file_broker_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *UpdateBrokerResponse) GetBroker() *Broker {
@@ -394,7 +394,7 @@ type DeleteBrokerRequest struct {
 
 func (x *DeleteBrokerRequest) Reset() {
 	*x = DeleteBrokerRequest{}
-	mi := &file_proto_broker_proto_msgTypes[7]
+	mi := &file_broker_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -406,7 +406,7 @@ func (x *DeleteBrokerRequest) String() string {
 func (*DeleteBrokerRequest) ProtoMessage() {}
 
 func (x *DeleteBrokerRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_broker_proto_msgTypes[7]
+	mi := &file_broker_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -419,7 +419,7 @@ func (x *DeleteBrokerRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteBrokerRequest.ProtoReflect.Descriptor instead.
 func (*DeleteBrokerRequest) Descriptor() ([]byte, []int) {
-	return file_proto_broker_proto_rawDescGZIP(), []int{7}
+	return file_broker_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *DeleteBrokerRequest) GetId() string {
@@ -438,7 +438,7 @@ type DeleteBrokerResponse struct {
 
 func (x *DeleteBrokerResponse) Reset() {
 	*x = DeleteBrokerResponse{}
-	mi := &file_proto_broker_proto_msgTypes[8]
+	mi := &file_broker_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -450,7 +450,7 @@ func (x *DeleteBrokerResponse) String() string {
 func (*DeleteBrokerResponse) ProtoMessage() {}
 
 func (x *DeleteBrokerResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_broker_proto_msgTypes[8]
+	mi := &file_broker_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -463,7 +463,7 @@ func (x *DeleteBrokerResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteBrokerResponse.ProtoReflect.Descriptor instead.
 func (*DeleteBrokerResponse) Descriptor() ([]byte, []int) {
-	return file_proto_broker_proto_rawDescGZIP(), []int{8}
+	return file_broker_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *DeleteBrokerResponse) GetSuccess() bool {
@@ -482,7 +482,7 @@ type ListBrokersRequest struct {
 
 func (x *ListBrokersRequest) Reset() {
 	*x = ListBrokersRequest{}
-	mi := &file_proto_broker_proto_msgTypes[9]
+	mi := &file_broker_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -494,7 +494,7 @@ func (x *ListBrokersRequest) String() string {
 func (*ListBrokersRequest) ProtoMessage() {}
 
 func (x *ListBrokersRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_broker_proto_msgTypes[9]
+	mi := &file_broker_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -507,7 +507,7 @@ func (x *ListBrokersRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListBrokersRequest.ProtoReflect.Descriptor instead.
 func (*ListBrokersRequest) Descriptor() ([]byte, []int) {
-	return file_proto_broker_proto_rawDescGZIP(), []int{9}
+	return file_broker_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *ListBrokersRequest) GetEnabledOnly() bool {
@@ -526,7 +526,7 @@ type ListBrokersResponse struct {
 
 func (x *ListBrokersResponse) Reset() {
 	*x = ListBrokersResponse{}
-	mi := &file_proto_broker_proto_msgTypes[10]
+	mi := &file_broker_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -538,7 +538,7 @@ func (x *ListBrokersResponse) String() string {
 func (*ListBrokersResponse) ProtoMessage() {}
 
 func (x *ListBrokersResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_broker_proto_msgTypes[10]
+	mi := &file_broker_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -551,7 +551,7 @@ func (x *ListBrokersResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListBrokersResponse.ProtoReflect.Descriptor instead.
 func (*ListBrokersResponse) Descriptor() ([]byte, []int) {
-	return file_proto_broker_proto_rawDescGZIP(), []int{10}
+	return file_broker_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *ListBrokersResponse) GetBrokers() []*Broker {
@@ -571,7 +571,7 @@ type BrokerUser struct {
 
 func (x *BrokerUser) Reset() {
 	*x = BrokerUser{}
-	mi := &file_proto_broker_proto_msgTypes[11]
+	mi := &file_broker_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -583,7 +583,7 @@ func (x *BrokerUser) String() string {
 func (*BrokerUser) ProtoMessage() {}
 
 func (x *BrokerUser) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_broker_proto_msgTypes[11]
+	mi := &file_broker_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -596,7 +596,7 @@ func (x *BrokerUser) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BrokerUser.ProtoReflect.Descriptor instead.
 func (*BrokerUser) Descriptor() ([]byte, []int) {
-	return file_proto_broker_proto_rawDescGZIP(), []int{11}
+	return file_broker_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *BrokerUser) GetUserId() string {
@@ -623,7 +623,7 @@ type CreateBrokerUserRequest struct {
 
 func (x *CreateBrokerUserRequest) Reset() {
 	*x = CreateBrokerUserRequest{}
-	mi := &file_proto_broker_proto_msgTypes[12]
+	mi := &file_broker_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -635,7 +635,7 @@ func (x *CreateBrokerUserRequest) String() string {
 func (*CreateBrokerUserRequest) ProtoMessage() {}
 
 func (x *CreateBrokerUserRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_broker_proto_msgTypes[12]
+	mi := &file_broker_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -648,7 +648,7 @@ func (x *CreateBrokerUserRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateBrokerUserRequest.ProtoReflect.Descriptor instead.
 func (*CreateBrokerUserRequest) Descriptor() ([]byte, []int) {
-	return file_proto_broker_proto_rawDescGZIP(), []int{12}
+	return file_broker_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *CreateBrokerUserRequest) GetUserId() string {
@@ -674,7 +674,7 @@ type CreateBrokerUserResponse struct {
 
 func (x *CreateBrokerUserResponse) Reset() {
 	*x = CreateBrokerUserResponse{}
-	mi := &file_proto_broker_proto_msgTypes[13]
+	mi := &file_broker_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -686,7 +686,7 @@ func (x *CreateBrokerUserResponse) String() string {
 func (*CreateBrokerUserResponse) ProtoMessage() {}
 
 func (x *CreateBrokerUserResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_broker_proto_msgTypes[13]
+	mi := &file_broker_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -699,7 +699,7 @@ func (x *CreateBrokerUserResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateBrokerUserResponse.ProtoReflect.Descriptor instead.
 func (*CreateBrokerUserResponse) Descriptor() ([]byte, []int) {
-	return file_proto_broker_proto_rawDescGZIP(), []int{13}
+	return file_broker_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *CreateBrokerUserResponse) GetUserBrokers() []*BrokerUser {
@@ -719,7 +719,7 @@ type GetBrokerUserRequest struct {
 
 func (x *GetBrokerUserRequest) Reset() {
 	*x = GetBrokerUserRequest{}
-	mi := &file_proto_broker_proto_msgTypes[14]
+	mi := &file_broker_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -731,7 +731,7 @@ func (x *GetBrokerUserRequest) String() string {
 func (*GetBrokerUserRequest) ProtoMessage() {}
 
 func (x *GetBrokerUserRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_broker_proto_msgTypes[14]
+	mi := &file_broker_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -744,7 +744,7 @@ func (x *GetBrokerUserRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetBrokerUserRequest.ProtoReflect.Descriptor instead.
 func (*GetBrokerUserRequest) Descriptor() ([]byte, []int) {
-	return file_proto_broker_proto_rawDescGZIP(), []int{14}
+	return file_broker_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *GetBrokerUserRequest) GetUserId() string {
@@ -770,7 +770,7 @@ type GetBrokerUserResponse struct {
 
 func (x *GetBrokerUserResponse) Reset() {
 	*x = GetBrokerUserResponse{}
-	mi := &file_proto_broker_proto_msgTypes[15]
+	mi := &file_broker_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -782,7 +782,7 @@ func (x *GetBrokerUserResponse) String() string {
 func (*GetBrokerUserResponse) ProtoMessage() {}
 
 func (x *GetBrokerUserResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_broker_proto_msgTypes[15]
+	mi := &file_broker_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -795,7 +795,7 @@ func (x *GetBrokerUserResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetBrokerUserResponse.ProtoReflect.Descriptor instead.
 func (*GetBrokerUserResponse) Descriptor() ([]byte, []int) {
-	return file_proto_broker_proto_rawDescGZIP(), []int{15}
+	return file_broker_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *GetBrokerUserResponse) GetBrokerUser() *BrokerUser {
@@ -815,7 +815,7 @@ type DeleteBrokerUserRequest struct {
 
 func (x *DeleteBrokerUserRequest) Reset() {
 	*x = DeleteBrokerUserRequest{}
-	mi := &file_proto_broker_proto_msgTypes[16]
+	mi := &file_broker_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -827,7 +827,7 @@ func (x *DeleteBrokerUserRequest) String() string {
 func (*DeleteBrokerUserRequest) ProtoMessage() {}
 
 func (x *DeleteBrokerUserRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_broker_proto_msgTypes[16]
+	mi := &file_broker_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -840,7 +840,7 @@ func (x *DeleteBrokerUserRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteBrokerUserRequest.ProtoReflect.Descriptor instead.
 func (*DeleteBrokerUserRequest) Descriptor() ([]byte, []int) {
-	return file_proto_broker_proto_rawDescGZIP(), []int{16}
+	return file_broker_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *DeleteBrokerUserRequest) GetUserId() string {
@@ -866,7 +866,7 @@ type DeleteBrokerUserResponse struct {
 
 func (x *DeleteBrokerUserResponse) Reset() {
 	*x = DeleteBrokerUserResponse{}
-	mi := &file_proto_broker_proto_msgTypes[17]
+	mi := &file_broker_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -878,7 +878,7 @@ func (x *DeleteBrokerUserResponse) String() string {
 func (*DeleteBrokerUserResponse) ProtoMessage() {}
 
 func (x *DeleteBrokerUserResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_broker_proto_msgTypes[17]
+	mi := &file_broker_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -891,7 +891,7 @@ func (x *DeleteBrokerUserResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteBrokerUserResponse.ProtoReflect.Descriptor instead.
 func (*DeleteBrokerUserResponse) Descriptor() ([]byte, []int) {
-	return file_proto_broker_proto_rawDescGZIP(), []int{17}
+	return file_broker_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *DeleteBrokerUserResponse) GetSuccess() bool {
@@ -910,7 +910,7 @@ type ListUserBrokersRequest struct {
 
 func (x *ListUserBrokersRequest) Reset() {
 	*x = ListUserBrokersRequest{}
-	mi := &file_proto_broker_proto_msgTypes[18]
+	mi := &file_broker_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -922,7 +922,7 @@ func (x *ListUserBrokersRequest) String() string {
 func (*ListUserBrokersRequest) ProtoMessage() {}
 
 func (x *ListUserBrokersRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_broker_proto_msgTypes[18]
+	mi := &file_broker_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -935,7 +935,7 @@ func (x *ListUserBrokersRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListUserBrokersRequest.ProtoReflect.Descriptor instead.
 func (*ListUserBrokersRequest) Descriptor() ([]byte, []int) {
-	return file_proto_broker_proto_rawDescGZIP(), []int{18}
+	return file_broker_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *ListUserBrokersRequest) GetUserId() string {
@@ -954,7 +954,7 @@ type ListUserBrokersResponse struct {
 
 func (x *ListUserBrokersResponse) Reset() {
 	*x = ListUserBrokersResponse{}
-	mi := &file_proto_broker_proto_msgTypes[19]
+	mi := &file_broker_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -966,7 +966,7 @@ func (x *ListUserBrokersResponse) String() string {
 func (*ListUserBrokersResponse) ProtoMessage() {}
 
 func (x *ListUserBrokersResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_broker_proto_msgTypes[19]
+	mi := &file_broker_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -979,7 +979,7 @@ func (x *ListUserBrokersResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListUserBrokersResponse.ProtoReflect.Descriptor instead.
 func (*ListUserBrokersResponse) Descriptor() ([]byte, []int) {
-	return file_proto_broker_proto_rawDescGZIP(), []int{19}
+	return file_broker_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *ListUserBrokersResponse) GetUserBrokers() []*BrokerUser {
@@ -1001,7 +1001,7 @@ type BrokerImage struct {
 
 func (x *BrokerImage) Reset() {
 	*x = BrokerImage{}
-	mi := &file_proto_broker_proto_msgTypes[20]
+	mi := &file_broker_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1013,7 +1013,7 @@ func (x *BrokerImage) String() string {
 func (*BrokerImage) ProtoMessage() {}
 
 func (x *BrokerImage) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_broker_proto_msgTypes[20]
+	mi := &file_broker_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1026,7 +1026,7 @@ func (x *BrokerImage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BrokerImage.ProtoReflect.Descriptor instead.
 func (*BrokerImage) Descriptor() ([]byte, []int) {
-	return file_proto_broker_proto_rawDescGZIP(), []int{20}
+	return file_broker_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *BrokerImage) GetId() string {
@@ -1068,7 +1068,7 @@ type CreateBrokerImageRequest struct {
 
 func (x *CreateBrokerImageRequest) Reset() {
 	*x = CreateBrokerImageRequest{}
-	mi := &file_proto_broker_proto_msgTypes[21]
+	mi := &file_broker_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1080,7 +1080,7 @@ func (x *CreateBrokerImageRequest) String() string {
 func (*CreateBrokerImageRequest) ProtoMessage() {}
 
 func (x *CreateBrokerImageRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_broker_proto_msgTypes[21]
+	mi := &file_broker_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1093,7 +1093,7 @@ func (x *CreateBrokerImageRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateBrokerImageRequest.ProtoReflect.Descriptor instead.
 func (*CreateBrokerImageRequest) Descriptor() ([]byte, []int) {
-	return file_proto_broker_proto_rawDescGZIP(), []int{21}
+	return file_broker_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *CreateBrokerImageRequest) GetBrokerId() string {
@@ -1126,7 +1126,7 @@ type CreateBrokerImageResponse struct {
 
 func (x *CreateBrokerImageResponse) Reset() {
 	*x = CreateBrokerImageResponse{}
-	mi := &file_proto_broker_proto_msgTypes[22]
+	mi := &file_broker_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1138,7 +1138,7 @@ func (x *CreateBrokerImageResponse) String() string {
 func (*CreateBrokerImageResponse) ProtoMessage() {}
 
 func (x *CreateBrokerImageResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_broker_proto_msgTypes[22]
+	mi := &file_broker_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1151,7 +1151,7 @@ func (x *CreateBrokerImageResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateBrokerImageResponse.ProtoReflect.Descriptor instead.
 func (*CreateBrokerImageResponse) Descriptor() ([]byte, []int) {
-	return file_proto_broker_proto_rawDescGZIP(), []int{22}
+	return file_broker_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *CreateBrokerImageResponse) GetImage() *BrokerImage {
@@ -1170,7 +1170,7 @@ type GetBrokerImageRequest struct {
 
 func (x *GetBrokerImageRequest) Reset() {
 	*x = GetBrokerImageRequest{}
-	mi := &file_proto_broker_proto_msgTypes[23]
+	mi := &file_broker_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1182,7 +1182,7 @@ func (x *GetBrokerImageRequest) String() string {
 func (*GetBrokerImageRequest) ProtoMessage() {}
 
 func (x *GetBrokerImageRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_broker_proto_msgTypes[23]
+	mi := &file_broker_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1195,7 +1195,7 @@ func (x *GetBrokerImageRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetBrokerImageRequest.ProtoReflect.Descriptor instead.
 func (*GetBrokerImageRequest) Descriptor() ([]byte, []int) {
-	return file_proto_broker_proto_rawDescGZIP(), []int{23}
+	return file_broker_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *GetBrokerImageRequest) GetImageId() string {
@@ -1215,7 +1215,7 @@ type GetBrokerImageResponse struct {
 
 func (x *GetBrokerImageResponse) Reset() {
 	*x = GetBrokerImageResponse{}
-	mi := &file_proto_broker_proto_msgTypes[24]
+	mi := &file_broker_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1227,7 +1227,7 @@ func (x *GetBrokerImageResponse) String() string {
 func (*GetBrokerImageResponse) ProtoMessage() {}
 
 func (x *GetBrokerImageResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_broker_proto_msgTypes[24]
+	mi := &file_broker_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1240,7 +1240,7 @@ func (x *GetBrokerImageResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetBrokerImageResponse.ProtoReflect.Descriptor instead.
 func (*GetBrokerImageResponse) Descriptor() ([]byte, []int) {
-	return file_proto_broker_proto_rawDescGZIP(), []int{24}
+	return file_broker_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *GetBrokerImageResponse) GetData() []byte {
@@ -1269,7 +1269,7 @@ type UpdateBrokerImageRequest struct {
 
 func (x *UpdateBrokerImageRequest) Reset() {
 	*x = UpdateBrokerImageRequest{}
-	mi := &file_proto_broker_proto_msgTypes[25]
+	mi := &file_broker_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1281,7 +1281,7 @@ func (x *UpdateBrokerImageRequest) String() string {
 func (*UpdateBrokerImageRequest) ProtoMessage() {}
 
 func (x *UpdateBrokerImageRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_broker_proto_msgTypes[25]
+	mi := &file_broker_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1294,7 +1294,7 @@ func (x *UpdateBrokerImageRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateBrokerImageRequest.ProtoReflect.Descriptor instead.
 func (*UpdateBrokerImageRequest) Descriptor() ([]byte, []int) {
-	return file_proto_broker_proto_rawDescGZIP(), []int{25}
+	return file_broker_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *UpdateBrokerImageRequest) GetImageId() string {
@@ -1334,7 +1334,7 @@ type UpdateBrokerImageResponse struct {
 
 func (x *UpdateBrokerImageResponse) Reset() {
 	*x = UpdateBrokerImageResponse{}
-	mi := &file_proto_broker_proto_msgTypes[26]
+	mi := &file_broker_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1346,7 +1346,7 @@ func (x *UpdateBrokerImageResponse) String() string {
 func (*UpdateBrokerImageResponse) ProtoMessage() {}
 
 func (x *UpdateBrokerImageResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_broker_proto_msgTypes[26]
+	mi := &file_broker_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1359,7 +1359,7 @@ func (x *UpdateBrokerImageResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateBrokerImageResponse.ProtoReflect.Descriptor instead.
 func (*UpdateBrokerImageResponse) Descriptor() ([]byte, []int) {
-	return file_proto_broker_proto_rawDescGZIP(), []int{26}
+	return file_broker_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *UpdateBrokerImageResponse) GetImage() *BrokerImage {
@@ -1379,7 +1379,7 @@ type DeleteBrokerImageRequest struct {
 
 func (x *DeleteBrokerImageRequest) Reset() {
 	*x = DeleteBrokerImageRequest{}
-	mi := &file_proto_broker_proto_msgTypes[27]
+	mi := &file_broker_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1391,7 +1391,7 @@ func (x *DeleteBrokerImageRequest) String() string {
 func (*DeleteBrokerImageRequest) ProtoMessage() {}
 
 func (x *DeleteBrokerImageRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_broker_proto_msgTypes[27]
+	mi := &file_broker_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1404,7 +1404,7 @@ func (x *DeleteBrokerImageRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteBrokerImageRequest.ProtoReflect.Descriptor instead.
 func (*DeleteBrokerImageRequest) Descriptor() ([]byte, []int) {
-	return file_proto_broker_proto_rawDescGZIP(), []int{27}
+	return file_broker_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *DeleteBrokerImageRequest) GetImageId() string {
@@ -1430,7 +1430,7 @@ type DeleteBrokerImageResponse struct {
 
 func (x *DeleteBrokerImageResponse) Reset() {
 	*x = DeleteBrokerImageResponse{}
-	mi := &file_proto_broker_proto_msgTypes[28]
+	mi := &file_broker_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1442,7 +1442,7 @@ func (x *DeleteBrokerImageResponse) String() string {
 func (*DeleteBrokerImageResponse) ProtoMessage() {}
 
 func (x *DeleteBrokerImageResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_broker_proto_msgTypes[28]
+	mi := &file_broker_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1455,7 +1455,7 @@ func (x *DeleteBrokerImageResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteBrokerImageResponse.ProtoReflect.Descriptor instead.
 func (*DeleteBrokerImageResponse) Descriptor() ([]byte, []int) {
-	return file_proto_broker_proto_rawDescGZIP(), []int{28}
+	return file_broker_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *DeleteBrokerImageResponse) GetSuccess() bool {
@@ -1465,11 +1465,11 @@ func (x *DeleteBrokerImageResponse) GetSuccess() bool {
 	return false
 }
 
-var File_proto_broker_proto protoreflect.FileDescriptor
+var File_broker_proto protoreflect.FileDescriptor
 
-const file_proto_broker_proto_rawDesc = "" +
+const file_broker_proto_rawDesc = "" +
 	"\n" +
-	"\x12proto/broker.proto\x12\x06broker\"c\n" +
+	"\fbroker.proto\x12\x06broker\"c\n" +
 	"\x06Broker\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x19\n" +
@@ -1565,22 +1565,22 @@ const file_proto_broker_proto_rawDesc = "" +
 	"\x0eGetBrokerImage\x12\x1d.broker.GetBrokerImageRequest\x1a\x1e.broker.GetBrokerImageResponse\x12X\n" +
 	"\x11UpdateBrokerImage\x12 .broker.UpdateBrokerImageRequest\x1a!.broker.UpdateBrokerImageResponse\x12X\n" +
 	"\x11DeleteBrokerImage\x12 .broker.DeleteBrokerImageRequest\x1a!.broker.DeleteBrokerImageResponseB\fZ\n" +
-	"./protogenb\x06proto3"
+	"./brokerpbb\x06proto3"
 
 var (
-	file_proto_broker_proto_rawDescOnce sync.Once
-	file_proto_broker_proto_rawDescData []byte
+	file_broker_proto_rawDescOnce sync.Once
+	file_broker_proto_rawDescData []byte
 )
 
-func file_proto_broker_proto_rawDescGZIP() []byte {
-	file_proto_broker_proto_rawDescOnce.Do(func() {
-		file_proto_broker_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_proto_broker_proto_rawDesc), len(file_proto_broker_proto_rawDesc)))
+func file_broker_proto_rawDescGZIP() []byte {
+	file_broker_proto_rawDescOnce.Do(func() {
+		file_broker_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_broker_proto_rawDesc), len(file_broker_proto_rawDesc)))
 	})
-	return file_proto_broker_proto_rawDescData
+	return file_broker_proto_rawDescData
 }
 
-var file_proto_broker_proto_msgTypes = make([]protoimpl.MessageInfo, 29)
-var file_proto_broker_proto_goTypes = []any{
+var file_broker_proto_msgTypes = make([]protoimpl.MessageInfo, 29)
+var file_broker_proto_goTypes = []any{
 	(*Broker)(nil),                    // 0: broker.Broker
 	(*CreateBrokerRequest)(nil),       // 1: broker.CreateBrokerRequest
 	(*CreateBrokerResponse)(nil),      // 2: broker.CreateBrokerResponse
@@ -1611,7 +1611,7 @@ var file_proto_broker_proto_goTypes = []any{
 	(*DeleteBrokerImageRequest)(nil),  // 27: broker.DeleteBrokerImageRequest
 	(*DeleteBrokerImageResponse)(nil), // 28: broker.DeleteBrokerImageResponse
 }
-var file_proto_broker_proto_depIdxs = []int32{
+var file_broker_proto_depIdxs = []int32{
 	0,  // 0: broker.CreateBrokerResponse.broker:type_name -> broker.Broker
 	0,  // 1: broker.GetBrokerResponse.broker:type_name -> broker.Broker
 	0,  // 2: broker.UpdateBrokerResponse.broker:type_name -> broker.Broker
@@ -1655,26 +1655,26 @@ var file_proto_broker_proto_depIdxs = []int32{
 	0,  // [0:10] is the sub-list for field type_name
 }
 
-func init() { file_proto_broker_proto_init() }
-func file_proto_broker_proto_init() {
-	if File_proto_broker_proto != nil {
+func init() { file_broker_proto_init() }
+func file_broker_proto_init() {
+	if File_broker_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_broker_proto_rawDesc), len(file_proto_broker_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_broker_proto_rawDesc), len(file_broker_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   29,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_proto_broker_proto_goTypes,
-		DependencyIndexes: file_proto_broker_proto_depIdxs,
-		MessageInfos:      file_proto_broker_proto_msgTypes,
+		GoTypes:           file_broker_proto_goTypes,
+		DependencyIndexes: file_broker_proto_depIdxs,
+		MessageInfos:      file_broker_proto_msgTypes,
 	}.Build()
-	File_proto_broker_proto = out.File
-	file_proto_broker_proto_goTypes = nil
-	file_proto_broker_proto_depIdxs = nil
+	File_broker_proto = out.File
+	file_broker_proto_goTypes = nil
+	file_broker_proto_depIdxs = nil
 }

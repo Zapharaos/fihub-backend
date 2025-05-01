@@ -3,11 +3,12 @@ package main
 import (
 	"github.com/Zapharaos/fihub-backend/cmd/broker/app/repositories"
 	"github.com/Zapharaos/fihub-backend/cmd/broker/app/service"
+	"github.com/Zapharaos/fihub-backend/gen/go/brokerpb"
+	"github.com/Zapharaos/fihub-backend/gen/go/securitypb"
 	"github.com/Zapharaos/fihub-backend/internal/app"
 	"github.com/Zapharaos/fihub-backend/internal/database"
 	"github.com/Zapharaos/fihub-backend/internal/grpcconn"
 	"github.com/Zapharaos/fihub-backend/internal/security"
-	"github.com/Zapharaos/fihub-backend/protogen"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
@@ -36,7 +37,7 @@ func main() {
 
 	// gRPC clients
 	securityConn := grpcconn.ConnectGRPCService("SECURITY")
-	publicSecurityClient := protogen.NewPublicSecurityServiceClient(securityConn)
+	publicSecurityClient := securitypb.NewPublicSecurityServiceClient(securityConn)
 	security.ReplaceGlobals(security.NewPublicSecurityFacadeWithGrpcClient(publicSecurityClient))
 
 	// Start gRPC microservice
@@ -49,7 +50,7 @@ func main() {
 	s := grpc.NewServer()
 
 	// Register gRPC service
-	protogen.RegisterBrokerServiceServer(s, &service.Service{})
+	brokerpb.RegisterBrokerServiceServer(s, &service.Service{})
 
 	zap.L().Info("gRPC Broker microservice is running on port : " + port)
 	if err := s.Serve(lis); err != nil {

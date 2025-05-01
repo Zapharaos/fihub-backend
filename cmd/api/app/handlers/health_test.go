@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/clients"
-	"github.com/Zapharaos/fihub-backend/protogen"
+	"github.com/Zapharaos/fihub-backend/gen"
 	"github.com/Zapharaos/fihub-backend/test/mocks"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"

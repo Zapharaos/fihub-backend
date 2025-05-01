@@ -3,10 +3,10 @@ package service
 import (
 	"context"
 	"github.com/Zapharaos/fihub-backend/cmd/security/app/repositories"
+	"github.com/Zapharaos/fihub-backend/gen/go/securitypb"
 	"github.com/Zapharaos/fihub-backend/internal/mappers"
 	"github.com/Zapharaos/fihub-backend/internal/security"
 	"github.com/Zapharaos/fihub-backend/internal/utils"
-	"github.com/Zapharaos/fihub-backend/protogen"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
@@ -14,7 +14,7 @@ import (
 )
 
 // AddUsersToRole implements the AddUsersToRole RPC method.
-func (s *Service) AddUsersToRole(ctx context.Context, req *protogen.AddUsersToRoleRequest) (*protogen.AddUsersToRoleResponse, error) {
+func (s *Service) AddUsersToRole(ctx context.Context, req *securitypb.AddUsersToRoleRequest) (*securitypb.AddUsersToRoleResponse, error) {
 	// Check user permissions for creating a role
 	err := security.Facade().CheckPermission(ctx, "admin.roles.users.update")
 	if err != nil {
@@ -27,36 +27,36 @@ func (s *Service) AddUsersToRole(ctx context.Context, req *protogen.AddUsersToRo
 	if err != nil {
 		// Log the error and return an invalid response
 		zap.L().Error("Invalid user ID", zap.String("user_id", req.GetRoleId()), zap.Error(err))
-		return &protogen.AddUsersToRoleResponse{}, status.Error(codes.InvalidArgument, "Invalid user ID")
+		return &securitypb.AddUsersToRoleResponse{}, status.Error(codes.InvalidArgument, "Invalid user ID")
 	}
 
 	// Parse user UUIDs
 	uuidUsers, err := utils.StringsToUUIDs(req.GetUserIds())
 	if err != nil {
 		zap.L().Error("Invalid user UUIDs", zap.Error(err))
-		return &protogen.AddUsersToRoleResponse{}, status.Error(codes.InvalidArgument, "Invalid user UUIDs")
+		return &securitypb.AddUsersToRoleResponse{}, status.Error(codes.InvalidArgument, "Invalid user UUIDs")
 	}
 
 	err = repositories.R().R().AddToUsers(uuidUsers, roleID)
 	if err != nil {
 		zap.L().Error("AddUsersToRole", zap.Error(err))
-		return &protogen.AddUsersToRoleResponse{}, status.Error(codes.Internal, "Failed to add users to role")
+		return &securitypb.AddUsersToRoleResponse{}, status.Error(codes.Internal, "Failed to add users to role")
 	}
 
 	// Retrieve users by role ID from database
 	users, err := repositories.R().R().ListUsersByRoleId(roleID)
 	if err != nil {
 		zap.L().Error("ListUsersForRole", zap.Error(err))
-		return &protogen.AddUsersToRoleResponse{}, status.Error(codes.Internal, "Failed to list users for role")
+		return &securitypb.AddUsersToRoleResponse{}, status.Error(codes.Internal, "Failed to list users for role")
 	}
 
-	return &protogen.AddUsersToRoleResponse{
+	return &securitypb.AddUsersToRoleResponse{
 		UserIds: users,
 	}, nil
 }
 
 // RemoveUsersFromRole implements the RemoveUsersFromRole RPC method.
-func (s *Service) RemoveUsersFromRole(ctx context.Context, req *protogen.RemoveUsersFromRoleRequest) (*protogen.RemoveUsersFromRoleResponse, error) {
+func (s *Service) RemoveUsersFromRole(ctx context.Context, req *securitypb.RemoveUsersFromRoleRequest) (*securitypb.RemoveUsersFromRoleResponse, error) {
 	// Check user permissions for creating a role
 	err := security.Facade().CheckPermission(ctx, "admin.roles.users.delete")
 	if err != nil {
@@ -69,36 +69,36 @@ func (s *Service) RemoveUsersFromRole(ctx context.Context, req *protogen.RemoveU
 	if err != nil {
 		// Log the error and return an invalid response
 		zap.L().Error("Invalid user ID", zap.String("user_id", req.GetRoleId()), zap.Error(err))
-		return &protogen.RemoveUsersFromRoleResponse{}, status.Error(codes.InvalidArgument, "Invalid user ID")
+		return &securitypb.RemoveUsersFromRoleResponse{}, status.Error(codes.InvalidArgument, "Invalid user ID")
 	}
 
 	// Parse user UUIDs
 	uuidUsers, err := utils.StringsToUUIDs(req.GetUserIds())
 	if err != nil {
 		zap.L().Error("Invalid user UUIDs", zap.Error(err))
-		return &protogen.RemoveUsersFromRoleResponse{}, status.Error(codes.InvalidArgument, "Invalid user UUIDs")
+		return &securitypb.RemoveUsersFromRoleResponse{}, status.Error(codes.InvalidArgument, "Invalid user UUIDs")
 	}
 
 	err = repositories.R().R().RemoveFromUsers(uuidUsers, roleID)
 	if err != nil {
 		zap.L().Error("RemoveUsersFromRole", zap.Error(err))
-		return &protogen.RemoveUsersFromRoleResponse{}, status.Error(codes.Internal, "Failed to remove users from role")
+		return &securitypb.RemoveUsersFromRoleResponse{}, status.Error(codes.Internal, "Failed to remove users from role")
 	}
 
 	// Retrieve users by role ID from database
 	users, err := repositories.R().R().ListUsersByRoleId(roleID)
 	if err != nil {
 		zap.L().Error("ListUsersForRole", zap.Error(err))
-		return &protogen.RemoveUsersFromRoleResponse{}, status.Error(codes.Internal, "Failed to list users for role")
+		return &securitypb.RemoveUsersFromRoleResponse{}, status.Error(codes.Internal, "Failed to list users for role")
 	}
 
-	return &protogen.RemoveUsersFromRoleResponse{
+	return &securitypb.RemoveUsersFromRoleResponse{
 		UserIds: users,
 	}, nil
 }
 
 // ListUsersForRole implements the ListUsersForRole RPC method.
-func (s *Service) ListUsersForRole(ctx context.Context, req *protogen.ListUsersForRoleRequest) (*protogen.ListUsersForRoleResponse, error) {
+func (s *Service) ListUsersForRole(ctx context.Context, req *securitypb.ListUsersForRoleRequest) (*securitypb.ListUsersForRoleResponse, error) {
 	// Check user permissions for creating a role
 	err := security.Facade().CheckPermission(ctx, "admin.roles.users.list")
 	if err != nil {
@@ -111,23 +111,23 @@ func (s *Service) ListUsersForRole(ctx context.Context, req *protogen.ListUsersF
 	if err != nil {
 		// Log the error and return an invalid response
 		zap.L().Error("Invalid user ID", zap.String("user_id", req.GetRoleId()), zap.Error(err))
-		return &protogen.ListUsersForRoleResponse{}, status.Error(codes.InvalidArgument, "Invalid user ID")
+		return &securitypb.ListUsersForRoleResponse{}, status.Error(codes.InvalidArgument, "Invalid user ID")
 	}
 
 	// Retrieve users by role ID from database
 	users, err := repositories.R().R().ListUsersByRoleId(roleID)
 	if err != nil {
 		zap.L().Error("ListUsersForRole", zap.Error(err))
-		return &protogen.ListUsersForRoleResponse{}, status.Error(codes.Internal, "Failed to list users for role")
+		return &securitypb.ListUsersForRoleResponse{}, status.Error(codes.Internal, "Failed to list users for role")
 	}
 
-	return &protogen.ListUsersForRoleResponse{
+	return &securitypb.ListUsersForRoleResponse{
 		UserIds: users,
 	}, nil
 }
 
 // SetRolesForUser implements the SetRolesForUser RPC method.
-func (s *Service) SetRolesForUser(ctx context.Context, req *protogen.SetRolesForUserRequest) (*protogen.SetRolesForUserResponse, error) {
+func (s *Service) SetRolesForUser(ctx context.Context, req *securitypb.SetRolesForUserRequest) (*securitypb.SetRolesForUserResponse, error) {
 	// Check user permissions for creating a role
 	err := security.Facade().CheckPermission(ctx, "admin.users.roles.update")
 	if err != nil {
@@ -140,37 +140,37 @@ func (s *Service) SetRolesForUser(ctx context.Context, req *protogen.SetRolesFor
 	if err != nil {
 		// Log the error and return an invalid response
 		zap.L().Error("Invalid user ID", zap.String("user_id", req.GetUserId()), zap.Error(err))
-		return &protogen.SetRolesForUserResponse{}, status.Error(codes.InvalidArgument, "Invalid user ID")
+		return &securitypb.SetRolesForUserResponse{}, status.Error(codes.InvalidArgument, "Invalid user ID")
 	}
 
 	// Parse role UUIDs
 	uuidRoles, err := utils.StringsToUUIDs(req.GetRoleIds())
 	if err != nil {
 		zap.L().Error("Invalid role UUIDs", zap.Error(err))
-		return &protogen.SetRolesForUserResponse{}, status.Error(codes.InvalidArgument, "Invalid role UUIDs")
+		return &securitypb.SetRolesForUserResponse{}, status.Error(codes.InvalidArgument, "Invalid role UUIDs")
 	}
 
 	// Set roles on user
 	err = repositories.R().R().SetForUser(userID, uuidRoles)
 	if err != nil {
 		zap.L().Error("SetRolesForUser", zap.Error(err))
-		return &protogen.SetRolesForUserResponse{}, status.Error(codes.Internal, "Failed to set user roles")
+		return &securitypb.SetRolesForUserResponse{}, status.Error(codes.Internal, "Failed to set user roles")
 	}
 
 	// Get all roles with permissions for user from the database
 	roles, err := repositories.R().R().ListWithPermissionsByUserId(userID)
 	if err != nil {
 		zap.L().Error("Cannot list roles with permissions", zap.Error(err))
-		return &protogen.SetRolesForUserResponse{}, status.Error(codes.Internal, err.Error())
+		return &securitypb.SetRolesForUserResponse{}, status.Error(codes.Internal, err.Error())
 	}
 
-	return &protogen.SetRolesForUserResponse{
+	return &securitypb.SetRolesForUserResponse{
 		Roles: mappers.RolesWithPermissionsToProto(roles),
 	}, nil
 }
 
 // ListRolesForUser implements the ListRolesForUser RPC method.
-func (s *Service) ListRolesForUser(ctx context.Context, req *protogen.ListRolesForUserRequest) (*protogen.ListRolesForUserResponse, error) {
+func (s *Service) ListRolesForUser(ctx context.Context, req *securitypb.ListRolesForUserRequest) (*securitypb.ListRolesForUserResponse, error) {
 	// Check user permissions for creating a role
 	err := security.Facade().CheckPermission(ctx, "admin.users.roles.list")
 	if err != nil {
@@ -183,23 +183,23 @@ func (s *Service) ListRolesForUser(ctx context.Context, req *protogen.ListRolesF
 	if err != nil {
 		// Log the error and return an invalid response
 		zap.L().Error("Invalid user ID", zap.String("user_id", req.GetUserId()), zap.Error(err))
-		return &protogen.ListRolesForUserResponse{}, status.Error(codes.InvalidArgument, "Invalid user ID")
+		return &securitypb.ListRolesForUserResponse{}, status.Error(codes.InvalidArgument, "Invalid user ID")
 	}
 
 	// Get all roles for user from the database
 	roles, err := repositories.R().R().ListByUserId(userID)
 	if err != nil {
 		zap.L().Error("Cannot list roles", zap.Error(err))
-		return &protogen.ListRolesForUserResponse{}, status.Error(codes.Internal, err.Error())
+		return &securitypb.ListRolesForUserResponse{}, status.Error(codes.Internal, err.Error())
 	}
 
-	return &protogen.ListRolesForUserResponse{
+	return &securitypb.ListRolesForUserResponse{
 		Roles: mappers.RolesToProto(roles),
 	}, nil
 }
 
 // ListRolesWithPermissionsForUser implements the ListRolesWithPermissionsForUser RPC method.
-func (s *Service) ListRolesWithPermissionsForUser(ctx context.Context, req *protogen.ListRolesWithPermissionsForUserRequest) (*protogen.ListRolesWithPermissionsForUserResponse, error) {
+func (s *Service) ListRolesWithPermissionsForUser(ctx context.Context, req *securitypb.ListRolesWithPermissionsForUserRequest) (*securitypb.ListRolesWithPermissionsForUserResponse, error) {
 	// Check user permissions for creating a role
 	err := security.Facade().CheckPermission(ctx, "admin.users.roles.list")
 	if err != nil {
@@ -212,23 +212,23 @@ func (s *Service) ListRolesWithPermissionsForUser(ctx context.Context, req *prot
 	if err != nil {
 		// Log the error and return an invalid response
 		zap.L().Error("Invalid user ID", zap.String("user_id", req.GetUserId()), zap.Error(err))
-		return &protogen.ListRolesWithPermissionsForUserResponse{}, status.Error(codes.InvalidArgument, "Invalid user ID")
+		return &securitypb.ListRolesWithPermissionsForUserResponse{}, status.Error(codes.InvalidArgument, "Invalid user ID")
 	}
 
 	// Get all roles with permissions for user from the database
 	roles, err := repositories.R().R().ListWithPermissionsByUserId(userID)
 	if err != nil {
 		zap.L().Error("Cannot list roles with permissions", zap.Error(err))
-		return &protogen.ListRolesWithPermissionsForUserResponse{}, status.Error(codes.Internal, err.Error())
+		return &securitypb.ListRolesWithPermissionsForUserResponse{}, status.Error(codes.Internal, err.Error())
 	}
 
-	return &protogen.ListRolesWithPermissionsForUserResponse{
+	return &securitypb.ListRolesWithPermissionsForUserResponse{
 		Roles: mappers.RolesWithPermissionsToProto(roles),
 	}, nil
 }
 
 // ListUsersFull implements the ListUsersFull RPC method.
-func (s *Service) ListUsersFull(ctx context.Context, req *protogen.ListUsersFullRequest) (*protogen.ListUsersFullResponse, error) {
+func (s *Service) ListUsersFull(ctx context.Context, req *securitypb.ListUsersFullRequest) (*securitypb.ListUsersFullResponse, error) {
 	// Check user permissions for creating a role
 	err := security.Facade().CheckPermission(ctx, "admin.users.list")
 	if err != nil {
@@ -240,24 +240,24 @@ func (s *Service) ListUsersFull(ctx context.Context, req *protogen.ListUsersFull
 	userIds, err := repositories.R().R().ListUsers()
 	if err != nil {
 		zap.L().Error("ListUsers", zap.Error(err))
-		return &protogen.ListUsersFullResponse{}, status.Error(codes.Internal, "Failed to list users")
+		return &securitypb.ListUsersFullResponse{}, status.Error(codes.Internal, "Failed to list users")
 	}
 
-	users := make([]*protogen.UserWithRoles, 0, len(userIds))
+	users := make([]*securitypb.UserWithRoles, 0, len(userIds))
 	for _, userID := range userIds {
 		roles, err := repositories.R().R().ListByUserId(uuid.MustParse(userID))
 		if err != nil {
 			zap.L().Error("Cannot list roles", zap.Error(err))
-			return &protogen.ListUsersFullResponse{}, status.Error(codes.Internal, err.Error())
+			return &securitypb.ListUsersFullResponse{}, status.Error(codes.Internal, err.Error())
 		}
 
-		users = append(users, &protogen.UserWithRoles{
+		users = append(users, &securitypb.UserWithRoles{
 			UserId: userID,
 			Roles:  mappers.RolesToProto(roles),
 		})
 	}
 
-	return &protogen.ListUsersFullResponse{
+	return &securitypb.ListUsersFullResponse{
 		Users: users,
 	}, nil
 }

@@ -4,10 +4,10 @@ import (
 	"context"
 	"errors"
 	"github.com/Zapharaos/fihub-backend/cmd/user/app/repositories"
+	"github.com/Zapharaos/fihub-backend/gen/go/userpb"
 	"github.com/Zapharaos/fihub-backend/internal/mappers"
 	"github.com/Zapharaos/fihub-backend/internal/models"
 	"github.com/Zapharaos/fihub-backend/internal/security"
-	"github.com/Zapharaos/fihub-backend/protogen"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
@@ -16,11 +16,11 @@ import (
 
 // Service is the implementation of the UserService interface.
 type Service struct {
-	protogen.UnimplementedUserServiceServer
+	userpb.UnimplementedUserServiceServer
 }
 
 // CreateUser implements the CreateUser RPC method.
-func (s *Service) CreateUser(ctx context.Context, req *protogen.CreateUserRequest) (*protogen.CreateUserResponse, error) {
+func (s *Service) CreateUser(ctx context.Context, req *userpb.CreateUserRequest) (*userpb.CreateUserResponse, error) {
 	// Construct the user input object
 	userInputCreate := models.UserInputPassword{
 		UserWithPassword: models.UserWithPassword{
@@ -36,7 +36,7 @@ func (s *Service) CreateUser(ctx context.Context, req *protogen.CreateUserReques
 	// Validate user
 	if ok, err := userInputCreate.IsValid(); !ok {
 		zap.L().Warn("User is not valid", zap.Error(err))
-		return &protogen.CreateUserResponse{}, status.Error(codes.InvalidArgument, err.Error())
+		return &userpb.CreateUserResponse{}, status.Error(codes.InvalidArgument, err.Error())
 	}
 
 	// Convert to UserWithPassword
@@ -46,44 +46,44 @@ func (s *Service) CreateUser(ctx context.Context, req *protogen.CreateUserReques
 	exists, err := repositories.R().Exists(userWithPassword.Email)
 	if err != nil {
 		zap.L().Error("Check user exists", zap.Error(err))
-		return &protogen.CreateUserResponse{}, status.Error(codes.Internal, err.Error())
+		return &userpb.CreateUserResponse{}, status.Error(codes.Internal, err.Error())
 	}
 	if exists {
 		zap.L().Warn("User already exists", zap.String("email", userWithPassword.Email))
-		return &protogen.CreateUserResponse{}, status.Error(codes.AlreadyExists, "email-used")
+		return &userpb.CreateUserResponse{}, status.Error(codes.AlreadyExists, "email-used")
 	}
 
 	// Create user
 	userID, err := repositories.R().Create(userWithPassword)
 	if err != nil {
 		zap.L().Error("PostUser.Create", zap.Error(err))
-		return &protogen.CreateUserResponse{}, status.Error(codes.Internal, err.Error())
+		return &userpb.CreateUserResponse{}, status.Error(codes.Internal, err.Error())
 	}
 
 	// Get user back from database
 	user, found, err := repositories.R().Get(userID)
 	if err != nil {
 		zap.L().Error("Cannot get user", zap.String("uuid", userID.String()), zap.Error(err))
-		return &protogen.CreateUserResponse{}, status.Error(codes.Internal, err.Error())
+		return &userpb.CreateUserResponse{}, status.Error(codes.Internal, err.Error())
 	}
 	if !found {
 		zap.L().Error("User not found after creation", zap.String("uuid", userID.String()))
-		return &protogen.CreateUserResponse{}, status.Error(codes.Internal, "User not found after creation")
+		return &userpb.CreateUserResponse{}, status.Error(codes.Internal, "User not found after creation")
 	}
 
-	return &protogen.CreateUserResponse{
+	return &userpb.CreateUserResponse{
 		User: mappers.UserToProto(user),
 	}, nil
 }
 
 // GetUser implements the GetUser RPC method.
-func (s *Service) GetUser(ctx context.Context, req *protogen.GetUserRequest) (*protogen.GetUserResponse, error) {
+func (s *Service) GetUser(ctx context.Context, req *userpb.GetUserRequest) (*userpb.GetUserResponse, error) {
 	// Parse the user ID from the request
 	userID, err := uuid.Parse(req.GetId())
 	if err != nil {
 		// Log the error and return an invalid response
 		zap.L().Error("Invalid user ID", zap.String("user_id", req.GetId()), zap.Error(err))
-		return &protogen.GetUserResponse{}, status.Error(codes.InvalidArgument, "Invalid user ID")
+		return &userpb.GetUserResponse{}, status.Error(codes.InvalidArgument, "Invalid user ID")
 	}
 
 	// Check user permissions
@@ -97,26 +97,26 @@ func (s *Service) GetUser(ctx context.Context, req *protogen.GetUserRequest) (*p
 	user, found, err := repositories.R().Get(userID)
 	if err != nil {
 		zap.L().Error("GetUser.Get", zap.Error(err))
-		return &protogen.GetUserResponse{}, status.Error(codes.Internal, err.Error())
+		return &userpb.GetUserResponse{}, status.Error(codes.Internal, err.Error())
 	}
 	if !found {
 		zap.L().Warn("User not found", zap.String("uuid", userID.String()))
-		return &protogen.GetUserResponse{}, status.Error(codes.NotFound, "User not found")
+		return &userpb.GetUserResponse{}, status.Error(codes.NotFound, "User not found")
 	}
 
-	return &protogen.GetUserResponse{
+	return &userpb.GetUserResponse{
 		User: mappers.UserToProto(user),
 	}, nil
 }
 
 // UpdateUser implements the UpdateUser RPC method.
-func (s *Service) UpdateUser(ctx context.Context, req *protogen.UpdateUserRequest) (*protogen.UpdateUserResponse, error) {
+func (s *Service) UpdateUser(ctx context.Context, req *userpb.UpdateUserRequest) (*userpb.UpdateUserResponse, error) {
 	// Parse the user ID from the request
 	userID, err := uuid.Parse(req.GetId())
 	if err != nil {
 		// Log the error and return an invalid response
 		zap.L().Error("Invalid user ID", zap.String("user_id", req.GetId()), zap.Error(err))
-		return &protogen.UpdateUserResponse{}, status.Error(codes.InvalidArgument, "Invalid user ID")
+		return &userpb.UpdateUserResponse{}, status.Error(codes.InvalidArgument, "Invalid user ID")
 	}
 
 	err = security.Facade().CheckPermission(ctx, "admin.users.update", userID)
@@ -134,40 +134,40 @@ func (s *Service) UpdateUser(ctx context.Context, req *protogen.UpdateUserReques
 	// Validate user
 	if ok, err := user.IsValid(); !ok {
 		zap.L().Warn("User is not valid", zap.Error(err))
-		return &protogen.UpdateUserResponse{}, status.Error(codes.InvalidArgument, err.Error())
+		return &userpb.UpdateUserResponse{}, status.Error(codes.InvalidArgument, err.Error())
 	}
 
 	// Update user
 	err = repositories.R().Update(user)
 	if err != nil {
 		zap.L().Error("PutUser.Update", zap.Error(err))
-		return &protogen.UpdateUserResponse{}, status.Error(codes.Internal, err.Error())
+		return &userpb.UpdateUserResponse{}, status.Error(codes.Internal, err.Error())
 	}
 
 	// Get user back from database
 	user, found, err := repositories.R().Get(userID)
 	if err != nil {
 		zap.L().Error("Cannot get user", zap.String("uuid", userID.String()), zap.Error(err))
-		return &protogen.UpdateUserResponse{}, status.Error(codes.Internal, err.Error())
+		return &userpb.UpdateUserResponse{}, status.Error(codes.Internal, err.Error())
 	}
 	if !found {
 		zap.L().Error("User not found after update", zap.String("uuid", userID.String()))
-		return &protogen.UpdateUserResponse{}, status.Error(codes.Internal, "User not found after update")
+		return &userpb.UpdateUserResponse{}, status.Error(codes.Internal, "User not found after update")
 	}
 
-	return &protogen.UpdateUserResponse{
+	return &userpb.UpdateUserResponse{
 		User: mappers.UserToProto(user),
 	}, nil
 }
 
 // UpdateUserPassword implements the UpdateUserPassword RPC method.
-func (s *Service) UpdateUserPassword(ctx context.Context, req *protogen.UpdateUserPasswordRequest) (*protogen.UpdateUserPasswordResponse, error) {
+func (s *Service) UpdateUserPassword(ctx context.Context, req *userpb.UpdateUserPasswordRequest) (*userpb.UpdateUserPasswordResponse, error) {
 	// Parse the user ID from the request
 	userID, err := uuid.Parse(req.GetId())
 	if err != nil {
 		// Log the error and return an invalid response
 		zap.L().Error("Invalid user ID", zap.String("user_id", req.GetId()), zap.Error(err))
-		return &protogen.UpdateUserPasswordResponse{}, status.Error(codes.InvalidArgument, "Invalid user ID")
+		return &userpb.UpdateUserPasswordResponse{}, status.Error(codes.InvalidArgument, "Invalid user ID")
 	}
 
 	err = security.Facade().CheckPermission(ctx, "admin.users.update", userID)
@@ -190,29 +190,29 @@ func (s *Service) UpdateUserPassword(ctx context.Context, req *protogen.UpdateUs
 	// Validate password
 	if ok, err := userInputPassword.IsValidPassword(); !ok {
 		zap.L().Warn("User is not valid", zap.Error(err))
-		return &protogen.UpdateUserPasswordResponse{}, status.Error(codes.InvalidArgument, err.Error())
+		return &userpb.UpdateUserPasswordResponse{}, status.Error(codes.InvalidArgument, err.Error())
 	}
 
 	// Update password
 	err = repositories.R().UpdateWithPassword(userInputPassword.UserWithPassword)
 	if err != nil {
 		zap.L().Error("PutUser.UpdatePassword", zap.Error(err))
-		return &protogen.UpdateUserPasswordResponse{}, status.Error(codes.Internal, err.Error())
+		return &userpb.UpdateUserPasswordResponse{}, status.Error(codes.Internal, err.Error())
 	}
 
-	return &protogen.UpdateUserPasswordResponse{
+	return &userpb.UpdateUserPasswordResponse{
 		Success: true,
 	}, nil
 }
 
 // DeleteUser implements the DeleteUser RPC method.
-func (s *Service) DeleteUser(ctx context.Context, req *protogen.DeleteUserRequest) (*protogen.DeleteUserResponse, error) {
+func (s *Service) DeleteUser(ctx context.Context, req *userpb.DeleteUserRequest) (*userpb.DeleteUserResponse, error) {
 	// Parse the user ID from the request
 	userID, err := uuid.Parse(req.GetId())
 	if err != nil {
 		// Log the error and return an invalid response
 		zap.L().Error("Invalid user ID", zap.String("user_id", req.GetId()), zap.Error(err))
-		return &protogen.DeleteUserResponse{}, status.Error(codes.InvalidArgument, "Invalid user ID")
+		return &userpb.DeleteUserResponse{}, status.Error(codes.InvalidArgument, "Invalid user ID")
 	}
 
 	err = security.Facade().CheckPermission(ctx, "admin.users.delete", userID)
@@ -224,16 +224,16 @@ func (s *Service) DeleteUser(ctx context.Context, req *protogen.DeleteUserReques
 	err = repositories.R().Delete(userID)
 	if err != nil {
 		zap.L().Error("DeleteUser.Delete", zap.Error(err))
-		return &protogen.DeleteUserResponse{}, status.Error(codes.Internal, err.Error())
+		return &userpb.DeleteUserResponse{}, status.Error(codes.Internal, err.Error())
 	}
 
-	return &protogen.DeleteUserResponse{
+	return &userpb.DeleteUserResponse{
 		Success: true,
 	}, nil
 }
 
 // ListUsers implements the ListUsers RPC method.
-func (s *Service) ListUsers(ctx context.Context, req *protogen.ListUsersRequest) (*protogen.ListUsersResponse, error) {
+func (s *Service) ListUsers(ctx context.Context, req *userpb.ListUsersRequest) (*userpb.ListUsersResponse, error) {
 	// Check user permissions
 	err := security.Facade().CheckPermission(ctx, "admin.users.list")
 	if err != nil {
@@ -245,16 +245,16 @@ func (s *Service) ListUsers(ctx context.Context, req *protogen.ListUsersRequest)
 	users, err := repositories.R().List()
 	if err != nil {
 		zap.L().Error("GetUsers.List", zap.Error(err))
-		return &protogen.ListUsersResponse{}, status.Error(codes.Internal, err.Error())
+		return &userpb.ListUsersResponse{}, status.Error(codes.Internal, err.Error())
 	}
 
-	return &protogen.ListUsersResponse{
+	return &userpb.ListUsersResponse{
 		Users: mappers.UsersToProto(users),
 	}, nil
 }
 
 // AuthenticateUser implements the AuthenticateUser RPC method.
-func (s *Service) AuthenticateUser(ctx context.Context, req *protogen.AuthenticateUserRequest) (*protogen.AuthenticateUserResponse, error) {
+func (s *Service) AuthenticateUser(ctx context.Context, req *userpb.AuthenticateUserRequest) (*userpb.AuthenticateUserResponse, error) {
 	// Try to authenticate the user
 	user, found, err := repositories.R().Authenticate(req.Email, req.Password)
 	if err != nil || !found {
@@ -262,7 +262,7 @@ func (s *Service) AuthenticateUser(ctx context.Context, req *protogen.Authentica
 		return nil, errors.New("invalid credentials")
 	}
 
-	return &protogen.AuthenticateUserResponse{
+	return &userpb.AuthenticateUserResponse{
 		User: mappers.UserToProto(user),
 	}, nil
 }

@@ -31,7 +31,7 @@ jobs:
         run: go build -v ./...
 
       - name: Test with coverage
-        run: go test $(go list ./... | grep -v '/protogen' | grep -v '/test') -race -shuffle=on -coverprofile coverage.out
+        run: go test $(go list ./... | grep -v '/gen' | grep -v '/test') -race -shuffle=on -coverprofile coverage.out
 
       - name: Upload results to Codecov
         uses: codecov/codecov-action@v5

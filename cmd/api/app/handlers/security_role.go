@@ -5,9 +5,10 @@ import (
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/clients"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/handlers/render"
 	apimodels "github.com/Zapharaos/fihub-backend/cmd/api/app/models"
+	"github.com/Zapharaos/fihub-backend/gen/go/securitypb"
+	"github.com/Zapharaos/fihub-backend/gen/go/userpb"
 	"github.com/Zapharaos/fihub-backend/internal/mappers"
 	"github.com/Zapharaos/fihub-backend/internal/models"
-	"github.com/Zapharaos/fihub-backend/protogen"
 	"net/http"
 
 	"go.uber.org/zap"
@@ -38,8 +39,8 @@ func CreateRole(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Create gRPC protogen.CreateRoleRequest
-	roleRequest := &protogen.CreateRoleRequest{
+	// Create gRPC gen.CreateRoleRequest
+	roleRequest := &securitypb.CreateRoleRequest{
 		Name:        role.Name,
 		Permissions: role.Permissions.ToUUIDs(),
 	}
@@ -79,7 +80,7 @@ func GetRole(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get the role
-	response, err := clients.C().Security().GetRole(r.Context(), &protogen.GetRoleRequest{
+	response, err := clients.C().Security().GetRole(r.Context(), &securitypb.GetRoleRequest{
 		Id: roleID.String(),
 	})
 	if err != nil {
@@ -150,8 +151,8 @@ func UpdateRole(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Create gRPC protogen.UpdateRoleRequest
-	roleRequest := &protogen.UpdateRoleRequest{
+	// Create gRPC gen.UpdateRoleRequest
+	roleRequest := &securitypb.UpdateRoleRequest{
 		Id:          roleID.String(),
 		Name:        role.Name,
 		Permissions: role.Permissions.ToUUIDs(),
@@ -191,7 +192,7 @@ func DeleteRole(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Delete the role
-	_, err := clients.C().Security().DeleteRole(r.Context(), &protogen.DeleteRoleRequest{
+	_, err := clients.C().Security().DeleteRole(r.Context(), &securitypb.DeleteRoleRequest{
 		Id: roleID.String(),
 	})
 	if err != nil {
@@ -225,7 +226,7 @@ func GetRolePermissions(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// List the role permissions
-	response, err := clients.C().Security().ListRolePermissions(r.Context(), &protogen.ListRolePermissionsRequest{
+	response, err := clients.C().Security().ListRolePermissions(r.Context(), &securitypb.ListRolePermissionsRequest{
 		Id: roleId.String(),
 	})
 	if err != nil {
@@ -269,8 +270,8 @@ func SetRolePermissions(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Create gRPC protogen.UpdateRoleRequest
-	roleRequest := &protogen.SetRolePermissionsRequest{
+	// Create gRPC gen.UpdateRoleRequest
+	roleRequest := &securitypb.SetRolePermissionsRequest{
 		Id:          roleId.String(),
 		Permissions: perms.ToUUIDs(),
 	}
@@ -319,7 +320,7 @@ func AddUsersToRole(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Add users to the role
-	response, err := clients.C().Security().AddUsersToRole(r.Context(), &protogen.AddUsersToRoleRequest{
+	response, err := clients.C().Security().AddUsersToRole(r.Context(), &securitypb.AddUsersToRoleRequest{
 		RoleId:  roleId.String(),
 		UserIds: userUUIDs,
 	})
@@ -364,7 +365,7 @@ func RemoveUsersFromRole(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Remove users from the role
-	response, err := clients.C().Security().RemoveUsersFromRole(r.Context(), &protogen.RemoveUsersFromRoleRequest{
+	response, err := clients.C().Security().RemoveUsersFromRole(r.Context(), &securitypb.RemoveUsersFromRoleRequest{
 		RoleId:  roleId.String(),
 		UserIds: userUUIDs,
 	})
@@ -399,7 +400,7 @@ func ListUsersForRole(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// List users for the role
-	response, err := clients.C().Security().ListUsersForRole(r.Context(), &protogen.ListUsersForRoleRequest{
+	response, err := clients.C().Security().ListUsersForRole(r.Context(), &securitypb.ListUsersForRoleRequest{
 		RoleId: roleId.String(),
 	})
 	if err != nil {
@@ -443,7 +444,7 @@ func SetRolesForUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Set roles for the user
-	_, err = clients.C().Security().SetRolesForUser(r.Context(), &protogen.SetRolesForUserRequest{
+	_, err = clients.C().Security().SetRolesForUser(r.Context(), &securitypb.SetRolesForUserRequest{
 		UserId:  userId.String(),
 		RoleIds: roleUUIDs,
 	})
@@ -478,7 +479,7 @@ func ListRolesWithPermissionsForUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// List roles for the user
-	response, err := clients.C().Security().ListRolesWithPermissionsForUser(r.Context(), &protogen.ListRolesWithPermissionsForUserRequest{
+	response, err := clients.C().Security().ListRolesWithPermissionsForUser(r.Context(), &securitypb.ListRolesWithPermissionsForUserRequest{
 		UserId: userId.String(),
 	})
 	if err != nil {
@@ -506,7 +507,7 @@ func ListRolesWithPermissionsForUser(w http.ResponseWriter, r *http.Request) {
 //	@Router			/api/v1/security/role/user [get]
 func ListUsersWithRoles(w http.ResponseWriter, r *http.Request) {
 	// List roles for the users
-	respSecurityUsers, err := clients.C().Security().ListUsersFull(r.Context(), &protogen.ListUsersFullRequest{})
+	respSecurityUsers, err := clients.C().Security().ListUsersFull(r.Context(), &securitypb.ListUsersFullRequest{})
 	if err != nil {
 		zap.L().Error("List Security Users", zap.Error(err))
 		render.ErrorCodesCodeToHttpCode(w, r, err)
@@ -522,7 +523,7 @@ func ListUsersWithRoles(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Retrieve all app users
-	respUserUsers, err := clients.C().User().ListUsers(r.Context(), &protogen.ListUsersRequest{})
+	respUserUsers, err := clients.C().User().ListUsers(r.Context(), &userpb.ListUsersRequest{})
 	if err != nil {
 		zap.L().Error("List User Users", zap.Error(err))
 		render.ErrorCodesCodeToHttpCode(w, r, err)

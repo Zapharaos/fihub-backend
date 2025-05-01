@@ -4,9 +4,10 @@ import (
 	"encoding/json"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/clients"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/handlers/render"
+	"github.com/Zapharaos/fihub-backend/gen/go/brokerpb"
+	"github.com/Zapharaos/fihub-backend/gen/go/transactionpb"
 	"github.com/Zapharaos/fihub-backend/internal/mappers"
 	"github.com/Zapharaos/fihub-backend/internal/models"
-	"github.com/Zapharaos/fihub-backend/protogen"
 	"go.uber.org/zap"
 	"net/http"
 )
@@ -44,8 +45,8 @@ func CreateUserBroker(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Map models.BrokerUserInput to gRPC protogen.CreateBrokerUserRequest
-	brokerUserRequest := &protogen.CreateBrokerUserRequest{
+	// Map models.BrokerUserInput to gRPC gen.CreateBrokerUserRequest
+	brokerUserRequest := &brokerpb.CreateBrokerUserRequest{
 		UserId:   userID,
 		BrokerId: brokerUserInput.BrokerID,
 	}
@@ -96,8 +97,8 @@ func DeleteUserBroker(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Map models.BrokerUserInput to gRPC protogen.DeleteBrokerUserRequest
-	brokerUserRequest := &protogen.DeleteBrokerUserRequest{
+	// Map models.BrokerUserInput to gRPC gen.DeleteBrokerUserRequest
+	brokerUserRequest := &brokerpb.DeleteBrokerUserRequest{
 		UserId:   userID,
 		BrokerId: brokerID.String(),
 	}
@@ -111,7 +112,7 @@ func DeleteUserBroker(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Delete Transactions related to the BrokerUser
-	_, err = clients.C().Transaction().DeleteTransactionByBroker(r.Context(), &protogen.DeleteTransactionByBrokerRequest{
+	_, err = clients.C().Transaction().DeleteTransactionByBroker(r.Context(), &transactionpb.DeleteTransactionByBrokerRequest{
 		UserId:   userID,
 		BrokerId: brokerID.String(),
 	})
@@ -146,8 +147,8 @@ func ListUserBrokers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Map props to gRPC protogen.GetUserBrokersRequest
-	brokerUserRequest := &protogen.ListUserBrokersRequest{
+	// Map props to gRPC gen.GetUserBrokersRequest
+	brokerUserRequest := &brokerpb.ListUserBrokersRequest{
 		UserId: userID,
 	}
 

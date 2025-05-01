@@ -3,10 +3,10 @@ package main
 import (
 	"github.com/Zapharaos/fihub-backend/cmd/security/app/repositories"
 	"github.com/Zapharaos/fihub-backend/cmd/security/app/service"
+	"github.com/Zapharaos/fihub-backend/gen/go/securitypb"
 	"github.com/Zapharaos/fihub-backend/internal/app"
 	"github.com/Zapharaos/fihub-backend/internal/database"
 	"github.com/Zapharaos/fihub-backend/internal/security"
-	"github.com/Zapharaos/fihub-backend/protogen"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
@@ -43,8 +43,8 @@ func main() {
 
 	// Register gRPC service
 	publicService := &service.PublicService{}
-	protogen.RegisterPublicSecurityServiceServer(s, publicService)
-	protogen.RegisterSecurityServiceServer(s, &service.Service{})
+	securitypb.RegisterPublicSecurityServiceServer(s, publicService)
+	securitypb.RegisterSecurityServiceServer(s, &service.Service{})
 
 	// Setup publicService facade for internal use by service
 	security.ReplaceGlobals(security.NewPublicSecurityFacade(publicService))

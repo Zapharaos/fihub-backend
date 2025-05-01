@@ -2,7 +2,7 @@ package service
 
 import (
 	"context"
-	"github.com/Zapharaos/fihub-backend/protogen"
+	"github.com/Zapharaos/fihub-backend/gen"
 	"testing"
 )
 

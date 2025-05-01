@@ -2,17 +2,17 @@ package service
 
 import (
 	"context"
-	"github.com/Zapharaos/fihub-backend/protogen"
+	"github.com/Zapharaos/fihub-backend/gen/go/healthpb"
 	"go.uber.org/zap"
 )
 
 // Service is the implementation of the HealthService interface.
 type Service struct {
-	protogen.UnimplementedHealthServiceServer
+	healthpb.UnimplementedHealthServiceServer
 }
 
 // CheckHealth implements the CheckHealth RPC method.
-func (h *Service) CheckHealth(ctx context.Context, req *protogen.HealthRequest) (*protogen.HealthResponse, error) {
+func (h *Service) CheckHealth(ctx context.Context, req *healthpb.HealthRequest) (*healthpb.HealthResponse, error) {
 
 	zap.L().Info("Checking service", zap.String("service_name", req.ServiceName))
 
@@ -21,7 +21,7 @@ func (h *Service) CheckHealth(ctx context.Context, req *protogen.HealthRequest) 
 	// Example logic for service check
 	if req.ServiceName == "" {
 		zap.L().Error("Service name is required")
-		return &protogen.HealthResponse{
+		return &healthpb.HealthResponse{
 			IsHealthy: false,
 			Message:   "Service name is required",
 		}, nil
@@ -29,7 +29,7 @@ func (h *Service) CheckHealth(ctx context.Context, req *protogen.HealthRequest) 
 
 	zap.L().Info("Service is healthy", zap.String("service_name", req.ServiceName))
 
-	return &protogen.HealthResponse{
+	return &healthpb.HealthResponse{
 		IsHealthy: true,
 		Message:   "Service is healthy",
 	}, nil

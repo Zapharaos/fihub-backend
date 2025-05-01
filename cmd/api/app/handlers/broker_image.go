@@ -3,8 +3,8 @@ package handlers
 import (
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/clients"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/handlers/render"
+	"github.com/Zapharaos/fihub-backend/gen/go/brokerpb"
 	"github.com/Zapharaos/fihub-backend/internal/mappers"
-	"github.com/Zapharaos/fihub-backend/protogen"
 	"go.uber.org/zap"
 	"net/http"
 )
@@ -38,8 +38,8 @@ func CreateBrokerImage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Create gRPC protogen.CreateBrokerImageRequest
-	brokerUserRequest := &protogen.CreateBrokerImageRequest{
+	// Create gRPC gen.CreateBrokerImageRequest
+	brokerUserRequest := &brokerpb.CreateBrokerImageRequest{
 		BrokerId: brokerID.String(),
 		Name:     name,
 		Data:     data,
@@ -81,8 +81,8 @@ func GetBrokerImage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Create gRPC protogen.GetBrokerImageRequest
-	brokerUserRequest := &protogen.GetBrokerImageRequest{
+	// Create gRPC gen.GetBrokerImageRequest
+	brokerUserRequest := &brokerpb.GetBrokerImageRequest{
 		ImageId: imageID.String(),
 	}
 
@@ -137,8 +137,8 @@ func UpdateBrokerImage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Create gRPC protogen.UpdateBrokerImageRequest
-	brokerUserRequest := &protogen.UpdateBrokerImageRequest{
+	// Create gRPC gen.UpdateBrokerImageRequest
+	brokerUserRequest := &brokerpb.UpdateBrokerImageRequest{
 		ImageId:  imageID.String(),
 		BrokerId: brokerID.String(),
 		Name:     name,
@@ -180,8 +180,8 @@ func DeleteBrokerImage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Create gRPC protogen.DeleteBrokerImageRequest
-	brokerUserRequest := &protogen.DeleteBrokerImageRequest{
+	// Create gRPC gen.DeleteBrokerImageRequest
+	brokerUserRequest := &brokerpb.DeleteBrokerImageRequest{
 		ImageId:  imageID.String(),
 		BrokerId: brokerID.String(),
 	}

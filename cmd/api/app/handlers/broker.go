@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/clients"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/handlers/render"
+	"github.com/Zapharaos/fihub-backend/gen/go/brokerpb"
 	"github.com/Zapharaos/fihub-backend/internal/mappers"
 	"github.com/Zapharaos/fihub-backend/internal/models"
-	"github.com/Zapharaos/fihub-backend/protogen"
 	"go.uber.org/zap"
 	"net/http"
 )
@@ -36,8 +36,8 @@ func CreateBroker(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Create gRPC protogen.CreateBrokerRequest
-	brokerUserRequest := &protogen.CreateBrokerRequest{
+	// Create gRPC gen.CreateBrokerRequest
+	brokerUserRequest := &brokerpb.CreateBrokerRequest{
 		Name:     broker.Name,
 		Disabled: broker.Disabled,
 	}
@@ -75,8 +75,8 @@ func GetBroker(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Create gRPC protogen.GetBrokerRequest
-	brokerUserRequest := &protogen.GetBrokerRequest{
+	// Create gRPC gen.GetBrokerRequest
+	brokerUserRequest := &brokerpb.GetBrokerRequest{
 		Id: brokerID.String(),
 	}
 
@@ -124,8 +124,8 @@ func UpdateBroker(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Create gRPC protogen.UpdateBrokerRequest
-	brokerUserRequest := &protogen.UpdateBrokerRequest{
+	// Create gRPC gen.UpdateBrokerRequest
+	brokerUserRequest := &brokerpb.UpdateBrokerRequest{
 		Id:       brokerID.String(),
 		Name:     broker.Name,
 		Disabled: broker.Disabled,
@@ -164,8 +164,8 @@ func DeleteBroker(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Create gRPC protogen.DeleteBrokerRequest
-	brokerUserRequest := &protogen.DeleteBrokerRequest{
+	// Create gRPC gen.DeleteBrokerRequest
+	brokerUserRequest := &brokerpb.DeleteBrokerRequest{
 		Id: brokerID.String(),
 	}
 
@@ -199,8 +199,8 @@ func ListBrokers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Create gRPC protogen.ListBrokersRequest
-	brokerUserRequest := &protogen.ListBrokersRequest{
+	// Create gRPC gen.ListBrokersRequest
+	brokerUserRequest := &brokerpb.ListBrokersRequest{
 		EnabledOnly: enabled,
 	}
 

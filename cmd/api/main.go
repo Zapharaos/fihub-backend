@@ -6,13 +6,18 @@ import (
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/clients"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/router"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/server"
+	"github.com/Zapharaos/fihub-backend/gen/go/authpb"
+	"github.com/Zapharaos/fihub-backend/gen/go/brokerpb"
+	"github.com/Zapharaos/fihub-backend/gen/go/healthpb"
+	"github.com/Zapharaos/fihub-backend/gen/go/securitypb"
+	"github.com/Zapharaos/fihub-backend/gen/go/transactionpb"
+	"github.com/Zapharaos/fihub-backend/gen/go/userpb"
 	"github.com/Zapharaos/fihub-backend/internal/app"
 	"github.com/Zapharaos/fihub-backend/internal/database"
 	"github.com/Zapharaos/fihub-backend/internal/grpcconn"
 	"github.com/Zapharaos/fihub-backend/internal/security"
 	"github.com/Zapharaos/fihub-backend/pkg/email"
 	"github.com/Zapharaos/fihub-backend/pkg/translation"
-	"github.com/Zapharaos/fihub-backend/protogen"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 	"golang.org/x/text/language"
@@ -116,13 +121,13 @@ func initGrpcClients() {
 	transactionConn := grpcconn.ConnectGRPCService("TRANSACTION")
 
 	// Create gRPC clients
-	healthClient := protogen.NewHealthServiceClient(healthConn)
-	userClient := protogen.NewUserServiceClient(userConn)
-	authClient := protogen.NewAuthServiceClient(authConn)
-	securityClient := protogen.NewSecurityServiceClient(securityConn)
-	publicSecurityClient := protogen.NewPublicSecurityServiceClient(securityConn)
-	brokerClient := protogen.NewBrokerServiceClient(brokerConn)
-	transactionClient := protogen.NewTransactionServiceClient(transactionConn)
+	healthClient := healthpb.NewHealthServiceClient(healthConn)
+	userClient := userpb.NewUserServiceClient(userConn)
+	authClient := authpb.NewAuthServiceClient(authConn)
+	securityClient := securitypb.NewSecurityServiceClient(securityConn)
+	publicSecurityClient := securitypb.NewPublicSecurityServiceClient(securityConn)
+	brokerClient := brokerpb.NewBrokerServiceClient(brokerConn)
+	transactionClient := transactionpb.NewTransactionServiceClient(transactionConn)
 
 	// Setup facades
 	security.ReplaceGlobals(security.NewPublicSecurityFacadeWithGrpcClient(publicSecurityClient))

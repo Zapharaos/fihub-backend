@@ -1,41 +1,46 @@
 package clients
 
 import (
-	"github.com/Zapharaos/fihub-backend/protogen"
+	"github.com/Zapharaos/fihub-backend/gen/go/authpb"
+	"github.com/Zapharaos/fihub-backend/gen/go/brokerpb"
+	"github.com/Zapharaos/fihub-backend/gen/go/healthpb"
+	"github.com/Zapharaos/fihub-backend/gen/go/securitypb"
+	"github.com/Zapharaos/fihub-backend/gen/go/transactionpb"
+	"github.com/Zapharaos/fihub-backend/gen/go/userpb"
 )
 
 type Clients struct {
-	health      protogen.HealthServiceClient
-	user        protogen.UserServiceClient
-	auth        protogen.AuthServiceClient
-	security    protogen.SecurityServiceClient
-	broker      protogen.BrokerServiceClient
-	transaction protogen.TransactionServiceClient
+	health      healthpb.HealthServiceClient
+	user        userpb.UserServiceClient
+	auth        authpb.AuthServiceClient
+	security    securitypb.SecurityServiceClient
+	broker      brokerpb.BrokerServiceClient
+	transaction transactionpb.TransactionServiceClient
 }
 
 type ClientOption func(*Clients)
 
-func WithHealthClient(health protogen.HealthServiceClient) ClientOption {
+func WithHealthClient(health healthpb.HealthServiceClient) ClientOption {
 	return func(c *Clients) { c.health = health }
 }
 
-func WithUserClient(user protogen.UserServiceClient) ClientOption {
+func WithUserClient(user userpb.UserServiceClient) ClientOption {
 	return func(c *Clients) { c.user = user }
 }
 
-func WithAuthClient(auth protogen.AuthServiceClient) ClientOption {
+func WithAuthClient(auth authpb.AuthServiceClient) ClientOption {
 	return func(c *Clients) { c.auth = auth }
 }
 
-func WithSecurityClient(security protogen.SecurityServiceClient) ClientOption {
+func WithSecurityClient(security securitypb.SecurityServiceClient) ClientOption {
 	return func(c *Clients) { c.security = security }
 }
 
-func WithBrokerClient(broker protogen.BrokerServiceClient) ClientOption {
+func WithBrokerClient(broker brokerpb.BrokerServiceClient) ClientOption {
 	return func(c *Clients) { c.broker = broker }
 }
 
-func WithTransactionClient(transaction protogen.TransactionServiceClient) ClientOption {
+func WithTransactionClient(transaction transactionpb.TransactionServiceClient) ClientOption {
 	return func(c *Clients) { c.transaction = transaction }
 }
 
@@ -47,27 +52,27 @@ func NewClients(opts ...ClientOption) Clients {
 	return c
 }
 
-func (c Clients) Health() protogen.HealthServiceClient {
+func (c Clients) Health() healthpb.HealthServiceClient {
 	return c.health
 }
 
-func (c Clients) User() protogen.UserServiceClient {
+func (c Clients) User() userpb.UserServiceClient {
 	return c.user
 }
 
-func (c Clients) Auth() protogen.AuthServiceClient {
+func (c Clients) Auth() authpb.AuthServiceClient {
 	return c.auth
 }
 
-func (c Clients) Security() protogen.SecurityServiceClient {
+func (c Clients) Security() securitypb.SecurityServiceClient {
 	return c.security
 }
 
-func (c Clients) Broker() protogen.BrokerServiceClient {
+func (c Clients) Broker() brokerpb.BrokerServiceClient {
 	return c.broker
 }
 
-func (c Clients) Transaction() protogen.TransactionServiceClient {
+func (c Clients) Transaction() transactionpb.TransactionServiceClient {
 	return c.transaction
 }
 

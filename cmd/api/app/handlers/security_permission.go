@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/clients"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/handlers/render"
+	"github.com/Zapharaos/fihub-backend/gen/go/securitypb"
 	"github.com/Zapharaos/fihub-backend/internal/mappers"
 	"github.com/Zapharaos/fihub-backend/internal/models"
-	"github.com/Zapharaos/fihub-backend/protogen"
 	"go.uber.org/zap"
 	"net/http"
 )
@@ -37,8 +37,8 @@ func CreatePermission(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Create gRPC protogen.CreatePermissionRequest
-	permissionRequest := &protogen.CreatePermissionRequest{
+	// Create gRPC gen.CreatePermissionRequest
+	permissionRequest := &securitypb.CreatePermissionRequest{
 		Value:       permission.Value,
 		Scope:       permission.Scope,
 		Description: permission.Description,
@@ -78,8 +78,8 @@ func GetPermission(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Create gRPC protogen.CreatePermissionRequest
-	permissionRequest := &protogen.GetPermissionRequest{
+	// Create gRPC gen.CreatePermissionRequest
+	permissionRequest := &securitypb.GetPermissionRequest{
 		Id: permissionID.String(),
 	}
 
@@ -126,8 +126,8 @@ func UpdatePermission(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Create gRPC protogen.UpdatePermissionRequest
-	permissionRequest := &protogen.UpdatePermissionRequest{
+	// Create gRPC gen.UpdatePermissionRequest
+	permissionRequest := &securitypb.UpdatePermissionRequest{
 		Id:          permissionID.String(),
 		Value:       permission.Value,
 		Scope:       permission.Scope,
@@ -167,8 +167,8 @@ func DeletePermission(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Create gRPC protogen.DeletePermissionRequest
-	permissionRequest := &protogen.DeletePermissionRequest{
+	// Create gRPC gen.DeletePermissionRequest
+	permissionRequest := &securitypb.DeletePermissionRequest{
 		Id: permissionID.String(),
 	}
 
@@ -198,7 +198,7 @@ func DeletePermission(w http.ResponseWriter, r *http.Request) {
 //	@Router			/api/v1/security/permission [get]
 func ListPermissions(w http.ResponseWriter, r *http.Request) {
 	// List the Broker
-	response, err := clients.C().Security().ListPermissions(r.Context(), &protogen.ListPermissionsRequest{})
+	response, err := clients.C().Security().ListPermissions(r.Context(), &securitypb.ListPermissionsRequest{})
 	if err != nil {
 		zap.L().Error("List Permissions", zap.Error(err))
 		render.ErrorCodesCodeToHttpCode(w, r, err)

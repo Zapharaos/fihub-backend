@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package security;
 
-option go_package = "./protogen";
+option go_package = "./securitypb";
 
 service SecurityService {
 	// Permission management

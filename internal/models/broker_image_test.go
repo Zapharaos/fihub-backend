@@ -1,7 +1,7 @@
 package models
 
 import (
-	"github.com/Zapharaos/fihub-backend/protogen"
+	"github.com/Zapharaos/fihub-backend/gen"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"strings"
@@ -99,7 +99,7 @@ func TestBrokerImage_ToProtogenBrokerImage(t *testing.T) {
 		Data:     data,
 	}
 
-	// Convert to protogen
+	// Convert to gen
 	protoBrokerImage := brokerImage.ToProtogenBrokerImage()
 
 	// Verify conversion was correct
@@ -111,7 +111,7 @@ func TestBrokerImage_ToProtogenBrokerImage(t *testing.T) {
 
 // TestFromProtogenBrokerImage tests the FromProtogenBrokerImage function
 func TestFromProtogenBrokerImage(t *testing.T) {
-	// Create a test protogen.BrokerImage
+	// Create a test gen.BrokerImage
 	id := uuid.New().String()
 	brokerID := uuid.New().String()
 	name := "Test Protogen Image"
@@ -124,7 +124,7 @@ func TestFromProtogenBrokerImage(t *testing.T) {
 		Data:     data,
 	}
 
-	// Convert from protogen
+	// Convert from gen
 	brokerImage := FromProtogenBrokerImage(protoBrokerImage)
 
 	// Verify conversion was correct

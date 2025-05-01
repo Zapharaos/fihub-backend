@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/clients"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/handlers/render"
+	"github.com/Zapharaos/fihub-backend/gen/go/userpb"
 	"github.com/Zapharaos/fihub-backend/internal/mappers"
 	"github.com/Zapharaos/fihub-backend/internal/models"
-	"github.com/Zapharaos/fihub-backend/protogen"
 	"go.uber.org/zap"
 	"net/http"
 )
@@ -37,7 +37,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Map UserInputCreate to gRPC CreateUserRequest
-	createUserRequest := &protogen.CreateUserRequest{
+	createUserRequest := &userpb.CreateUserRequest{
 		Email:        userInputCreate.Email,
 		Password:     userInputCreate.Password,
 		Confirmation: userInputCreate.Confirmation,
@@ -79,7 +79,7 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get user
-	userResponse, err := clients.C().User().GetUser(r.Context(), &protogen.GetUserRequest{
+	userResponse, err := clients.C().User().GetUser(r.Context(), &userpb.GetUserRequest{
 		Id: userId.String(),
 	})
 	if err != nil {
@@ -115,7 +115,7 @@ func GetUserSelf(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Call gRPC to get user
-	response, err := clients.C().User().GetUser(r.Context(), &protogen.GetUserRequest{
+	response, err := clients.C().User().GetUser(r.Context(), &userpb.GetUserRequest{
 		Id: userID,
 	})
 	if err != nil {
@@ -161,7 +161,7 @@ func UpdateUserSelf(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Map User to gRPC UpdateUserRequest
-	updateUserRequest := &protogen.UpdateUserRequest{
+	updateUserRequest := &userpb.UpdateUserRequest{
 		Id:    userID,
 		Email: user.Email,
 	}
@@ -212,7 +212,7 @@ func UpdateUserPassword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Map UserInputPassword to gRPC UpdateUserRequest
-	updateUserRequest := &protogen.UpdateUserPasswordRequest{
+	updateUserRequest := &userpb.UpdateUserPasswordRequest{
 		Id:           userID,
 		Password:     userPassword.Password,
 		Confirmation: userPassword.Confirmation,
@@ -250,7 +250,7 @@ func DeleteUserSelf(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Delete user
-	_, err := clients.C().User().DeleteUser(r.Context(), &protogen.DeleteUserRequest{
+	_, err := clients.C().User().DeleteUser(r.Context(), &userpb.DeleteUserRequest{
 		Id: userID,
 	})
 	if err != nil {

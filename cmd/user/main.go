@@ -3,11 +3,12 @@ package main
 import (
 	"github.com/Zapharaos/fihub-backend/cmd/user/app/repositories"
 	"github.com/Zapharaos/fihub-backend/cmd/user/app/service"
+	"github.com/Zapharaos/fihub-backend/gen/go/securitypb"
+	"github.com/Zapharaos/fihub-backend/gen/go/userpb"
 	"github.com/Zapharaos/fihub-backend/internal/app"
 	"github.com/Zapharaos/fihub-backend/internal/database"
 	"github.com/Zapharaos/fihub-backend/internal/grpcconn"
 	"github.com/Zapharaos/fihub-backend/internal/security"
-	"github.com/Zapharaos/fihub-backend/protogen"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
@@ -33,9 +34,9 @@ func main() {
 
 	// gRPC clients
 	securityConn := grpcconn.ConnectGRPCService("SECURITY")
-	publicSecurityClient := protogen.NewPublicSecurityServiceClient(securityConn)
+	publicSecurityClient := securitypb.NewPublicSecurityServiceClient(securityConn)
 	security.ReplaceGlobals(security.NewPublicSecurityFacadeWithGrpcClient(publicSecurityClient))
-	
+
 	// Start gRPC microservice
 	port := viper.GetString("USER_MICROSERVICE_PORT")
 	lis, err := net.Listen("tcp", ":"+port)
@@ -46,7 +47,7 @@ func main() {
 	s := grpc.NewServer()
 
 	// Register gRPC service
-	protogen.RegisterUserServiceServer(s, &service.Service{})
+	userpb.RegisterUserServiceServer(s, &service.Service{})
 
 	zap.L().Info("gRPC User microservice is running on port : " + port)
 	if err := s.Serve(lis); err != nil {

@@ -2,9 +2,9 @@
 // versions:
 // 	protoc-gen-go v1.36.6
 // 	protoc        v6.30.2
-// source: proto/auth.proto
+// source: auth.proto
 
-package protogen
+package authpb
 
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -31,7 +31,7 @@ type GenerateTokenRequest struct {
 
 func (x *GenerateTokenRequest) Reset() {
 	*x = GenerateTokenRequest{}
-	mi := &file_proto_auth_proto_msgTypes[0]
+	mi := &file_auth_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -43,7 +43,7 @@ func (x *GenerateTokenRequest) String() string {
 func (*GenerateTokenRequest) ProtoMessage() {}
 
 func (x *GenerateTokenRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_auth_proto_msgTypes[0]
+	mi := &file_auth_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -56,7 +56,7 @@ func (x *GenerateTokenRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GenerateTokenRequest.ProtoReflect.Descriptor instead.
 func (*GenerateTokenRequest) Descriptor() ([]byte, []int) {
-	return file_proto_auth_proto_rawDescGZIP(), []int{0}
+	return file_auth_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *GenerateTokenRequest) GetEmail() string {
@@ -82,7 +82,7 @@ type GenerateTokenResponse struct {
 
 func (x *GenerateTokenResponse) Reset() {
 	*x = GenerateTokenResponse{}
-	mi := &file_proto_auth_proto_msgTypes[1]
+	mi := &file_auth_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -94,7 +94,7 @@ func (x *GenerateTokenResponse) String() string {
 func (*GenerateTokenResponse) ProtoMessage() {}
 
 func (x *GenerateTokenResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_auth_proto_msgTypes[1]
+	mi := &file_auth_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -107,7 +107,7 @@ func (x *GenerateTokenResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GenerateTokenResponse.ProtoReflect.Descriptor instead.
 func (*GenerateTokenResponse) Descriptor() ([]byte, []int) {
-	return file_proto_auth_proto_rawDescGZIP(), []int{1}
+	return file_auth_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *GenerateTokenResponse) GetToken() string {
@@ -126,7 +126,7 @@ type ValidateTokenRequest struct {
 
 func (x *ValidateTokenRequest) Reset() {
 	*x = ValidateTokenRequest{}
-	mi := &file_proto_auth_proto_msgTypes[2]
+	mi := &file_auth_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -138,7 +138,7 @@ func (x *ValidateTokenRequest) String() string {
 func (*ValidateTokenRequest) ProtoMessage() {}
 
 func (x *ValidateTokenRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_auth_proto_msgTypes[2]
+	mi := &file_auth_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -151,7 +151,7 @@ func (x *ValidateTokenRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ValidateTokenRequest.ProtoReflect.Descriptor instead.
 func (*ValidateTokenRequest) Descriptor() ([]byte, []int) {
-	return file_proto_auth_proto_rawDescGZIP(), []int{2}
+	return file_auth_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *ValidateTokenRequest) GetToken() string {
@@ -170,7 +170,7 @@ type ValidateTokenResponse struct {
 
 func (x *ValidateTokenResponse) Reset() {
 	*x = ValidateTokenResponse{}
-	mi := &file_proto_auth_proto_msgTypes[3]
+	mi := &file_auth_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -182,7 +182,7 @@ func (x *ValidateTokenResponse) String() string {
 func (*ValidateTokenResponse) ProtoMessage() {}
 
 func (x *ValidateTokenResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_auth_proto_msgTypes[3]
+	mi := &file_auth_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -195,7 +195,7 @@ func (x *ValidateTokenResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ValidateTokenResponse.ProtoReflect.Descriptor instead.
 func (*ValidateTokenResponse) Descriptor() ([]byte, []int) {
-	return file_proto_auth_proto_rawDescGZIP(), []int{3}
+	return file_auth_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *ValidateTokenResponse) GetUserId() string {
@@ -214,7 +214,7 @@ type ExtractUserIDRequest struct {
 
 func (x *ExtractUserIDRequest) Reset() {
 	*x = ExtractUserIDRequest{}
-	mi := &file_proto_auth_proto_msgTypes[4]
+	mi := &file_auth_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -226,7 +226,7 @@ func (x *ExtractUserIDRequest) String() string {
 func (*ExtractUserIDRequest) ProtoMessage() {}
 
 func (x *ExtractUserIDRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_auth_proto_msgTypes[4]
+	mi := &file_auth_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -239,7 +239,7 @@ func (x *ExtractUserIDRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExtractUserIDRequest.ProtoReflect.Descriptor instead.
 func (*ExtractUserIDRequest) Descriptor() ([]byte, []int) {
-	return file_proto_auth_proto_rawDescGZIP(), []int{4}
+	return file_auth_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *ExtractUserIDRequest) GetToken() string {
@@ -258,7 +258,7 @@ type ExtractUserIDResponse struct {
 
 func (x *ExtractUserIDResponse) Reset() {
 	*x = ExtractUserIDResponse{}
-	mi := &file_proto_auth_proto_msgTypes[5]
+	mi := &file_auth_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -270,7 +270,7 @@ func (x *ExtractUserIDResponse) String() string {
 func (*ExtractUserIDResponse) ProtoMessage() {}
 
 func (x *ExtractUserIDResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_auth_proto_msgTypes[5]
+	mi := &file_auth_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -283,7 +283,7 @@ func (x *ExtractUserIDResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExtractUserIDResponse.ProtoReflect.Descriptor instead.
 func (*ExtractUserIDResponse) Descriptor() ([]byte, []int) {
-	return file_proto_auth_proto_rawDescGZIP(), []int{5}
+	return file_auth_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *ExtractUserIDResponse) GetUserId() string {
@@ -293,11 +293,12 @@ func (x *ExtractUserIDResponse) GetUserId() string {
 	return ""
 }
 
-var File_proto_auth_proto protoreflect.FileDescriptor
+var File_auth_proto protoreflect.FileDescriptor
 
-const file_proto_auth_proto_rawDesc = "" +
+const file_auth_proto_rawDesc = "" +
 	"\n" +
-	"\x10proto/auth.proto\x12\x04auth\"H\n" +
+	"\n" +
+	"auth.proto\x12\x04auth\"H\n" +
 	"\x14GenerateTokenRequest\x12\x14\n" +
 	"\x05email\x18\x01 \x01(\tR\x05email\x12\x1a\n" +
 	"\bpassword\x18\x02 \x01(\tR\bpassword\"-\n" +
@@ -314,23 +315,23 @@ const file_proto_auth_proto_rawDesc = "" +
 	"\vAuthService\x12H\n" +
 	"\rGenerateToken\x12\x1a.auth.GenerateTokenRequest\x1a\x1b.auth.GenerateTokenResponse\x12H\n" +
 	"\rValidateToken\x12\x1a.auth.ValidateTokenRequest\x1a\x1b.auth.ValidateTokenResponse\x12H\n" +
-	"\rExtractUserID\x12\x1a.auth.ExtractUserIDRequest\x1a\x1b.auth.ExtractUserIDResponseB\fZ\n" +
-	"./protogenb\x06proto3"
+	"\rExtractUserID\x12\x1a.auth.ExtractUserIDRequest\x1a\x1b.auth.ExtractUserIDResponseB\n" +
+	"Z\b./authpbb\x06proto3"
 
 var (
-	file_proto_auth_proto_rawDescOnce sync.Once
-	file_proto_auth_proto_rawDescData []byte
+	file_auth_proto_rawDescOnce sync.Once
+	file_auth_proto_rawDescData []byte
 )
 
-func file_proto_auth_proto_rawDescGZIP() []byte {
-	file_proto_auth_proto_rawDescOnce.Do(func() {
-		file_proto_auth_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_proto_auth_proto_rawDesc), len(file_proto_auth_proto_rawDesc)))
+func file_auth_proto_rawDescGZIP() []byte {
+	file_auth_proto_rawDescOnce.Do(func() {
+		file_auth_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_auth_proto_rawDesc), len(file_auth_proto_rawDesc)))
 	})
-	return file_proto_auth_proto_rawDescData
+	return file_auth_proto_rawDescData
 }
 
-var file_proto_auth_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
-var file_proto_auth_proto_goTypes = []any{
+var file_auth_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_auth_proto_goTypes = []any{
 	(*GenerateTokenRequest)(nil),  // 0: auth.GenerateTokenRequest
 	(*GenerateTokenResponse)(nil), // 1: auth.GenerateTokenResponse
 	(*ValidateTokenRequest)(nil),  // 2: auth.ValidateTokenRequest
@@ -338,7 +339,7 @@ var file_proto_auth_proto_goTypes = []any{
 	(*ExtractUserIDRequest)(nil),  // 4: auth.ExtractUserIDRequest
 	(*ExtractUserIDResponse)(nil), // 5: auth.ExtractUserIDResponse
 }
-var file_proto_auth_proto_depIdxs = []int32{
+var file_auth_proto_depIdxs = []int32{
 	0, // 0: auth.AuthService.GenerateToken:input_type -> auth.GenerateTokenRequest
 	2, // 1: auth.AuthService.ValidateToken:input_type -> auth.ValidateTokenRequest
 	4, // 2: auth.AuthService.ExtractUserID:input_type -> auth.ExtractUserIDRequest
@@ -352,26 +353,26 @@ var file_proto_auth_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for field type_name
 }
 
-func init() { file_proto_auth_proto_init() }
-func file_proto_auth_proto_init() {
-	if File_proto_auth_proto != nil {
+func init() { file_auth_proto_init() }
+func file_auth_proto_init() {
+	if File_auth_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_auth_proto_rawDesc), len(file_proto_auth_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_auth_proto_rawDesc), len(file_auth_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_proto_auth_proto_goTypes,
-		DependencyIndexes: file_proto_auth_proto_depIdxs,
-		MessageInfos:      file_proto_auth_proto_msgTypes,
+		GoTypes:           file_auth_proto_goTypes,
+		DependencyIndexes: file_auth_proto_depIdxs,
+		MessageInfos:      file_auth_proto_msgTypes,
 	}.Build()
-	File_proto_auth_proto = out.File
-	file_proto_auth_proto_goTypes = nil
-	file_proto_auth_proto_depIdxs = nil
+	File_auth_proto = out.File
+	file_auth_proto_goTypes = nil
+	file_auth_proto_depIdxs = nil
 }

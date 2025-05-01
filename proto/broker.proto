@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package broker;
 
-option go_package = "./protogen";
+option go_package = "./brokerpb";
 
 service BrokerService {
 	// Broker management

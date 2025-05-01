@@ -3,10 +3,11 @@ package service
 import (
 	"context"
 	"errors"
+	"github.com/Zapharaos/fihub-backend/gen/go/authpb"
+	"github.com/Zapharaos/fihub-backend/gen/go/userpb"
 	"github.com/Zapharaos/fihub-backend/internal/mappers"
 	"github.com/Zapharaos/fihub-backend/internal/models"
 	"github.com/Zapharaos/fihub-backend/internal/utils"
-	"github.com/Zapharaos/fihub-backend/protogen"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
@@ -14,9 +15,9 @@ import (
 )
 
 type AuthService struct {
-	protogen.UnimplementedAuthServiceServer
+	authpb.UnimplementedAuthServiceServer
 	signingKey []byte
-	userClient protogen.UserServiceClient
+	userClient userpb.UserServiceClient
 }
 
 const (
@@ -24,7 +25,7 @@ const (
 )
 
 // NewAuthService creates a new AuthService instance
-func NewAuthService(userClient protogen.UserServiceClient) *AuthService {
+func NewAuthService(userClient userpb.UserServiceClient) *AuthService {
 	var signingKey []byte
 	if viper.GetString("APP_ENV") != "production" {
 		signingKey = []byte("dev-signing-key")
@@ -39,9 +40,9 @@ func NewAuthService(userClient protogen.UserServiceClient) *AuthService {
 }
 
 // GenerateToken authenticates a user and generates a JWT token for them
-func (s *AuthService) GenerateToken(ctx context.Context, req *protogen.GenerateTokenRequest) (*protogen.GenerateTokenResponse, error) {
+func (s *AuthService) GenerateToken(ctx context.Context, req *authpb.GenerateTokenRequest) (*authpb.GenerateTokenResponse, error) {
 	// Try to authenticate the user
-	response, err := s.userClient.AuthenticateUser(ctx, &protogen.AuthenticateUserRequest{
+	response, err := s.userClient.AuthenticateUser(ctx, &userpb.AuthenticateUserRequest{
 		Email:    req.Email,
 		Password: req.Password,
 	})
@@ -58,11 +59,11 @@ func (s *AuthService) GenerateToken(ctx context.Context, req *protogen.GenerateT
 		return nil, err
 	}
 
-	return &protogen.GenerateTokenResponse{Token: token}, nil
+	return &authpb.GenerateTokenResponse{Token: token}, nil
 }
 
 // ValidateToken validates the JWT token and extracts the user ID
-func (s *AuthService) ValidateToken(ctx context.Context, req *protogen.ValidateTokenRequest) (*protogen.ValidateTokenResponse, error) {
+func (s *AuthService) ValidateToken(ctx context.Context, req *authpb.ValidateTokenRequest) (*authpb.ValidateTokenResponse, error) {
 	claims, err := s.parseToken(req.Token)
 	if err != nil {
 		return nil, err
@@ -73,11 +74,11 @@ func (s *AuthService) ValidateToken(ctx context.Context, req *protogen.ValidateT
 		return nil, errors.New("invalid token claims")
 	}
 
-	return &protogen.ValidateTokenResponse{UserId: userID}, nil
+	return &authpb.ValidateTokenResponse{UserId: userID}, nil
 }
 
 // ExtractUserID extracts the user ID from the JWT token without verifying the signature
-func (s *AuthService) ExtractUserID(ctx context.Context, req *protogen.ExtractUserIDRequest) (*protogen.ExtractUserIDResponse, error) {
+func (s *AuthService) ExtractUserID(ctx context.Context, req *authpb.ExtractUserIDRequest) (*authpb.ExtractUserIDResponse, error) {
 	// Decode token without verifying signature
 	token, _, err := jwt.NewParser().ParseUnverified(req.GetToken(), jwt.MapClaims{})
 	if err != nil {
@@ -94,7 +95,7 @@ func (s *AuthService) ExtractUserID(ctx context.Context, req *protogen.ExtractUs
 		return nil, errors.New("invalid token claims")
 	}
 
-	return &protogen.ExtractUserIDResponse{UserId: userID}, nil
+	return &authpb.ExtractUserIDResponse{UserId: userID}, nil
 }
 
 func (s *AuthService) createToken(user models.User) (string, error) {

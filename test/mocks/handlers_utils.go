@@ -16,7 +16,7 @@ import (
 
 	uuid "github.com/google/uuid"
 	gomock "go.uber.org/mock/gomock"
-	language "golang.org/x/text/language"
+	language "go.org/x/text/language"
 )
 
 // MockUtils is a mock of Utils interface.

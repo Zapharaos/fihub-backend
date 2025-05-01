@@ -2,8 +2,8 @@ package main
 
 import (
 	"github.com/Zapharaos/fihub-backend/cmd/health/app/service"
+	"github.com/Zapharaos/fihub-backend/gen/go/healthpb"
 	"github.com/Zapharaos/fihub-backend/internal/app"
-	"github.com/Zapharaos/fihub-backend/protogen"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
@@ -31,7 +31,7 @@ func main() {
 	s := grpc.NewServer()
 
 	// Register gRPC service
-	protogen.RegisterHealthServiceServer(s, &service.Service{})
+	healthpb.RegisterHealthServiceServer(s, &service.Service{})
 
 	zap.L().Info("gRPC Health microservice is running on port : " + port)
 	if err := s.Serve(lis); err != nil {

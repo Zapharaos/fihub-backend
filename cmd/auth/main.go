@@ -2,9 +2,10 @@ package main
 
 import (
 	"github.com/Zapharaos/fihub-backend/cmd/auth/app/service"
+	"github.com/Zapharaos/fihub-backend/gen/go/authpb"
+	"github.com/Zapharaos/fihub-backend/gen/go/userpb"
 	"github.com/Zapharaos/fihub-backend/internal/app"
 	"github.com/Zapharaos/fihub-backend/internal/grpcconn"
-	"github.com/Zapharaos/fihub-backend/protogen"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
@@ -27,7 +28,7 @@ func main() {
 
 	// gRPC clients
 	userConn := grpcconn.ConnectGRPCService("USER")
-	userClient := protogen.NewUserServiceClient(userConn)
+	userClient := userpb.NewUserServiceClient(userConn)
 
 	// Start gRPC microservice
 	port := viper.GetString("AUTH_MICROSERVICE_PORT")
@@ -39,7 +40,7 @@ func main() {
 	s := grpc.NewServer()
 
 	// Register gRPC service
-	protogen.RegisterAuthServiceServer(s, service.NewAuthService(userClient))
+	authpb.RegisterAuthServiceServer(s, service.NewAuthService(userClient))
 
 	zap.L().Info("gRPC Auth microservice is running on port : " + port)
 	if err := s.Serve(lis); err != nil {

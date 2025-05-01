@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package health;
 
-option go_package = "./protogen";
+option go_package = "./healthpb";
 
 service HealthService {
   rpc CheckHealth (HealthRequest) returns (HealthResponse);

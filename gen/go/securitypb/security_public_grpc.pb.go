@@ -2,9 +2,9 @@
 // versions:
 // - protoc-gen-go-grpc v1.5.1
 // - protoc             v6.30.2
-// source: proto/security_public.proto
+// source: security_public.proto
 
-package protogen
+package securitypb
 
 import (
 	context "context"
@@ -119,5 +119,5 @@ var PublicSecurityService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "proto/security_public.proto",
+	Metadata: "security_public.proto",
 }
