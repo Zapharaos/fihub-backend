@@ -51,13 +51,14 @@ dev-bd:
 
 # Mock commands
 mocks:
-	go generate ./cmd/api/app/clients/mockgen.go
-	go generate ./cmd/api/app/utils/mockgen.go
+	go generate ./proto/mockgen.go
+	go generate ./cmd/api/app/handlers/mockgen.go
 	go generate ./cmd/user/app/repositories/mockgen.go
 	go generate ./cmd/security/app/repositories/mockgen.go
 	go generate ./cmd/transaction/app/repositories/mockgen.go
 	go generate ./cmd/broker/app/repositories/mockgen.go
 	go generate ./internal/password/mockgen.go
+	go generate ./internal/security/mockgen.go
 	go generate ./pkg/email/mockgen.go
 	go generate ./pkg/translation/mockgen.go
 

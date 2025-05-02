@@ -25,11 +25,11 @@ func CheckRowAffected(result sql.Result, nbRows int64) error {
 
 // ScanString scans a single string from the given sqlx.Rows
 func ScanString(rows *sqlx.Rows) (string, error) {
-	var userID string
-	if err := rows.Scan(&userID); err != nil {
+	var result string
+	if err := rows.Scan(&result); err != nil {
 		return "", err
 	}
-	return userID, nil
+	return result, nil
 }
 
 // ScanFirst scans the first row of a sql.Rows and returns the result

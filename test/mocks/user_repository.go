@@ -41,20 +41,6 @@ func (m *UserRepository) EXPECT() *UserRepositoryMockRecorder {
 	return m.recorder
 }
 
-// AddUsersRole mocks base method.
-func (m *UserRepository) AddUsersRole(userUUIDs []uuid.UUID, id uuid.UUID) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AddUsersRole", userUUIDs, id)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// AddUsersRole indicates an expected call of AddUsersRole.
-func (mr *UserRepositoryMockRecorder) AddUsersRole(userUUIDs, id any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddUsersRole", reflect.TypeOf((*UserRepository)(nil).AddUsersRole), userUUIDs, id)
-}
-
 // Authenticate mocks base method.
 func (m *UserRepository) Authenticate(email, password string) (models.User, bool, error) {
 	m.ctrl.T.Helper()
@@ -131,21 +117,6 @@ func (mr *UserRepositoryMockRecorder) Get(userID any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*UserRepository)(nil).Get), userID)
 }
 
-// GetAllWithRoles mocks base method.
-func (m *UserRepository) GetAllWithRoles() ([]models.UserWithRoles, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAllWithRoles")
-	ret0, _ := ret[0].([]models.UserWithRoles)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetAllWithRoles indicates an expected call of GetAllWithRoles.
-func (mr *UserRepositoryMockRecorder) GetAllWithRoles() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllWithRoles", reflect.TypeOf((*UserRepository)(nil).GetAllWithRoles))
-}
-
 // GetByEmail mocks base method.
 func (m *UserRepository) GetByEmail(email string) (models.User, bool, error) {
 	m.ctrl.T.Helper()
@@ -162,62 +133,19 @@ func (mr *UserRepositoryMockRecorder) GetByEmail(email any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByEmail", reflect.TypeOf((*UserRepository)(nil).GetByEmail), email)
 }
 
-// GetUsersByRoleID mocks base method.
-func (m *UserRepository) GetUsersByRoleID(roleUUID uuid.UUID) ([]models.User, error) {
+// List mocks base method.
+func (m *UserRepository) List() (models.Users, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetUsersByRoleID", roleUUID)
-	ret0, _ := ret[0].([]models.User)
+	ret := m.ctrl.Call(m, "List")
+	ret0, _ := ret[0].(models.Users)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetUsersByRoleID indicates an expected call of GetUsersByRoleID.
-func (mr *UserRepositoryMockRecorder) GetUsersByRoleID(roleUUID any) *gomock.Call {
+// List indicates an expected call of List.
+func (mr *UserRepositoryMockRecorder) List() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUsersByRoleID", reflect.TypeOf((*UserRepository)(nil).GetUsersByRoleID), roleUUID)
-}
-
-// GetWithRoles mocks base method.
-func (m *UserRepository) GetWithRoles(userID uuid.UUID) (models.UserWithRoles, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetWithRoles", userID)
-	ret0, _ := ret[0].(models.UserWithRoles)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetWithRoles indicates an expected call of GetWithRoles.
-func (mr *UserRepositoryMockRecorder) GetWithRoles(userID any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetWithRoles", reflect.TypeOf((*UserRepository)(nil).GetWithRoles), userID)
-}
-
-// RemoveUsersRole mocks base method.
-func (m *UserRepository) RemoveUsersRole(userUUIDs []uuid.UUID, roleUUID uuid.UUID) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RemoveUsersRole", userUUIDs, roleUUID)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// RemoveUsersRole indicates an expected call of RemoveUsersRole.
-func (mr *UserRepositoryMockRecorder) RemoveUsersRole(userUUIDs, roleUUID any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveUsersRole", reflect.TypeOf((*UserRepository)(nil).RemoveUsersRole), userUUIDs, roleUUID)
-}
-
-// SetUserRoles mocks base method.
-func (m *UserRepository) SetUserRoles(userUUID uuid.UUID, roleUUIDs []uuid.UUID) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SetUserRoles", userUUID, roleUUIDs)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// SetUserRoles indicates an expected call of SetUserRoles.
-func (mr *UserRepositoryMockRecorder) SetUserRoles(userUUID, roleUUIDs any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetUserRoles", reflect.TypeOf((*UserRepository)(nil).SetUserRoles), userUUID, roleUUIDs)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*UserRepository)(nil).List))
 }
 
 // Update mocks base method.
@@ -246,18 +174,4 @@ func (m *UserRepository) UpdateWithPassword(user models.UserWithPassword) error 
 func (mr *UserRepositoryMockRecorder) UpdateWithPassword(user any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateWithPassword", reflect.TypeOf((*UserRepository)(nil).UpdateWithPassword), user)
-}
-
-// UpdateWithRoles mocks base method.
-func (m *UserRepository) UpdateWithRoles(user models.UserWithRoles, roleUUIDs []uuid.UUID) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateWithRoles", user, roleUUIDs)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// UpdateWithRoles indicates an expected call of UpdateWithRoles.
-func (mr *UserRepositoryMockRecorder) UpdateWithRoles(user, roleUUIDs any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateWithRoles", reflect.TypeOf((*UserRepository)(nil).UpdateWithRoles), user, roleUUIDs)
 }

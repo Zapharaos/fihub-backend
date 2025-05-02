@@ -62,6 +62,56 @@ func TestCheckRowAffected(t *testing.T) {
 	}
 }
 
+// TestScanString tests the ScanString function
+func TestScanString(t *testing.T) {
+	s := test.Sqlx{}
+	s.CreateFullTestSqlx(t)
+	defer s.CleanTestSqlx()
+
+	tests := []struct {
+		name     string
+		rows     *sqlmock.Rows
+		expected string
+		err      bool
+	}{
+		{
+			name:     "No rows",
+			rows:     sqlmock.NewRows([]string{"id"}),
+			expected: "",
+			err:      true,
+		},
+		{
+			name:     "Scan error",
+			rows:     sqlmock.NewRows([]string{"id"}).AddRow(nil),
+			expected: "",
+			err:      true,
+		},
+		{
+			name:     "Single row",
+			rows:     sqlmock.NewRows([]string{"id"}).AddRow("1"),
+			expected: "1",
+			err:      false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			rows, err := s.MockQuery(tt.rows)
+			assert.NoError(t, err)
+
+			if rows.Next() {
+				result, err := ScanString(rows)
+				assert.Equal(t, tt.expected, result)
+				if tt.err {
+					assert.Error(t, err)
+				} else {
+					assert.NoError(t, err)
+				}
+			}
+		})
+	}
+}
+
 // TestScanFirst tests the ScanFirst function
 // It checks if the function correctly scans only the first row
 func TestScanFirst(t *testing.T) {
@@ -89,7 +139,8 @@ func TestScanFirst(t *testing.T) {
 			expected: 0,
 			found:    false,
 			err:      false,
-		}, {
+		},
+		{
 			name: "Single row",
 			rows: sqlmock.NewRows([]string{"id"}).AddRow(1),
 			scan: func(rows *sqlx.Rows) (int, error) {
@@ -209,6 +260,130 @@ func TestScanAll(t *testing.T) {
 			assert.NoError(t, err)
 
 			result, err := ScanAll(rows, tt.scan)
+			assert.Equal(t, tt.expected, result)
+			if tt.err {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+			}
+		})
+	}
+}
+
+func TestScanFirstStruct(t *testing.T) {
+	s := test.Sqlx{}
+	s.CreateFullTestSqlx(t)
+	defer s.CleanTestSqlx()
+
+	type TestStruct struct {
+		ID   int    `db:"id"`
+		Name string `db:"name"`
+		Skip string
+	}
+
+	tests := []struct {
+		name     string
+		rows     *sqlmock.Rows
+		expected TestStruct
+		found    bool
+		err      bool
+	}{
+		{
+			name:     "Scan error",
+			rows:     sqlmock.NewRows([]string{"id", "name"}).AddRow("invalid", nil),
+			expected: TestStruct{},
+			found:    false,
+			err:      true,
+		},
+		{
+			name:     "No rows",
+			rows:     sqlmock.NewRows([]string{"id", "name"}),
+			expected: TestStruct{},
+			found:    false,
+			err:      false,
+		},
+		{
+			name:     "Single row",
+			rows:     sqlmock.NewRows([]string{"id", "name"}).AddRow(1, "test"),
+			expected: TestStruct{ID: 1, Name: "test"},
+			found:    true,
+			err:      false,
+		},
+		{
+			name:     "Multiple row",
+			rows:     sqlmock.NewRows([]string{"id", "name"}).AddRow(1, "test1").AddRow(2, "test2"),
+			expected: TestStruct{ID: 1, Name: "test1"},
+			found:    true,
+			err:      false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			rows, err := s.MockQuery(tt.rows)
+			assert.NoError(t, err)
+
+			result, found, err := ScanFirstStruct[TestStruct](rows)
+			assert.Equal(t, tt.expected, result)
+			assert.Equal(t, tt.found, found)
+			if tt.err {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+			}
+		})
+	}
+}
+
+func TestScanAllStruct(t *testing.T) {
+	s := test.Sqlx{}
+	s.CreateFullTestSqlx(t)
+	defer s.CleanTestSqlx()
+
+	type TestStruct struct {
+		ID   int    `db:"id"`
+		Name string `db:"name"`
+		Skip string
+	}
+
+	tests := []struct {
+		name     string
+		rows     *sqlmock.Rows
+		expected []TestStruct
+		err      bool
+	}{
+		{
+			name:     "Scan error",
+			rows:     sqlmock.NewRows([]string{"id", "name"}).AddRow("invalid", nil),
+			expected: []TestStruct{},
+			err:      true,
+		},
+		{
+			name:     "No rows",
+			rows:     sqlmock.NewRows([]string{"id", "name"}),
+			expected: []TestStruct(nil),
+			err:      false,
+		},
+		{
+			name:     "Single row",
+			rows:     sqlmock.NewRows([]string{"id", "name"}).AddRow(1, "test"),
+			expected: []TestStruct{{ID: 1, Name: "test"}},
+			err:      false,
+		},
+		{
+			name:     "Multiple row",
+			rows:     sqlmock.NewRows([]string{"id", "name"}).AddRow(1, "test1").AddRow(2, "test2"),
+			expected: []TestStruct{{ID: 1, Name: "test1"}, {ID: 2, Name: "test2"}},
+			err:      false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			rows, err := s.MockQuery(tt.rows)
+			assert.NoError(t, err)
+
+			result, err := ScanAllStruct[TestStruct](rows)
 			assert.Equal(t, tt.expected, result)
 			if tt.err {
 				assert.Error(t, err)
