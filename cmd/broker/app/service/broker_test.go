@@ -4,8 +4,10 @@ import (
 	"context"
 	"errors"
 	"github.com/Zapharaos/fihub-backend/cmd/broker/app/repositories"
-	"github.com/Zapharaos/fihub-backend/gen"
+	"github.com/Zapharaos/fihub-backend/gen/go/brokerpb"
+	"github.com/Zapharaos/fihub-backend/gen/go/securitypb"
 	"github.com/Zapharaos/fihub-backend/internal/models"
+	"github.com/Zapharaos/fihub-backend/internal/security"
 	"github.com/Zapharaos/fihub-backend/test/mocks"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
@@ -19,7 +21,7 @@ import (
 func TestCreateBroker(t *testing.T) {
 	// Prepare data
 	service := &Service{}
-	validRequest := &protogen.CreateBrokerRequest{
+	validRequest := &brokerpb.CreateBrokerRequest{
 		Name:     "name",
 		Disabled: false,
 	}
@@ -28,8 +30,8 @@ func TestCreateBroker(t *testing.T) {
 	tests := []struct {
 		name            string
 		mockSetup       func(ctrl *gomock.Controller)
-		request         *protogen.CreateBrokerRequest
-		expected        *protogen.CreateBrokerResponse
+		request         *brokerpb.CreateBrokerRequest
+		expected        *brokerpb.CreateBrokerResponse
 		expectedErrCode codes.Code
 	}{
 		{
@@ -40,7 +42,7 @@ func TestCreateBroker(t *testing.T) {
 				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
 			request:         nil,
-			expected:        &protogen.CreateBrokerResponse{},
+			expected:        &brokerpb.CreateBrokerResponse{},
 			expectedErrCode: codes.InvalidArgument,
 		},
 		{
@@ -50,11 +52,11 @@ func TestCreateBroker(t *testing.T) {
 				bb.EXPECT().ExistsByName(gomock.Any()).Times(0)
 				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
-			request: &protogen.CreateBrokerRequest{
+			request: &brokerpb.CreateBrokerRequest{
 				Name:     "",
 				Disabled: false,
 			},
-			expected:        &protogen.CreateBrokerResponse{},
+			expected:        &brokerpb.CreateBrokerResponse{},
 			expectedErrCode: codes.InvalidArgument,
 		},
 		{
@@ -66,7 +68,7 @@ func TestCreateBroker(t *testing.T) {
 				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
 			request:         validRequest,
-			expected:        &protogen.CreateBrokerResponse{},
+			expected:        &brokerpb.CreateBrokerResponse{},
 			expectedErrCode: codes.Internal,
 		},
 		{
@@ -78,7 +80,7 @@ func TestCreateBroker(t *testing.T) {
 				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
 			request:         validRequest,
-			expected:        &protogen.CreateBrokerResponse{},
+			expected:        &brokerpb.CreateBrokerResponse{},
 			expectedErrCode: codes.AlreadyExists,
 		},
 		{
@@ -91,7 +93,7 @@ func TestCreateBroker(t *testing.T) {
 				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
 			request:         validRequest,
-			expected:        &protogen.CreateBrokerResponse{},
+			expected:        &brokerpb.CreateBrokerResponse{},
 			expectedErrCode: codes.Internal,
 		},
 		{
@@ -104,7 +106,7 @@ func TestCreateBroker(t *testing.T) {
 				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
 			request:         validRequest,
-			expected:        &protogen.CreateBrokerResponse{},
+			expected:        &brokerpb.CreateBrokerResponse{},
 			expectedErrCode: codes.Internal,
 		},
 		{
@@ -117,7 +119,7 @@ func TestCreateBroker(t *testing.T) {
 				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
 			request:         validRequest,
-			expected:        &protogen.CreateBrokerResponse{},
+			expected:        &brokerpb.CreateBrokerResponse{},
 			expectedErrCode: codes.Internal,
 		},
 		{
@@ -130,7 +132,7 @@ func TestCreateBroker(t *testing.T) {
 				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
 			request:         validRequest,
-			expected:        &protogen.CreateBrokerResponse{},
+			expected:        &brokerpb.CreateBrokerResponse{},
 			expectedErrCode: codes.OK,
 		},
 	}
@@ -141,6 +143,11 @@ func TestCreateBroker(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			tt.mockSetup(ctrl)
 			defer ctrl.Finish()
+
+			// Mock the public security facade
+			publicSecurityClient := mocks.NewMockPublicSecurityServiceClient(ctrl)
+			publicSecurityClient.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(&securitypb.CheckPermissionResponse{HasPermission: true}, nil)
+			security.ReplaceGlobals(security.NewPublicSecurityFacadeWithGrpcClient(publicSecurityClient))
 
 			// Call service
 			response, err := service.CreateBroker(context.Background(), tt.request)
@@ -170,7 +177,7 @@ func TestCreateBroker(t *testing.T) {
 func TestGetBroker(t *testing.T) {
 	// Prepare data
 	service := &Service{}
-	validRequest := &protogen.GetBrokerRequest{
+	validRequest := &brokerpb.GetBrokerRequest{
 		Id: uuid.New().String(),
 	}
 
@@ -178,8 +185,8 @@ func TestGetBroker(t *testing.T) {
 	tests := []struct {
 		name            string
 		mockSetup       func(ctrl *gomock.Controller)
-		request         *protogen.GetBrokerRequest
-		expected        *protogen.GetBrokerResponse
+		request         *brokerpb.GetBrokerRequest
+		expected        *brokerpb.GetBrokerResponse
 		expectedErrCode codes.Code
 	}{
 		{
@@ -190,7 +197,7 @@ func TestGetBroker(t *testing.T) {
 				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
 			request:         nil,
-			expected:        &protogen.GetBrokerResponse{},
+			expected:        &brokerpb.GetBrokerResponse{},
 			expectedErrCode: codes.InvalidArgument,
 		},
 		{
@@ -201,7 +208,7 @@ func TestGetBroker(t *testing.T) {
 				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
 			request:         validRequest,
-			expected:        &protogen.GetBrokerResponse{},
+			expected:        &brokerpb.GetBrokerResponse{},
 			expectedErrCode: codes.Internal,
 		},
 		{
@@ -212,7 +219,7 @@ func TestGetBroker(t *testing.T) {
 				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
 			request:         validRequest,
-			expected:        &protogen.GetBrokerResponse{},
+			expected:        &brokerpb.GetBrokerResponse{},
 			expectedErrCode: codes.NotFound,
 		},
 		{
@@ -223,7 +230,7 @@ func TestGetBroker(t *testing.T) {
 				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
 			request:         validRequest,
-			expected:        &protogen.GetBrokerResponse{},
+			expected:        &brokerpb.GetBrokerResponse{},
 			expectedErrCode: codes.OK,
 		},
 	}
@@ -263,7 +270,7 @@ func TestGetBroker(t *testing.T) {
 func TestUpdateBroker(t *testing.T) {
 	// Prepare data
 	service := &Service{}
-	validRequest := &protogen.UpdateBrokerRequest{
+	validRequest := &brokerpb.UpdateBrokerRequest{
 		Id:       uuid.New().String(),
 		Name:     "name",
 		Disabled: false,
@@ -278,8 +285,8 @@ func TestUpdateBroker(t *testing.T) {
 	tests := []struct {
 		name            string
 		mockSetup       func(ctrl *gomock.Controller)
-		request         *protogen.UpdateBrokerRequest
-		expected        *protogen.UpdateBrokerResponse
+		request         *brokerpb.UpdateBrokerRequest
+		expected        *brokerpb.UpdateBrokerResponse
 		expectedErrCode codes.Code
 	}{
 		{
@@ -290,7 +297,7 @@ func TestUpdateBroker(t *testing.T) {
 				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
 			request:         nil,
-			expected:        &protogen.UpdateBrokerResponse{},
+			expected:        &brokerpb.UpdateBrokerResponse{},
 			expectedErrCode: codes.InvalidArgument,
 		},
 		{
@@ -300,10 +307,10 @@ func TestUpdateBroker(t *testing.T) {
 				bb.EXPECT().Get(gomock.Any()).Times(0)
 				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
-			request: &protogen.UpdateBrokerRequest{
+			request: &brokerpb.UpdateBrokerRequest{
 				Id: "bad-uuid",
 			},
-			expected:        &protogen.UpdateBrokerResponse{},
+			expected:        &brokerpb.UpdateBrokerResponse{},
 			expectedErrCode: codes.InvalidArgument,
 		},
 		{
@@ -313,10 +320,10 @@ func TestUpdateBroker(t *testing.T) {
 				bb.EXPECT().Get(gomock.Any()).Times(0)
 				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
-			request: &protogen.UpdateBrokerRequest{
+			request: &brokerpb.UpdateBrokerRequest{
 				Id: uuid.Nil.String(),
 			},
-			expected:        &protogen.UpdateBrokerResponse{},
+			expected:        &brokerpb.UpdateBrokerResponse{},
 			expectedErrCode: codes.InvalidArgument,
 		},
 		{
@@ -329,7 +336,7 @@ func TestUpdateBroker(t *testing.T) {
 				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
 			request:         validRequest,
-			expected:        &protogen.UpdateBrokerResponse{},
+			expected:        &brokerpb.UpdateBrokerResponse{},
 			expectedErrCode: codes.Internal,
 		},
 		{
@@ -342,7 +349,7 @@ func TestUpdateBroker(t *testing.T) {
 				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
 			request:         validRequest,
-			expected:        &protogen.UpdateBrokerResponse{},
+			expected:        &brokerpb.UpdateBrokerResponse{},
 			expectedErrCode: codes.NotFound,
 		},
 		{
@@ -355,7 +362,7 @@ func TestUpdateBroker(t *testing.T) {
 				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
 			request:         validRequest,
-			expected:        &protogen.UpdateBrokerResponse{},
+			expected:        &brokerpb.UpdateBrokerResponse{},
 			expectedErrCode: codes.Internal,
 		},
 		{
@@ -368,7 +375,7 @@ func TestUpdateBroker(t *testing.T) {
 				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
 			request:         validRequest,
-			expected:        &protogen.UpdateBrokerResponse{},
+			expected:        &brokerpb.UpdateBrokerResponse{},
 			expectedErrCode: codes.AlreadyExists,
 		},
 		{
@@ -381,7 +388,7 @@ func TestUpdateBroker(t *testing.T) {
 				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
 			request:         validRequest,
-			expected:        &protogen.UpdateBrokerResponse{},
+			expected:        &brokerpb.UpdateBrokerResponse{},
 			expectedErrCode: codes.Internal,
 		},
 		{
@@ -395,7 +402,7 @@ func TestUpdateBroker(t *testing.T) {
 				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
 			request:         validRequest,
-			expected:        &protogen.UpdateBrokerResponse{},
+			expected:        &brokerpb.UpdateBrokerResponse{},
 			expectedErrCode: codes.Internal,
 		},
 		{
@@ -409,7 +416,7 @@ func TestUpdateBroker(t *testing.T) {
 				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
 			request:         validRequest,
-			expected:        &protogen.UpdateBrokerResponse{},
+			expected:        &brokerpb.UpdateBrokerResponse{},
 			expectedErrCode: codes.Internal,
 		},
 		{
@@ -423,7 +430,7 @@ func TestUpdateBroker(t *testing.T) {
 				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
 			request:         validRequest,
-			expected:        &protogen.UpdateBrokerResponse{},
+			expected:        &brokerpb.UpdateBrokerResponse{},
 			expectedErrCode: codes.OK,
 		},
 	}
@@ -434,6 +441,11 @@ func TestUpdateBroker(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			tt.mockSetup(ctrl)
 			defer ctrl.Finish()
+
+			// Mock the public security facade
+			publicSecurityClient := mocks.NewMockPublicSecurityServiceClient(ctrl)
+			publicSecurityClient.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(&securitypb.CheckPermissionResponse{HasPermission: true}, nil)
+			security.ReplaceGlobals(security.NewPublicSecurityFacadeWithGrpcClient(publicSecurityClient))
 
 			// Call service
 			response, err := service.UpdateBroker(context.Background(), tt.request)
@@ -463,7 +475,7 @@ func TestUpdateBroker(t *testing.T) {
 func TestDeleteBroker(t *testing.T) {
 	// Prepare data
 	service := &Service{}
-	validRequest := &protogen.DeleteBrokerRequest{
+	validRequest := &brokerpb.DeleteBrokerRequest{
 		Id: uuid.New().String(),
 	}
 
@@ -471,8 +483,8 @@ func TestDeleteBroker(t *testing.T) {
 	tests := []struct {
 		name            string
 		mockSetup       func(ctrl *gomock.Controller)
-		request         *protogen.DeleteBrokerRequest
-		expected        *protogen.DeleteBrokerResponse
+		request         *brokerpb.DeleteBrokerRequest
+		expected        *brokerpb.DeleteBrokerResponse
 		expectedErrCode codes.Code
 	}{
 		{
@@ -483,7 +495,7 @@ func TestDeleteBroker(t *testing.T) {
 				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
 			request:         nil,
-			expected:        &protogen.DeleteBrokerResponse{},
+			expected:        &brokerpb.DeleteBrokerResponse{},
 			expectedErrCode: codes.InvalidArgument,
 		},
 		{
@@ -493,10 +505,10 @@ func TestDeleteBroker(t *testing.T) {
 				bb.EXPECT().Exists(gomock.Any()).Times(0)
 				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
-			request: &protogen.DeleteBrokerRequest{
+			request: &brokerpb.DeleteBrokerRequest{
 				Id: "bad-uuid",
 			},
-			expected:        &protogen.DeleteBrokerResponse{},
+			expected:        &brokerpb.DeleteBrokerResponse{},
 			expectedErrCode: codes.InvalidArgument,
 		},
 		{
@@ -508,7 +520,7 @@ func TestDeleteBroker(t *testing.T) {
 				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
 			request:         validRequest,
-			expected:        &protogen.DeleteBrokerResponse{},
+			expected:        &brokerpb.DeleteBrokerResponse{},
 			expectedErrCode: codes.Internal,
 		},
 		{
@@ -520,7 +532,7 @@ func TestDeleteBroker(t *testing.T) {
 				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
 			request:         validRequest,
-			expected:        &protogen.DeleteBrokerResponse{},
+			expected:        &brokerpb.DeleteBrokerResponse{},
 			expectedErrCode: codes.NotFound,
 		},
 		{
@@ -532,7 +544,7 @@ func TestDeleteBroker(t *testing.T) {
 				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
 			request:         validRequest,
-			expected:        &protogen.DeleteBrokerResponse{},
+			expected:        &brokerpb.DeleteBrokerResponse{},
 			expectedErrCode: codes.Internal,
 		},
 		{
@@ -544,7 +556,7 @@ func TestDeleteBroker(t *testing.T) {
 				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
 			request:         validRequest,
-			expected:        &protogen.DeleteBrokerResponse{},
+			expected:        &brokerpb.DeleteBrokerResponse{},
 			expectedErrCode: codes.OK,
 		},
 	}
@@ -555,6 +567,11 @@ func TestDeleteBroker(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			tt.mockSetup(ctrl)
 			defer ctrl.Finish()
+
+			// Mock the public security facade
+			publicSecurityClient := mocks.NewMockPublicSecurityServiceClient(ctrl)
+			publicSecurityClient.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(&securitypb.CheckPermissionResponse{HasPermission: true}, nil)
+			security.ReplaceGlobals(security.NewPublicSecurityFacadeWithGrpcClient(publicSecurityClient))
 
 			// Call service
 			response, err := service.DeleteBroker(context.Background(), tt.request)
@@ -589,8 +606,8 @@ func TestListBrokers(t *testing.T) {
 	tests := []struct {
 		name            string
 		mockSetup       func(ctrl *gomock.Controller)
-		request         *protogen.ListBrokersRequest
-		expected        *protogen.ListBrokersResponse
+		request         *brokerpb.ListBrokersRequest
+		expected        *brokerpb.ListBrokersResponse
 		expectedErrCode codes.Code
 	}{
 		{
@@ -600,10 +617,10 @@ func TestListBrokers(t *testing.T) {
 				bb.EXPECT().GetAllEnabled().Return(nil, errors.New("error"))
 				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
-			request: &protogen.ListBrokersRequest{
+			request: &brokerpb.ListBrokersRequest{
 				EnabledOnly: true,
 			},
-			expected:        &protogen.ListBrokersResponse{},
+			expected:        &brokerpb.ListBrokersResponse{},
 			expectedErrCode: codes.Internal,
 		},
 		{
@@ -613,10 +630,10 @@ func TestListBrokers(t *testing.T) {
 				bb.EXPECT().GetAll().Return(nil, errors.New("error"))
 				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
-			request: &protogen.ListBrokersRequest{
+			request: &brokerpb.ListBrokersRequest{
 				EnabledOnly: false,
 			},
-			expected:        &protogen.ListBrokersResponse{},
+			expected:        &brokerpb.ListBrokersResponse{},
 			expectedErrCode: codes.Internal,
 		},
 		{
@@ -626,10 +643,10 @@ func TestListBrokers(t *testing.T) {
 				bb.EXPECT().GetAll().Return([]models.Broker{}, nil)
 				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
-			request: &protogen.ListBrokersRequest{
+			request: &brokerpb.ListBrokersRequest{
 				EnabledOnly: false,
 			},
-			expected:        &protogen.ListBrokersResponse{},
+			expected:        &brokerpb.ListBrokersResponse{},
 			expectedErrCode: codes.OK,
 		},
 	}

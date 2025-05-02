@@ -4,8 +4,10 @@ import (
 	"context"
 	"errors"
 	"github.com/Zapharaos/fihub-backend/cmd/broker/app/repositories"
-	"github.com/Zapharaos/fihub-backend/gen"
+	"github.com/Zapharaos/fihub-backend/gen/go/brokerpb"
+	"github.com/Zapharaos/fihub-backend/gen/go/securitypb"
 	"github.com/Zapharaos/fihub-backend/internal/models"
+	"github.com/Zapharaos/fihub-backend/internal/security"
 	"github.com/Zapharaos/fihub-backend/test/mocks"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
@@ -22,7 +24,7 @@ func TestCreateBrokerImage(t *testing.T) {
 	service := &Service{}
 	fileData := []byte{0x00, 0x01, 0x02, 0x03}
 	fileName := strings.Repeat("a", models.ImageNameMinLength)
-	validRequest := &protogen.CreateBrokerImageRequest{
+	validRequest := &brokerpb.CreateBrokerImageRequest{
 		BrokerId: uuid.New().String(),
 		Name:     fileName,
 		Data:     fileData,
@@ -38,8 +40,8 @@ func TestCreateBrokerImage(t *testing.T) {
 	tests := []struct {
 		name            string
 		mockSetup       func(ctrl *gomock.Controller)
-		request         *protogen.CreateBrokerImageRequest
-		expected        *protogen.CreateBrokerImageResponse
+		request         *brokerpb.CreateBrokerImageRequest
+		expected        *brokerpb.CreateBrokerImageResponse
 		expectedErrCode codes.Code
 	}{
 		{
@@ -50,7 +52,7 @@ func TestCreateBrokerImage(t *testing.T) {
 				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
 			request:         nil,
-			expected:        &protogen.CreateBrokerImageResponse{},
+			expected:        &brokerpb.CreateBrokerImageResponse{},
 			expectedErrCode: codes.InvalidArgument,
 		},
 		{
@@ -60,10 +62,10 @@ func TestCreateBrokerImage(t *testing.T) {
 				bb.EXPECT().HasImage(gomock.Any()).Times(0)
 				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
-			request: &protogen.CreateBrokerImageRequest{
+			request: &brokerpb.CreateBrokerImageRequest{
 				BrokerId: "bad-uuid",
 			},
-			expected:        &protogen.CreateBrokerImageResponse{},
+			expected:        &brokerpb.CreateBrokerImageResponse{},
 			expectedErrCode: codes.InvalidArgument,
 		},
 		{
@@ -73,10 +75,10 @@ func TestCreateBrokerImage(t *testing.T) {
 				bb.EXPECT().HasImage(gomock.Any()).Times(0)
 				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
-			request: &protogen.CreateBrokerImageRequest{
+			request: &brokerpb.CreateBrokerImageRequest{
 				BrokerId: uuid.Nil.String(),
 			},
-			expected:        &protogen.CreateBrokerImageResponse{},
+			expected:        &brokerpb.CreateBrokerImageResponse{},
 			expectedErrCode: codes.InvalidArgument,
 		},
 		{
@@ -89,7 +91,7 @@ func TestCreateBrokerImage(t *testing.T) {
 				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
 			request:         validRequest,
-			expected:        &protogen.CreateBrokerImageResponse{},
+			expected:        &brokerpb.CreateBrokerImageResponse{},
 			expectedErrCode: codes.Internal,
 		},
 		{
@@ -102,7 +104,7 @@ func TestCreateBrokerImage(t *testing.T) {
 				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
 			request:         validRequest,
-			expected:        &protogen.CreateBrokerImageResponse{},
+			expected:        &brokerpb.CreateBrokerImageResponse{},
 			expectedErrCode: codes.InvalidArgument,
 		},
 		{
@@ -116,7 +118,7 @@ func TestCreateBrokerImage(t *testing.T) {
 				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, bi))
 			},
 			request:         validRequest,
-			expected:        &protogen.CreateBrokerImageResponse{},
+			expected:        &brokerpb.CreateBrokerImageResponse{},
 			expectedErrCode: codes.Internal,
 		},
 		{
@@ -131,7 +133,7 @@ func TestCreateBrokerImage(t *testing.T) {
 				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, bi))
 			},
 			request:         validRequest,
-			expected:        &protogen.CreateBrokerImageResponse{},
+			expected:        &brokerpb.CreateBrokerImageResponse{},
 			expectedErrCode: codes.Internal,
 		},
 		{
@@ -146,7 +148,7 @@ func TestCreateBrokerImage(t *testing.T) {
 				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, bi))
 			},
 			request:         validRequest,
-			expected:        &protogen.CreateBrokerImageResponse{},
+			expected:        &brokerpb.CreateBrokerImageResponse{},
 			expectedErrCode: codes.Internal,
 		},
 		{
@@ -161,7 +163,7 @@ func TestCreateBrokerImage(t *testing.T) {
 				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, bi))
 			},
 			request:         validRequest,
-			expected:        &protogen.CreateBrokerImageResponse{},
+			expected:        &brokerpb.CreateBrokerImageResponse{},
 			expectedErrCode: codes.Internal,
 		},
 		{
@@ -176,7 +178,7 @@ func TestCreateBrokerImage(t *testing.T) {
 				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, bi))
 			},
 			request:         validRequest,
-			expected:        &protogen.CreateBrokerImageResponse{},
+			expected:        &brokerpb.CreateBrokerImageResponse{},
 			expectedErrCode: codes.OK,
 		},
 	}
@@ -188,6 +190,11 @@ func TestCreateBrokerImage(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			tt.mockSetup(ctrl)
 			defer ctrl.Finish()
+
+			// Mock the public security facade
+			publicSecurityClient := mocks.NewMockPublicSecurityServiceClient(ctrl)
+			publicSecurityClient.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(&securitypb.CheckPermissionResponse{HasPermission: true}, nil)
+			security.ReplaceGlobals(security.NewPublicSecurityFacadeWithGrpcClient(publicSecurityClient))
 
 			// Call service
 			response, err := service.CreateBrokerImage(context.Background(), tt.request)
@@ -217,7 +224,7 @@ func TestCreateBrokerImage(t *testing.T) {
 func TestGetBrokerImage(t *testing.T) {
 	// Prepare data
 	service := &Service{}
-	validRequest := &protogen.GetBrokerImageRequest{
+	validRequest := &brokerpb.GetBrokerImageRequest{
 		ImageId: uuid.New().String(),
 	}
 
@@ -225,8 +232,8 @@ func TestGetBrokerImage(t *testing.T) {
 	tests := []struct {
 		name            string
 		mockSetup       func(ctrl *gomock.Controller)
-		request         *protogen.GetBrokerImageRequest
-		expected        *protogen.GetBrokerImageResponse
+		request         *brokerpb.GetBrokerImageRequest
+		expected        *brokerpb.GetBrokerImageResponse
 		expectedErrCode codes.Code
 	}{
 		{
@@ -237,7 +244,7 @@ func TestGetBrokerImage(t *testing.T) {
 				repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, bi))
 			},
 			request:         nil,
-			expected:        &protogen.GetBrokerImageResponse{},
+			expected:        &brokerpb.GetBrokerImageResponse{},
 			expectedErrCode: codes.InvalidArgument,
 		},
 		{
@@ -247,10 +254,10 @@ func TestGetBrokerImage(t *testing.T) {
 				bi.EXPECT().Get(gomock.Any()).Times(0)
 				repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, bi))
 			},
-			request: &protogen.GetBrokerImageRequest{
+			request: &brokerpb.GetBrokerImageRequest{
 				ImageId: "bad-uuid",
 			},
-			expected:        &protogen.GetBrokerImageResponse{},
+			expected:        &brokerpb.GetBrokerImageResponse{},
 			expectedErrCode: codes.InvalidArgument,
 		},
 		{
@@ -261,7 +268,7 @@ func TestGetBrokerImage(t *testing.T) {
 				repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, bi))
 			},
 			request:         validRequest,
-			expected:        &protogen.GetBrokerImageResponse{},
+			expected:        &brokerpb.GetBrokerImageResponse{},
 			expectedErrCode: codes.Internal,
 		},
 		{
@@ -272,7 +279,7 @@ func TestGetBrokerImage(t *testing.T) {
 				repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, bi))
 			},
 			request:         validRequest,
-			expected:        &protogen.GetBrokerImageResponse{},
+			expected:        &brokerpb.GetBrokerImageResponse{},
 			expectedErrCode: codes.NotFound,
 		},
 		{
@@ -283,7 +290,7 @@ func TestGetBrokerImage(t *testing.T) {
 				repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, bi))
 			},
 			request:         validRequest,
-			expected:        &protogen.GetBrokerImageResponse{},
+			expected:        &brokerpb.GetBrokerImageResponse{},
 			expectedErrCode: codes.OK,
 		},
 	}
@@ -326,7 +333,7 @@ func TestUpdateBrokerImage(t *testing.T) {
 	service := &Service{}
 	fileData := []byte{0x00, 0x01, 0x02, 0x03}
 	fileName := strings.Repeat("a", models.ImageNameMinLength)
-	validRequest := &protogen.UpdateBrokerImageRequest{
+	validRequest := &brokerpb.UpdateBrokerImageRequest{
 		ImageId:  uuid.New().String(),
 		BrokerId: uuid.New().String(),
 		Name:     fileName,
@@ -343,8 +350,8 @@ func TestUpdateBrokerImage(t *testing.T) {
 	tests := []struct {
 		name            string
 		mockSetup       func(ctrl *gomock.Controller)
-		request         *protogen.UpdateBrokerImageRequest
-		expected        *protogen.UpdateBrokerImageResponse
+		request         *brokerpb.UpdateBrokerImageRequest
+		expected        *brokerpb.UpdateBrokerImageResponse
 		expectedErrCode codes.Code
 	}{
 		{
@@ -355,7 +362,7 @@ func TestUpdateBrokerImage(t *testing.T) {
 				repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, bi))
 			},
 			request:         nil,
-			expected:        &protogen.UpdateBrokerImageResponse{},
+			expected:        &brokerpb.UpdateBrokerImageResponse{},
 			expectedErrCode: codes.InvalidArgument,
 		},
 		{
@@ -365,10 +372,10 @@ func TestUpdateBrokerImage(t *testing.T) {
 				bi.EXPECT().Exists(gomock.Any(), gomock.Any()).Times(0)
 				repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, bi))
 			},
-			request: &protogen.UpdateBrokerImageRequest{
+			request: &brokerpb.UpdateBrokerImageRequest{
 				ImageId: "bad-uuid",
 			},
-			expected:        &protogen.UpdateBrokerImageResponse{},
+			expected:        &brokerpb.UpdateBrokerImageResponse{},
 			expectedErrCode: codes.InvalidArgument,
 		},
 		{
@@ -378,10 +385,10 @@ func TestUpdateBrokerImage(t *testing.T) {
 				bi.EXPECT().Exists(gomock.Any(), gomock.Any()).Times(0)
 				repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, bi))
 			},
-			request: &protogen.UpdateBrokerImageRequest{
+			request: &brokerpb.UpdateBrokerImageRequest{
 				ImageId: uuid.Nil.String(),
 			},
-			expected:        &protogen.UpdateBrokerImageResponse{},
+			expected:        &brokerpb.UpdateBrokerImageResponse{},
 			expectedErrCode: codes.InvalidArgument,
 		},
 		{
@@ -393,7 +400,7 @@ func TestUpdateBrokerImage(t *testing.T) {
 				repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, bi))
 			},
 			request:         validRequest,
-			expected:        &protogen.UpdateBrokerImageResponse{},
+			expected:        &brokerpb.UpdateBrokerImageResponse{},
 			expectedErrCode: codes.Internal,
 		},
 		{
@@ -405,7 +412,7 @@ func TestUpdateBrokerImage(t *testing.T) {
 				repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, bi))
 			},
 			request:         validRequest,
-			expected:        &protogen.UpdateBrokerImageResponse{},
+			expected:        &brokerpb.UpdateBrokerImageResponse{},
 			expectedErrCode: codes.NotFound,
 		},
 		{
@@ -417,7 +424,7 @@ func TestUpdateBrokerImage(t *testing.T) {
 				repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, bi))
 			},
 			request:         validRequest,
-			expected:        &protogen.UpdateBrokerImageResponse{},
+			expected:        &brokerpb.UpdateBrokerImageResponse{},
 			expectedErrCode: codes.Internal,
 		},
 		{
@@ -430,7 +437,7 @@ func TestUpdateBrokerImage(t *testing.T) {
 				repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, bi))
 			},
 			request:         validRequest,
-			expected:        &protogen.UpdateBrokerImageResponse{},
+			expected:        &brokerpb.UpdateBrokerImageResponse{},
 			expectedErrCode: codes.Internal,
 		},
 		{
@@ -443,7 +450,7 @@ func TestUpdateBrokerImage(t *testing.T) {
 				repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, bi))
 			},
 			request:         validRequest,
-			expected:        &protogen.UpdateBrokerImageResponse{},
+			expected:        &brokerpb.UpdateBrokerImageResponse{},
 			expectedErrCode: codes.Internal,
 		},
 		{
@@ -456,7 +463,7 @@ func TestUpdateBrokerImage(t *testing.T) {
 				repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, bi))
 			},
 			request:         validRequest,
-			expected:        &protogen.UpdateBrokerImageResponse{},
+			expected:        &brokerpb.UpdateBrokerImageResponse{},
 			expectedErrCode: codes.OK,
 		},
 	}
@@ -468,6 +475,11 @@ func TestUpdateBrokerImage(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			tt.mockSetup(ctrl)
 			defer ctrl.Finish()
+
+			// Mock the public security facade
+			publicSecurityClient := mocks.NewMockPublicSecurityServiceClient(ctrl)
+			publicSecurityClient.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(&securitypb.CheckPermissionResponse{HasPermission: true}, nil)
+			security.ReplaceGlobals(security.NewPublicSecurityFacadeWithGrpcClient(publicSecurityClient))
 
 			// Call service
 			response, err := service.UpdateBrokerImage(context.Background(), tt.request)
@@ -497,7 +509,7 @@ func TestUpdateBrokerImage(t *testing.T) {
 func TestDeleteBrokerImage(t *testing.T) {
 	// Prepare data
 	service := &Service{}
-	validRequest := &protogen.DeleteBrokerImageRequest{
+	validRequest := &brokerpb.DeleteBrokerImageRequest{
 		ImageId:  uuid.New().String(),
 		BrokerId: uuid.New().String(),
 	}
@@ -506,8 +518,8 @@ func TestDeleteBrokerImage(t *testing.T) {
 	tests := []struct {
 		name            string
 		mockSetup       func(ctrl *gomock.Controller)
-		request         *protogen.DeleteBrokerImageRequest
-		expected        *protogen.DeleteBrokerImageResponse
+		request         *brokerpb.DeleteBrokerImageRequest
+		expected        *brokerpb.DeleteBrokerImageResponse
 		expectedErrCode codes.Code
 	}{
 		{
@@ -518,7 +530,7 @@ func TestDeleteBrokerImage(t *testing.T) {
 				repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, bi))
 			},
 			request:         nil,
-			expected:        &protogen.DeleteBrokerImageResponse{},
+			expected:        &brokerpb.DeleteBrokerImageResponse{},
 			expectedErrCode: codes.InvalidArgument,
 		},
 		{
@@ -528,10 +540,10 @@ func TestDeleteBrokerImage(t *testing.T) {
 				bi.EXPECT().Exists(gomock.Any(), gomock.Any()).Times(0)
 				repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, bi))
 			},
-			request: &protogen.DeleteBrokerImageRequest{
+			request: &brokerpb.DeleteBrokerImageRequest{
 				BrokerId: "bad-uuid",
 			},
-			expected:        &protogen.DeleteBrokerImageResponse{},
+			expected:        &brokerpb.DeleteBrokerImageResponse{},
 			expectedErrCode: codes.InvalidArgument,
 		},
 		{
@@ -543,7 +555,7 @@ func TestDeleteBrokerImage(t *testing.T) {
 				repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, bi))
 			},
 			request:         validRequest,
-			expected:        &protogen.DeleteBrokerImageResponse{},
+			expected:        &brokerpb.DeleteBrokerImageResponse{},
 			expectedErrCode: codes.Internal,
 		},
 		{
@@ -555,7 +567,7 @@ func TestDeleteBrokerImage(t *testing.T) {
 				repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, bi))
 			},
 			request:         validRequest,
-			expected:        &protogen.DeleteBrokerImageResponse{},
+			expected:        &brokerpb.DeleteBrokerImageResponse{},
 			expectedErrCode: codes.NotFound,
 		},
 		{
@@ -567,7 +579,7 @@ func TestDeleteBrokerImage(t *testing.T) {
 				repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, bi))
 			},
 			request:         validRequest,
-			expected:        &protogen.DeleteBrokerImageResponse{},
+			expected:        &brokerpb.DeleteBrokerImageResponse{},
 			expectedErrCode: codes.Internal,
 		},
 		{
@@ -579,7 +591,7 @@ func TestDeleteBrokerImage(t *testing.T) {
 				repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, bi))
 			},
 			request:         validRequest,
-			expected:        &protogen.DeleteBrokerImageResponse{},
+			expected:        &brokerpb.DeleteBrokerImageResponse{},
 			expectedErrCode: codes.OK,
 		},
 	}
@@ -591,6 +603,11 @@ func TestDeleteBrokerImage(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			tt.mockSetup(ctrl)
 			defer ctrl.Finish()
+
+			// Mock the public security facade
+			publicSecurityClient := mocks.NewMockPublicSecurityServiceClient(ctrl)
+			publicSecurityClient.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(&securitypb.CheckPermissionResponse{HasPermission: true}, nil)
+			security.ReplaceGlobals(security.NewPublicSecurityFacadeWithGrpcClient(publicSecurityClient))
 
 			// Call service
 			response, err := service.DeleteBrokerImage(context.Background(), tt.request)

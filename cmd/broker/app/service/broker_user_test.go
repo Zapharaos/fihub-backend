@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/Zapharaos/fihub-backend/cmd/broker/app/repositories"
-	"github.com/Zapharaos/fihub-backend/gen"
+	"github.com/Zapharaos/fihub-backend/gen/go/brokerpb"
 	"github.com/Zapharaos/fihub-backend/internal/models"
 	"github.com/Zapharaos/fihub-backend/test/mocks"
 	"github.com/google/uuid"
@@ -23,7 +23,7 @@ func TestCreateUserBroker(t *testing.T) {
 	// Define request data
 	userID := uuid.New()
 	brokerID := uuid.New()
-	request := &protogen.CreateBrokerUserRequest{
+	request := &brokerpb.CreateBrokerUserRequest{
 		UserId:   userID.String(),
 		BrokerId: brokerID.String(),
 	}
@@ -32,8 +32,8 @@ func TestCreateUserBroker(t *testing.T) {
 	tests := []struct {
 		name            string
 		mockSetup       func(ctrl *gomock.Controller)
-		request         *protogen.CreateBrokerUserRequest
-		expected        *protogen.CreateBrokerUserResponse
+		request         *brokerpb.CreateBrokerUserRequest
+		expected        *brokerpb.CreateBrokerUserResponse
 		expectedErrCode codes.Code
 	}{
 		{
@@ -44,7 +44,7 @@ func TestCreateUserBroker(t *testing.T) {
 				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
 			request:         nil,
-			expected:        &protogen.CreateBrokerUserResponse{},
+			expected:        &brokerpb.CreateBrokerUserResponse{},
 			expectedErrCode: codes.InvalidArgument,
 		},
 		{
@@ -54,10 +54,10 @@ func TestCreateUserBroker(t *testing.T) {
 				bb.EXPECT().Get(gomock.Any()).Times(0)
 				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
 			},
-			request: &protogen.CreateBrokerUserRequest{
+			request: &brokerpb.CreateBrokerUserRequest{
 				UserId: "bad-uuid",
 			},
-			expected:        &protogen.CreateBrokerUserResponse{},
+			expected:        &brokerpb.CreateBrokerUserResponse{},
 			expectedErrCode: codes.InvalidArgument,
 		},
 		/*{
@@ -84,7 +84,7 @@ func TestCreateUserBroker(t *testing.T) {
 				repositories.ReplaceGlobals(repositories.NewRepository(bb, bu, nil))
 			},
 			request:         request,
-			expected:        &protogen.CreateBrokerUserResponse{},
+			expected:        &brokerpb.CreateBrokerUserResponse{},
 			expectedErrCode: codes.Internal,
 		},
 		{
@@ -97,7 +97,7 @@ func TestCreateUserBroker(t *testing.T) {
 				repositories.ReplaceGlobals(repositories.NewRepository(bb, bu, nil))
 			},
 			request:         request,
-			expected:        &protogen.CreateBrokerUserResponse{},
+			expected:        &brokerpb.CreateBrokerUserResponse{},
 			expectedErrCode: codes.NotFound,
 		},
 		{
@@ -110,7 +110,7 @@ func TestCreateUserBroker(t *testing.T) {
 				repositories.ReplaceGlobals(repositories.NewRepository(bb, bu, nil))
 			},
 			request:         request,
-			expected:        &protogen.CreateBrokerUserResponse{},
+			expected:        &brokerpb.CreateBrokerUserResponse{},
 			expectedErrCode: codes.FailedPrecondition,
 		},
 		{
@@ -124,7 +124,7 @@ func TestCreateUserBroker(t *testing.T) {
 				repositories.ReplaceGlobals(repositories.NewRepository(bb, bu, nil))
 			},
 			request:         request,
-			expected:        &protogen.CreateBrokerUserResponse{},
+			expected:        &brokerpb.CreateBrokerUserResponse{},
 			expectedErrCode: codes.Internal,
 		},
 		{
@@ -138,7 +138,7 @@ func TestCreateUserBroker(t *testing.T) {
 				repositories.ReplaceGlobals(repositories.NewRepository(bb, bu, nil))
 			},
 			request:         request,
-			expected:        &protogen.CreateBrokerUserResponse{},
+			expected:        &brokerpb.CreateBrokerUserResponse{},
 			expectedErrCode: codes.AlreadyExists,
 		},
 		{
@@ -153,7 +153,7 @@ func TestCreateUserBroker(t *testing.T) {
 				repositories.ReplaceGlobals(repositories.NewRepository(bb, bu, nil))
 			},
 			request:         request,
-			expected:        &protogen.CreateBrokerUserResponse{},
+			expected:        &brokerpb.CreateBrokerUserResponse{},
 			expectedErrCode: codes.Internal,
 		},
 		{
@@ -168,7 +168,7 @@ func TestCreateUserBroker(t *testing.T) {
 				repositories.ReplaceGlobals(repositories.NewRepository(bb, bu, nil))
 			},
 			request:         request,
-			expected:        &protogen.CreateBrokerUserResponse{},
+			expected:        &brokerpb.CreateBrokerUserResponse{},
 			expectedErrCode: codes.Internal,
 		},
 		{
@@ -183,7 +183,7 @@ func TestCreateUserBroker(t *testing.T) {
 				repositories.ReplaceGlobals(repositories.NewRepository(bb, bu, nil))
 			},
 			request:         request,
-			expected:        &protogen.CreateBrokerUserResponse{},
+			expected:        &brokerpb.CreateBrokerUserResponse{},
 			expectedErrCode: codes.Internal,
 		},
 		{
@@ -203,7 +203,7 @@ func TestCreateUserBroker(t *testing.T) {
 				repositories.ReplaceGlobals(repositories.NewRepository(bb, bu, nil))
 			},
 			request:         request,
-			expected:        &protogen.CreateBrokerUserResponse{},
+			expected:        &brokerpb.CreateBrokerUserResponse{},
 			expectedErrCode: codes.OK,
 		},
 	}
@@ -244,7 +244,7 @@ func TestCreateUserBroker(t *testing.T) {
 func TestGetUserBroker(t *testing.T) {
 	// Prepare data
 	service := &Service{}
-	validRequest := &protogen.GetBrokerUserRequest{
+	validRequest := &brokerpb.GetBrokerUserRequest{
 		UserId:   uuid.New().String(),
 		BrokerId: uuid.New().String(),
 	}
@@ -261,8 +261,8 @@ func TestGetUserBroker(t *testing.T) {
 	tests := []struct {
 		name            string
 		mockSetup       func(ctrl *gomock.Controller)
-		request         *protogen.GetBrokerUserRequest
-		expected        *protogen.GetBrokerUserResponse
+		request         *brokerpb.GetBrokerUserRequest
+		expected        *brokerpb.GetBrokerUserResponse
 		expectedErrCode codes.Code
 	}{
 		{
@@ -273,7 +273,7 @@ func TestGetUserBroker(t *testing.T) {
 				repositories.ReplaceGlobals(repositories.NewRepository(nil, bu, nil))
 			},
 			request:         nil,
-			expected:        &protogen.GetBrokerUserResponse{},
+			expected:        &brokerpb.GetBrokerUserResponse{},
 			expectedErrCode: codes.InvalidArgument,
 		},
 		{
@@ -283,10 +283,10 @@ func TestGetUserBroker(t *testing.T) {
 				bu.EXPECT().Get(gomock.Any()).Times(0)
 				repositories.ReplaceGlobals(repositories.NewRepository(nil, bu, nil))
 			},
-			request: &protogen.GetBrokerUserRequest{
+			request: &brokerpb.GetBrokerUserRequest{
 				UserId: "bad-uuid",
 			},
-			expected:        &protogen.GetBrokerUserResponse{},
+			expected:        &brokerpb.GetBrokerUserResponse{},
 			expectedErrCode: codes.InvalidArgument,
 		},
 		{
@@ -297,7 +297,7 @@ func TestGetUserBroker(t *testing.T) {
 				repositories.ReplaceGlobals(repositories.NewRepository(nil, bu, nil))
 			},
 			request:         validRequest,
-			expected:        &protogen.GetBrokerUserResponse{},
+			expected:        &brokerpb.GetBrokerUserResponse{},
 			expectedErrCode: codes.Internal,
 		},
 		{
@@ -308,7 +308,7 @@ func TestGetUserBroker(t *testing.T) {
 				repositories.ReplaceGlobals(repositories.NewRepository(nil, bu, nil))
 			},
 			request:         validRequest,
-			expected:        &protogen.GetBrokerUserResponse{},
+			expected:        &brokerpb.GetBrokerUserResponse{},
 			expectedErrCode: codes.NotFound,
 		},
 		{
@@ -319,7 +319,7 @@ func TestGetUserBroker(t *testing.T) {
 				repositories.ReplaceGlobals(repositories.NewRepository(nil, bu, nil))
 			},
 			request:         validRequest,
-			expected:        &protogen.GetBrokerUserResponse{},
+			expected:        &brokerpb.GetBrokerUserResponse{},
 			expectedErrCode: codes.OK,
 		},
 	}
@@ -364,7 +364,7 @@ func TestDeleteUserBroker(t *testing.T) {
 	// Define request data
 	userID := uuid.New()
 	brokerID := uuid.New()
-	request := &protogen.DeleteBrokerUserRequest{
+	request := &brokerpb.DeleteBrokerUserRequest{
 		UserId:   userID.String(),
 		BrokerId: brokerID.String(),
 	}
@@ -373,8 +373,8 @@ func TestDeleteUserBroker(t *testing.T) {
 	tests := []struct {
 		name            string
 		mockSetup       func(ctrl *gomock.Controller)
-		request         *protogen.DeleteBrokerUserRequest
-		expected        *protogen.DeleteBrokerUserResponse
+		request         *brokerpb.DeleteBrokerUserRequest
+		expected        *brokerpb.DeleteBrokerUserResponse
 		expectedErrCode codes.Code
 	}{
 		{
@@ -385,7 +385,7 @@ func TestDeleteUserBroker(t *testing.T) {
 				repositories.ReplaceGlobals(repositories.NewRepository(nil, bu, nil))
 			},
 			request:         nil,
-			expected:        &protogen.DeleteBrokerUserResponse{},
+			expected:        &brokerpb.DeleteBrokerUserResponse{},
 			expectedErrCode: codes.InvalidArgument,
 		},
 		{
@@ -395,10 +395,10 @@ func TestDeleteUserBroker(t *testing.T) {
 				bu.EXPECT().Exists(gomock.Any()).Times(0)
 				repositories.ReplaceGlobals(repositories.NewRepository(nil, bu, nil))
 			},
-			request: &protogen.DeleteBrokerUserRequest{
+			request: &brokerpb.DeleteBrokerUserRequest{
 				UserId: "bad-uuid",
 			},
-			expected:        &protogen.DeleteBrokerUserResponse{},
+			expected:        &brokerpb.DeleteBrokerUserResponse{},
 			expectedErrCode: codes.InvalidArgument,
 		},
 		{
@@ -410,7 +410,7 @@ func TestDeleteUserBroker(t *testing.T) {
 				repositories.ReplaceGlobals(repositories.NewRepository(nil, bu, nil))
 			},
 			request:         request,
-			expected:        &protogen.DeleteBrokerUserResponse{},
+			expected:        &brokerpb.DeleteBrokerUserResponse{},
 			expectedErrCode: codes.Internal,
 		},
 		{
@@ -422,7 +422,7 @@ func TestDeleteUserBroker(t *testing.T) {
 				repositories.ReplaceGlobals(repositories.NewRepository(nil, bu, nil))
 			},
 			request:         request,
-			expected:        &protogen.DeleteBrokerUserResponse{},
+			expected:        &brokerpb.DeleteBrokerUserResponse{},
 			expectedErrCode: codes.NotFound,
 		},
 		{
@@ -434,7 +434,7 @@ func TestDeleteUserBroker(t *testing.T) {
 				repositories.ReplaceGlobals(repositories.NewRepository(nil, bu, nil))
 			},
 			request:         request,
-			expected:        &protogen.DeleteBrokerUserResponse{},
+			expected:        &brokerpb.DeleteBrokerUserResponse{},
 			expectedErrCode: codes.Internal,
 		},
 		{
@@ -446,7 +446,7 @@ func TestDeleteUserBroker(t *testing.T) {
 				repositories.ReplaceGlobals(repositories.NewRepository(nil, bu, nil))
 			},
 			request:         request,
-			expected:        &protogen.DeleteBrokerUserResponse{},
+			expected:        &brokerpb.DeleteBrokerUserResponse{},
 			expectedErrCode: codes.OK,
 		},
 	}
@@ -490,7 +490,7 @@ func TestListUserBrokers(t *testing.T) {
 
 	// Define request data
 	userID := uuid.New()
-	request := &protogen.ListUserBrokersRequest{
+	request := &brokerpb.ListUserBrokersRequest{
 		UserId: userID.String(),
 	}
 
@@ -498,8 +498,8 @@ func TestListUserBrokers(t *testing.T) {
 	tests := []struct {
 		name            string
 		mockSetup       func(ctrl *gomock.Controller)
-		request         *protogen.ListUserBrokersRequest
-		expected        *protogen.ListUserBrokersResponse
+		request         *brokerpb.ListUserBrokersRequest
+		expected        *brokerpb.ListUserBrokersResponse
 		expectedErrCode codes.Code
 	}{
 		{
@@ -510,7 +510,7 @@ func TestListUserBrokers(t *testing.T) {
 				repositories.ReplaceGlobals(repositories.NewRepository(nil, bu, nil))
 			},
 			request:         nil,
-			expected:        &protogen.ListUserBrokersResponse{},
+			expected:        &brokerpb.ListUserBrokersResponse{},
 			expectedErrCode: codes.InvalidArgument,
 		},
 		{
@@ -520,10 +520,10 @@ func TestListUserBrokers(t *testing.T) {
 				bu.EXPECT().GetAll(gomock.Any()).Times(0)
 				repositories.ReplaceGlobals(repositories.NewRepository(nil, bu, nil))
 			},
-			request: &protogen.ListUserBrokersRequest{
+			request: &brokerpb.ListUserBrokersRequest{
 				UserId: "bad-uuid",
 			},
-			expected:        &protogen.ListUserBrokersResponse{},
+			expected:        &brokerpb.ListUserBrokersResponse{},
 			expectedErrCode: codes.InvalidArgument,
 		},
 		{
@@ -534,7 +534,7 @@ func TestListUserBrokers(t *testing.T) {
 				repositories.ReplaceGlobals(repositories.NewRepository(nil, bu, nil))
 			},
 			request:         request,
-			expected:        &protogen.ListUserBrokersResponse{},
+			expected:        &brokerpb.ListUserBrokersResponse{},
 			expectedErrCode: codes.Internal,
 		},
 		{
@@ -545,7 +545,7 @@ func TestListUserBrokers(t *testing.T) {
 				repositories.ReplaceGlobals(repositories.NewRepository(nil, bu, nil))
 			},
 			request:         request,
-			expected:        &protogen.ListUserBrokersResponse{},
+			expected:        &brokerpb.ListUserBrokersResponse{},
 			expectedErrCode: codes.OK,
 		},
 	}
