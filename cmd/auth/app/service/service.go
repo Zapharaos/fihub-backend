@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"errors"
 	"github.com/Zapharaos/fihub-backend/gen/go/authpb"
 	"github.com/Zapharaos/fihub-backend/gen/go/userpb"
 	"github.com/Zapharaos/fihub-backend/internal/mappers"
@@ -11,6 +10,8 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"time"
 )
 
@@ -71,7 +72,7 @@ func (s *AuthService) ValidateToken(ctx context.Context, req *authpb.ValidateTok
 
 	userID, ok := claims[JwtUserIDKey].(string)
 	if !ok {
-		return nil, errors.New("invalid token claims")
+		return nil, status.Error(codes.InvalidArgument, "invalid token claims")
 	}
 
 	return &authpb.ValidateTokenResponse{UserId: userID}, nil
@@ -82,23 +83,27 @@ func (s *AuthService) ExtractUserID(ctx context.Context, req *authpb.ExtractUser
 	// Decode token without verifying signature
 	token, _, err := jwt.NewParser().ParseUnverified(req.GetToken(), jwt.MapClaims{})
 	if err != nil {
-		return nil, errors.New("invalid parse token unverified")
+		return nil, status.Error(codes.InvalidArgument, "invalid parse token unverified")
 	}
 
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if !ok {
-		return nil, errors.New("invalid claims")
+		return nil, status.Error(codes.InvalidArgument, "invalid token")
 	}
 
 	userID, ok := claims[JwtUserIDKey].(string)
 	if !ok {
-		return nil, errors.New("invalid token claims")
+		return nil, status.Error(codes.InvalidArgument, "invalid token claims")
 	}
 
 	return &authpb.ExtractUserIDResponse{UserId: userID}, nil
 }
 
 func (s *AuthService) createToken(user models.User) (string, error) {
+	if s.signingKey == nil {
+		return "", status.Error(codes.FailedPrecondition, "signing key is nil")
+	}
+
 	claims := jwt.MapClaims{
 		"exp":        jwt.NewNumericDate(time.Now().Add(time.Hour * 12)),
 		"iat":        jwt.NewNumericDate(time.Now()),
@@ -115,12 +120,12 @@ func (s *AuthService) parseToken(tokenStr string) (jwt.MapClaims, error) {
 		return s.signingKey, nil
 	})
 	if err != nil || !token.Valid {
-		return nil, errors.New("invalid token")
+		return nil, status.Error(codes.InvalidArgument, "invalid token")
 	}
 
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if !ok {
-		return nil, errors.New("invalid claims")
+		return nil, status.Error(codes.InvalidArgument, "invalid token claims")
 	}
 
 	return claims, nil
