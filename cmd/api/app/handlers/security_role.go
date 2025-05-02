@@ -42,7 +42,7 @@ func CreateRole(w http.ResponseWriter, r *http.Request) {
 	// Create gRPC gen.CreateRoleRequest
 	roleRequest := &securitypb.CreateRoleRequest{
 		Name:        role.Name,
-		Permissions: role.Permissions.ToUUIDs(),
+		Permissions: role.Permissions.GetUUIDsAsStrings(),
 	}
 
 	// Create the role
@@ -155,7 +155,7 @@ func UpdateRole(w http.ResponseWriter, r *http.Request) {
 	roleRequest := &securitypb.UpdateRoleRequest{
 		Id:          roleID.String(),
 		Name:        role.Name,
-		Permissions: role.Permissions.ToUUIDs(),
+		Permissions: role.Permissions.GetUUIDsAsStrings(),
 	}
 
 	// Update the role
@@ -273,7 +273,7 @@ func SetRolePermissions(w http.ResponseWriter, r *http.Request) {
 	// Create gRPC gen.UpdateRoleRequest
 	roleRequest := &securitypb.SetRolePermissionsRequest{
 		Id:          roleId.String(),
-		Permissions: perms.ToUUIDs(),
+		Permissions: perms.GetUUIDsAsStrings(),
 	}
 
 	// Set the role permissions

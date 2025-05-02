@@ -53,45 +53,6 @@ func TestPermission_IsValid(t *testing.T) {
 	}
 }
 
-// TestPermissions_IsValid tests the IsValid method of the Permissions struct
-func TestPermissions_IsValid(t *testing.T) {
-	// Define test cases
-	tests := []struct {
-		name     string      // Test case name
-		perms    Permissions // Permissions instance to test
-		expected bool        // Expected result
-		err      error       // Expected error
-	}{
-		{
-			name:     "Valid permissions",
-			perms:    make(Permissions, LimitMaxPermissions),
-			expected: true,
-			err:      nil,
-		},
-		{
-			name:     "Empty permissions",
-			perms:    make(Permissions, 0),
-			expected: true,
-			err:      nil,
-		},
-		{
-			name:     "Exceeds limit",
-			perms:    make(Permissions, LimitMaxPermissions+1),
-			expected: false,
-			err:      ErrLimitExceeded,
-		},
-	}
-
-	// Run tests
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			valid, err := tt.perms.IsValid()
-			assert.Equal(t, tt.expected, valid)
-			assert.Equal(t, tt.err, err)
-		})
-	}
-}
-
 // TestPermission_HasScope tests the HasScope method of the Permission struct
 func TestPermission_HasScope(t *testing.T) {
 	// Define test cases
@@ -218,6 +179,47 @@ func TestPermissions_GetUUIDs(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			uuids := tt.perms.GetUUIDs()
+			assert.Equal(t, tt.expected, uuids)
+		})
+	}
+}
+
+// TestPermissions_GetUUIDsAsStrings tests the GetUUIDsAsStrings method of the Permissions struct
+func TestPermissions_GetUUIDsAsStrings(t *testing.T) {
+	// Define valid values
+	validUUID1 := uuid.New()
+	validUUID2 := uuid.New()
+
+	// Define test cases
+	tests := []struct {
+		name     string      // Test case name
+		perms    Permissions // Permissions instance to test
+		expected []string    // Expected result
+	}{
+		{
+			name:     "nil permissions",
+			perms:    nil,
+			expected: []string{},
+		},
+		{
+			name:     "no permissions",
+			perms:    Permissions{},
+			expected: []string{},
+		},
+		{
+			name: "multiple permissions",
+			perms: Permissions{
+				{Id: validUUID1},
+				{Id: validUUID2},
+			},
+			expected: []string{validUUID1.String(), validUUID2.String()},
+		},
+	}
+
+	// Run tests
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			uuids := tt.perms.GetUUIDsAsStrings()
 			assert.Equal(t, tt.expected, uuids)
 		})
 	}

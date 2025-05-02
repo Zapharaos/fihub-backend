@@ -21,7 +21,20 @@ type Role struct {
 	Name string    `json:"name" db:"name"`
 }
 
+// Roles represents a list of Role
 type Roles []Role
+
+// RoleWithPermissions represents a Role with its permissions.Permissions
+type RoleWithPermissions struct {
+	Role
+	Permissions Permissions `json:"permissions"`
+}
+
+// RolesWithPermissions represents a list of RoleWithPermissions
+type RolesWithPermissions []RoleWithPermissions
+
+// RolePermissionsInput represents a list of Permission UUIDs at input
+type RolePermissionsInput []uuid.UUID
 
 // IsValid checks if a Role is valid
 func (r Role) IsValid() (bool, error) {
@@ -33,15 +46,6 @@ func (r Role) IsValid() (bool, error) {
 	}
 	return true, nil
 }
-
-// RoleWithPermissions represents a Role with its permissions.Permissions
-type RoleWithPermissions struct {
-	Role
-	Permissions Permissions `json:"permissions"`
-}
-
-// RolesWithPermissions represents a list of RoleWithPermissions
-type RolesWithPermissions []RoleWithPermissions
 
 // GetUUIDs returns the list of UUIDs for the RolesWithPermissions
 func (r RolesWithPermissions) GetUUIDs() []uuid.UUID {
@@ -65,24 +69,22 @@ func (r RolesWithPermissions) HasPermission(permission string) bool {
 	return false
 }
 
-type RolePermissionsInput []uuid.UUID
-
 // IsValid checks if a RolePermissionsInput is valid
-func (rp RolePermissionsInput) IsValid() (bool, error) {
-	if len(rp) > LimitMaxRolePermissions {
+func (rpi RolePermissionsInput) IsValid() (bool, error) {
+	if len(rpi) > LimitMaxRolePermissions {
 		return false, ErrLimitExceeded
 	}
 	return true, nil
 }
 
-// ToUUIDs converts a slice of RolePermissionsInput to a slice of string uuids
-func (r RolePermissionsInput) ToUUIDs() []string {
-	if r == nil {
+// GetUUIDsAsStrings converts a slice of RolePermissionsInput to a slice of string uuids
+func (rpi RolePermissionsInput) GetUUIDsAsStrings() []string {
+	if rpi == nil {
 		return nil
 	}
 
-	permissions := make([]string, len(r))
-	for i, perm := range r {
+	permissions := make([]string, len(rpi))
+	for i, perm := range rpi {
 		permissions[i] = perm.String()
 	}
 

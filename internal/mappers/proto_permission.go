@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 )
 
+// PermissionToProto converts a models.Permission to a *securitypb.Permission
 func PermissionToProto(permission models.Permission) *securitypb.Permission {
 	return &securitypb.Permission{
 		Id:          permission.Id.String(),
@@ -15,6 +16,7 @@ func PermissionToProto(permission models.Permission) *securitypb.Permission {
 	}
 }
 
+// PermissionFromProto converts a *securitypb.Permission to a models.Permission
 func PermissionFromProto(permission *securitypb.Permission) models.Permission {
 	return models.Permission{
 		Id:          uuid.MustParse(permission.GetId()),
@@ -24,6 +26,7 @@ func PermissionFromProto(permission *securitypb.Permission) models.Permission {
 	}
 }
 
+// PermissionsToProto converts a models.Permissions to a []*securitypb.Permission
 func PermissionsToProto(permissions models.Permissions) []*securitypb.Permission {
 	protoPermissions := make([]*securitypb.Permission, len(permissions))
 	for i, permission := range permissions {
@@ -32,6 +35,7 @@ func PermissionsToProto(permissions models.Permissions) []*securitypb.Permission
 	return protoPermissions
 }
 
+// PermissionsFromProto converts a []*securitypb.Permission to a models.Permissions
 func PermissionsFromProto(permissions []*securitypb.Permission) models.Permissions {
 	protoPermissions := make(models.Permissions, len(permissions))
 	for i, permission := range permissions {

@@ -10,8 +10,6 @@ type BrokerUser struct {
 	Broker Broker    `json:"broker" db:"broker"`
 }
 
-// TODO : scan struct will not work with a broker struct i guess
-
 // BrokerUserInput represents a user Broker entity received by the system
 type BrokerUserInput struct {
 	UserID   string `json:"user_id"`

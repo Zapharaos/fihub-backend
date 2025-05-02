@@ -1,7 +1,6 @@
 package models
 
 import (
-	"github.com/Zapharaos/fihub-backend/gen"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -52,50 +51,4 @@ func TestBroker_IsValid(t *testing.T) {
 			}
 		})
 	}
-}
-
-// TestBroker_ToProtogenBroker tests the ToProtogenBroker method of the Broker struct
-func TestBroker_ToProtogenBroker(t *testing.T) {
-	// Create test broker
-	id := uuid.New()
-	imageID := uuid.New()
-	broker := Broker{
-		ID:       id,
-		Name:     "Test Broker",
-		ImageID:  uuid.NullUUID{UUID: imageID, Valid: true},
-		Disabled: true,
-	}
-
-	// Convert to gen broker
-	protogenBroker := broker.ToProtogenBroker()
-
-	// Assert values were correctly converted
-	assert.Equal(t, id.String(), protogenBroker.Id)
-	assert.Equal(t, "Test Broker", protogenBroker.Name)
-	assert.Equal(t, imageID.String(), protogenBroker.ImageId)
-	assert.Equal(t, true, protogenBroker.Disabled)
-}
-
-// TestFromProtogenBroker tests the FromProtogenBroker function
-func TestFromProtogenBroker(t *testing.T) {
-	// Create test IDs
-	id := uuid.New()
-	imageID := uuid.New()
-
-	// Create a gen broker
-	protogenBroker := &protogen.Broker{
-		Id:       id.String(),
-		Name:     "Test Broker",
-		ImageId:  imageID.String(),
-		Disabled: true,
-	}
-
-	// Convert to model broker
-	broker := FromProtogenBroker(protogenBroker)
-
-	// Assert values were correctly converted
-	assert.Equal(t, id, broker.ID)
-	assert.Equal(t, "Test Broker", broker.Name)
-	assert.Equal(t, true, broker.ImageID.Valid) // Note: ImageID.Valid is false in conversion
-	assert.Equal(t, true, broker.Disabled)
 }

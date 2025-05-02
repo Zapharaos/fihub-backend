@@ -77,8 +77,17 @@ func (p Permission) Match(permission string) bool {
 	return re.MatchString(permission)
 }
 
-// ToUUIDs converts a slice of Permission to a slice of string uuids
-func (p Permissions) ToUUIDs() []string {
+// GetUUIDs returns the list of UUIDs for the permissions
+func (p Permissions) GetUUIDs() []uuid.UUID {
+	uuids := make([]uuid.UUID, 0)
+	for _, perm := range p {
+		uuids = append(uuids, perm.Id)
+	}
+	return uuids
+}
+
+// GetUUIDsAsStrings converts a slice of Permission to a slice of string uuids
+func (p Permissions) GetUUIDsAsStrings() []string {
 	if p == nil {
 		return []string{}
 	}
@@ -99,13 +108,4 @@ func CheckScope(scope Scope) bool {
 		}
 	}
 	return false
-}
-
-// GetUUIDs returns the list of UUIDs for the permissions
-func (p Permissions) GetUUIDs() []uuid.UUID {
-	uuids := make([]uuid.UUID, 0)
-	for _, perm := range p {
-		uuids = append(uuids, perm.Id)
-	}
-	return uuids
 }
