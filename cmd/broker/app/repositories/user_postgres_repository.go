@@ -43,7 +43,7 @@ func (r *UserPostgresRepository) Create(userBroker models.BrokerUser) error {
 // Get use to retrieve a BrokerUser by its id
 func (r *UserPostgresRepository) Get(userBroker models.BrokerUser) (models.BrokerUser, bool, error) {
 	// Prepare query
-	query := `SELECT b.id, b.name, b.image_id
+	query := `SELECT b.id AS "broker.id", b.name AS "broker.name", b.image_id AS "broker.image_id"
 			  FROM user_brokers as ub
 			  JOIN brokers AS b ON ub.broker_id = b.id
 			  WHERE ub.user_id = :user_id AND ub.broker_id = :broker_id`
@@ -59,7 +59,7 @@ func (r *UserPostgresRepository) Get(userBroker models.BrokerUser) (models.Broke
 	}
 	defer rows.Close()
 
-	return utils.ScanFirst(rows, r.Scan)
+	return utils.ScanFirstStruct[models.BrokerUser](rows)
 }
 
 // Delete use to delete a BrokerUser
@@ -105,7 +105,7 @@ func (r *UserPostgresRepository) Exists(userBroker models.BrokerUser) (bool, err
 // GetAll use to get all Broker for a BrokerUser
 func (r *UserPostgresRepository) GetAll(userID uuid.UUID) ([]models.BrokerUser, error) {
 	// Prepare query
-	query := `SELECT b.id, b.name, b.image_id
+	query := `SELECT b.id AS "broker.id", b.name AS "broker.name", b.image_id AS "broker.image_id"
 			  FROM user_brokers as ub
 			  JOIN brokers AS b ON ub.broker_id = b.id
 			  WHERE ub.user_id = :user_id`
@@ -120,19 +120,5 @@ func (r *UserPostgresRepository) GetAll(userID uuid.UUID) ([]models.BrokerUser, 
 	}
 	defer rows.Close()
 
-	return utils.ScanAll(rows, r.Scan)
-}
-
-func (r *UserPostgresRepository) Scan(rows *sqlx.Rows) (models.BrokerUser, error) {
-	var userBroker models.BrokerUser
-	err := rows.Scan(
-		&userBroker.Broker.ID,
-		&userBroker.Broker.Name,
-		&userBroker.Broker.ImageID,
-	)
-	if err != nil {
-		return models.BrokerUser{}, err
-	}
-
-	return userBroker, nil
+	return utils.ScanAllStruct[models.BrokerUser](rows)
 }

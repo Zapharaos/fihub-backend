@@ -12,10 +12,10 @@ var (
 
 // Broker represents a broker entity in the system
 type Broker struct {
-	ID       uuid.UUID     `json:"id"`
-	Name     string        `json:"name"`
-	ImageID  uuid.NullUUID `json:"image_id" swaggertype:"string"`
-	Disabled bool          `json:"disabled"`
+	ID       uuid.UUID     `json:"id" db:"id"`
+	Name     string        `json:"name" db:"name"`
+	ImageID  uuid.NullUUID `json:"image_id" db:"image_id" swaggertype:"string"`
+	Disabled bool          `json:"disabled" db:"disabled"`
 }
 
 // IsValid checks if the Broker is valid

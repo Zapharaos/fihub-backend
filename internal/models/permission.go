@@ -15,10 +15,10 @@ var (
 )
 
 type Permission struct {
-	Id          uuid.UUID `json:"id"`
-	Value       string    `json:"value"`
-	Scope       string    `json:"scope"`
-	Description string    `json:"description"`
+	Id          uuid.UUID `json:"id" db:"id"`
+	Value       string    `json:"value" db:"value"`
+	Scope       string    `json:"scope" db:"scope"`
+	Description string    `json:"description" db:"description"`
 }
 
 type Permissions []Permission

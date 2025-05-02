@@ -64,7 +64,7 @@ func (r *PostgresRepository) Create(user models.UserWithPassword) (uuid.UUID, er
 func (r *PostgresRepository) Get(userID uuid.UUID) (models.User, bool, error) {
 
 	// Prepare query
-	query := `SELECT *
+	query := `SELECT u.id, u.email, u.created_at, u.updated_at
 			  FROM Users as u
 			  WHERE u.ID = :ID`
 	params := map[string]interface{}{
@@ -78,14 +78,14 @@ func (r *PostgresRepository) Get(userID uuid.UUID) (models.User, bool, error) {
 	}
 	defer rows.Close()
 
-	return utils.ScanFirst(rows, r.Scan)
+	return utils.ScanFirstStruct[models.User](rows)
 }
 
 // GetByEmail use to retrieve a User by email
 func (r *PostgresRepository) GetByEmail(email string) (models.User, bool, error) {
 
 	// Prepare query
-	query := `SELECT *
+	query := `SELECT u.id, u.email, u.created_at, u.updated_at
 			  FROM Users as u
 			  WHERE u.email = :email`
 	params := map[string]interface{}{
@@ -99,7 +99,7 @@ func (r *PostgresRepository) GetByEmail(email string) (models.User, bool, error)
 	}
 	defer rows.Close()
 
-	return utils.ScanFirst(rows, r.Scan)
+	return utils.ScanFirstStruct[models.User](rows)
 }
 
 // Exists checks if a User with requested email exists in the repository
@@ -125,7 +125,7 @@ func (r *PostgresRepository) Exists(email string) (bool, error) {
 // Authenticate returns a User from the repository by its login and password
 func (r *PostgresRepository) Authenticate(email string, password string) (models.User, bool, error) {
 	// Prepare query
-	query := `SELECT *
+	query := `SELECT id, email, created_at, updated_at, password 
 			  FROM Users as u
 			  WHERE u.email = :email`
 	params := map[string]interface{}{
@@ -140,17 +140,17 @@ func (r *PostgresRepository) Authenticate(email string, password string) (models
 	defer rows.Close()
 
 	// Retrieve User
-	var userWithPassword models.UserWithPassword
-	if rows.Next() {
-		userWithPassword, err = r.ScanWithPassword(rows)
-		if err != nil {
-			return models.User{}, false, err
-		}
+	userWithPassword, ok, err := utils.ScanFirstStruct[models.UserWithPassword](rows)
+	if err != nil {
+		return models.User{}, false, err
+	}
+	if !ok {
+		return models.User{}, false, errors.New("no User Found, invalid credentials")
+	}
 
-		err = bcrypt.CompareHashAndPassword([]byte(userWithPassword.Password), []byte(password))
-		if err == nil {
-			return userWithPassword.User, true, nil
-		}
+	err = bcrypt.CompareHashAndPassword([]byte(userWithPassword.Password), []byte(password))
+	if err == nil {
+		return userWithPassword.User, true, nil
 	}
 
 	return models.User{}, false, errors.New("no User Found, invalid credentials")
@@ -228,7 +228,7 @@ func (r *PostgresRepository) Delete(userID uuid.UUID) error {
 // List method used to list all Users
 func (r *PostgresRepository) List() (models.Users, error) {
 	// Prepare query
-	query := `SELECT *
+	query := `SELECT u.id, u.email, u.created_at, u.updated_at
 			  FROM Users as u`
 
 	// Execute query
@@ -238,31 +238,5 @@ func (r *PostgresRepository) List() (models.Users, error) {
 	}
 	defer rows.Close()
 
-	return utils.ScanAll(rows, r.Scan)
-}
-
-func (r *PostgresRepository) Scan(rows *sqlx.Rows) (models.User, error) {
-
-	userWithPassword, err := r.ScanWithPassword(rows)
-	if err != nil {
-		return models.User{}, err
-	}
-
-	return userWithPassword.User, nil
-}
-
-func (r *PostgresRepository) ScanWithPassword(rows *sqlx.Rows) (models.UserWithPassword, error) {
-	var userWithPassword models.UserWithPassword
-	err := rows.Scan(
-		&userWithPassword.ID,
-		&userWithPassword.Email,
-		&userWithPassword.Password,
-		&userWithPassword.CreatedAt,
-		&userWithPassword.UpdatedAt,
-	)
-	if err != nil {
-		return models.UserWithPassword{}, err
-	}
-
-	return userWithPassword, nil
+	return utils.ScanAllStruct[models.User](rows)
 }

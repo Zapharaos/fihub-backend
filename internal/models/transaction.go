@@ -41,16 +41,16 @@ type TransactionInput struct {
 
 // Transaction represents a transaction entity in the system
 type Transaction struct {
-	ID        uuid.UUID       `json:"id"`
-	UserID    uuid.UUID       `json:"user_id"`
-	Broker    Broker          `json:"broker"`
-	Date      time.Time       `json:"date"`
-	Type      TransactionType `json:"transaction_type"`
-	Asset     string          `json:"asset"`
-	Quantity  float64         `json:"quantity"`
-	Price     float64         `json:"price"`
-	PriceUnit float64         `json:"price_unit"`
-	Fee       float64         `json:"fee"`
+	ID        uuid.UUID       `json:"id" db:"id"`
+	UserID    uuid.UUID       `json:"user_id" db:"user_id"`
+	Broker    Broker          `json:"broker" db:"broker"`
+	Date      time.Time       `json:"date" db:"date"`
+	Type      TransactionType `json:"transaction_type" db:"transaction_type"`
+	Asset     string          `json:"asset" db:"asset"`
+	Quantity  float64         `json:"quantity" db:"quantity"`
+	Price     float64         `json:"price" db:"price"`
+	PriceUnit float64         `json:"price_unit" db:"price_unit"`
+	Fee       float64         `json:"fee" db:"fee"`
 }
 
 // IsValid checks if a TransactionType is valid and

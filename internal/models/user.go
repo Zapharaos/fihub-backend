@@ -37,15 +37,15 @@ type UserInputPassword struct {
 // UserWithPassword extends User with a password field for authentication purposes
 type UserWithPassword struct {
 	User
-	Password string `json:"password"`
+	Password string `json:"password" db:"password"`
 }
 
 // User represents a User entity in the system
 type User struct {
-	ID        uuid.UUID `json:"ID"`
-	Email     string    `json:"email"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID        uuid.UUID `json:"ID" db:"id"`
+	Email     string    `json:"email" db:"email"`
+	CreatedAt time.Time `json:"created_at" db:"created_at"`
+	UpdatedAt time.Time `json:"updated_at" db:"updated_at"`
 }
 
 type Users []User

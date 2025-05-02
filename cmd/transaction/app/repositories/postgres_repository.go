@@ -66,7 +66,8 @@ func (r PostgresRepository) Create(transactionInput models.TransactionInput) (uu
 func (r PostgresRepository) Get(transactionID uuid.UUID) (models.Transaction, bool, error) {
 
 	// Prepare query
-	query := `SELECT t.id, t.user_id, b.id, b.name, b.image_id, t.date, t.transaction_type, t.asset, t.quantity, t.price, t.price_unit, t.fee
+	query := `SELECT b.id AS "broker.id", b.name AS "broker.name", b.image_id AS "broker.image_id",
+       			t.id, t.user_id, t.date, t.transaction_type, t.asset, t.quantity, t.price, t.price_unit, t.fee
 			  FROM transactions as t
 			  JOIN brokers as b ON t.broker_id = b.id
 			  WHERE t.id = :id`
@@ -81,7 +82,7 @@ func (r PostgresRepository) Get(transactionID uuid.UUID) (models.Transaction, bo
 	}
 	defer rows.Close()
 
-	return utils.ScanFirst(rows, r.Scan)
+	return utils.ScanFirstStruct[models.Transaction](rows)
 }
 
 // Update use to update a Transaction
@@ -148,7 +149,7 @@ func (r PostgresRepository) DeleteByBroker(transaction models.Transaction) error
 	if err != nil {
 		return err
 	}
-	
+
 	return nil
 }
 
@@ -176,7 +177,8 @@ func (r PostgresRepository) Exists(transactionID uuid.UUID, userID uuid.UUID) (b
 func (r PostgresRepository) GetAll(userID uuid.UUID) ([]models.Transaction, error) {
 
 	// Prepare query
-	query := `SELECT t.id, t.user_id, b.id, b.name, b.image_id, t.date, t.transaction_type, t.asset, t.quantity, t.price, t.price_unit, t.fee
+	query := `SELECT b.id AS "broker.id", b.name AS "broker.name", b.image_id AS "broker.image_id",
+       			t.id, t.user_id, t.date, t.transaction_type, t.asset, t.quantity, t.price, t.price_unit, t.fee
 			  FROM transactions as t
 			  JOIN brokers as b ON t.broker_id = b.id
 			  WHERE t.user_id = :user_id`
@@ -191,28 +193,5 @@ func (r PostgresRepository) GetAll(userID uuid.UUID) ([]models.Transaction, erro
 	}
 	defer rows.Close()
 
-	return utils.ScanAll(rows, r.Scan)
-}
-
-func (r PostgresRepository) Scan(rows *sqlx.Rows) (models.Transaction, error) {
-	var transaction models.Transaction
-	err := rows.Scan(
-		&transaction.ID,
-		&transaction.UserID,
-		&transaction.Broker.ID,
-		&transaction.Broker.Name,
-		&transaction.Broker.ImageID,
-		&transaction.Date,
-		&transaction.Type,
-		&transaction.Asset,
-		&transaction.Quantity,
-		&transaction.Price,
-		&transaction.PriceUnit,
-		&transaction.Fee,
-	)
-	if err != nil {
-		return models.Transaction{}, err
-	}
-
-	return transaction, nil
+	return utils.ScanAllStruct[models.Transaction](rows)
 }

@@ -6,9 +6,11 @@ import (
 
 // BrokerUser represents a user's Broker entity in the system
 type BrokerUser struct {
-	UserID uuid.UUID `json:"-"`
-	Broker Broker    `json:"broker"`
+	UserID uuid.UUID `json:"-" db:"user_id"`
+	Broker Broker    `json:"broker" db:"broker"`
 }
+
+// TODO : scan struct will not work with a broker struct i guess
 
 // BrokerUserInput represents a user Broker entity received by the system
 type BrokerUserInput struct {

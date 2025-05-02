@@ -63,7 +63,7 @@ func (r *PermissionPostgresRepository) Get(permissionUUID uuid.UUID) (models.Per
 	}
 	defer rows.Close()
 
-	return utils.ScanFirst(rows, ScanPermission)
+	return utils.ScanFirstStruct[models.Permission](rows)
 }
 
 // Update updates a Permission in the repository
@@ -119,5 +119,5 @@ func (r *PermissionPostgresRepository) List() (models.Permissions, error) {
 	}
 	defer rows.Close()
 
-	return utils.ScanAll(rows, ScanPermission)
+	return utils.ScanAllStruct[models.Permission](rows)
 }

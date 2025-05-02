@@ -17,8 +17,8 @@ const (
 
 // Role represents a role in the system
 type Role struct {
-	Id   uuid.UUID `json:"id"`
-	Name string    `json:"name"`
+	Id   uuid.UUID `json:"id" db:"id"`
+	Name string    `json:"name" db:"name"`
 }
 
 type Roles []Role

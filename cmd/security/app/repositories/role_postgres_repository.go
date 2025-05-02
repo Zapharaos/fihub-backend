@@ -108,7 +108,7 @@ func (r *RolePostgresRepository) Get(roleUUID uuid.UUID) (models.Role, bool, err
 	}
 	defer rows.Close()
 
-	return utils.ScanFirst(rows, r.Scan)
+	return utils.ScanFirstStruct[models.Role](rows)
 }
 
 // GetByName search and returns a Role from the repository by its name
@@ -128,7 +128,7 @@ func (r *RolePostgresRepository) GetByName(name string) (models.Role, bool, erro
 	}
 	defer rows.Close()
 
-	return utils.ScanFirst(rows, r.Scan)
+	return utils.ScanFirstStruct[models.Role](rows)
 }
 
 // GetWithPermissions returns a Role in the repository with its permissions
@@ -255,7 +255,7 @@ func (r *RolePostgresRepository) List() (models.Roles, error) {
 	}
 	defer rows.Close()
 
-	return utils.ScanAll(rows, r.Scan)
+	return utils.ScanAllStruct[models.Role](rows)
 }
 
 // ListByUserId returns all the roles of a user in the repository
@@ -276,7 +276,7 @@ func (r *RolePostgresRepository) ListByUserId(userUUID uuid.UUID) (models.Roles,
 	}
 	defer rows.Close()
 
-	return utils.ScanAll(rows, r.Scan)
+	return utils.ScanAllStruct[models.Role](rows)
 }
 
 // ListWithPermissions returns all Roles in the repository with their permissions
@@ -578,7 +578,7 @@ func (r *RolePostgresRepository) ListPermissionsByRoleId(roleUUID uuid.UUID) (mo
 	}
 	defer rows.Close()
 
-	return utils.ScanAll(rows, ScanPermission)
+	return utils.ScanAllStruct[models.Permission](rows)
 }
 
 // ListPermissionsByUserId returns all Permissions for a given User
@@ -600,20 +600,7 @@ func (r *RolePostgresRepository) ListPermissionsByUserId(userUUID uuid.UUID) (mo
 	}
 	defer rows.Close()
 
-	return utils.ScanAll(rows, ScanPermission)
-}
-
-// Scan scans the current row of the given rows and returns a Role
-func (r *RolePostgresRepository) Scan(rows *sqlx.Rows) (models.Role, error) {
-	var role models.Role
-	err := rows.Scan(
-		&role.Id,
-		&role.Name,
-	)
-	if err != nil {
-		return models.Role{}, err
-	}
-	return role, nil
+	return utils.ScanAllStruct[models.Permission](rows)
 }
 
 // ScanWithPermissions scans the current row of the given rows and returns a RoleWithPermissions

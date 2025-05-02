@@ -71,7 +71,7 @@ func (r *BrokerPostgresRepository) Get(id uuid.UUID) (models.Broker, bool, error
 	}
 	defer rows.Close()
 
-	return utils.ScanFirst(rows, r.Scan)
+	return utils.ScanFirstStruct[models.Broker](rows)
 }
 
 // Update use to update a Broker
@@ -169,7 +169,7 @@ func (r *BrokerPostgresRepository) GetAll() ([]models.Broker, error) {
 	}
 	defer rows.Close()
 
-	return utils.ScanAll(rows, r.Scan)
+	return utils.ScanAllStruct[models.Broker](rows)
 }
 
 // GetAllEnabled use to retrieve all enabled Broker
@@ -187,7 +187,7 @@ func (r *BrokerPostgresRepository) GetAllEnabled() ([]models.Broker, error) {
 	}
 	defer rows.Close()
 
-	return utils.ScanAll(rows, r.Scan)
+	return utils.ScanAllStruct[models.Broker](rows)
 }
 
 // SetImage use to set an BrokerImage to a Broker
@@ -247,19 +247,4 @@ func (r *BrokerPostgresRepository) DeleteImage(id uuid.UUID) error {
 	}
 
 	return utils.CheckRowAffected(result, 1)
-}
-
-func (r *BrokerPostgresRepository) Scan(rows *sqlx.Rows) (models.Broker, error) {
-	var broker models.Broker
-	err := rows.Scan(
-		&broker.ID,
-		&broker.Name,
-		&broker.ImageID,
-		&broker.Disabled,
-	)
-	if err != nil {
-		return models.Broker{}, err
-	}
-
-	return broker, nil
 }

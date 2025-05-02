@@ -60,7 +60,7 @@ func (r *ImagePostgresRepository) Get(brokerImageID uuid.UUID) (models.BrokerIma
 	}
 	defer rows.Close()
 
-	return utils.ScanFirst(rows, r.Scan)
+	return utils.ScanFirstStruct[models.BrokerImage](rows)
 }
 
 // Update updates an BrokerImage in the repository
@@ -122,19 +122,4 @@ func (r *ImagePostgresRepository) Exists(brokerID uuid.UUID, brokerImageID uuid.
 	defer rows.Close()
 
 	return rows.Next(), nil
-}
-
-func (r *ImagePostgresRepository) Scan(rows *sqlx.Rows) (models.BrokerImage, error) {
-	var brokerImage models.BrokerImage
-	err := rows.Scan(
-		&brokerImage.ID,
-		&brokerImage.BrokerID,
-		&brokerImage.Name,
-		&brokerImage.Data,
-	)
-	if err != nil {
-		return models.BrokerImage{}, err
-	}
-
-	return brokerImage, nil
 }

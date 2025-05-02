@@ -17,10 +17,10 @@ const (
 
 // BrokerImage represents an image associated with a Broker
 type BrokerImage struct {
-	ID       uuid.UUID `json:"id"`
-	BrokerID uuid.UUID `json:"broker_id"`
-	Name     string    `json:"name"`
-	Data     []byte    `json:"-"`
+	ID       uuid.UUID `json:"id" db:"id"`
+	BrokerID uuid.UUID `json:"broker_id" db:"broker_id"`
+	Name     string    `json:"name" db:"name"`
+	Data     []byte    `json:"-" db:"data"`
 }
 
 // IsValid checks if the BrokerImage is valid
