@@ -84,8 +84,8 @@ func TestUserPostgresRepository_Get(t *testing.T) {
 			name:   "Retrieve user",
 			userID: uuid.New(),
 			mockSetup: func() {
-				rows := sqlxmock.NewRows([]string{"id", "email", "password", "created_at", "updated_at"}).
-					AddRow(uuid.New(), "test@example.com", "password", time.Now(), time.Now())
+				rows := sqlxmock.NewRows([]string{"id", "email", "created_at", "updated_at"}).
+					AddRow(uuid.New(), "test@example.com", time.Now(), time.Now())
 				sqlxMock.Mock.ExpectQuery("SELECT").WillReturnRows(rows)
 			},
 			expectErr:   false,
@@ -136,8 +136,8 @@ func TestUserPostgresRepository_GetByEmail(t *testing.T) {
 			name:  "Retrieve user by email",
 			email: "test@example.com",
 			mockSetup: func() {
-				rows := sqlxmock.NewRows([]string{"id", "email", "password", "created_at", "updated_at"}).
-					AddRow(uuid.New(), "test@example.com", "password", time.Now(), time.Now())
+				rows := sqlxmock.NewRows([]string{"id", "email", "created_at", "updated_at"}).
+					AddRow(uuid.New(), "test@example.com", time.Now(), time.Now())
 				sqlxMock.Mock.ExpectQuery("SELECT").WillReturnRows(rows)
 			},
 			expectErr:   false,
@@ -394,8 +394,8 @@ func TestUserPostgresRepository_Delete(t *testing.T) {
 	}
 }
 
-// TestUserPostgresRepository_GetWithRoles tests the RolePostgresRepository.GetWithRoles method
-func TestUserPostgresRepository_GetWithRoles(t *testing.T) {
+// TestUserPostgresRepository_List test the RolePostgresRepository.List method
+func TestUserPostgresRepository_List(t *testing.T) {
 	var sqlxMock test.Sqlx
 	sqlxMock.CreateFullTestSqlx(t)
 	defer sqlxMock.CleanTestSqlx()
@@ -403,329 +403,45 @@ func TestUserPostgresRepository_GetWithRoles(t *testing.T) {
 	repositories.ReplaceGlobals(repositories.NewPostgresRepository(sqlxMock.DB))
 
 	tests := []struct {
-		name      string
-		userID    uuid.UUID
-		mockSetup func()
-		expectErr bool
+		name         string
+		userID       uuid.UUID
+		mockSetup    func()
+		expectErr    bool
+		expectLength int
 	}{
 		{
-			name:   "Fail user retrieval with roles",
+			name:   "Fail user retrieval",
 			userID: uuid.New(),
 			mockSetup: func() {
 				sqlxMock.Mock.ExpectQuery("SELECT").WillReturnError(errors.New("error"))
 			},
-			expectErr: true,
+			expectErr:    true,
+			expectLength: 0,
 		},
 		{
-			name:   "Retrieve user with roles",
+			name:   "Retrieve user",
 			userID: uuid.New(),
 			mockSetup: func() {
-				rows := sqlxmock.NewRows([]string{"ID", "email", "created_at", "updated_at", "role_id", "role_name"}).
-					AddRow(uuid.New(), "test@example.com", time.Now(), time.Now(), uuid.New(), "role_name")
+				rows := sqlxmock.NewRows([]string{"id", "email", "created_at", "updated_at"}).
+					AddRow(uuid.New(), "test@example.com", time.Now(), time.Now()).
+					AddRow(uuid.New(), "test@example.com", time.Now(), time.Now())
 				sqlxMock.Mock.ExpectQuery("SELECT").WillReturnRows(rows)
 			},
-			expectErr: false,
+			expectErr:    false,
+			expectLength: 2,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mockSetup()
-			_, err := repositories.R().GetWithRoles(tt.userID)
+			users, err := repositories.R().List()
 			if (err != nil) != tt.expectErr {
-				t.Errorf("GetWithRoles() error = %v, expectErr %v", err, tt.expectErr)
+				t.Errorf("List() error = %v, expectErr %v", err, tt.expectErr)
+				return
 			}
-		})
-	}
-}
-
-// TestUserPostgresRepository_GetAllWithRoles tests the RolePostgresRepository.GetAllWithRoles method
-func TestUserPostgresRepository_GetAllWithRoles(t *testing.T) {
-	var sqlxMock test.Sqlx
-	sqlxMock.CreateFullTestSqlx(t)
-	defer sqlxMock.CleanTestSqlx()
-
-	repositories.ReplaceGlobals(repositories.NewPostgresRepository(sqlxMock.DB))
-
-	tests := []struct {
-		name      string
-		mockSetup func()
-		expectErr bool
-	}{
-		{
-			name: "Fail users retrieval with roles",
-			mockSetup: func() {
-				sqlxMock.Mock.ExpectQuery("SELECT").WillReturnError(errors.New("error"))
-			},
-			expectErr: true,
-		},
-		{
-			name: "Retrieve users with roles",
-			mockSetup: func() {
-				rows := sqlxmock.NewRows([]string{"ID", "email", "created_at", "updated_at", "role_id", "role_name"}).
-					AddRow(uuid.New(), "test@example.com", time.Now(), time.Now(), uuid.New(), "role_name").
-					AddRow(uuid.New(), "test2@example.com", time.Now(), time.Now(), uuid.New(), "role_name2")
-				sqlxMock.Mock.ExpectQuery("SELECT").WillReturnRows(rows)
-			},
-			expectErr: false,
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			tt.mockSetup()
-			_, err := repositories.R().GetAllWithRoles()
-			if (err != nil) != tt.expectErr {
-				t.Errorf("GetAllWithRoles() error = %v, expectErr %v", err, tt.expectErr)
-			}
-		})
-	}
-}
-
-// TestUserPostgresRepository_GetUsersByRoleID tests the RolePostgresRepository.GetUsersByRoleID method
-func TestUserPostgresRepository_GetUsersByRoleID(t *testing.T) {
-	var sqlxMock test.Sqlx
-	sqlxMock.CreateFullTestSqlx(t)
-	defer sqlxMock.CleanTestSqlx()
-
-	repositories.ReplaceGlobals(repositories.NewPostgresRepository(sqlxMock.DB))
-
-	tests := []struct {
-		name      string
-		roleID    uuid.UUID
-		mockSetup func()
-		expectErr bool
-	}{
-		{
-			name:   "Fail users retrieval by role ID",
-			roleID: uuid.New(),
-			mockSetup: func() {
-				sqlxMock.Mock.ExpectQuery("SELECT").WillReturnError(errors.New("error"))
-			},
-			expectErr: true,
-		},
-		{
-			name:   "Retrieve users by role ID",
-			roleID: uuid.New(),
-			mockSetup: func() {
-				rows := sqlxmock.NewRows([]string{"ID", "email", "password", "created_at", "updated_at"}).
-					AddRow(uuid.New(), "test@example.com", "password", time.Now(), time.Now()).
-					AddRow(uuid.New(), "test2@example.com", "password", time.Now(), time.Now())
-				sqlxMock.Mock.ExpectQuery("SELECT").WillReturnRows(rows)
-			},
-			expectErr: false,
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			tt.mockSetup()
-			_, err := repositories.R().GetUsersByRoleID(tt.roleID)
-			if (err != nil) != tt.expectErr {
-				t.Errorf("GetUsersByRoleID() error = %v, expectErr %v", err, tt.expectErr)
-			}
-		})
-	}
-}
-
-// TestUserPostgresRepository_UpdateWithRoles tests the RolePostgresRepository.UpdateWithRoles method
-func TestUserPostgresRepository_UpdateWithRoles(t *testing.T) {
-	var sqlxMock test.Sqlx
-	sqlxMock.CreateFullTestSqlx(t)
-	defer sqlxMock.CleanTestSqlx()
-
-	repositories.ReplaceGlobals(repositories.NewPostgresRepository(sqlxMock.DB))
-
-	tests := []struct {
-		name      string
-		user      models.UserWithRoles
-		roleUUIDs []uuid.UUID
-		mockSetup func()
-		expectErr bool
-	}{
-		{
-			name:      "Fail user update with roles",
-			user:      models.UserWithRoles{User: models.User{ID: uuid.New(), Email: "test@example.com"}},
-			roleUUIDs: []uuid.UUID{uuid.New()},
-			mockSetup: func() {
-				sqlxMock.Mock.ExpectBegin()
-				sqlxMock.Mock.ExpectExec("UPDATE Users").WillReturnError(errors.New("error"))
-				sqlxMock.Mock.ExpectRollback()
-			},
-			expectErr: true,
-		},
-		{
-			name:      "Update user with roles",
-			user:      models.UserWithRoles{User: models.User{ID: uuid.New(), Email: "test@example.com"}},
-			roleUUIDs: []uuid.UUID{uuid.New()},
-			mockSetup: func() {
-				sqlxMock.Mock.ExpectBegin()
-				sqlxMock.Mock.ExpectExec("UPDATE Users").WillReturnResult(sqlxmock.NewResult(1, 1))
-				sqlxMock.Mock.ExpectExec("DELETE FROM user_roles").WillReturnResult(sqlxmock.NewResult(1, 1))
-				sqlxMock.Mock.ExpectExec("INSERT INTO user_roles").WillReturnResult(sqlxmock.NewResult(1, 1))
-				sqlxMock.Mock.ExpectCommit()
-			},
-			expectErr: false,
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			tt.mockSetup()
-			err := repositories.R().UpdateWithRoles(tt.user, tt.roleUUIDs)
-			if (err != nil) != tt.expectErr {
-				t.Errorf("UpdateWithRoles() error = %v, expectErr %v", err, tt.expectErr)
-			}
-		})
-	}
-}
-
-// TestUserPostgresRepository_SetUserRoles tests the RolePostgresRepository.SetUserRoles method
-func TestUserPostgresRepository_SetUserRoles(t *testing.T) {
-	var sqlxMock test.Sqlx
-	sqlxMock.CreateFullTestSqlx(t)
-	defer sqlxMock.CleanTestSqlx()
-
-	repositories.ReplaceGlobals(repositories.NewPostgresRepository(sqlxMock.DB))
-
-	tests := []struct {
-		name      string
-		userUUID  uuid.UUID
-		roleUUIDs []uuid.UUID
-		mockSetup func()
-		expectErr bool
-	}{
-		{
-			name:      "Fail set user roles",
-			userUUID:  uuid.New(),
-			roleUUIDs: []uuid.UUID{uuid.New()},
-			mockSetup: func() {
-				sqlxMock.Mock.ExpectBegin()
-				sqlxMock.Mock.ExpectExec("DELETE FROM user_roles").WillReturnError(errors.New("error"))
-				sqlxMock.Mock.ExpectRollback()
-			},
-			expectErr: true,
-		},
-		{
-			name:      "Set user roles",
-			userUUID:  uuid.New(),
-			roleUUIDs: []uuid.UUID{uuid.New()},
-			mockSetup: func() {
-				sqlxMock.Mock.ExpectBegin()
-				sqlxMock.Mock.ExpectExec("DELETE FROM user_roles").WillReturnResult(sqlxmock.NewResult(1, 1))
-				sqlxMock.Mock.ExpectExec("INSERT INTO user_roles").WillReturnResult(sqlxmock.NewResult(1, 1))
-				sqlxMock.Mock.ExpectCommit()
-			},
-			expectErr: false,
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			tt.mockSetup()
-			err := repositories.R().SetUserRoles(tt.userUUID, tt.roleUUIDs)
-			if (err != nil) != tt.expectErr {
-				t.Errorf("SetUserRoles() error = %v, expectErr %v", err, tt.expectErr)
-			}
-		})
-	}
-}
-
-// TestUserPostgresRepository_AddUsersRole tests the RolePostgresRepository.AddUsersRole method
-func TestUserPostgresRepository_AddUsersRole(t *testing.T) {
-	var sqlxMock test.Sqlx
-	sqlxMock.CreateFullTestSqlx(t)
-	defer sqlxMock.CleanTestSqlx()
-
-	repositories.ReplaceGlobals(repositories.NewPostgresRepository(sqlxMock.DB))
-
-	tests := []struct {
-		name      string
-		userUUIDs []uuid.UUID
-		roleUUID  uuid.UUID
-		mockSetup func()
-		expectErr bool
-	}{
-		{
-			name:      "Fail add users role",
-			userUUIDs: []uuid.UUID{uuid.New()},
-			roleUUID:  uuid.New(),
-			mockSetup: func() {
-				sqlxMock.Mock.ExpectBegin()
-				sqlxMock.Mock.ExpectExec("INSERT INTO user_roles").WillReturnError(errors.New("error"))
-				sqlxMock.Mock.ExpectRollback()
-			},
-			expectErr: true,
-		},
-		{
-			name:      "Add users role",
-			userUUIDs: []uuid.UUID{uuid.New()},
-			roleUUID:  uuid.New(),
-			mockSetup: func() {
-				sqlxMock.Mock.ExpectBegin()
-				sqlxMock.Mock.ExpectExec("INSERT INTO user_roles").WillReturnResult(sqlxmock.NewResult(1, 1))
-				sqlxMock.Mock.ExpectCommit()
-			},
-			expectErr: false,
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			tt.mockSetup()
-			err := repositories.R().AddUsersRole(tt.userUUIDs, tt.roleUUID)
-			if (err != nil) != tt.expectErr {
-				t.Errorf("AddUsersRole() error = %v, expectErr %v", err, tt.expectErr)
-			}
-		})
-	}
-}
-
-// TestUserPostgresRepository_RemoveUsersRole tests the RolePostgresRepository.RemoveUsersRole method
-func TestUserPostgresRepository_RemoveUsersRole(t *testing.T) {
-	var sqlxMock test.Sqlx
-	sqlxMock.CreateFullTestSqlx(t)
-	defer sqlxMock.CleanTestSqlx()
-
-	repositories.ReplaceGlobals(repositories.NewPostgresRepository(sqlxMock.DB))
-
-	tests := []struct {
-		name      string
-		userUUIDs []uuid.UUID
-		roleUUID  uuid.UUID
-		mockSetup func()
-		expectErr bool
-	}{
-		{
-			name:      "Fail remove users role",
-			userUUIDs: []uuid.UUID{uuid.New()},
-			roleUUID:  uuid.New(),
-			mockSetup: func() {
-				sqlxMock.Mock.ExpectBegin()
-				sqlxMock.Mock.ExpectExec("DELETE FROM user_roles").WillReturnError(errors.New("error"))
-				sqlxMock.Mock.ExpectRollback()
-			},
-			expectErr: true,
-		},
-		{
-			name:      "Remove users role",
-			userUUIDs: []uuid.UUID{uuid.New()},
-			roleUUID:  uuid.New(),
-			mockSetup: func() {
-				sqlxMock.Mock.ExpectBegin()
-				sqlxMock.Mock.ExpectExec("DELETE FROM user_roles").WillReturnResult(sqlxmock.NewResult(1, 1))
-				sqlxMock.Mock.ExpectCommit()
-			},
-			expectErr: false,
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			tt.mockSetup()
-			err := repositories.R().RemoveUsersRole(tt.userUUIDs, tt.roleUUID)
-			if (err != nil) != tt.expectErr {
-				t.Errorf("RemoveUsersRole() error = %v, expectErr %v", err, tt.expectErr)
+			if len(users) != tt.expectLength {
+				t.Errorf("List() length = %v, expectFound %v", len(users), tt.expectLength)
 			}
 		})
 	}

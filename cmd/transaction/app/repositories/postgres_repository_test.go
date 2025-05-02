@@ -85,8 +85,8 @@ func TestPostgresRepository_Get(t *testing.T) {
 			name:          "Retrieve transaction",
 			transactionID: uuid.New(),
 			mockSetup: func() {
-				rows := sqlxmock.NewRows([]string{"id", "user_id", "broker_id", "broker_name", "broker_image_id", "date", "transaction_type", "asset", "quantity", "price", "price_unit", "fee"}).
-					AddRow(uuid.New(), uuid.New(), uuid.New(), "broker_name", uuid.New(), time.Now(), "type", "asset", 0, 0.0, 0.0, 0.0)
+				rows := sqlxmock.NewRows([]string{"broker.id", "broker.name", "broker.image_id", "id", "user_id", "date", "transaction_type", "asset", "quantity", "price", "price_unit", "fee"}).
+					AddRow(uuid.New(), "broker_name", uuid.New(), uuid.New(), uuid.New(), time.Now(), "type", "asset", 0, 0.0, 0.0, 0.0)
 				sqlxMock.Mock.ExpectQuery("SELECT").WillReturnRows(rows)
 			},
 			expectErr:   false,
@@ -324,9 +324,9 @@ func TestPostgresRepository_GetAll(t *testing.T) {
 			name:   "Retrieve transactions",
 			userID: uuid.New(),
 			mockSetup: func() {
-				rows := sqlxmock.NewRows([]string{"id", "user_id", "broker_id", "broker_name", "broker_image_id", "date", "transaction_type", "asset", "quantity", "price", "price_unit", "fee"}).
-					AddRow(uuid.New(), uuid.New(), uuid.New(), "broker_name", uuid.New(), time.Now(), "type", "asset", 0, 0.0, 0.0, 0.0).
-					AddRow(uuid.New(), uuid.New(), uuid.New(), "broker_name", uuid.New(), time.Now(), "type", "asset", 0, 0.0, 0.0, 0.0)
+				rows := sqlxmock.NewRows([]string{"broker.id", "broker.name", "broker.image_id", "id", "user_id", "date", "transaction_type", "asset", "quantity", "price", "price_unit", "fee"}).
+					AddRow(uuid.New(), "broker_name", uuid.New(), uuid.New(), uuid.New(), time.Now(), "type", "asset", 0, 0.0, 0.0, 0.0).
+					AddRow(uuid.New(), "broker_name", uuid.New(), uuid.New(), uuid.New(), time.Now(), "type", "asset", 0, 0.0, 0.0, 0.0)
 				sqlxMock.Mock.ExpectQuery("SELECT").WillReturnRows(rows)
 			},
 			expectErr:   false,

@@ -77,7 +77,7 @@ func TestUserPostgresRepository_Get(t *testing.T) {
 		{
 			name: "User broker not found",
 			mockSetup: func() {
-				rows := sqlxmock.NewRows([]string{"id", "name", "image_id"})
+				rows := sqlxmock.NewRows([]string{"broker.id", "broker.name", "broker.image_id"})
 				sqlxMock.Mock.ExpectQuery("SELECT").WillReturnRows(rows)
 			},
 			expectErr:   false,
@@ -86,7 +86,7 @@ func TestUserPostgresRepository_Get(t *testing.T) {
 		{
 			name: "User broker found",
 			mockSetup: func() {
-				rows := sqlxmock.NewRows([]string{"id", "name", "image_id"}).
+				rows := sqlxmock.NewRows([]string{"broker.id", "broker.name", "broker.image_id"}).
 					AddRow(uuid.New(), "broker_name", uuid.New())
 				sqlxMock.Mock.ExpectQuery("SELECT").WillReturnRows(rows)
 			},
@@ -235,7 +235,7 @@ func TestUserPostgresRepository_GetAll(t *testing.T) {
 			name:   "Retrieve user brokers",
 			userID: uuid.New(),
 			mockSetup: func() {
-				rows := sqlxmock.NewRows([]string{"id", "name", "image_id"}).
+				rows := sqlxmock.NewRows([]string{"broker.id", "broker.name", "broker.image_id"}).
 					AddRow(uuid.New(), "broker_name", uuid.New()).
 					AddRow(uuid.New(), "broker_name", uuid.New())
 				sqlxMock.Mock.ExpectQuery("SELECT").WillReturnRows(rows)
