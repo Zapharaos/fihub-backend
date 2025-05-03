@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"errors"
 	"github.com/Zapharaos/fihub-backend/cmd/user/app/repositories"
 	"github.com/Zapharaos/fihub-backend/gen/go/userpb"
 	"github.com/Zapharaos/fihub-backend/internal/mappers"
@@ -22,15 +21,18 @@ type Service struct {
 // CreateUser implements the CreateUser RPC method.
 func (s *Service) CreateUser(ctx context.Context, req *userpb.CreateUserRequest) (*userpb.CreateUserResponse, error) {
 	// Construct the user input object
-	userInputCreate := models.UserInputPassword{
-		UserWithPassword: models.UserWithPassword{
-			User: models.User{
-				ID:    uuid.New(),
-				Email: req.GetEmail(),
+	userInputCreate := models.UserInputCreate{
+		UserInputPassword: models.UserInputPassword{
+			UserWithPassword: models.UserWithPassword{
+				User: models.User{
+					ID:    uuid.New(),
+					Email: req.GetEmail(),
+				},
+				Password: req.GetPassword(),
 			},
-			Password: req.GetPassword(),
+			Confirmation: req.GetConfirmation(),
 		},
-		Confirmation: req.GetConfirmation(),
+		Checkbox: req.GetCheckbox(),
 	}
 
 	// Validate user
@@ -90,7 +92,7 @@ func (s *Service) GetUser(ctx context.Context, req *userpb.GetUserRequest) (*use
 	err = security.Facade().CheckPermission(ctx, "admin.users.read", userID)
 	if err != nil {
 		zap.L().Error("CheckPermission", zap.Error(err))
-		return nil, err
+		return &userpb.GetUserResponse{}, err
 	}
 
 	// the user default accessible data
@@ -122,7 +124,7 @@ func (s *Service) UpdateUser(ctx context.Context, req *userpb.UpdateUserRequest)
 	err = security.Facade().CheckPermission(ctx, "admin.users.update", userID)
 	if err != nil {
 		zap.L().Error("CheckPermission", zap.Error(err))
-		return nil, err
+		return &userpb.UpdateUserResponse{}, err
 	}
 
 	// Construct the user object
@@ -173,7 +175,7 @@ func (s *Service) UpdateUserPassword(ctx context.Context, req *userpb.UpdateUser
 	err = security.Facade().CheckPermission(ctx, "admin.users.update", userID)
 	if err != nil {
 		zap.L().Error("CheckPermission", zap.Error(err))
-		return nil, err
+		return &userpb.UpdateUserPasswordResponse{}, err
 	}
 
 	// Construct the user input object
@@ -218,7 +220,7 @@ func (s *Service) DeleteUser(ctx context.Context, req *userpb.DeleteUserRequest)
 	err = security.Facade().CheckPermission(ctx, "admin.users.delete", userID)
 	if err != nil {
 		zap.L().Error("CheckPermission", zap.Error(err))
-		return nil, err
+		return &userpb.DeleteUserResponse{}, err
 	}
 
 	err = repositories.R().Delete(userID)
@@ -238,7 +240,7 @@ func (s *Service) ListUsers(ctx context.Context, req *userpb.ListUsersRequest) (
 	err := security.Facade().CheckPermission(ctx, "admin.users.list")
 	if err != nil {
 		zap.L().Error("CheckPermission", zap.Error(err))
-		return nil, err
+		return &userpb.ListUsersResponse{}, err
 	}
 
 	// List users
@@ -259,7 +261,7 @@ func (s *Service) AuthenticateUser(ctx context.Context, req *userpb.Authenticate
 	user, found, err := repositories.R().Authenticate(req.Email, req.Password)
 	if err != nil || !found {
 		zap.L().Error("AuthenticateUser", zap.Error(err))
-		return nil, errors.New("invalid credentials")
+		return &userpb.AuthenticateUserResponse{}, status.Error(codes.InvalidArgument, err.Error())
 	}
 
 	return &userpb.AuthenticateUserResponse{
