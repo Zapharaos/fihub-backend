@@ -73,6 +73,11 @@ VALUES
     ('2fa33825-e636-44c5-9193-e39d4909b826', 'admin.users.roles.list', 'admin', 'List user role'),
     ('8cc7abbf-d640-4cd2-a872-6537663782b8', 'admin.users.roles.update', 'admin', 'Update user role'),
 
+    -- User brokers
+    ('baada529-d966-4a41-8aae-9a1af6e850a9', 'admin.users.brokers.get', 'admin', 'Read user broker'),
+    ('71c54e16-9216-42ca-8819-89ca277a9510', 'admin.users.brokers.delete', 'admin', 'Delete user broker'),
+    ('27e913b0-b546-4bec-85d9-56ac20ab7e8d', 'admin.users.brokers.list', 'admin', 'List user brokers'),
+
     -- Brokers
     ('3bbeaf54-c92c-405f-a403-b01b9dc2ba7f', 'front.admin.brokers', 'front', 'Admin brokers view'),
     ('a3a92759-8d51-4564-b536-9c092b600471', 'admin.brokers.create', 'admin', 'Create broker'),

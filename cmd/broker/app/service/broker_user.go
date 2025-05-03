@@ -6,6 +6,7 @@ import (
 	"github.com/Zapharaos/fihub-backend/gen/go/brokerpb"
 	"github.com/Zapharaos/fihub-backend/internal/mappers"
 	"github.com/Zapharaos/fihub-backend/internal/models"
+	"github.com/Zapharaos/fihub-backend/internal/security"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
@@ -102,6 +103,13 @@ func (h *Service) CreateBrokerUser(ctx context.Context, req *brokerpb.CreateBrok
 
 // GetBrokerUser implements the GetBrokerUser RPC method.
 func (h *Service) GetBrokerUser(ctx context.Context, req *brokerpb.GetBrokerUserRequest) (*brokerpb.GetBrokerUserResponse, error) {
+	// Check user permissions
+	err := security.Facade().CheckPermission(ctx, "admin.users.brokers.get")
+	if err != nil {
+		zap.L().Error("CheckPermission", zap.Error(err))
+		return &brokerpb.GetBrokerUserResponse{}, err
+	}
+
 	// Parse the user ID from the request
 	userID, err := uuid.Parse(req.GetUserId())
 	if err != nil {
@@ -141,6 +149,12 @@ func (h *Service) GetBrokerUser(ctx context.Context, req *brokerpb.GetBrokerUser
 
 // DeleteBrokerUser implements the DeleteBrokerUser RPC method.
 func (h *Service) DeleteBrokerUser(ctx context.Context, req *brokerpb.DeleteBrokerUserRequest) (*brokerpb.DeleteBrokerUserResponse, error) {
+	// Check user permissions
+	err := security.Facade().CheckPermission(ctx, "admin.users.brokers.delete")
+	if err != nil {
+		zap.L().Error("CheckPermission", zap.Error(err))
+		return &brokerpb.DeleteBrokerUserResponse{}, err
+	}
 
 	// Parse the user ID from the request
 	userID, err := uuid.Parse(req.GetUserId())
@@ -201,6 +215,13 @@ func (h *Service) DeleteBrokerUser(ctx context.Context, req *brokerpb.DeleteBrok
 
 // ListUserBrokers implements the ListUserBrokers RPC method.
 func (h *Service) ListUserBrokers(ctx context.Context, req *brokerpb.ListUserBrokersRequest) (*brokerpb.ListUserBrokersResponse, error) {
+	// Check user permissions
+	err := security.Facade().CheckPermission(ctx, "admin.users.brokers.list")
+	if err != nil {
+		zap.L().Error("CheckPermission", zap.Error(err))
+		return &brokerpb.ListUserBrokersResponse{}, err
+	}
+
 	// Parse the user ID from the request
 	userID, err := uuid.Parse(req.GetUserId())
 	if err != nil {

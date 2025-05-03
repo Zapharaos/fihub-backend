@@ -45,19 +45,25 @@ func TestCreateBrokerImage(t *testing.T) {
 		expectedErrCode codes.Code
 	}{
 		{
-			name: "missing request body",
+			name: "does not have permission",
 			mockSetup: func(ctrl *gomock.Controller) {
-				bb := mocks.NewBrokerRepository(ctrl)
-				bb.EXPECT().HasImage(gomock.Any()).Times(0)
-				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
+				// Mock the public security facade
+				publicSecurityClient := mocks.NewMockPublicSecurityServiceClient(ctrl)
+				publicSecurityClient.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(&securitypb.CheckPermissionResponse{HasPermission: false}, nil)
+				security.ReplaceGlobals(security.NewPublicSecurityFacadeWithGrpcClient(publicSecurityClient))
 			},
-			request:         nil,
+			request:         validRequest,
 			expected:        &brokerpb.CreateBrokerImageResponse{},
-			expectedErrCode: codes.InvalidArgument,
+			expectedErrCode: codes.PermissionDenied,
 		},
 		{
 			name: "fails to parse ID from request",
 			mockSetup: func(ctrl *gomock.Controller) {
+				// Mock the public security facade
+				publicSecurityClient := mocks.NewMockPublicSecurityServiceClient(ctrl)
+				publicSecurityClient.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(&securitypb.CheckPermissionResponse{HasPermission: true}, nil)
+				security.ReplaceGlobals(security.NewPublicSecurityFacadeWithGrpcClient(publicSecurityClient))
+				// Mock the broker repository
 				bb := mocks.NewBrokerRepository(ctrl)
 				bb.EXPECT().HasImage(gomock.Any()).Times(0)
 				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
@@ -71,6 +77,11 @@ func TestCreateBrokerImage(t *testing.T) {
 		{
 			name: "fails at bad image input",
 			mockSetup: func(ctrl *gomock.Controller) {
+				// Mock the public security facade
+				publicSecurityClient := mocks.NewMockPublicSecurityServiceClient(ctrl)
+				publicSecurityClient.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(&securitypb.CheckPermissionResponse{HasPermission: true}, nil)
+				security.ReplaceGlobals(security.NewPublicSecurityFacadeWithGrpcClient(publicSecurityClient))
+				// Mock the broker repository
 				bb := mocks.NewBrokerRepository(ctrl)
 				bb.EXPECT().HasImage(gomock.Any()).Times(0)
 				repositories.ReplaceGlobals(repositories.NewRepository(bb, nil, nil))
@@ -84,6 +95,11 @@ func TestCreateBrokerImage(t *testing.T) {
 		{
 			name: "fails to verify broker image existence",
 			mockSetup: func(ctrl *gomock.Controller) {
+				// Mock the public security facade
+				publicSecurityClient := mocks.NewMockPublicSecurityServiceClient(ctrl)
+				publicSecurityClient.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(&securitypb.CheckPermissionResponse{HasPermission: true}, nil)
+				security.ReplaceGlobals(security.NewPublicSecurityFacadeWithGrpcClient(publicSecurityClient))
+				// Mock the broker repository
 				bb := mocks.NewBrokerRepository(ctrl)
 				bb.EXPECT().HasImage(gomock.Any()).Return(true, errors.New("error"))
 				bi := mocks.NewBrokerImageRepository(ctrl)
@@ -97,6 +113,11 @@ func TestCreateBrokerImage(t *testing.T) {
 		{
 			name: "broker already has an image",
 			mockSetup: func(ctrl *gomock.Controller) {
+				// Mock the public security facade
+				publicSecurityClient := mocks.NewMockPublicSecurityServiceClient(ctrl)
+				publicSecurityClient.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(&securitypb.CheckPermissionResponse{HasPermission: true}, nil)
+				security.ReplaceGlobals(security.NewPublicSecurityFacadeWithGrpcClient(publicSecurityClient))
+				// Mock the broker repository
 				bb := mocks.NewBrokerRepository(ctrl)
 				bb.EXPECT().HasImage(gomock.Any()).Return(true, nil)
 				bi := mocks.NewBrokerImageRepository(ctrl)
@@ -110,6 +131,11 @@ func TestCreateBrokerImage(t *testing.T) {
 		{
 			name: "fails to create an image",
 			mockSetup: func(ctrl *gomock.Controller) {
+				// Mock the public security facade
+				publicSecurityClient := mocks.NewMockPublicSecurityServiceClient(ctrl)
+				publicSecurityClient.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(&securitypb.CheckPermissionResponse{HasPermission: true}, nil)
+				security.ReplaceGlobals(security.NewPublicSecurityFacadeWithGrpcClient(publicSecurityClient))
+				// Mock the broker repository
 				bb := mocks.NewBrokerRepository(ctrl)
 				bb.EXPECT().HasImage(gomock.Any()).Return(false, nil)
 				bi := mocks.NewBrokerImageRepository(ctrl)
@@ -124,6 +150,11 @@ func TestCreateBrokerImage(t *testing.T) {
 		{
 			name: "fails to retrieve the broker image",
 			mockSetup: func(ctrl *gomock.Controller) {
+				// Mock the public security facade
+				publicSecurityClient := mocks.NewMockPublicSecurityServiceClient(ctrl)
+				publicSecurityClient.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(&securitypb.CheckPermissionResponse{HasPermission: true}, nil)
+				security.ReplaceGlobals(security.NewPublicSecurityFacadeWithGrpcClient(publicSecurityClient))
+				// Mock the broker repository
 				bb := mocks.NewBrokerRepository(ctrl)
 				bb.EXPECT().HasImage(gomock.Any()).Return(false, nil)
 				bb.EXPECT().SetImage(gomock.Any(), gomock.Any()).Times(0)
@@ -139,6 +170,11 @@ func TestCreateBrokerImage(t *testing.T) {
 		{
 			name: "fails to find the broker image",
 			mockSetup: func(ctrl *gomock.Controller) {
+				// Mock the public security facade
+				publicSecurityClient := mocks.NewMockPublicSecurityServiceClient(ctrl)
+				publicSecurityClient.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(&securitypb.CheckPermissionResponse{HasPermission: true}, nil)
+				security.ReplaceGlobals(security.NewPublicSecurityFacadeWithGrpcClient(publicSecurityClient))
+				// Mock the broker repository
 				bb := mocks.NewBrokerRepository(ctrl)
 				bb.EXPECT().HasImage(gomock.Any()).Return(false, nil)
 				bb.EXPECT().SetImage(gomock.Any(), gomock.Any()).Times(0)
@@ -154,6 +190,11 @@ func TestCreateBrokerImage(t *testing.T) {
 		{
 			name: "fails to set the image to broker",
 			mockSetup: func(ctrl *gomock.Controller) {
+				// Mock the public security facade
+				publicSecurityClient := mocks.NewMockPublicSecurityServiceClient(ctrl)
+				publicSecurityClient.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(&securitypb.CheckPermissionResponse{HasPermission: true}, nil)
+				security.ReplaceGlobals(security.NewPublicSecurityFacadeWithGrpcClient(publicSecurityClient))
+				// Mock the broker repository
 				bb := mocks.NewBrokerRepository(ctrl)
 				bb.EXPECT().HasImage(gomock.Any()).Return(false, nil)
 				bb.EXPECT().SetImage(gomock.Any(), gomock.Any()).Return(errors.New("error"))
@@ -169,6 +210,11 @@ func TestCreateBrokerImage(t *testing.T) {
 		{
 			name: "succeeded",
 			mockSetup: func(ctrl *gomock.Controller) {
+				// Mock the public security facade
+				publicSecurityClient := mocks.NewMockPublicSecurityServiceClient(ctrl)
+				publicSecurityClient.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(&securitypb.CheckPermissionResponse{HasPermission: true}, nil)
+				security.ReplaceGlobals(security.NewPublicSecurityFacadeWithGrpcClient(publicSecurityClient))
+				// Mock the broker repository
 				bb := mocks.NewBrokerRepository(ctrl)
 				bb.EXPECT().HasImage(gomock.Any()).Return(false, nil)
 				bb.EXPECT().SetImage(gomock.Any(), gomock.Any()).Return(nil)
@@ -190,11 +236,6 @@ func TestCreateBrokerImage(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			tt.mockSetup(ctrl)
 			defer ctrl.Finish()
-
-			// Mock the public security facade
-			publicSecurityClient := mocks.NewMockPublicSecurityServiceClient(ctrl)
-			publicSecurityClient.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(&securitypb.CheckPermissionResponse{HasPermission: true}, nil)
-			security.ReplaceGlobals(security.NewPublicSecurityFacadeWithGrpcClient(publicSecurityClient))
 
 			// Call service
 			response, err := service.CreateBrokerImage(context.Background(), tt.request)
@@ -355,19 +396,25 @@ func TestUpdateBrokerImage(t *testing.T) {
 		expectedErrCode codes.Code
 	}{
 		{
-			name: "missing request body",
+			name: "does not have permission",
 			mockSetup: func(ctrl *gomock.Controller) {
-				bi := mocks.NewBrokerImageRepository(ctrl)
-				bi.EXPECT().Exists(gomock.Any(), gomock.Any()).Times(0)
-				repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, bi))
+				// Mock the public security facade
+				publicSecurityClient := mocks.NewMockPublicSecurityServiceClient(ctrl)
+				publicSecurityClient.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(&securitypb.CheckPermissionResponse{HasPermission: false}, nil)
+				security.ReplaceGlobals(security.NewPublicSecurityFacadeWithGrpcClient(publicSecurityClient))
 			},
-			request:         nil,
+			request:         validRequest,
 			expected:        &brokerpb.UpdateBrokerImageResponse{},
-			expectedErrCode: codes.InvalidArgument,
+			expectedErrCode: codes.PermissionDenied,
 		},
 		{
 			name: "fails to parse ID from request",
 			mockSetup: func(ctrl *gomock.Controller) {
+				// Mock the public security facade
+				publicSecurityClient := mocks.NewMockPublicSecurityServiceClient(ctrl)
+				publicSecurityClient.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(&securitypb.CheckPermissionResponse{HasPermission: true}, nil)
+				security.ReplaceGlobals(security.NewPublicSecurityFacadeWithGrpcClient(publicSecurityClient))
+				// Mock the broker repository
 				bi := mocks.NewBrokerImageRepository(ctrl)
 				bi.EXPECT().Exists(gomock.Any(), gomock.Any()).Times(0)
 				repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, bi))
@@ -381,6 +428,11 @@ func TestUpdateBrokerImage(t *testing.T) {
 		{
 			name: "image input is invalid",
 			mockSetup: func(ctrl *gomock.Controller) {
+				// Mock the public security facade
+				publicSecurityClient := mocks.NewMockPublicSecurityServiceClient(ctrl)
+				publicSecurityClient.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(&securitypb.CheckPermissionResponse{HasPermission: true}, nil)
+				security.ReplaceGlobals(security.NewPublicSecurityFacadeWithGrpcClient(publicSecurityClient))
+				// Mock the broker repository
 				bi := mocks.NewBrokerImageRepository(ctrl)
 				bi.EXPECT().Exists(gomock.Any(), gomock.Any()).Times(0)
 				repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, bi))
@@ -394,6 +446,11 @@ func TestUpdateBrokerImage(t *testing.T) {
 		{
 			name: "fails to verify image broker existence",
 			mockSetup: func(ctrl *gomock.Controller) {
+				// Mock the public security facade
+				publicSecurityClient := mocks.NewMockPublicSecurityServiceClient(ctrl)
+				publicSecurityClient.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(&securitypb.CheckPermissionResponse{HasPermission: true}, nil)
+				security.ReplaceGlobals(security.NewPublicSecurityFacadeWithGrpcClient(publicSecurityClient))
+				// Mock the broker repository
 				bi := mocks.NewBrokerImageRepository(ctrl)
 				bi.EXPECT().Exists(gomock.Any(), gomock.Any()).Return(false, errors.New("error"))
 				bi.EXPECT().Update(gomock.Any()).Times(0)
@@ -406,6 +463,11 @@ func TestUpdateBrokerImage(t *testing.T) {
 		{
 			name: "fails to find image broker",
 			mockSetup: func(ctrl *gomock.Controller) {
+				// Mock the public security facade
+				publicSecurityClient := mocks.NewMockPublicSecurityServiceClient(ctrl)
+				publicSecurityClient.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(&securitypb.CheckPermissionResponse{HasPermission: true}, nil)
+				security.ReplaceGlobals(security.NewPublicSecurityFacadeWithGrpcClient(publicSecurityClient))
+				// Mock the broker repository
 				bi := mocks.NewBrokerImageRepository(ctrl)
 				bi.EXPECT().Exists(gomock.Any(), gomock.Any()).Return(false, nil)
 				bi.EXPECT().Update(gomock.Any()).Times(0)
@@ -418,6 +480,11 @@ func TestUpdateBrokerImage(t *testing.T) {
 		{
 			name: "fails to update image",
 			mockSetup: func(ctrl *gomock.Controller) {
+				// Mock the public security facade
+				publicSecurityClient := mocks.NewMockPublicSecurityServiceClient(ctrl)
+				publicSecurityClient.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(&securitypb.CheckPermissionResponse{HasPermission: true}, nil)
+				security.ReplaceGlobals(security.NewPublicSecurityFacadeWithGrpcClient(publicSecurityClient))
+				// Mock the broker repository
 				bi := mocks.NewBrokerImageRepository(ctrl)
 				bi.EXPECT().Exists(gomock.Any(), gomock.Any()).Return(true, nil)
 				bi.EXPECT().Update(gomock.Any()).Return(errors.New("error"))
@@ -430,6 +497,11 @@ func TestUpdateBrokerImage(t *testing.T) {
 		{
 			name: "fails to retrieve broker image",
 			mockSetup: func(ctrl *gomock.Controller) {
+				// Mock the public security facade
+				publicSecurityClient := mocks.NewMockPublicSecurityServiceClient(ctrl)
+				publicSecurityClient.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(&securitypb.CheckPermissionResponse{HasPermission: true}, nil)
+				security.ReplaceGlobals(security.NewPublicSecurityFacadeWithGrpcClient(publicSecurityClient))
+				// Mock the broker repository
 				bi := mocks.NewBrokerImageRepository(ctrl)
 				bi.EXPECT().Exists(gomock.Any(), gomock.Any()).Return(true, nil)
 				bi.EXPECT().Update(gomock.Any()).Return(nil)
@@ -443,6 +515,11 @@ func TestUpdateBrokerImage(t *testing.T) {
 		{
 			name: "fails to find broker image",
 			mockSetup: func(ctrl *gomock.Controller) {
+				// Mock the public security facade
+				publicSecurityClient := mocks.NewMockPublicSecurityServiceClient(ctrl)
+				publicSecurityClient.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(&securitypb.CheckPermissionResponse{HasPermission: true}, nil)
+				security.ReplaceGlobals(security.NewPublicSecurityFacadeWithGrpcClient(publicSecurityClient))
+				// Mock the broker repository
 				bi := mocks.NewBrokerImageRepository(ctrl)
 				bi.EXPECT().Exists(gomock.Any(), gomock.Any()).Return(true, nil)
 				bi.EXPECT().Update(gomock.Any()).Return(nil)
@@ -456,6 +533,11 @@ func TestUpdateBrokerImage(t *testing.T) {
 		{
 			name: "succeeded",
 			mockSetup: func(ctrl *gomock.Controller) {
+				// Mock the public security facade
+				publicSecurityClient := mocks.NewMockPublicSecurityServiceClient(ctrl)
+				publicSecurityClient.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(&securitypb.CheckPermissionResponse{HasPermission: true}, nil)
+				security.ReplaceGlobals(security.NewPublicSecurityFacadeWithGrpcClient(publicSecurityClient))
+				// Mock the broker repository
 				bi := mocks.NewBrokerImageRepository(ctrl)
 				bi.EXPECT().Exists(gomock.Any(), gomock.Any()).Return(true, nil)
 				bi.EXPECT().Update(gomock.Any()).Return(nil)
@@ -475,11 +557,6 @@ func TestUpdateBrokerImage(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			tt.mockSetup(ctrl)
 			defer ctrl.Finish()
-
-			// Mock the public security facade
-			publicSecurityClient := mocks.NewMockPublicSecurityServiceClient(ctrl)
-			publicSecurityClient.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(&securitypb.CheckPermissionResponse{HasPermission: true}, nil)
-			security.ReplaceGlobals(security.NewPublicSecurityFacadeWithGrpcClient(publicSecurityClient))
 
 			// Call service
 			response, err := service.UpdateBrokerImage(context.Background(), tt.request)
@@ -523,19 +600,25 @@ func TestDeleteBrokerImage(t *testing.T) {
 		expectedErrCode codes.Code
 	}{
 		{
-			name: "missing request body",
+			name: "does not have permission",
 			mockSetup: func(ctrl *gomock.Controller) {
-				bi := mocks.NewBrokerImageRepository(ctrl)
-				bi.EXPECT().Exists(gomock.Any(), gomock.Any()).Times(0)
-				repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, bi))
+				// Mock the public security facade
+				publicSecurityClient := mocks.NewMockPublicSecurityServiceClient(ctrl)
+				publicSecurityClient.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(&securitypb.CheckPermissionResponse{HasPermission: false}, nil)
+				security.ReplaceGlobals(security.NewPublicSecurityFacadeWithGrpcClient(publicSecurityClient))
 			},
-			request:         nil,
+			request:         validRequest,
 			expected:        &brokerpb.DeleteBrokerImageResponse{},
-			expectedErrCode: codes.InvalidArgument,
+			expectedErrCode: codes.PermissionDenied,
 		},
 		{
 			name: "fails to parse ID from request",
 			mockSetup: func(ctrl *gomock.Controller) {
+				// Mock the public security facade
+				publicSecurityClient := mocks.NewMockPublicSecurityServiceClient(ctrl)
+				publicSecurityClient.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(&securitypb.CheckPermissionResponse{HasPermission: true}, nil)
+				security.ReplaceGlobals(security.NewPublicSecurityFacadeWithGrpcClient(publicSecurityClient))
+				// Mock the broker repository
 				bi := mocks.NewBrokerImageRepository(ctrl)
 				bi.EXPECT().Exists(gomock.Any(), gomock.Any()).Times(0)
 				repositories.ReplaceGlobals(repositories.NewRepository(nil, nil, bi))
@@ -549,6 +632,11 @@ func TestDeleteBrokerImage(t *testing.T) {
 		{
 			name: "fails to verify the image broker existence",
 			mockSetup: func(ctrl *gomock.Controller) {
+				// Mock the public security facade
+				publicSecurityClient := mocks.NewMockPublicSecurityServiceClient(ctrl)
+				publicSecurityClient.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(&securitypb.CheckPermissionResponse{HasPermission: true}, nil)
+				security.ReplaceGlobals(security.NewPublicSecurityFacadeWithGrpcClient(publicSecurityClient))
+				// Mock the broker repository
 				bi := mocks.NewBrokerImageRepository(ctrl)
 				bi.EXPECT().Exists(gomock.Any(), gomock.Any()).Return(false, errors.New("error"))
 				bi.EXPECT().Delete(gomock.Any()).Times(0)
@@ -561,6 +649,11 @@ func TestDeleteBrokerImage(t *testing.T) {
 		{
 			name: "fails to find the image broker",
 			mockSetup: func(ctrl *gomock.Controller) {
+				// Mock the public security facade
+				publicSecurityClient := mocks.NewMockPublicSecurityServiceClient(ctrl)
+				publicSecurityClient.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(&securitypb.CheckPermissionResponse{HasPermission: true}, nil)
+				security.ReplaceGlobals(security.NewPublicSecurityFacadeWithGrpcClient(publicSecurityClient))
+				// Mock the broker repository
 				bi := mocks.NewBrokerImageRepository(ctrl)
 				bi.EXPECT().Exists(gomock.Any(), gomock.Any()).Return(false, nil)
 				bi.EXPECT().Delete(gomock.Any()).Times(0)
@@ -573,6 +666,11 @@ func TestDeleteBrokerImage(t *testing.T) {
 		{
 			name: "fails to delete the broker image",
 			mockSetup: func(ctrl *gomock.Controller) {
+				// Mock the public security facade
+				publicSecurityClient := mocks.NewMockPublicSecurityServiceClient(ctrl)
+				publicSecurityClient.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(&securitypb.CheckPermissionResponse{HasPermission: true}, nil)
+				security.ReplaceGlobals(security.NewPublicSecurityFacadeWithGrpcClient(publicSecurityClient))
+				// Mock the broker repository
 				bi := mocks.NewBrokerImageRepository(ctrl)
 				bi.EXPECT().Exists(gomock.Any(), gomock.Any()).Return(true, nil)
 				bi.EXPECT().Delete(gomock.Any()).Return(errors.New("error"))
@@ -585,6 +683,11 @@ func TestDeleteBrokerImage(t *testing.T) {
 		{
 			name: "succeeded",
 			mockSetup: func(ctrl *gomock.Controller) {
+				// Mock the public security facade
+				publicSecurityClient := mocks.NewMockPublicSecurityServiceClient(ctrl)
+				publicSecurityClient.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(&securitypb.CheckPermissionResponse{HasPermission: true}, nil)
+				security.ReplaceGlobals(security.NewPublicSecurityFacadeWithGrpcClient(publicSecurityClient))
+				// Mock the broker repository
 				bi := mocks.NewBrokerImageRepository(ctrl)
 				bi.EXPECT().Exists(gomock.Any(), gomock.Any()).Return(true, nil)
 				bi.EXPECT().Delete(gomock.Any()).Return(nil)
@@ -603,11 +706,6 @@ func TestDeleteBrokerImage(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			tt.mockSetup(ctrl)
 			defer ctrl.Finish()
-
-			// Mock the public security facade
-			publicSecurityClient := mocks.NewMockPublicSecurityServiceClient(ctrl)
-			publicSecurityClient.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(&securitypb.CheckPermissionResponse{HasPermission: true}, nil)
-			security.ReplaceGlobals(security.NewPublicSecurityFacadeWithGrpcClient(publicSecurityClient))
 
 			// Call service
 			response, err := service.DeleteBrokerImage(context.Background(), tt.request)

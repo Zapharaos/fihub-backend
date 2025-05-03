@@ -19,7 +19,7 @@ func (h *Service) CreateBroker(ctx context.Context, req *brokerpb.CreateBrokerRe
 	err := security.Facade().CheckPermission(ctx, "admin.brokers.create")
 	if err != nil {
 		zap.L().Error("CheckPermission", zap.Error(err))
-		return nil, err
+		return &brokerpb.CreateBrokerResponse{}, err
 	}
 
 	// Construct the Broker object from the request
@@ -103,7 +103,7 @@ func (h *Service) UpdateBroker(ctx context.Context, req *brokerpb.UpdateBrokerRe
 	err := security.Facade().CheckPermission(ctx, "admin.brokers.update")
 	if err != nil {
 		zap.L().Error("CheckPermission", zap.Error(err))
-		return nil, err
+		return &brokerpb.UpdateBrokerResponse{}, err
 	}
 
 	// Parse the broker ID from the request
@@ -182,7 +182,7 @@ func (h *Service) DeleteBroker(ctx context.Context, req *brokerpb.DeleteBrokerRe
 	err := security.Facade().CheckPermission(ctx, "admin.brokers.delete")
 	if err != nil {
 		zap.L().Error("CheckPermission", zap.Error(err))
-		return nil, err
+		return &brokerpb.DeleteBrokerResponse{}, err
 	}
 
 	// Parse the broker ID from the request
