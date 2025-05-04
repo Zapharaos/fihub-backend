@@ -57,7 +57,7 @@ func (s *PublicService) CheckPermission(ctx context.Context, req *securitypb.Che
 		zap.L().Warn("Permission not found in context")
 		return &securitypb.CheckPermissionResponse{
 			HasPermission: false,
-		}, nil
+		}, status.Error(codes.PermissionDenied, "Missing permission for action")
 	}
 
 	return &securitypb.CheckPermissionResponse{

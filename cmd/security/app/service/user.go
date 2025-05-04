@@ -19,7 +19,7 @@ func (s *Service) AddUsersToRole(ctx context.Context, req *securitypb.AddUsersTo
 	err := security.Facade().CheckPermission(ctx, "admin.roles.users.update")
 	if err != nil {
 		zap.L().Error("CheckPermission", zap.Error(err))
-		return nil, err
+		return &securitypb.AddUsersToRoleResponse{}, err
 	}
 
 	// Parse the user ID from the request
@@ -61,7 +61,7 @@ func (s *Service) RemoveUsersFromRole(ctx context.Context, req *securitypb.Remov
 	err := security.Facade().CheckPermission(ctx, "admin.roles.users.delete")
 	if err != nil {
 		zap.L().Error("CheckPermission", zap.Error(err))
-		return nil, err
+		return &securitypb.RemoveUsersFromRoleResponse{}, err
 	}
 
 	// Parse the user ID from the request
@@ -103,7 +103,7 @@ func (s *Service) ListUsersForRole(ctx context.Context, req *securitypb.ListUser
 	err := security.Facade().CheckPermission(ctx, "admin.roles.users.list")
 	if err != nil {
 		zap.L().Error("CheckPermission", zap.Error(err))
-		return nil, err
+		return &securitypb.ListUsersForRoleResponse{}, err
 	}
 
 	// Parse the user ID from the request
@@ -132,7 +132,7 @@ func (s *Service) SetRolesForUser(ctx context.Context, req *securitypb.SetRolesF
 	err := security.Facade().CheckPermission(ctx, "admin.users.roles.update")
 	if err != nil {
 		zap.L().Error("CheckPermission", zap.Error(err))
-		return nil, err
+		return &securitypb.SetRolesForUserResponse{}, err
 	}
 
 	// Parse the user ID from the request
@@ -175,7 +175,7 @@ func (s *Service) ListRolesForUser(ctx context.Context, req *securitypb.ListRole
 	err := security.Facade().CheckPermission(ctx, "admin.users.roles.list")
 	if err != nil {
 		zap.L().Error("CheckPermission", zap.Error(err))
-		return nil, err
+		return &securitypb.ListRolesForUserResponse{}, err
 	}
 
 	// Parse the user ID from the request
@@ -204,7 +204,7 @@ func (s *Service) ListRolesWithPermissionsForUser(ctx context.Context, req *secu
 	err := security.Facade().CheckPermission(ctx, "admin.users.roles.list")
 	if err != nil {
 		zap.L().Error("CheckPermission", zap.Error(err))
-		return nil, err
+		return &securitypb.ListRolesWithPermissionsForUserResponse{}, err
 	}
 
 	// Parse the user ID from the request
@@ -233,7 +233,7 @@ func (s *Service) ListUsersFull(ctx context.Context, req *securitypb.ListUsersFu
 	err := security.Facade().CheckPermission(ctx, "admin.users.list")
 	if err != nil {
 		zap.L().Error("CheckPermission", zap.Error(err))
-		return nil, err
+		return &securitypb.ListUsersFullResponse{}, err
 	}
 
 	// Retrieve users from database

@@ -19,7 +19,7 @@ func (s *Service) CreatePermission(ctx context.Context, req *securitypb.CreatePe
 	err := security.Facade().CheckPermission(ctx, "admin.permissions.create")
 	if err != nil {
 		zap.L().Error("CheckPermission", zap.Error(err))
-		return nil, err
+		return &securitypb.CreatePermissionResponse{}, err
 	}
 
 	// Construct the Permission object from the request
@@ -65,7 +65,7 @@ func (s *Service) GetPermission(ctx context.Context, req *securitypb.GetPermissi
 	err := security.Facade().CheckPermission(ctx, "admin.permissions.read")
 	if err != nil {
 		zap.L().Error("CheckPermission", zap.Error(err))
-		return nil, err
+		return &securitypb.GetPermissionResponse{}, err
 	}
 
 	// Parse the permission ID from the request
@@ -98,7 +98,7 @@ func (s *Service) UpdatePermission(ctx context.Context, req *securitypb.UpdatePe
 	err := security.Facade().CheckPermission(ctx, "admin.permissions.update")
 	if err != nil {
 		zap.L().Error("CheckPermission", zap.Error(err))
-		return nil, err
+		return &securitypb.UpdatePermissionResponse{}, err
 	}
 
 	// Parse the permission ID from the request
@@ -152,7 +152,7 @@ func (s *Service) DeletePermission(ctx context.Context, req *securitypb.DeletePe
 	err := security.Facade().CheckPermission(ctx, "admin.permissions.delete")
 	if err != nil {
 		zap.L().Error("CheckPermission", zap.Error(err))
-		return nil, err
+		return &securitypb.DeletePermissionResponse{}, err
 	}
 
 	// Parse the permission ID from the request
@@ -185,7 +185,7 @@ func (s *Service) ListPermissions(ctx context.Context, req *securitypb.ListPermi
 	err := security.Facade().CheckPermission(ctx, "admin.permissions.list")
 	if err != nil {
 		zap.L().Error("CheckPermission", zap.Error(err))
-		return nil, err
+		return &securitypb.ListPermissionsResponse{}, err
 	}
 
 	// Get all permissions from the database

@@ -19,7 +19,7 @@ func (s *Service) CreateRole(ctx context.Context, req *securitypb.CreateRoleRequ
 	err := security.Facade().CheckPermission(ctx, "admin.roles.create")
 	if err != nil {
 		zap.L().Error("CheckPermission", zap.Error(err))
-		return nil, err
+		return &securitypb.CreateRoleResponse{}, err
 	}
 
 	// Construct the Role object from the request
@@ -30,7 +30,7 @@ func (s *Service) CreateRole(ctx context.Context, req *securitypb.CreateRoleRequ
 
 	if ok, err := role.IsValid(); !ok {
 		zap.L().Warn("Role is not valid", zap.Error(err))
-		return nil, status.Error(codes.InvalidArgument, err.Error())
+		return &securitypb.CreateRoleResponse{}, status.Error(codes.InvalidArgument, err.Error())
 	}
 
 	// Check user permissions for updating a role permissions
@@ -46,7 +46,7 @@ func (s *Service) CreateRole(ctx context.Context, req *securitypb.CreateRoleRequ
 		// Validate the permissions
 		if ok, err := permissions.IsValid(); !ok {
 			zap.L().Warn("Permissions are not valid", zap.Error(err))
-			return nil, status.Error(codes.InvalidArgument, err.Error())
+			return &securitypb.CreateRoleResponse{}, status.Error(codes.InvalidArgument, err.Error())
 		}
 	}
 
@@ -54,18 +54,18 @@ func (s *Service) CreateRole(ctx context.Context, req *securitypb.CreateRoleRequ
 	roleID, err := repositories.R().R().Create(role, permissions)
 	if err != nil {
 		zap.L().Error("Cannot create role", zap.Error(err))
-		return nil, status.Error(codes.Internal, err.Error())
+		return &securitypb.CreateRoleResponse{}, status.Error(codes.Internal, err.Error())
 	}
 
 	// Get the role + permissions from the database
 	result, found, err := repositories.R().R().GetWithPermissions(roleID)
 	if err != nil {
 		zap.L().Error("Cannot get role", zap.String("uuid", roleID.String()), zap.Error(err))
-		return nil, status.Error(codes.Internal, err.Error())
+		return &securitypb.CreateRoleResponse{}, status.Error(codes.Internal, err.Error())
 	}
 	if !found {
 		zap.L().Error("Role not found after creation", zap.String("uuid", roleID.String()))
-		return nil, status.Error(codes.Internal, "Role not found after creation")
+		return &securitypb.CreateRoleResponse{}, status.Error(codes.Internal, "Role not found after creation")
 	}
 
 	// Convert the role to the gen format
@@ -76,12 +76,11 @@ func (s *Service) CreateRole(ctx context.Context, req *securitypb.CreateRoleRequ
 
 // GetRole implements the GetRole RPC method.
 func (s *Service) GetRole(ctx context.Context, req *securitypb.GetRoleRequest) (*securitypb.GetRoleResponse, error) {
-
 	// Check user permissions
 	err := security.Facade().CheckPermission(ctx, "admin.roles.read")
 	if err != nil {
 		zap.L().Error("CheckPermission", zap.Error(err))
-		return nil, err
+		return &securitypb.GetRoleResponse{}, err
 	}
 
 	// Parse the user ID from the request
@@ -115,7 +114,7 @@ func (s *Service) UpdateRole(ctx context.Context, req *securitypb.UpdateRoleRequ
 	err := security.Facade().CheckPermission(ctx, "admin.roles.update")
 	if err != nil {
 		zap.L().Error("CheckPermission", zap.Error(err))
-		return nil, err
+		return &securitypb.UpdateRoleResponse{}, err
 	}
 
 	// Parse the user ID from the request
@@ -134,7 +133,7 @@ func (s *Service) UpdateRole(ctx context.Context, req *securitypb.UpdateRoleRequ
 
 	if ok, err := role.IsValid(); !ok {
 		zap.L().Warn("Role is not valid", zap.Error(err))
-		return nil, status.Error(codes.InvalidArgument, err.Error())
+		return &securitypb.UpdateRoleResponse{}, status.Error(codes.InvalidArgument, err.Error())
 	}
 
 	// Check user permissions for updating a role permissions
@@ -150,7 +149,7 @@ func (s *Service) UpdateRole(ctx context.Context, req *securitypb.UpdateRoleRequ
 		// Validate the permissions
 		if ok, err := permissions.IsValid(); !ok {
 			zap.L().Warn("Permissions are not valid", zap.Error(err))
-			return nil, status.Error(codes.InvalidArgument, err.Error())
+			return &securitypb.UpdateRoleResponse{}, status.Error(codes.InvalidArgument, err.Error())
 		}
 	}
 
@@ -158,18 +157,18 @@ func (s *Service) UpdateRole(ctx context.Context, req *securitypb.UpdateRoleRequ
 	err = repositories.R().R().Update(role, permissions)
 	if err != nil {
 		zap.L().Error("Cannot update role", zap.Error(err))
-		return nil, status.Error(codes.Internal, err.Error())
+		return &securitypb.UpdateRoleResponse{}, status.Error(codes.Internal, err.Error())
 	}
 
 	// Get the role + permissions from the database
 	result, found, err := repositories.R().R().GetWithPermissions(roleID)
 	if err != nil {
 		zap.L().Error("Cannot get role", zap.String("uuid", roleID.String()), zap.Error(err))
-		return nil, status.Error(codes.Internal, err.Error())
+		return &securitypb.UpdateRoleResponse{}, status.Error(codes.Internal, err.Error())
 	}
 	if !found {
 		zap.L().Error("Role not found after update", zap.String("uuid", roleID.String()))
-		return nil, status.Error(codes.Internal, "Role not found after update")
+		return &securitypb.UpdateRoleResponse{}, status.Error(codes.Internal, "Role not found after update")
 	}
 
 	// Convert the role to the gen format
@@ -185,7 +184,7 @@ func (s *Service) DeleteRole(ctx context.Context, req *securitypb.DeleteRoleRequ
 	err := security.Facade().CheckPermission(ctx, "admin.roles.delete")
 	if err != nil {
 		zap.L().Error("CheckPermission", zap.Error(err))
-		return nil, err
+		return &securitypb.DeleteRoleResponse{}, err
 	}
 
 	// Parse the user ID from the request
@@ -214,7 +213,7 @@ func (s *Service) ListRoles(ctx context.Context, req *securitypb.ListRolesReques
 	err := security.Facade().CheckPermission(ctx, "admin.roles.list")
 	if err != nil {
 		zap.L().Error("CheckPermission", zap.Error(err))
-		return nil, err
+		return &securitypb.ListRolesResponse{}, err
 	}
 
 	// Get all roles from the database
@@ -235,7 +234,7 @@ func (s *Service) ListRolePermissions(ctx context.Context, req *securitypb.ListR
 	err := security.Facade().CheckPermission(ctx, "admin.roles.permissions.list")
 	if err != nil {
 		zap.L().Error("CheckPermission", zap.Error(err))
-		return nil, err
+		return &securitypb.ListRolePermissionsResponse{}, err
 	}
 
 	// Parse the user ID from the request
@@ -264,14 +263,7 @@ func (s *Service) SetRolePermissions(ctx context.Context, req *securitypb.SetRol
 	err := security.Facade().CheckPermission(ctx, "admin.roles.permissions.update")
 	if err != nil {
 		zap.L().Error("CheckPermission", zap.Error(err))
-		return nil, err
-	}
-
-	// Construct the Permissions object from the request
-	permissionsInput := models.RolePermissionsInputFromUUIDs(req.GetPermissions())
-	if ok, err := permissionsInput.IsValid(); !ok {
-		zap.L().Warn("Permissions are not valid", zap.Error(err))
-		return nil, status.Error(codes.InvalidArgument, err.Error())
+		return &securitypb.SetRolePermissionsResponse{}, err
 	}
 
 	// Parse the user ID from the request
@@ -280,6 +272,13 @@ func (s *Service) SetRolePermissions(ctx context.Context, req *securitypb.SetRol
 		// Log the error and return an invalid response
 		zap.L().Error("Invalid user ID", zap.String("user_id", req.GetId()), zap.Error(err))
 		return &securitypb.SetRolePermissionsResponse{}, status.Error(codes.InvalidArgument, "Invalid user ID")
+	}
+
+	// Construct the Permissions object from the request
+	permissionsInput := models.RolePermissionsInputFromUUIDs(req.GetPermissions())
+	if ok, err := permissionsInput.IsValid(); !ok {
+		zap.L().Warn("Permissions are not valid", zap.Error(err))
+		return &securitypb.SetRolePermissionsResponse{}, status.Error(codes.InvalidArgument, err.Error())
 	}
 
 	// Set the role permissions in the database
