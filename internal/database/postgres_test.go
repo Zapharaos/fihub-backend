@@ -27,7 +27,7 @@ func TestNewPostgresDB(t *testing.T) {
 			ConnectError: fmt.Errorf("connection failed"),
 		}
 		db := NewPostgresDB(mock)
-		assert.Nil(t, db)
+		assert.Nil(t, db.DB)
 	})
 
 	t.Run("Connection to succeed", func(t *testing.T) {
@@ -42,5 +42,40 @@ func TestNewPostgresDB(t *testing.T) {
 		}
 		db := NewPostgresDB(mock)
 		assert.NotNil(t, db)
+	})
+}
+
+// TestPostgresDB_IsHealthy tests the IsHealthy function with different connection states.
+func TestPostgresDB_IsHealthy(t *testing.T) {
+	// Test case for nil DB
+	t.Run("Nil DB", func(t *testing.T) {
+		db := PostgresDB{DB: nil}
+		assert.False(t, db.IsHealthy())
+	})
+
+	// Test case for failed ping
+	t.Run("Failed ping", func(t *testing.T) {
+		sqlxMock, mock, err := sqlmock.Newx(sqlmock.MonitorPingsOption(true))
+		assert.NoError(t, err)
+		defer sqlxMock.Close()
+
+		// Setup expectation for PingContext to fail
+		mock.ExpectPing().WillReturnError(fmt.Errorf("ping failed"))
+
+		db := PostgresDB{DB: sqlxMock}
+		assert.False(t, db.IsHealthy())
+	})
+
+	// Test case for successful ping
+	t.Run("Successful ping", func(t *testing.T) {
+		sqlxMock, mock, err := sqlmock.Newx()
+		assert.NoError(t, err)
+		defer sqlxMock.Close()
+
+		// Setup expectation for PingContext to succeed
+		mock.ExpectPing()
+
+		db := PostgresDB{DB: sqlxMock}
+		assert.True(t, db.IsHealthy())
 	})
 }

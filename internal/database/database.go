@@ -1,21 +1,19 @@
 package database
 
-import "github.com/jmoiron/sqlx"
-
 // Databases holds all the database connections
 type Databases struct {
-	postgres *sqlx.DB
+	postgres PostgresDB
 }
 
 // NewDatabases creates a new Databases struct
-func NewDatabases(sql *sqlx.DB) Databases {
+func NewDatabases(postgres PostgresDB) Databases {
 	return Databases{
-		postgres: sql,
+		postgres: postgres,
 	}
 }
 
 // Postgres returns the postgres database connection
-func (db Databases) Postgres() *sqlx.DB {
+func (db Databases) Postgres() PostgresDB {
 	return db.postgres
 }
 

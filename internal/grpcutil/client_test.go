@@ -1,4 +1,4 @@
-package grpcconn
+package grpcutil
 
 import (
 	"github.com/spf13/viper"
@@ -10,7 +10,7 @@ func TestConnectGRPCService(t *testing.T) {
 		viper.Set("TEST_MICROSERVICE_HOST", "localhost")
 		viper.Set("TEST_MICROSERVICE_PORT", "50051")
 
-		conn := ConnectGRPCService("TEST")
+		conn := ConnectToClient("TEST")
 		if conn == nil {
 			t.Fatal("Expected a valid gRPC connection, got nil")
 		}

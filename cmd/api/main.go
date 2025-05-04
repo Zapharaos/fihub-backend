@@ -6,6 +6,7 @@ import (
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/clients"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/router"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/server"
+	userrepositories "github.com/Zapharaos/fihub-backend/cmd/user/app/repositories"
 	"github.com/Zapharaos/fihub-backend/gen/go/authpb"
 	"github.com/Zapharaos/fihub-backend/gen/go/brokerpb"
 	"github.com/Zapharaos/fihub-backend/gen/go/healthpb"
@@ -14,7 +15,8 @@ import (
 	"github.com/Zapharaos/fihub-backend/gen/go/userpb"
 	"github.com/Zapharaos/fihub-backend/internal/app"
 	"github.com/Zapharaos/fihub-backend/internal/database"
-	"github.com/Zapharaos/fihub-backend/internal/grpcconn"
+	"github.com/Zapharaos/fihub-backend/internal/grpcutil"
+	"github.com/Zapharaos/fihub-backend/internal/password"
 	"github.com/Zapharaos/fihub-backend/internal/security"
 	"github.com/Zapharaos/fihub-backend/pkg/email"
 	"github.com/Zapharaos/fihub-backend/pkg/translation"
@@ -113,12 +115,12 @@ func main() {
 // initGrpcClients initializes the gRPC clients for the application.
 func initGrpcClients() {
 	// Connect to microservices
-	healthConn := grpcconn.ConnectGRPCService("HEALTH")
-	userConn := grpcconn.ConnectGRPCService("USER")
-	authConn := grpcconn.ConnectGRPCService("AUTH")
-	securityConn := grpcconn.ConnectGRPCService("SECURITY")
-	brokerConn := grpcconn.ConnectGRPCService("BROKER")
-	transactionConn := grpcconn.ConnectGRPCService("TRANSACTION")
+	healthConn := grpcutil.ConnectToClient("HEALTH")
+	userConn := grpcutil.ConnectToClient("USER")
+	authConn := grpcutil.ConnectToClient("AUTH")
+	securityConn := grpcutil.ConnectToClient("SECURITY")
+	brokerConn := grpcutil.ConnectToClient("BROKER")
+	transactionConn := grpcutil.ConnectToClient("TRANSACTION")
 
 	// Create gRPC clients
 	healthClient := healthpb.NewHealthServiceClient(healthConn)
@@ -153,14 +155,18 @@ func setup() {
 	// Setup Logger
 	app.InitLogger()
 
-	// Setup Database
-	app.InitDatabase()
-
-	// Initialize the postgres repositories
-	app.InitPostgres(database.DB().Postgres())
-
 	// Setup api clients
 	initGrpcClients()
+
+	// TODO : remove
+	// Setup Database
+	if app.ConnectPostgres() {
+		setupPostgresRepositories()
+	}
+
+	// TODO : remove
+	// Maintain postgres health status
+	app.StartPostgresHealthCheck(30*time.Second, setupPostgresRepositories)
 
 	// Setup Email
 	email.ReplaceGlobals(email.NewSendgridService())
@@ -168,4 +174,11 @@ func setup() {
 	// Setup Translations
 	defaultLang := language.MustParse(viper.GetString("DEFAULT_LANGUAGE"))
 	translation.ReplaceGlobals(translation.NewI18nService(defaultLang))
+}
+
+// setupPostgresRepositories initializes the Postgres repositories for the microservice.
+func setupPostgresRepositories() {
+	// TODO : remove
+	userrepositories.ReplaceGlobals(userrepositories.NewPostgresRepository(database.DB().Postgres().DB))
+	password.ReplaceGlobals(password.NewPostgresRepository(database.DB().Postgres().DB))
 }

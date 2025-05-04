@@ -15,8 +15,10 @@ func TestNewDatabases(t *testing.T) {
 	defer postgres.Close()
 
 	// Create a new Databases instance
-	databases := NewDatabases(postgres)
-	assert.NotNil(t, databases.Postgres())
+	databases := NewDatabases(PostgresDB{
+		DB: postgres,
+	})
+	assert.NotNil(t, databases.Postgres().DB)
 }
 
 // TestReplaceGlobals tests the ReplaceGlobals function.
@@ -29,7 +31,9 @@ func TestReplaceGlobals(t *testing.T) {
 	defer db.Close()
 
 	// Create a new Databases instance
-	databases := NewDatabases(db)
+	databases := NewDatabases(PostgresDB{
+		DB: db,
+	})
 	restore := ReplaceGlobals(databases)
 
 	// Verify that the global database instance has been replaced
@@ -37,7 +41,7 @@ func TestReplaceGlobals(t *testing.T) {
 
 	// Restore the global database instance
 	restore()
-	
+
 	// Verify that the global database instance has been restored
 	assert.NotEqual(t, databases, DB())
 }

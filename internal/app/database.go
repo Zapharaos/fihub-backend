@@ -1,15 +1,15 @@
 package app
 
 import (
-	userrepositories "github.com/Zapharaos/fihub-backend/cmd/user/app/repositories"
 	"github.com/Zapharaos/fihub-backend/internal/database"
-	"github.com/Zapharaos/fihub-backend/internal/password"
-	"github.com/jmoiron/sqlx"
 	"github.com/spf13/viper"
+	"go.uber.org/zap"
+	"time"
 )
 
-// InitDatabase initializes the database connections.
-func InitDatabase() {
+// ConnectPostgres connects to the postgres database.
+func ConnectPostgres() bool {
+	// Connect to Postgres
 	postgres := database.NewPostgresDB(database.NewSqlDatabase(database.SqlCredentials{
 		Host:     viper.GetString("POSTGRES_HOST"),
 		Port:     viper.GetString("POSTGRES_PORT"),
@@ -17,11 +17,44 @@ func InitDatabase() {
 		Password: viper.GetString("POSTGRES_PASSWORD"),
 		DbName:   viper.GetString("POSTGRES_DB"),
 	}))
-	database.ReplaceGlobals(database.NewDatabases(postgres))
+
+	if postgres.IsHealthy() {
+		database.ReplaceGlobals(database.NewDatabases(postgres))
+		return true
+	}
+	return false
 }
 
-// InitPostgres initializes the postgres repositories.
-func InitPostgres(dbClient *sqlx.DB) {
-	userrepositories.ReplaceGlobals(userrepositories.NewPostgresRepository(dbClient))
-	password.ReplaceGlobals(password.NewPostgresRepository(dbClient))
+// StartPostgresHealthCheck starts a goroutine that periodically checks
+// the health of the postgres database and attempts to reconnect if necessary.
+// interval: the time between health checks
+// onSuccessfulConnection: optional callback function executed after successful reconnection
+// Returns a function that can be called to stop the health check.
+func StartPostgresHealthCheck(interval time.Duration, onSuccessfulConnection func()) func() {
+	ticker := time.NewTicker(interval)
+	done := make(chan bool)
+
+	go func() {
+		for {
+			select {
+			case <-done:
+				ticker.Stop()
+				return
+			case <-ticker.C:
+				if !database.DB().Postgres().IsHealthy() {
+					if ConnectPostgres() {
+						zap.L().Info("Reconnected to Postgres")
+						if onSuccessfulConnection != nil {
+							onSuccessfulConnection()
+						}
+					}
+				}
+			}
+		}
+	}()
+
+	// Return function to stop the health check
+	return func() {
+		done <- true
+	}
 }

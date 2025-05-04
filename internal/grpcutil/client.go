@@ -1,4 +1,4 @@
-package grpcconn
+package grpcutil
 
 import (
 	"fmt"
@@ -8,8 +8,8 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-// ConnectGRPCService creates a gRPC client connection based on service name and returns the connection
-func ConnectGRPCService(serviceName string) *grpc.ClientConn {
+// ConnectToClient creates a gRPC client connection based on service name and returns the connection
+func ConnectToClient(serviceName string) *grpc.ClientConn {
 	host := viper.GetString(fmt.Sprintf("%s_MICROSERVICE_HOST", serviceName))
 	port := viper.GetString(fmt.Sprintf("%s_MICROSERVICE_PORT", serviceName))
 	address := fmt.Sprintf("%s:%s", host, port)

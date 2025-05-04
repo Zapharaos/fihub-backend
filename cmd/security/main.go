@@ -6,11 +6,10 @@ import (
 	"github.com/Zapharaos/fihub-backend/gen/go/securitypb"
 	"github.com/Zapharaos/fihub-backend/internal/app"
 	"github.com/Zapharaos/fihub-backend/internal/database"
+	"github.com/Zapharaos/fihub-backend/internal/grpcutil"
 	"github.com/Zapharaos/fihub-backend/internal/security"
-	"github.com/spf13/viper"
-	"go.uber.org/zap"
 	"google.golang.org/grpc"
-	"net"
+	"time"
 )
 
 func main() {
@@ -24,33 +23,43 @@ func main() {
 	// Setup Logger
 	app.InitLogger()
 
-	// Setup Database
-	app.InitDatabase()
-
-	// User repositories
-	roleRepository := repositories.NewRolePostgresRepository(database.DB().Postgres())
-	permissionRepository := repositories.NewPermissionPostgresRepository(database.DB().Postgres())
-	repositories.ReplaceGlobals(repositories.NewRepository(roleRepository, permissionRepository))
-
-	// Start gRPC microservice
-	port := viper.GetString("SECURITY_MICROSERVICE_PORT")
-	lis, err := net.Listen("tcp", ":"+port)
+	// Setup gRPC microservice
+	serviceName := "SECURITY"
+	lis, err := grpcutil.SetupServer(serviceName)
 	if err != nil {
-		zap.L().Error("Failed to listen Security microservice: %v", zap.Error(err))
+		return
 	}
 
+	// Register gRPC services
 	s := grpc.NewServer()
-
-	// Register gRPC service
 	publicService := &service.PublicService{}
 	securitypb.RegisterPublicSecurityServiceServer(s, publicService)
 	securitypb.RegisterSecurityServiceServer(s, &service.Service{})
-
-	// Setup publicService facade for internal use by service
 	security.ReplaceGlobals(security.NewPublicSecurityFacade(publicService))
 
-	zap.L().Info("gRPC Security microservice is running on port : " + port)
-	if err := s.Serve(lis); err != nil {
-		zap.L().Error("Failed to serve Security microservice: %v", zap.Error(err))
+	// Setup Database
+	if app.ConnectPostgres() {
+		setupPostgresRepositories()
 	}
+
+	// Maintain postgres health status
+	app.StartPostgresHealthCheck(30*time.Second, setupPostgresRepositories)
+
+	// Register gRPC health service
+	grpcutil.RegisterHealthServer(s, 30*time.Second, serviceName, serverHealthStatusIsHealthy)
+
+	// Start gRPC server
+	grpcutil.StartServer(s, lis, serviceName)
+}
+
+// setupPostgresRepositories initializes the Postgres repositories for the microservice.
+func setupPostgresRepositories() {
+	roleRepository := repositories.NewRolePostgresRepository(database.DB().Postgres().DB)
+	permissionRepository := repositories.NewPermissionPostgresRepository(database.DB().Postgres().DB)
+	repositories.ReplaceGlobals(repositories.NewRepository(roleRepository, permissionRepository))
+}
+
+// serverHealthStatusIsHealthy indicates whether the server is healthy.
+func serverHealthStatusIsHealthy() bool {
+	return database.DB().Postgres().IsHealthy()
 }
