@@ -1,5 +1,6 @@
 package database
 
+// _ "github.com/lib/pq" // is used to register the PostgreSQL driver with the sqlx package.
 import (
 	"fmt"
 	"github.com/jmoiron/sqlx"

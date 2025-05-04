@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"github.com/Zapharaos/fihub-backend/cmd/api/app/clients"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/handlers"
-	securityrepositories "github.com/Zapharaos/fihub-backend/cmd/security/app/repositories"
-	"github.com/Zapharaos/fihub-backend/cmd/user/app/repositories"
+	"github.com/Zapharaos/fihub-backend/gen/go/userpb"
 	"github.com/Zapharaos/fihub-backend/internal/models"
 	"github.com/Zapharaos/fihub-backend/test/mocks"
 	"github.com/google/uuid"
@@ -21,8 +21,6 @@ import (
 // TestCreateUser tests the CreateUser handler
 func TestCreateUser(t *testing.T) {
 	// Prepare data
-	invalidUser := models.UserInputCreate{}
-	invalidUserBody, _ := json.Marshal(invalidUser)
 	validUser := models.UserInputCreate{
 		UserInputPassword: models.UserInputPassword{
 			UserWithPassword: models.UserWithPassword{
@@ -36,6 +34,11 @@ func TestCreateUser(t *testing.T) {
 		Checkbox: true,
 	}
 	validUserBody, _ := json.Marshal(validUser)
+	validResponse := &userpb.CreateUserResponse{
+		User: &userpb.User{
+			Id: uuid.New().String(),
+		},
+	}
 
 	// Test cases
 	tests := []struct {
@@ -48,41 +51,11 @@ func TestCreateUser(t *testing.T) {
 			name: "Fails to decode",
 			user: []byte(`invalid json`),
 			mockSetup: func(ctrl *gomock.Controller) {
-				u := mocks.NewUserRepository(ctrl)
-				u.EXPECT().Exists(gomock.Any()).Times(0)
-				repositories.ReplaceGlobals(u)
-			},
-			expectedStatus: http.StatusBadRequest,
-		},
-		{
-			name: "Fails at bad user input",
-			user: invalidUserBody,
-			mockSetup: func(ctrl *gomock.Controller) {
-				u := mocks.NewUserRepository(ctrl)
-				u.EXPECT().Exists(gomock.Any()).Times(0)
-				repositories.ReplaceGlobals(u)
-			},
-			expectedStatus: http.StatusBadRequest,
-		},
-		{
-			name: "Fail to check existence",
-			user: validUserBody,
-			mockSetup: func(ctrl *gomock.Controller) {
-				u := mocks.NewUserRepository(ctrl)
-				u.EXPECT().Exists(gomock.Any()).Return(false, errors.New("error"))
-				u.EXPECT().Create(gomock.Any()).Times(0)
-				repositories.ReplaceGlobals(u)
-			},
-			expectedStatus: http.StatusInternalServerError,
-		},
-		{
-			name: "User already exists",
-			user: validUserBody,
-			mockSetup: func(ctrl *gomock.Controller) {
-				u := mocks.NewUserRepository(ctrl)
-				u.EXPECT().Exists(gomock.Any()).Return(true, nil)
-				u.EXPECT().Create(gomock.Any()).Times(0)
-				repositories.ReplaceGlobals(u)
+				uc := mocks.NewMockUserServiceClient(ctrl)
+				uc.EXPECT().CreateUser(gomock.Any(), gomock.Any()).Times(0)
+				clients.ReplaceGlobals(clients.NewClients(
+					clients.WithUserClient(uc),
+				))
 			},
 			expectedStatus: http.StatusBadRequest,
 		},
@@ -90,35 +63,11 @@ func TestCreateUser(t *testing.T) {
 			name: "Fail at create",
 			user: validUserBody,
 			mockSetup: func(ctrl *gomock.Controller) {
-				u := mocks.NewUserRepository(ctrl)
-				u.EXPECT().Exists(gomock.Any()).Return(false, nil)
-				u.EXPECT().Create(gomock.Any()).Return(uuid.Nil, errors.New("error"))
-				u.EXPECT().Get(gomock.Any()).Times(0)
-				repositories.ReplaceGlobals(u)
-			},
-			expectedStatus: http.StatusInternalServerError,
-		},
-		{
-			name: "Fails to retrieve the user",
-			user: validUserBody,
-			mockSetup: func(ctrl *gomock.Controller) {
-				u := mocks.NewUserRepository(ctrl)
-				u.EXPECT().Exists(gomock.Any()).Return(false, nil)
-				u.EXPECT().Create(gomock.Any()).Return(uuid.New(), nil)
-				u.EXPECT().Get(gomock.Any()).Return(models.User{}, false, errors.New("error"))
-				repositories.ReplaceGlobals(u)
-			},
-			expectedStatus: http.StatusInternalServerError,
-		},
-		{
-			name: "Could not find the user",
-			user: validUserBody,
-			mockSetup: func(ctrl *gomock.Controller) {
-				u := mocks.NewUserRepository(ctrl)
-				u.EXPECT().Exists(gomock.Any()).Return(false, nil)
-				u.EXPECT().Create(gomock.Any()).Return(uuid.New(), nil)
-				u.EXPECT().Get(gomock.Any()).Return(models.User{}, false, nil)
-				repositories.ReplaceGlobals(u)
+				uc := mocks.NewMockUserServiceClient(ctrl)
+				uc.EXPECT().CreateUser(gomock.Any(), gomock.Any()).Return(nil, errors.New("error"))
+				clients.ReplaceGlobals(clients.NewClients(
+					clients.WithUserClient(uc),
+				))
 			},
 			expectedStatus: http.StatusInternalServerError,
 		},
@@ -126,11 +75,11 @@ func TestCreateUser(t *testing.T) {
 			name: "Succeeded",
 			user: validUserBody,
 			mockSetup: func(ctrl *gomock.Controller) {
-				u := mocks.NewUserRepository(ctrl)
-				u.EXPECT().Exists(gomock.Any()).Return(false, nil)
-				u.EXPECT().Create(gomock.Any()).Return(uuid.New(), nil)
-				u.EXPECT().Get(gomock.Any()).Return(models.User{}, true, nil)
-				repositories.ReplaceGlobals(u)
+				uc := mocks.NewMockUserServiceClient(ctrl)
+				uc.EXPECT().CreateUser(gomock.Any(), gomock.Any()).Return(validResponse, nil)
+				clients.ReplaceGlobals(clients.NewClients(
+					clients.WithUserClient(uc),
+				))
 			},
 			expectedStatus: http.StatusOK,
 		},
@@ -141,7 +90,7 @@ func TestCreateUser(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			apiBasePath := viper.GetString("API_BASE_PATH")
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest("POST", apiBasePath+"/users", bytes.NewBuffer(tt.user))
+			r := httptest.NewRequest("POST", apiBasePath+"/auth/register", bytes.NewBuffer(tt.user))
 
 			ctrl := gomock.NewController(t)
 			tt.mockSetup(ctrl)
@@ -156,368 +105,14 @@ func TestCreateUser(t *testing.T) {
 	}
 }
 
-// TestGetUserSelf tests the GetUserSelf handler
-func TestGetUserSelf(t *testing.T) {
-	// Test cases
-	tests := []struct {
-		name           string
-		mockSetup      func(ctrl *gomock.Controller)
-		expectedStatus int
-	}{
-		{
-			name: "Fails to retrieve from context",
-			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().GetUserFromContext(gomock.Any()).Return(models.UserWithRoles{}, false)
-				handlers.ReplaceGlobals(m)
-			},
-			expectedStatus: http.StatusBadRequest,
-		},
-		{
-			name: "Succeeded",
-			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().GetUserFromContext(gomock.Any()).Return(models.UserWithRoles{}, true)
-				handlers.ReplaceGlobals(m)
-			},
-			expectedStatus: http.StatusOK,
-		},
-	}
-
-	// Run tests
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			apiBasePath := viper.GetString("API_BASE_PATH")
-			w := httptest.NewRecorder()
-			r := httptest.NewRequest("GET", apiBasePath+"/users/self", nil)
-
-			// Apply mocks
-			ctrl := gomock.NewController(t)
-			tt.mockSetup(ctrl)
-			defer ctrl.Finish()
-
-			handlers.GetUserSelf(w, r)
-			response := w.Result()
-			defer response.Body.Close()
-
-			assert.Equal(t, tt.expectedStatus, response.StatusCode)
-		})
-	}
-}
-
-// TestUpdateUserSelf tests the UpdateUserSelf handler
-func TestUpdateUserSelf(t *testing.T) {
-	// Prepare data
-	invalidUser := models.User{}
-	invalidUserBody, _ := json.Marshal(invalidUser)
-	validUser := models.User{
-		Email: "email@test.ut",
-	}
-	validUserBody, _ := json.Marshal(validUser)
-
-	// Test cases
-	tests := []struct {
-		name           string
-		user           []byte
-		mockSetup      func(ctrl *gomock.Controller)
-		expectedStatus int
-	}{
-		{
-			name: "Fails to retrieve from context",
-			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().GetUserFromContext(gomock.Any()).Return(models.UserWithRoles{}, false)
-				handlers.ReplaceGlobals(m)
-				u := mocks.NewUserRepository(ctrl)
-				u.EXPECT().Update(gomock.Any()).Times(0)
-				repositories.ReplaceGlobals(u)
-			},
-			expectedStatus: http.StatusUnauthorized,
-		},
-		{
-			name: "Fails to decode",
-			user: []byte(`invalid json`),
-			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().GetUserFromContext(gomock.Any()).Return(models.UserWithRoles{}, true)
-				handlers.ReplaceGlobals(m)
-				u := mocks.NewUserRepository(ctrl)
-				u.EXPECT().Update(gomock.Any()).Times(0)
-				repositories.ReplaceGlobals(u)
-			},
-			expectedStatus: http.StatusBadRequest,
-		},
-		{
-			name: "Fails at bad user input",
-			user: invalidUserBody,
-			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().GetUserFromContext(gomock.Any()).Return(models.UserWithRoles{}, true)
-				handlers.ReplaceGlobals(m)
-				u := mocks.NewUserRepository(ctrl)
-				u.EXPECT().Update(gomock.Any()).Times(0)
-				repositories.ReplaceGlobals(u)
-			},
-			expectedStatus: http.StatusBadRequest,
-		},
-		{
-			name: "Fail at update",
-			user: validUserBody,
-			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().GetUserFromContext(gomock.Any()).Return(models.UserWithRoles{}, true)
-				handlers.ReplaceGlobals(m)
-				u := mocks.NewUserRepository(ctrl)
-				u.EXPECT().Update(gomock.Any()).Return(errors.New("error"))
-				u.EXPECT().Get(gomock.Any()).Times(0)
-				repositories.ReplaceGlobals(u)
-			},
-			expectedStatus: http.StatusInternalServerError,
-		},
-		{
-			name: "Fails to retrieve the user",
-			user: validUserBody,
-			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().GetUserFromContext(gomock.Any()).Return(models.UserWithRoles{}, true)
-				handlers.ReplaceGlobals(m)
-				u := mocks.NewUserRepository(ctrl)
-				u.EXPECT().Update(gomock.Any()).Return(nil)
-				u.EXPECT().Get(gomock.Any()).Return(models.User{}, false, errors.New("error"))
-				repositories.ReplaceGlobals(u)
-			},
-			expectedStatus: http.StatusInternalServerError,
-		},
-		{
-			name: "Could not find the user",
-			user: validUserBody,
-			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().GetUserFromContext(gomock.Any()).Return(models.UserWithRoles{}, true)
-				handlers.ReplaceGlobals(m)
-				u := mocks.NewUserRepository(ctrl)
-				u.EXPECT().Update(gomock.Any()).Return(nil)
-				u.EXPECT().Get(gomock.Any()).Return(models.User{}, false, nil)
-				repositories.ReplaceGlobals(u)
-			},
-			expectedStatus: http.StatusInternalServerError,
-		},
-		{
-			name: "Succeeded",
-			user: validUserBody,
-			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().GetUserFromContext(gomock.Any()).Return(models.UserWithRoles{}, true)
-				handlers.ReplaceGlobals(m)
-				u := mocks.NewUserRepository(ctrl)
-				u.EXPECT().Update(gomock.Any()).Return(nil)
-				u.EXPECT().Get(gomock.Any()).Return(models.User{}, true, nil)
-				repositories.ReplaceGlobals(u)
-			},
-			expectedStatus: http.StatusOK,
-		},
-	}
-
-	// Run tests
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			apiBasePath := viper.GetString("API_BASE_PATH")
-			w := httptest.NewRecorder()
-			r := httptest.NewRequest("PUT", apiBasePath+"/users/self", bytes.NewBuffer(tt.user))
-
-			// Apply mocks
-			ctrl := gomock.NewController(t)
-			tt.mockSetup(ctrl)
-			defer ctrl.Finish()
-
-			handlers.UpdateUserSelf(w, r)
-			response := w.Result()
-			defer response.Body.Close()
-
-			assert.Equal(t, tt.expectedStatus, response.StatusCode)
-		})
-	}
-}
-
-// TestChangeUserPassword tests the ChangeUserPassword handler
-func TestChangeUserPassword(t *testing.T) {
-	// Prepare data
-	invalidPassword := models.UserInputPassword{}
-	invalidPasswordBody, _ := json.Marshal(invalidPassword)
-	validPassword := models.UserInputPassword{
-		UserWithPassword: models.UserWithPassword{
-			User: models.User{
-				Email: "email@test.ut",
-			},
-			Password: "password",
-		},
-		Confirmation: "password",
-	}
-	validPasswordBody, _ := json.Marshal(validPassword)
-
-	// Test cases
-	tests := []struct {
-		name           string
-		password       []byte
-		mockSetup      func(ctrl *gomock.Controller)
-		expectedStatus int
-	}{
-		{
-			name: "Fails to retrieve from context",
-			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().GetUserFromContext(gomock.Any()).Return(models.UserWithRoles{}, false)
-				handlers.ReplaceGlobals(m)
-				u := mocks.NewUserRepository(ctrl)
-				u.EXPECT().UpdateWithPassword(gomock.Any()).Times(0)
-				repositories.ReplaceGlobals(u)
-			},
-			expectedStatus: http.StatusUnauthorized,
-		},
-		{
-			name:     "Fails to decode",
-			password: []byte(`invalid json`),
-			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().GetUserFromContext(gomock.Any()).Return(models.UserWithRoles{}, true)
-				handlers.ReplaceGlobals(m)
-				u := mocks.NewUserRepository(ctrl)
-				u.EXPECT().UpdateWithPassword(gomock.Any()).Times(0)
-				repositories.ReplaceGlobals(u)
-			},
-			expectedStatus: http.StatusBadRequest,
-		},
-		{
-			name:     "Fails at bad user input",
-			password: invalidPasswordBody,
-			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().GetUserFromContext(gomock.Any()).Return(models.UserWithRoles{}, true)
-				handlers.ReplaceGlobals(m)
-				u := mocks.NewUserRepository(ctrl)
-				u.EXPECT().UpdateWithPassword(gomock.Any()).Times(0)
-				repositories.ReplaceGlobals(u)
-			},
-			expectedStatus: http.StatusBadRequest,
-		},
-		{
-			name:     "Fail at update password",
-			password: validPasswordBody,
-			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().GetUserFromContext(gomock.Any()).Return(models.UserWithRoles{}, true)
-				handlers.ReplaceGlobals(m)
-				u := mocks.NewUserRepository(ctrl)
-				u.EXPECT().UpdateWithPassword(gomock.Any()).Return(errors.New("error"))
-				repositories.ReplaceGlobals(u)
-			},
-			expectedStatus: http.StatusInternalServerError,
-		},
-		{
-			name:     "Succeeded",
-			password: validPasswordBody,
-			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().GetUserFromContext(gomock.Any()).Return(models.UserWithRoles{}, true)
-				handlers.ReplaceGlobals(m)
-				u := mocks.NewUserRepository(ctrl)
-				u.EXPECT().UpdateWithPassword(gomock.Any()).Return(nil)
-				repositories.ReplaceGlobals(u)
-			},
-			expectedStatus: http.StatusOK,
-		},
-	}
-
-	// Run tests
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			apiBasePath := viper.GetString("API_BASE_PATH")
-			w := httptest.NewRecorder()
-			r := httptest.NewRequest("PUT", apiBasePath+"/users/password", bytes.NewBuffer(tt.password))
-
-			// Apply mocks
-			ctrl := gomock.NewController(t)
-			tt.mockSetup(ctrl)
-			defer ctrl.Finish()
-
-			handlers.ChangeUserPassword(w, r)
-			response := w.Result()
-			defer response.Body.Close()
-
-			assert.Equal(t, tt.expectedStatus, response.StatusCode)
-		})
-	}
-}
-
-// TestDeleteUserSelf tests the DeleteUserSelf handler
-func TestDeleteUserSelf(t *testing.T) {
-	// Test cases
-	tests := []struct {
-		name           string
-		mockSetup      func(ctrl *gomock.Controller)
-		expectedStatus int
-	}{
-		{
-			name: "Fails to retrieve from context",
-			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().GetUserFromContext(gomock.Any()).Return(models.UserWithRoles{}, false)
-				handlers.ReplaceGlobals(m)
-				u := mocks.NewUserRepository(ctrl)
-				u.EXPECT().Delete(gomock.Any()).Times(0)
-				repositories.ReplaceGlobals(u)
-			},
-			expectedStatus: http.StatusUnauthorized,
-		},
-		{
-			name: "Fail at delete",
-			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().GetUserFromContext(gomock.Any()).Return(models.UserWithRoles{}, true)
-				handlers.ReplaceGlobals(m)
-				u := mocks.NewUserRepository(ctrl)
-				u.EXPECT().Delete(gomock.Any()).Return(errors.New("error"))
-				repositories.ReplaceGlobals(u)
-			},
-			expectedStatus: http.StatusInternalServerError,
-		},
-		{
-			name: "Succeeded",
-			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().GetUserFromContext(gomock.Any()).Return(models.UserWithRoles{}, true)
-				handlers.ReplaceGlobals(m)
-				u := mocks.NewUserRepository(ctrl)
-				u.EXPECT().Delete(gomock.Any()).Return(nil)
-				repositories.ReplaceGlobals(u)
-			},
-			expectedStatus: http.StatusOK,
-		},
-	}
-
-	// Run tests
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			apiBasePath := viper.GetString("API_BASE_PATH")
-			w := httptest.NewRecorder()
-			r := httptest.NewRequest("DELETE", apiBasePath+"/users/self", nil)
-
-			// Apply mocks
-			ctrl := gomock.NewController(t)
-			tt.mockSetup(ctrl)
-			defer ctrl.Finish()
-
-			handlers.DeleteUserSelf(w, r)
-			response := w.Result()
-			defer response.Body.Close()
-
-			assert.Equal(t, tt.expectedStatus, response.StatusCode)
-		})
-	}
-}
-
 // TestGetUser tests the GetUser handler
 func TestGetUser(t *testing.T) {
+	validResponse := &userpb.GetUserResponse{
+		User: &userpb.User{
+			Id: uuid.New().String(),
+		},
+	}
+
 	// Test cases
 	tests := []struct {
 		name           string
@@ -527,83 +122,42 @@ func TestGetUser(t *testing.T) {
 		{
 			name: "Fails to parse param",
 			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
+				m := mocks.NewMockApiUtils(ctrl)
 				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), "id").Return(uuid.Nil, false)
-				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Times(0)
 				handlers.ReplaceGlobals(m)
+				uc := mocks.NewMockUserServiceClient(ctrl)
+				uc.EXPECT().GetUser(gomock.Any(), gomock.Any()).Times(0)
+				clients.ReplaceGlobals(clients.NewClients(
+					clients.WithUserClient(uc),
+				))
 			},
 			expectedStatus: http.StatusOK, // should be http.StatusBadRequest, but not with mock
 		},
 		{
-			name: "Fails to check permission",
-			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), "id").Return(uuid.New(), true)
-				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(false)
-				handlers.ReplaceGlobals(m)
-				u := mocks.NewUserRepository(ctrl)
-				u.EXPECT().Get(gomock.Any()).Times(0)
-				repositories.ReplaceGlobals(u)
-			},
-			expectedStatus: http.StatusOK, // should be http.StatusUnauthorized, but not with mock
-		},
-		{
 			name: "Fails to retrieve the user",
 			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
+				m := mocks.NewMockApiUtils(ctrl)
 				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), "id").Return(uuid.New(), true)
-				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(true)
 				handlers.ReplaceGlobals(m)
-				u := mocks.NewUserRepository(ctrl)
-				u.EXPECT().Get(gomock.Any()).Return(models.User{}, false, errors.New("error"))
-				repositories.ReplaceGlobals(u)
-			},
-			expectedStatus: http.StatusInternalServerError,
-		},
-		{
-			name: "Could not find the user",
-			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), "id").Return(uuid.New(), true)
-				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(true)
-				handlers.ReplaceGlobals(m)
-				u := mocks.NewUserRepository(ctrl)
-				u.EXPECT().Get(gomock.Any()).Return(models.User{}, false, nil)
-				repositories.ReplaceGlobals(u)
-			},
-			expectedStatus: http.StatusNotFound,
-		},
-		{
-			name: "Fails to retrieve user roles",
-			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), "id").Return(uuid.New(), true)
-				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(true).Times(2)
-				handlers.ReplaceGlobals(m)
-				u := mocks.NewUserRepository(ctrl)
-				u.EXPECT().Get(gomock.Any()).Return(models.User{}, true, nil)
-				repositories.ReplaceGlobals(u)
-				r := mocks.NewSecurityRoleRepository(ctrl)
-				r.EXPECT().GetRolesByUserId(gomock.Any()).Return([]models.Role{}, errors.New("error"))
-				securityrepositories.ReplaceGlobals(securityrepositories.NewRepository(r, nil))
+				uc := mocks.NewMockUserServiceClient(ctrl)
+				uc.EXPECT().GetUser(gomock.Any(), gomock.Any()).Return(nil, errors.New("error"))
+				clients.ReplaceGlobals(clients.NewClients(
+					clients.WithUserClient(uc),
+				))
 			},
 			expectedStatus: http.StatusInternalServerError,
 		},
 		{
 			name: "Succeeded",
 			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
+				m := mocks.NewMockApiUtils(ctrl)
 				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), "id").Return(uuid.New(), true)
-				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(true).Times(2)
 				handlers.ReplaceGlobals(m)
-				u := mocks.NewUserRepository(ctrl)
-				u.EXPECT().Get(gomock.Any()).Return(models.User{}, true, nil)
-				repositories.ReplaceGlobals(u)
-				r := mocks.NewSecurityRoleRepository(ctrl)
-				r.EXPECT().GetRolesByUserId(gomock.Any()).Return([]models.Role{{Id: uuid.Nil}}, nil)
-				p := mocks.NewSecurityPermissionRepository(ctrl)
-				p.EXPECT().GetAllByRoleId(gomock.Any()).Return(models.Permissions{}, nil)
-				securityrepositories.ReplaceGlobals(securityrepositories.NewRepository(r, p))
+				uc := mocks.NewMockUserServiceClient(ctrl)
+				uc.EXPECT().GetUser(gomock.Any(), gomock.Any()).Return(validResponse, nil)
+				clients.ReplaceGlobals(clients.NewClients(
+					clients.WithUserClient(uc),
+				))
 			},
 			expectedStatus: http.StatusOK,
 		},
@@ -630,15 +184,97 @@ func TestGetUser(t *testing.T) {
 	}
 }
 
-// TestSetUser tests the SetUser handler
-func TestSetUser(t *testing.T) {
-	// Prepare data
-	validUser := models.UserWithRoles{
-		User: models.User{
-			Email: "email@test.ut",
+// TestGetUserSelf tests the GetUserSelf handler
+func TestGetUserSelf(t *testing.T) {
+	validResponse := &userpb.GetUserResponse{
+		User: &userpb.User{
+			Id: uuid.New().String(),
 		},
 	}
+
+	// Test cases
+	tests := []struct {
+		name           string
+		mockSetup      func(ctrl *gomock.Controller)
+		expectedStatus int
+	}{
+		{
+			name: "Fails to retrieve from context",
+			mockSetup: func(ctrl *gomock.Controller) {
+				m := mocks.NewMockApiUtils(ctrl)
+				m.EXPECT().GetUserIDFromContext(gomock.Any()).Return(uuid.Nil.String(), false)
+				handlers.ReplaceGlobals(m)
+				uc := mocks.NewMockUserServiceClient(ctrl)
+				uc.EXPECT().GetUser(gomock.Any(), gomock.Any()).Times(0)
+				clients.ReplaceGlobals(clients.NewClients(
+					clients.WithUserClient(uc),
+				))
+			},
+			expectedStatus: http.StatusBadRequest,
+		},
+		{
+			name: "Fails to retrieve user",
+			mockSetup: func(ctrl *gomock.Controller) {
+				m := mocks.NewMockApiUtils(ctrl)
+				m.EXPECT().GetUserIDFromContext(gomock.Any()).Return(uuid.New().String(), true)
+				handlers.ReplaceGlobals(m)
+				uc := mocks.NewMockUserServiceClient(ctrl)
+				uc.EXPECT().GetUser(gomock.Any(), gomock.Any()).Return(nil, errors.New("error"))
+				clients.ReplaceGlobals(clients.NewClients(
+					clients.WithUserClient(uc),
+				))
+			},
+			expectedStatus: http.StatusInternalServerError,
+		},
+		{
+			name: "Succeeded",
+			mockSetup: func(ctrl *gomock.Controller) {
+				m := mocks.NewMockApiUtils(ctrl)
+				m.EXPECT().GetUserIDFromContext(gomock.Any()).Return(uuid.New().String(), true)
+				handlers.ReplaceGlobals(m)
+				uc := mocks.NewMockUserServiceClient(ctrl)
+				uc.EXPECT().GetUser(gomock.Any(), gomock.Any()).Return(validResponse, nil)
+				clients.ReplaceGlobals(clients.NewClients(
+					clients.WithUserClient(uc),
+				))
+			},
+			expectedStatus: http.StatusOK,
+		},
+	}
+
+	// Run tests
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			apiBasePath := viper.GetString("API_BASE_PATH")
+			w := httptest.NewRecorder()
+			r := httptest.NewRequest("GET", apiBasePath+"/user/me", nil)
+
+			// Apply mocks
+			ctrl := gomock.NewController(t)
+			tt.mockSetup(ctrl)
+			defer ctrl.Finish()
+
+			handlers.GetUserSelf(w, r)
+			response := w.Result()
+			defer response.Body.Close()
+
+			assert.Equal(t, tt.expectedStatus, response.StatusCode)
+		})
+	}
+}
+
+// TestUpdateUserSelf tests the UpdateUserSelf handler
+func TestUpdateUserSelf(t *testing.T) {
+	// Prepare data
+	validUser := models.User{
+		Email: "email@test.ut",
+	}
 	validUserBody, _ := json.Marshal(validUser)
+	validResponse := &userpb.UpdateUserResponse{
+		User: &userpb.User{
+			Id: uuid.New().String(),
+		},
+	}
 
 	// Test cases
 	tests := []struct {
@@ -648,41 +284,31 @@ func TestSetUser(t *testing.T) {
 		expectedStatus int
 	}{
 		{
-			name: "Fails to parse param",
-			user: validUserBody,
+			name: "Fails to retrieve from context",
 			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), "id").Return(uuid.Nil, false)
-				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Times(0)
+				m := mocks.NewMockApiUtils(ctrl)
+				m.EXPECT().GetUserIDFromContext(gomock.Any()).Return(uuid.Nil.String(), false)
 				handlers.ReplaceGlobals(m)
+				uc := mocks.NewMockUserServiceClient(ctrl)
+				uc.EXPECT().UpdateUser(gomock.Any(), gomock.Any()).Times(0)
+				clients.ReplaceGlobals(clients.NewClients(
+					clients.WithUserClient(uc),
+				))
 			},
-			expectedStatus: http.StatusOK, // should be http.StatusBadRequest, but not with mock
-		},
-		{
-			name: "Fails to check permission",
-			user: validUserBody,
-			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), "id").Return(uuid.New(), true)
-				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(false)
-				handlers.ReplaceGlobals(m)
-				u := mocks.NewUserRepository(ctrl)
-				u.EXPECT().UpdateWithRoles(gomock.Any(), gomock.Any()).Times(0)
-				repositories.ReplaceGlobals(u)
-			},
-			expectedStatus: http.StatusOK, // should be http.StatusUnauthorized, but not with mock
+			expectedStatus: http.StatusUnauthorized,
 		},
 		{
 			name: "Fails to decode",
 			user: []byte(`invalid json`),
 			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), "id").Return(uuid.New(), true)
-				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(true)
+				m := mocks.NewMockApiUtils(ctrl)
+				m.EXPECT().GetUserIDFromContext(gomock.Any()).Return(uuid.New().String(), true)
 				handlers.ReplaceGlobals(m)
-				u := mocks.NewUserRepository(ctrl)
-				u.EXPECT().UpdateWithRoles(gomock.Any(), gomock.Any()).Times(0)
-				repositories.ReplaceGlobals(u)
+				uc := mocks.NewMockUserServiceClient(ctrl)
+				uc.EXPECT().UpdateUser(gomock.Any(), gomock.Any()).Times(0)
+				clients.ReplaceGlobals(clients.NewClients(
+					clients.WithUserClient(uc),
+				))
 			},
 			expectedStatus: http.StatusBadRequest,
 		},
@@ -690,13 +316,14 @@ func TestSetUser(t *testing.T) {
 			name: "Fail at update",
 			user: validUserBody,
 			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), "id").Return(uuid.New(), true)
-				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(true)
+				m := mocks.NewMockApiUtils(ctrl)
+				m.EXPECT().GetUserIDFromContext(gomock.Any()).Return(uuid.New().String(), true)
 				handlers.ReplaceGlobals(m)
-				u := mocks.NewUserRepository(ctrl)
-				u.EXPECT().UpdateWithRoles(gomock.Any(), gomock.Any()).Return(errors.New("error"))
-				repositories.ReplaceGlobals(u)
+				uc := mocks.NewMockUserServiceClient(ctrl)
+				uc.EXPECT().UpdateUser(gomock.Any(), gomock.Any()).Return(nil, errors.New("error"))
+				clients.ReplaceGlobals(clients.NewClients(
+					clients.WithUserClient(uc),
+				))
 			},
 			expectedStatus: http.StatusInternalServerError,
 		},
@@ -704,13 +331,14 @@ func TestSetUser(t *testing.T) {
 			name: "Succeeded",
 			user: validUserBody,
 			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), "id").Return(uuid.New(), true)
-				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(true)
+				m := mocks.NewMockApiUtils(ctrl)
+				m.EXPECT().GetUserIDFromContext(gomock.Any()).Return(uuid.New().String(), true)
 				handlers.ReplaceGlobals(m)
-				u := mocks.NewUserRepository(ctrl)
-				u.EXPECT().UpdateWithRoles(gomock.Any(), gomock.Any()).Return(nil)
-				repositories.ReplaceGlobals(u)
+				uc := mocks.NewMockUserServiceClient(ctrl)
+				uc.EXPECT().UpdateUser(gomock.Any(), gomock.Any()).Return(validResponse, nil)
+				clients.ReplaceGlobals(clients.NewClients(
+					clients.WithUserClient(uc),
+				))
 			},
 			expectedStatus: http.StatusOK,
 		},
@@ -721,14 +349,14 @@ func TestSetUser(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			apiBasePath := viper.GetString("API_BASE_PATH")
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest("PUT", apiBasePath+"/users/{id}", bytes.NewBuffer(tt.user))
+			r := httptest.NewRequest("PUT", apiBasePath+"/user/me", bytes.NewBuffer(tt.user))
 
 			// Apply mocks
 			ctrl := gomock.NewController(t)
 			tt.mockSetup(ctrl)
 			defer ctrl.Finish()
 
-			handlers.SetUser(w, r)
+			handlers.UpdateUserSelf(w, r)
 			response := w.Result()
 			defer response.Body.Close()
 
@@ -737,92 +365,85 @@ func TestSetUser(t *testing.T) {
 	}
 }
 
-// TestSetUserRoles tests the SetUserRoles handler
-func TestSetUserRoles(t *testing.T) {
+// TestUpdateUserPassword tests the UpdateUserPassword handler
+func TestUpdateUserPassword(t *testing.T) {
 	// Prepare data
-	validUser := models.UserWithRoles{
-		User: models.User{
-			Email: "email@test.ut",
-		},
-		Roles: []models.RoleWithPermissions{
-			{
-				Role: models.Role{Id: uuid.Nil},
+	validPassword := models.UserInputPassword{
+		UserWithPassword: models.UserWithPassword{
+			User: models.User{
+				Email: "email@test.ut",
 			},
+			Password: "password",
 		},
+		Confirmation: "password",
 	}
-	validUserBody, _ := json.Marshal(validUser)
+	validPasswordBody, _ := json.Marshal(validPassword)
 
 	// Test cases
 	tests := []struct {
 		name           string
-		user           []byte
+		password       []byte
 		mockSetup      func(ctrl *gomock.Controller)
 		expectedStatus int
 	}{
 		{
-			name: "Fails to parse param",
-			user: validUserBody,
+			name: "Fails to retrieve from context",
 			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), "id").Return(uuid.Nil, false)
-				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Times(0)
+				m := mocks.NewMockApiUtils(ctrl)
+				m.EXPECT().GetUserIDFromContext(gomock.Any()).Return(uuid.Nil.String(), false)
 				handlers.ReplaceGlobals(m)
+				uc := mocks.NewMockUserServiceClient(ctrl)
+				uc.EXPECT().UpdateUserPassword(gomock.Any(), gomock.Any()).Times(0)
+				clients.ReplaceGlobals(clients.NewClients(
+					clients.WithUserClient(uc),
+				))
 			},
-			expectedStatus: http.StatusOK, // should be http.StatusBadRequest, but not with mock
+			expectedStatus: http.StatusUnauthorized,
 		},
 		{
-			name: "Fails to check permission",
-			user: validUserBody,
+			name:     "Fails to decode",
+			password: []byte(`invalid json`),
 			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), "id").Return(uuid.New(), true)
-				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(false)
+				m := mocks.NewMockApiUtils(ctrl)
+				m.EXPECT().GetUserIDFromContext(gomock.Any()).Return(uuid.New().String(), true)
 				handlers.ReplaceGlobals(m)
-				u := mocks.NewUserRepository(ctrl)
-				u.EXPECT().SetUserRoles(gomock.Any(), gomock.Any()).Times(0)
-				repositories.ReplaceGlobals(u)
-			},
-			expectedStatus: http.StatusOK, // should be http.StatusUnauthorized, but not with mock
-		},
-		{
-			name: "Fails to decode",
-			user: []byte(`invalid json`),
-			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), "id").Return(uuid.New(), true)
-				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(true)
-				handlers.ReplaceGlobals(m)
-				u := mocks.NewUserRepository(ctrl)
-				u.EXPECT().SetUserRoles(gomock.Any(), gomock.Any()).Times(0)
-				repositories.ReplaceGlobals(u)
+				uc := mocks.NewMockUserServiceClient(ctrl)
+				uc.EXPECT().UpdateUserPassword(gomock.Any(), gomock.Any()).Times(0)
+				clients.ReplaceGlobals(clients.NewClients(
+					clients.WithUserClient(uc),
+				))
 			},
 			expectedStatus: http.StatusBadRequest,
 		},
 		{
-			name: "Fail at set roles",
-			user: validUserBody,
+			name:     "Fail at update password",
+			password: validPasswordBody,
 			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), "id").Return(uuid.New(), true)
-				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(true)
+				m := mocks.NewMockApiUtils(ctrl)
+				m.EXPECT().GetUserIDFromContext(gomock.Any()).Return(uuid.New().String(), true)
 				handlers.ReplaceGlobals(m)
-				u := mocks.NewUserRepository(ctrl)
-				u.EXPECT().SetUserRoles(gomock.Any(), gomock.Any()).Return(errors.New("error"))
-				repositories.ReplaceGlobals(u)
+				uc := mocks.NewMockUserServiceClient(ctrl)
+				uc.EXPECT().UpdateUserPassword(gomock.Any(), gomock.Any()).Return(nil, errors.New("error"))
+				clients.ReplaceGlobals(clients.NewClients(
+					clients.WithUserClient(uc),
+				))
 			},
 			expectedStatus: http.StatusInternalServerError,
 		},
 		{
-			name: "Succeeded",
-			user: validUserBody,
+			name:     "Succeeded",
+			password: validPasswordBody,
 			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), "id").Return(uuid.New(), true)
-				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(true)
+				m := mocks.NewMockApiUtils(ctrl)
+				m.EXPECT().GetUserIDFromContext(gomock.Any()).Return(uuid.New().String(), true)
 				handlers.ReplaceGlobals(m)
-				u := mocks.NewUserRepository(ctrl)
-				u.EXPECT().SetUserRoles(gomock.Any(), gomock.Any()).Return(nil)
-				repositories.ReplaceGlobals(u)
+				uc := mocks.NewMockUserServiceClient(ctrl)
+				uc.EXPECT().UpdateUserPassword(gomock.Any(), gomock.Any()).Return(&userpb.UpdateUserPasswordResponse{
+					Success: true,
+				}, nil)
+				clients.ReplaceGlobals(clients.NewClients(
+					clients.WithUserClient(uc),
+				))
 			},
 			expectedStatus: http.StatusOK,
 		},
@@ -833,14 +454,14 @@ func TestSetUserRoles(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			apiBasePath := viper.GetString("API_BASE_PATH")
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest("PUT", apiBasePath+"/users/{id}/roles", bytes.NewBuffer(tt.user))
+			r := httptest.NewRequest("PUT", apiBasePath+"/user/me/password", bytes.NewBuffer(tt.password))
 
 			// Apply mocks
 			ctrl := gomock.NewController(t)
 			tt.mockSetup(ctrl)
 			defer ctrl.Finish()
 
-			handlers.SetUserRoles(w, r)
+			handlers.UpdateUserPassword(w, r)
 			response := w.Result()
 			defer response.Body.Close()
 
@@ -849,8 +470,8 @@ func TestSetUserRoles(t *testing.T) {
 	}
 }
 
-// TestGetUserRoles tests the GetUserRoles handler
-func TestGetUserRoles(t *testing.T) {
+// TestDeleteUserSelf tests the DeleteUserSelf handler
+func TestDeleteUserSelf(t *testing.T) {
 	// Test cases
 	tests := []struct {
 		name           string
@@ -858,53 +479,46 @@ func TestGetUserRoles(t *testing.T) {
 		expectedStatus int
 	}{
 		{
-			name: "Fails to parse param",
+			name: "Fails to retrieve from context",
 			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), "id").Return(uuid.Nil, false)
-				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Times(0)
+				m := mocks.NewMockApiUtils(ctrl)
+				m.EXPECT().GetUserIDFromContext(gomock.Any()).Return(uuid.Nil.String(), false)
 				handlers.ReplaceGlobals(m)
+				uc := mocks.NewMockUserServiceClient(ctrl)
+				uc.EXPECT().DeleteUser(gomock.Any(), gomock.Any()).Times(0)
+				clients.ReplaceGlobals(clients.NewClients(
+					clients.WithUserClient(uc),
+				))
 			},
-			expectedStatus: http.StatusOK, // should be http.StatusBadRequest, but not with mock
+			expectedStatus: http.StatusUnauthorized,
 		},
 		{
-			name: "Fails to check permission",
+			name: "Fail at delete",
 			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), "id").Return(uuid.New(), true)
-				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(false)
+				m := mocks.NewMockApiUtils(ctrl)
+				m.EXPECT().GetUserIDFromContext(gomock.Any()).Return(uuid.New().String(), true)
 				handlers.ReplaceGlobals(m)
-				r := mocks.NewSecurityRoleRepository(ctrl)
-				r.EXPECT().GetRolesByUserId(gomock.Any()).Times(0)
-				securityrepositories.ReplaceGlobals(securityrepositories.NewRepository(r, nil))
-			},
-			expectedStatus: http.StatusOK, // should be http.StatusUnauthorized, but not with mock
-		},
-		{
-			name: "Fail at get roles",
-			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), "id").Return(uuid.New(), true)
-				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(true)
-				handlers.ReplaceGlobals(m)
-				r := mocks.NewSecurityRoleRepository(ctrl)
-				r.EXPECT().GetRolesByUserId(gomock.Any()).Return([]models.Role{}, errors.New("error"))
-				securityrepositories.ReplaceGlobals(securityrepositories.NewRepository(r, nil))
+				uc := mocks.NewMockUserServiceClient(ctrl)
+				uc.EXPECT().DeleteUser(gomock.Any(), gomock.Any()).Return(nil, errors.New("error"))
+				clients.ReplaceGlobals(clients.NewClients(
+					clients.WithUserClient(uc),
+				))
 			},
 			expectedStatus: http.StatusInternalServerError,
 		},
 		{
 			name: "Succeeded",
 			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), "id").Return(uuid.New(), true)
-				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(true)
+				m := mocks.NewMockApiUtils(ctrl)
+				m.EXPECT().GetUserIDFromContext(gomock.Any()).Return(uuid.New().String(), true)
 				handlers.ReplaceGlobals(m)
-				r := mocks.NewSecurityRoleRepository(ctrl)
-				r.EXPECT().GetRolesByUserId(gomock.Any()).Return([]models.Role{{Id: uuid.Nil}}, nil)
-				p := mocks.NewSecurityPermissionRepository(ctrl)
-				p.EXPECT().GetAllByRoleId(gomock.Any()).Return(models.Permissions{}, nil)
-				securityrepositories.ReplaceGlobals(securityrepositories.NewRepository(r, p))
+				uc := mocks.NewMockUserServiceClient(ctrl)
+				uc.EXPECT().DeleteUser(gomock.Any(), gomock.Any()).Return(&userpb.DeleteUserResponse{
+					Success: true,
+				}, nil)
+				clients.ReplaceGlobals(clients.NewClients(
+					clients.WithUserClient(uc),
+				))
 			},
 			expectedStatus: http.StatusOK,
 		},
@@ -915,81 +529,14 @@ func TestGetUserRoles(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			apiBasePath := viper.GetString("API_BASE_PATH")
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest("GET", apiBasePath+"/users/{id}/roles", nil)
+			r := httptest.NewRequest("DELETE", apiBasePath+"/user/me", nil)
 
 			// Apply mocks
 			ctrl := gomock.NewController(t)
 			tt.mockSetup(ctrl)
 			defer ctrl.Finish()
 
-			handlers.GetUserRoles(w, r)
-			response := w.Result()
-			defer response.Body.Close()
-
-			assert.Equal(t, tt.expectedStatus, response.StatusCode)
-		})
-	}
-}
-
-// TestGetAllUsersWithRoles tests the GetAllUsersWithRoles handler
-func TestGetAllUsersWithRoles(t *testing.T) {
-	// Test cases
-	tests := []struct {
-		name           string
-		mockSetup      func(ctrl *gomock.Controller)
-		expectedStatus int
-	}{
-		{
-			name: "Fails to check permission",
-			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), "admin.users.list").Return(false)
-				handlers.ReplaceGlobals(m)
-				u := mocks.NewUserRepository(ctrl)
-				u.EXPECT().GetAllWithRoles().Times(0)
-				repositories.ReplaceGlobals(u)
-			},
-			expectedStatus: http.StatusOK, // should be http.StatusUnauthorized, but not with mock
-		},
-		{
-			name: "Fails to retrieve the users with roles",
-			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), "admin.users.list").Return(true)
-				handlers.ReplaceGlobals(m)
-				u := mocks.NewUserRepository(ctrl)
-				u.EXPECT().GetAllWithRoles().Return([]models.UserWithRoles{}, errors.New("error"))
-				repositories.ReplaceGlobals(u)
-			},
-			expectedStatus: http.StatusInternalServerError,
-		},
-		{
-			name: "Succeeded",
-			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), "admin.users.list").Return(true)
-				handlers.ReplaceGlobals(m)
-				u := mocks.NewUserRepository(ctrl)
-				u.EXPECT().GetAllWithRoles().Return([]models.UserWithRoles{}, nil)
-				repositories.ReplaceGlobals(u)
-			},
-			expectedStatus: http.StatusOK,
-		},
-	}
-
-	// Run tests
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			apiBasePath := viper.GetString("API_BASE_PATH")
-			w := httptest.NewRecorder()
-			r := httptest.NewRequest("GET", apiBasePath+"/users", nil)
-
-			// Apply mocks
-			ctrl := gomock.NewController(t)
-			tt.mockSetup(ctrl)
-			defer ctrl.Finish()
-
-			handlers.GetAllUsersWithRoles(w, r)
+			handlers.DeleteUserSelf(w, r)
 			response := w.Result()
 			defer response.Body.Close()
 

@@ -5,7 +5,8 @@ import (
 	"encoding/json"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/clients"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/handlers"
-	"github.com/Zapharaos/fihub-backend/gen"
+	"github.com/Zapharaos/fihub-backend/gen/go/brokerpb"
+	"github.com/Zapharaos/fihub-backend/gen/go/transactionpb"
 	"github.com/Zapharaos/fihub-backend/internal/models"
 	"github.com/Zapharaos/fihub-backend/test/mocks"
 	"github.com/google/uuid"
@@ -26,8 +27,8 @@ func TestCreateUserBroker(t *testing.T) {
 		BrokerID: uuid.New().String(),
 	}
 	validBrokerBody, _ := json.Marshal(validBroker)
-	validResponse := &protogen.CreateBrokerUserResponse{
-		UserBrokers: []*protogen.BrokerUser{},
+	validResponse := &brokerpb.CreateBrokerUserResponse{
+		UserBrokers: []*brokerpb.BrokerUser{},
 	}
 
 	// Test cases
@@ -40,10 +41,10 @@ func TestCreateUserBroker(t *testing.T) {
 		{
 			name: "Fails to retrieve user from context",
 			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().GetUserFromContext(gomock.Any()).Return(models.UserWithRoles{}, false)
+				m := mocks.NewMockApiUtils(ctrl)
+				m.EXPECT().GetUserIDFromContext(gomock.Any()).Return(uuid.Nil.String(), false)
 				handlers.ReplaceGlobals(m)
-				bc := mocks.NewBrokerServiceClient(ctrl)
+				bc := mocks.NewMockBrokerServiceClient(ctrl)
 				bc.EXPECT().CreateBrokerUser(gomock.Any(), gomock.Any()).Times(0)
 				clients.ReplaceGlobals(clients.NewClients(
 					clients.WithBrokerClient(bc),
@@ -55,10 +56,10 @@ func TestCreateUserBroker(t *testing.T) {
 			name:   "Fails to decode",
 			broker: []byte(`invalid json`),
 			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().GetUserFromContext(gomock.Any()).Return(models.UserWithRoles{}, true)
+				m := mocks.NewMockApiUtils(ctrl)
+				m.EXPECT().GetUserIDFromContext(gomock.Any()).Return(uuid.New().String(), true)
 				handlers.ReplaceGlobals(m)
-				bc := mocks.NewBrokerServiceClient(ctrl)
+				bc := mocks.NewMockBrokerServiceClient(ctrl)
 				bc.EXPECT().CreateBrokerUser(gomock.Any(), gomock.Any()).Times(0)
 				clients.ReplaceGlobals(clients.NewClients(
 					clients.WithBrokerClient(bc),
@@ -70,10 +71,10 @@ func TestCreateUserBroker(t *testing.T) {
 			name:   "Fails to create user broker",
 			broker: validBrokerBody,
 			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().GetUserFromContext(gomock.Any()).Return(models.UserWithRoles{}, true)
+				m := mocks.NewMockApiUtils(ctrl)
+				m.EXPECT().GetUserIDFromContext(gomock.Any()).Return(uuid.New().String(), true)
 				handlers.ReplaceGlobals(m)
-				bc := mocks.NewBrokerServiceClient(ctrl)
+				bc := mocks.NewMockBrokerServiceClient(ctrl)
 				bc.EXPECT().CreateBrokerUser(gomock.Any(), gomock.Any()).Return(nil, status.Error(codes.Unknown, "error"))
 				clients.ReplaceGlobals(clients.NewClients(
 					clients.WithBrokerClient(bc),
@@ -85,10 +86,10 @@ func TestCreateUserBroker(t *testing.T) {
 			name:   "Succeeded",
 			broker: validBrokerBody,
 			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().GetUserFromContext(gomock.Any()).Return(models.UserWithRoles{}, true)
+				m := mocks.NewMockApiUtils(ctrl)
+				m.EXPECT().GetUserIDFromContext(gomock.Any()).Return(uuid.New().String(), true)
 				handlers.ReplaceGlobals(m)
-				bc := mocks.NewBrokerServiceClient(ctrl)
+				bc := mocks.NewMockBrokerServiceClient(ctrl)
 				bc.EXPECT().CreateBrokerUser(gomock.Any(), gomock.Any()).Return(validResponse, nil)
 				clients.ReplaceGlobals(clients.NewClients(
 					clients.WithBrokerClient(bc),
@@ -103,7 +104,7 @@ func TestCreateUserBroker(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			apiBasePath := viper.GetString("API_BASE_PATH")
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest("POST", apiBasePath+"/users/brokers", bytes.NewBuffer(tt.broker))
+			r := httptest.NewRequest("POST", apiBasePath+"/broker/user", bytes.NewBuffer(tt.broker))
 
 			ctrl := gomock.NewController(t)
 			tt.mockSetup(ctrl)
@@ -129,9 +130,9 @@ func TestDeleteUserBroker(t *testing.T) {
 		{
 			name: "Fails to parse param",
 			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
+				m := mocks.NewMockApiUtils(ctrl)
 				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), gomock.Any()).Return(uuid.Nil, false)
-				m.EXPECT().GetUserFromContext(gomock.Any()).Times(0)
+				m.EXPECT().GetUserIDFromContext(gomock.Any()).Times(0)
 				handlers.ReplaceGlobals(m)
 			},
 			expectedStatus: http.StatusOK, // should be http.StatusBadRequest, but not with mock
@@ -139,11 +140,11 @@ func TestDeleteUserBroker(t *testing.T) {
 		{
 			name: "Fails to retrieve user from context",
 			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), gomock.Any()).Return(uuid.Nil, true)
-				m.EXPECT().GetUserFromContext(gomock.Any()).Return(models.UserWithRoles{}, false)
+				m := mocks.NewMockApiUtils(ctrl)
+				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), gomock.Any()).Return(uuid.New(), true)
+				m.EXPECT().GetUserIDFromContext(gomock.Any()).Return(uuid.Nil.String(), false)
 				handlers.ReplaceGlobals(m)
-				bc := mocks.NewBrokerServiceClient(ctrl)
+				bc := mocks.NewMockBrokerServiceClient(ctrl)
 				bc.EXPECT().DeleteBrokerUser(gomock.Any(), gomock.Any()).Times(0)
 				clients.ReplaceGlobals(clients.NewClients(
 					clients.WithBrokerClient(bc),
@@ -154,13 +155,13 @@ func TestDeleteUserBroker(t *testing.T) {
 		{
 			name: "Fails to delete the user broker",
 			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), gomock.Any()).Return(uuid.Nil, true)
-				m.EXPECT().GetUserFromContext(gomock.Any()).Return(models.UserWithRoles{}, true)
+				m := mocks.NewMockApiUtils(ctrl)
+				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), gomock.Any()).Return(uuid.New(), true)
+				m.EXPECT().GetUserIDFromContext(gomock.Any()).Return(uuid.New().String(), true)
 				handlers.ReplaceGlobals(m)
-				bc := mocks.NewBrokerServiceClient(ctrl)
+				bc := mocks.NewMockBrokerServiceClient(ctrl)
 				bc.EXPECT().DeleteBrokerUser(gomock.Any(), gomock.Any()).Return(nil, status.Error(codes.Unknown, "error"))
-				tc := mocks.NewTransactionServiceClient(ctrl)
+				tc := mocks.NewMockTransactionServiceClient(ctrl)
 				tc.EXPECT().DeleteTransactionByBroker(gomock.Any(), gomock.Any()).Times(0)
 				clients.ReplaceGlobals(clients.NewClients(
 					clients.WithBrokerClient(bc),
@@ -172,13 +173,13 @@ func TestDeleteUserBroker(t *testing.T) {
 		{
 			name: "Fails to delete transactions related to the user broker",
 			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), gomock.Any()).Return(uuid.Nil, true)
-				m.EXPECT().GetUserFromContext(gomock.Any()).Return(models.UserWithRoles{}, true)
+				m := mocks.NewMockApiUtils(ctrl)
+				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), gomock.Any()).Return(uuid.New(), true)
+				m.EXPECT().GetUserIDFromContext(gomock.Any()).Return(uuid.New().String(), true)
 				handlers.ReplaceGlobals(m)
-				bc := mocks.NewBrokerServiceClient(ctrl)
-				bc.EXPECT().DeleteBrokerUser(gomock.Any(), gomock.Any()).Return(&protogen.DeleteBrokerUserResponse{}, nil)
-				tc := mocks.NewTransactionServiceClient(ctrl)
+				bc := mocks.NewMockBrokerServiceClient(ctrl)
+				bc.EXPECT().DeleteBrokerUser(gomock.Any(), gomock.Any()).Return(&brokerpb.DeleteBrokerUserResponse{}, nil)
+				tc := mocks.NewMockTransactionServiceClient(ctrl)
 				tc.EXPECT().DeleteTransactionByBroker(gomock.Any(), gomock.Any()).Return(nil, status.Error(codes.Unknown, "error"))
 				clients.ReplaceGlobals(clients.NewClients(
 					clients.WithBrokerClient(bc),
@@ -190,14 +191,14 @@ func TestDeleteUserBroker(t *testing.T) {
 		{
 			name: "Succeeded",
 			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), gomock.Any()).Return(uuid.Nil, true)
-				m.EXPECT().GetUserFromContext(gomock.Any()).Return(models.UserWithRoles{}, true)
+				m := mocks.NewMockApiUtils(ctrl)
+				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), gomock.Any()).Return(uuid.New(), true)
+				m.EXPECT().GetUserIDFromContext(gomock.Any()).Return(uuid.New().String(), true)
 				handlers.ReplaceGlobals(m)
-				bc := mocks.NewBrokerServiceClient(ctrl)
-				bc.EXPECT().DeleteBrokerUser(gomock.Any(), gomock.Any()).Return(&protogen.DeleteBrokerUserResponse{}, nil)
-				tc := mocks.NewTransactionServiceClient(ctrl)
-				tc.EXPECT().DeleteTransactionByBroker(gomock.Any(), gomock.Any()).Return(&protogen.DeleteTransactionByBrokerResponse{}, nil)
+				bc := mocks.NewMockBrokerServiceClient(ctrl)
+				bc.EXPECT().DeleteBrokerUser(gomock.Any(), gomock.Any()).Return(&brokerpb.DeleteBrokerUserResponse{}, nil)
+				tc := mocks.NewMockTransactionServiceClient(ctrl)
+				tc.EXPECT().DeleteTransactionByBroker(gomock.Any(), gomock.Any()).Return(&transactionpb.DeleteTransactionByBrokerResponse{}, nil)
 				clients.ReplaceGlobals(clients.NewClients(
 					clients.WithBrokerClient(bc),
 					clients.WithTransactionClient(tc),
@@ -212,7 +213,7 @@ func TestDeleteUserBroker(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			apiBasePath := viper.GetString("API_BASE_PATH")
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest("DELETE", apiBasePath+"/users/brokers/"+uuid.New().String(), nil)
+			r := httptest.NewRequest("DELETE", apiBasePath+"/broker/"+uuid.New().String()+"/user", nil)
 
 			// Apply mocks
 			ctrl := gomock.NewController(t)
@@ -239,10 +240,10 @@ func TestListUserBrokers(t *testing.T) {
 		{
 			name: "Fails to retrieve user from context",
 			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().GetUserFromContext(gomock.Any()).Return(models.UserWithRoles{}, false)
+				m := mocks.NewMockApiUtils(ctrl)
+				m.EXPECT().GetUserIDFromContext(gomock.Any()).Return(uuid.Nil.String(), false)
 				handlers.ReplaceGlobals(m)
-				bc := mocks.NewBrokerServiceClient(ctrl)
+				bc := mocks.NewMockBrokerServiceClient(ctrl)
 				bc.EXPECT().ListUserBrokers(gomock.Any(), gomock.Any()).Times(0)
 				clients.ReplaceGlobals(clients.NewClients(
 					clients.WithBrokerClient(bc),
@@ -253,10 +254,10 @@ func TestListUserBrokers(t *testing.T) {
 		{
 			name: "Fails to retrieve all user brokers",
 			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().GetUserFromContext(gomock.Any()).Return(models.UserWithRoles{}, true)
+				m := mocks.NewMockApiUtils(ctrl)
+				m.EXPECT().GetUserIDFromContext(gomock.Any()).Return(uuid.New().String(), true)
 				handlers.ReplaceGlobals(m)
-				bc := mocks.NewBrokerServiceClient(ctrl)
+				bc := mocks.NewMockBrokerServiceClient(ctrl)
 				bc.EXPECT().ListUserBrokers(gomock.Any(), gomock.Any()).Return(nil, status.Error(codes.Unknown, "error"))
 				clients.ReplaceGlobals(clients.NewClients(
 					clients.WithBrokerClient(bc),
@@ -267,12 +268,12 @@ func TestListUserBrokers(t *testing.T) {
 		{
 			name: "Succeeded",
 			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().GetUserFromContext(gomock.Any()).Return(models.UserWithRoles{}, true)
+				m := mocks.NewMockApiUtils(ctrl)
+				m.EXPECT().GetUserIDFromContext(gomock.Any()).Return(uuid.New().String(), true)
 				handlers.ReplaceGlobals(m)
-				bc := mocks.NewBrokerServiceClient(ctrl)
-				bc.EXPECT().ListUserBrokers(gomock.Any(), gomock.Any()).Return(&protogen.ListUserBrokersResponse{
-					UserBrokers: []*protogen.BrokerUser{},
+				bc := mocks.NewMockBrokerServiceClient(ctrl)
+				bc.EXPECT().ListUserBrokers(gomock.Any(), gomock.Any()).Return(&brokerpb.ListUserBrokersResponse{
+					UserBrokers: []*brokerpb.BrokerUser{},
 				}, nil)
 				clients.ReplaceGlobals(clients.NewClients(
 					clients.WithBrokerClient(bc),
@@ -287,7 +288,7 @@ func TestListUserBrokers(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			apiBasePath := viper.GetString("API_BASE_PATH")
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest("GET", apiBasePath+"/users/brokers", nil)
+			r := httptest.NewRequest("GET", apiBasePath+"/broker/user", nil)
 
 			// Apply mocks
 			ctrl := gomock.NewController(t)

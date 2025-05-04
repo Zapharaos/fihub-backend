@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/clients"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/handlers"
-	"github.com/Zapharaos/fihub-backend/gen"
+	"github.com/Zapharaos/fihub-backend/gen/go/brokerpb"
 	"github.com/Zapharaos/fihub-backend/internal/models"
 	"github.com/Zapharaos/fihub-backend/test/mocks"
 	"github.com/google/uuid"
@@ -26,8 +26,8 @@ func TestCreateBroker(t *testing.T) {
 		Name: "name",
 	}
 	validBrokerBody, _ := json.Marshal(validBroker)
-	validResponse := &protogen.CreateBrokerResponse{
-		Broker: &protogen.Broker{
+	validResponse := &brokerpb.CreateBrokerResponse{
+		Broker: &brokerpb.Broker{
 			Id:       uuid.New().String(),
 			Name:     validBroker.Name,
 			Disabled: validBroker.Disabled,
@@ -41,27 +41,10 @@ func TestCreateBroker(t *testing.T) {
 		expectedStatus int
 	}{
 		{
-			name: "fails to check permission",
-			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(false)
-				handlers.ReplaceGlobals(m)
-				bc := mocks.NewBrokerServiceClient(ctrl)
-				bc.EXPECT().CreateBroker(gomock.Any(), gomock.Any()).Times(0)
-				clients.ReplaceGlobals(clients.NewClients(
-					clients.WithBrokerClient(bc),
-				))
-			},
-			expectedStatus: http.StatusOK, // should be StatusUnauthorized, but not with mock
-		},
-		{
 			name: "fails to decode",
 			body: []byte("invalid"),
 			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(true)
-				handlers.ReplaceGlobals(m)
-				bc := mocks.NewBrokerServiceClient(ctrl)
+				bc := mocks.NewMockBrokerServiceClient(ctrl)
 				bc.EXPECT().CreateBroker(gomock.Any(), gomock.Any()).Times(0)
 				clients.ReplaceGlobals(clients.NewClients(
 					clients.WithBrokerClient(bc),
@@ -73,10 +56,7 @@ func TestCreateBroker(t *testing.T) {
 			name: "fails to create broker",
 			body: validBrokerBody,
 			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(true)
-				handlers.ReplaceGlobals(m)
-				bc := mocks.NewBrokerServiceClient(ctrl)
+				bc := mocks.NewMockBrokerServiceClient(ctrl)
 				bc.EXPECT().CreateBroker(gomock.Any(), gomock.Any()).Return(nil, status.Error(codes.Unknown, "error"))
 				clients.ReplaceGlobals(clients.NewClients(
 					clients.WithBrokerClient(bc),
@@ -88,10 +68,7 @@ func TestCreateBroker(t *testing.T) {
 			name: "succeeded",
 			body: validBrokerBody,
 			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(true)
-				handlers.ReplaceGlobals(m)
-				bc := mocks.NewBrokerServiceClient(ctrl)
+				bc := mocks.NewMockBrokerServiceClient(ctrl)
 				bc.EXPECT().CreateBroker(gomock.Any(), gomock.Any()).Return(validResponse, nil)
 				clients.ReplaceGlobals(clients.NewClients(
 					clients.WithBrokerClient(bc),
@@ -105,7 +82,7 @@ func TestCreateBroker(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			apiBasePath := viper.GetString("API_BASE_PATH")
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest("PUT", apiBasePath+"/brokers", bytes.NewBuffer(tt.body))
+			r := httptest.NewRequest("POST", apiBasePath+"/broker", bytes.NewBuffer(tt.body))
 
 			// Apply mocks
 			ctrl := gomock.NewController(t)
@@ -127,8 +104,8 @@ func TestGetBroker(t *testing.T) {
 		Name:     "name",
 		Disabled: false,
 	}
-	validResponse := &protogen.GetBrokerResponse{
-		Broker: &protogen.Broker{
+	validResponse := &brokerpb.GetBrokerResponse{
+		Broker: &brokerpb.Broker{
 			Id:       uuid.New().String(),
 			Name:     validBroker.Name,
 			Disabled: validBroker.Disabled,
@@ -143,10 +120,10 @@ func TestGetBroker(t *testing.T) {
 		{
 			name: "fails to parse param",
 			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
+				m := mocks.NewMockApiUtils(ctrl)
 				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), gomock.Any()).Return(uuid.Nil, false)
 				handlers.ReplaceGlobals(m)
-				bc := mocks.NewBrokerServiceClient(ctrl)
+				bc := mocks.NewMockBrokerServiceClient(ctrl)
 				bc.EXPECT().GetBroker(gomock.Any(), gomock.Any()).Times(0)
 				clients.ReplaceGlobals(clients.NewClients(
 					clients.WithBrokerClient(bc),
@@ -157,10 +134,10 @@ func TestGetBroker(t *testing.T) {
 		{
 			name: "fails to retrieve the broker",
 			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), gomock.Any()).Return(uuid.Nil, true)
+				m := mocks.NewMockApiUtils(ctrl)
+				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), gomock.Any()).Return(uuid.New(), true)
 				handlers.ReplaceGlobals(m)
-				bc := mocks.NewBrokerServiceClient(ctrl)
+				bc := mocks.NewMockBrokerServiceClient(ctrl)
 				bc.EXPECT().GetBroker(gomock.Any(), gomock.Any()).Return(nil, status.Error(codes.Unknown, "error"))
 				clients.ReplaceGlobals(clients.NewClients(
 					clients.WithBrokerClient(bc),
@@ -171,10 +148,10 @@ func TestGetBroker(t *testing.T) {
 		{
 			name: "succeeded",
 			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), gomock.Any()).Return(uuid.Nil, true)
+				m := mocks.NewMockApiUtils(ctrl)
+				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), gomock.Any()).Return(uuid.New(), true)
 				handlers.ReplaceGlobals(m)
-				bc := mocks.NewBrokerServiceClient(ctrl)
+				bc := mocks.NewMockBrokerServiceClient(ctrl)
 				bc.EXPECT().GetBroker(gomock.Any(), gomock.Any()).Return(validResponse, nil)
 				clients.ReplaceGlobals(clients.NewClients(
 					clients.WithBrokerClient(bc),
@@ -188,7 +165,7 @@ func TestGetBroker(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			apiBasePath := viper.GetString("API_BASE_PATH")
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest("GET", apiBasePath+"/brokers/{id}", nil)
+			r := httptest.NewRequest("GET", apiBasePath+"/broker/"+uuid.New().String(), nil)
 
 			// Apply mocks
 			ctrl := gomock.NewController(t)
@@ -211,8 +188,8 @@ func TestUpdateBroker(t *testing.T) {
 		Name: "name",
 	}
 	validBrokerBody, _ := json.Marshal(validBroker)
-	validResponse := &protogen.UpdateBrokerResponse{
-		Broker: &protogen.Broker{
+	validResponse := &brokerpb.UpdateBrokerResponse{
+		Broker: &brokerpb.Broker{
 			Id:       uuid.New().String(),
 			Name:     validBroker.Name,
 			Disabled: validBroker.Disabled,
@@ -226,23 +203,12 @@ func TestUpdateBroker(t *testing.T) {
 		expectedStatus int
 	}{
 		{
-			name: "fails to check permission",
-			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(false)
-				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), gomock.Any()).Times(0)
-				handlers.ReplaceGlobals(m)
-			},
-			expectedStatus: http.StatusOK, // should be StatusUnauthorized, but not with mock
-		},
-		{
 			name: "fails to parse param",
 			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(true)
+				m := mocks.NewMockApiUtils(ctrl)
 				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), gomock.Any()).Return(uuid.Nil, false)
 				handlers.ReplaceGlobals(m)
-				bc := mocks.NewBrokerServiceClient(ctrl)
+				bc := mocks.NewMockBrokerServiceClient(ctrl)
 				bc.EXPECT().UpdateBroker(gomock.Any(), gomock.Any()).Times(0)
 				clients.ReplaceGlobals(clients.NewClients(
 					clients.WithBrokerClient(bc),
@@ -254,11 +220,10 @@ func TestUpdateBroker(t *testing.T) {
 			name: "fails to decode",
 			body: []byte("invalid"),
 			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(true)
-				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), gomock.Any()).Return(uuid.Nil, true)
+				m := mocks.NewMockApiUtils(ctrl)
+				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), gomock.Any()).Return(uuid.New(), true)
 				handlers.ReplaceGlobals(m)
-				bc := mocks.NewBrokerServiceClient(ctrl)
+				bc := mocks.NewMockBrokerServiceClient(ctrl)
 				bc.EXPECT().UpdateBroker(gomock.Any(), gomock.Any()).Times(0)
 				clients.ReplaceGlobals(clients.NewClients(
 					clients.WithBrokerClient(bc),
@@ -270,11 +235,10 @@ func TestUpdateBroker(t *testing.T) {
 			name: "fails to update broker",
 			body: validBrokerBody,
 			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(true)
-				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), gomock.Any()).Return(uuid.Nil, true)
+				m := mocks.NewMockApiUtils(ctrl)
+				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), gomock.Any()).Return(uuid.New(), true)
 				handlers.ReplaceGlobals(m)
-				bc := mocks.NewBrokerServiceClient(ctrl)
+				bc := mocks.NewMockBrokerServiceClient(ctrl)
 				bc.EXPECT().UpdateBroker(gomock.Any(), gomock.Any()).Return(nil, status.Error(codes.Unknown, "error"))
 				clients.ReplaceGlobals(clients.NewClients(
 					clients.WithBrokerClient(bc),
@@ -286,11 +250,10 @@ func TestUpdateBroker(t *testing.T) {
 			name: "succeeded",
 			body: validBrokerBody,
 			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(true)
-				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), gomock.Any()).Return(uuid.Nil, true)
+				m := mocks.NewMockApiUtils(ctrl)
+				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), gomock.Any()).Return(uuid.New(), true)
 				handlers.ReplaceGlobals(m)
-				bc := mocks.NewBrokerServiceClient(ctrl)
+				bc := mocks.NewMockBrokerServiceClient(ctrl)
 				bc.EXPECT().UpdateBroker(gomock.Any(), gomock.Any()).Return(validResponse, nil)
 				clients.ReplaceGlobals(clients.NewClients(
 					clients.WithBrokerClient(bc),
@@ -304,7 +267,7 @@ func TestUpdateBroker(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			apiBasePath := viper.GetString("API_BASE_PATH")
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest("PUT", apiBasePath+"/brokers", bytes.NewBuffer(tt.body))
+			r := httptest.NewRequest("PUT", apiBasePath+"/broker/"+uuid.New().String(), bytes.NewBuffer(tt.body))
 
 			// Apply mocks
 			ctrl := gomock.NewController(t)
@@ -328,23 +291,12 @@ func TestDeleteBroker(t *testing.T) {
 		expectedStatus int
 	}{
 		{
-			name: "fails to check permission",
-			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(false)
-				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), gomock.Any()).Times(0)
-				handlers.ReplaceGlobals(m)
-			},
-			expectedStatus: http.StatusOK, // should be StatusUnauthorized, but not with mock
-		},
-		{
 			name: "fails to parse param",
 			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(true)
+				m := mocks.NewMockApiUtils(ctrl)
 				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), gomock.Any()).Return(uuid.Nil, false)
 				handlers.ReplaceGlobals(m)
-				bc := mocks.NewBrokerServiceClient(ctrl)
+				bc := mocks.NewMockBrokerServiceClient(ctrl)
 				bc.EXPECT().DeleteBroker(gomock.Any(), gomock.Any()).Times(0)
 				clients.ReplaceGlobals(clients.NewClients(
 					clients.WithBrokerClient(bc),
@@ -355,11 +307,10 @@ func TestDeleteBroker(t *testing.T) {
 		{
 			name: "fails to delete the broker",
 			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(true)
-				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), gomock.Any()).Return(uuid.Nil, true)
+				m := mocks.NewMockApiUtils(ctrl)
+				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), gomock.Any()).Return(uuid.New(), true)
 				handlers.ReplaceGlobals(m)
-				bc := mocks.NewBrokerServiceClient(ctrl)
+				bc := mocks.NewMockBrokerServiceClient(ctrl)
 				bc.EXPECT().DeleteBroker(gomock.Any(), gomock.Any()).Return(nil, status.Error(codes.Unknown, "error"))
 				clients.ReplaceGlobals(clients.NewClients(
 					clients.WithBrokerClient(bc),
@@ -370,12 +321,11 @@ func TestDeleteBroker(t *testing.T) {
 		{
 			name: "succeeded",
 			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
-				m.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(true)
-				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), gomock.Any()).Return(uuid.Nil, true)
+				m := mocks.NewMockApiUtils(ctrl)
+				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), gomock.Any()).Return(uuid.New(), true)
 				handlers.ReplaceGlobals(m)
-				bc := mocks.NewBrokerServiceClient(ctrl)
-				bc.EXPECT().DeleteBroker(gomock.Any(), gomock.Any()).Return(&protogen.DeleteBrokerResponse{
+				bc := mocks.NewMockBrokerServiceClient(ctrl)
+				bc.EXPECT().DeleteBroker(gomock.Any(), gomock.Any()).Return(&brokerpb.DeleteBrokerResponse{
 					Success: true,
 				}, nil)
 				clients.ReplaceGlobals(clients.NewClients(
@@ -390,7 +340,7 @@ func TestDeleteBroker(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			apiBasePath := viper.GetString("API_BASE_PATH")
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest("DELETE", apiBasePath+"/brokers/{id}", nil)
+			r := httptest.NewRequest("DELETE", apiBasePath+"/broker/"+uuid.New().String(), nil)
 
 			// Apply mocks
 			ctrl := gomock.NewController(t)
@@ -416,10 +366,10 @@ func TestListBrokers(t *testing.T) {
 		{
 			name: "fails to parse param",
 			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
+				m := mocks.NewMockApiUtils(ctrl)
 				m.EXPECT().ParseParamBool(gomock.Any(), gomock.Any(), "enabled").Return(false, false)
 				handlers.ReplaceGlobals(m)
-				bc := mocks.NewBrokerServiceClient(ctrl)
+				bc := mocks.NewMockBrokerServiceClient(ctrl)
 				bc.EXPECT().ListBrokers(gomock.Any(), gomock.Any()).Times(0)
 				clients.ReplaceGlobals(clients.NewClients(
 					clients.WithBrokerClient(bc),
@@ -430,10 +380,10 @@ func TestListBrokers(t *testing.T) {
 		{
 			name: "fails to list brokers",
 			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
+				m := mocks.NewMockApiUtils(ctrl)
 				m.EXPECT().ParseParamBool(gomock.Any(), gomock.Any(), "enabled").Return(false, true)
 				handlers.ReplaceGlobals(m)
-				bc := mocks.NewBrokerServiceClient(ctrl)
+				bc := mocks.NewMockBrokerServiceClient(ctrl)
 				bc.EXPECT().ListBrokers(gomock.Any(), gomock.Any()).Return(nil, status.Error(codes.Unknown, "error"))
 				clients.ReplaceGlobals(clients.NewClients(
 					clients.WithBrokerClient(bc),
@@ -444,12 +394,12 @@ func TestListBrokers(t *testing.T) {
 		{
 			name: "succeeded",
 			mockSetup: func(ctrl *gomock.Controller) {
-				m := mocks.NewMockUtils(ctrl)
+				m := mocks.NewMockApiUtils(ctrl)
 				m.EXPECT().ParseParamBool(gomock.Any(), gomock.Any(), "enabled").Return(false, true)
 				handlers.ReplaceGlobals(m)
-				bc := mocks.NewBrokerServiceClient(ctrl)
-				bc.EXPECT().ListBrokers(gomock.Any(), gomock.Any()).Return(&protogen.ListBrokersResponse{
-					Brokers: []*protogen.Broker{},
+				bc := mocks.NewMockBrokerServiceClient(ctrl)
+				bc.EXPECT().ListBrokers(gomock.Any(), gomock.Any()).Return(&brokerpb.ListBrokersResponse{
+					Brokers: []*brokerpb.Broker{},
 				}, nil)
 				clients.ReplaceGlobals(clients.NewClients(
 					clients.WithBrokerClient(bc),
@@ -463,7 +413,7 @@ func TestListBrokers(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			apiBasePath := viper.GetString("API_BASE_PATH")
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest("GET", apiBasePath+"/brokers", nil)
+			r := httptest.NewRequest("GET", apiBasePath+"/broker", nil)
 
 			// Apply mocks
 			ctrl := gomock.NewController(t)

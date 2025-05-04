@@ -5,7 +5,6 @@ import (
 	"context"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/handlers"
 	"github.com/Zapharaos/fihub-backend/internal/app"
-	"github.com/Zapharaos/fihub-backend/internal/models"
 	"github.com/Zapharaos/fihub-backend/test/mocks"
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
@@ -19,92 +18,10 @@ import (
 	"testing"
 )
 
-// TestCheckPermission tests the CheckPermission function
-func TestCheckPermission(t *testing.T) {
-	// Create a new controller
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	// Define the test cases
-	tests := []struct {
-		name         string
-		contextUser  models.UserWithRoles
-		contextOk    bool
-		permission   string
-		expectOK     bool
-		expectStatus int
-	}{
-		{
-			name:         "fail to retrieve user from context",
-			contextUser:  models.UserWithRoles{},
-			contextOk:    false,
-			permission:   "some-permission",
-			expectOK:     false,
-			expectStatus: http.StatusUnauthorized,
-		},
-		{
-			name:         "user does not have roles",
-			contextUser:  models.UserWithRoles{Roles: models.RolesWithPermissions{}},
-			contextOk:    true,
-			permission:   "some-permission",
-			expectOK:     false,
-			expectStatus: http.StatusForbidden,
-		},
-		{
-			name: "user does not have permission",
-			contextUser: models.UserWithRoles{Roles: models.RolesWithPermissions{
-				{Permissions: models.Permissions{}},
-			}},
-			contextOk:    true,
-			permission:   "some-permission",
-			expectOK:     false,
-			expectStatus: http.StatusForbidden,
-		},
-		{
-			name: "user has permission",
-			contextUser: models.UserWithRoles{Roles: models.RolesWithPermissions{
-				{Permissions: models.Permissions{models.Permission{Value: "valid-permission"}}},
-			}},
-			contextOk:    true,
-			permission:   "valid-permission",
-			expectOK:     true,
-			expectStatus: http.StatusOK,
-		},
-	}
-
-	// Run the test cases
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			// Create a new recorder
-			w := httptest.NewRecorder()
-			r := httptest.NewRequest("GET", "/", nil)
-
-			// Set up the expectations
-			m := mocks.NewMockUtils(ctrl)
-			m.EXPECT().GetUserFromContext(r).Return(tt.contextUser, tt.contextOk)
-
-			// Replace the global utils with the mock
-			resolve := handlers.ReplaceGlobals(m)
-			defer resolve()
-
-			// Call the function
-			ok := handlers.NewUtils().CheckPermission(w, r, tt.permission)
-
-			// Check the results
-			assert.Equal(t, tt.expectOK, ok)
-			assert.Equal(t, tt.expectStatus, w.Code)
-		})
-	}
-}
-
-// TestGetUserFromContext tests the GetUserFromContext function
-func TestGetUserFromContext(t *testing.T) {
+// TestGetUserFromContext tests the GetUserIDFromContext function
+func TestGetUserIDFromContext(t *testing.T) {
 	// Define valid user data
-	user := models.UserWithRoles{
-		User: models.User{
-			ID: uuid.New(),
-		},
-	}
+	userID := uuid.New().String()
 
 	// Replace the global utils with a new instance
 	handlers.ReplaceGlobals(handlers.NewUtils())
@@ -114,7 +31,7 @@ func TestGetUserFromContext(t *testing.T) {
 		name       string
 		context    context.Context
 		expectOK   bool
-		expectUser models.UserWithRoles
+		expectUser string
 	}{
 		{
 			name:     "no context",
@@ -123,14 +40,14 @@ func TestGetUserFromContext(t *testing.T) {
 		},
 		{
 			name:     "wrong struct in context",
-			context:  context.WithValue(context.Background(), app.ContextKeyUser, "wrong struct"),
+			context:  context.WithValue(context.Background(), app.ContextKeyUserID, 123456789),
 			expectOK: false,
 		},
 		{
 			name:       "valid user in context",
-			context:    context.WithValue(context.Background(), app.ContextKeyUser, user),
+			context:    context.WithValue(context.Background(), app.ContextKeyUserID, userID),
 			expectOK:   true,
-			expectUser: user,
+			expectUser: userID,
 		},
 	}
 
@@ -141,7 +58,7 @@ func TestGetUserFromContext(t *testing.T) {
 			r := httptest.NewRequest("GET", "/", nil).WithContext(tt.context)
 
 			// Call the function
-			resultUser, ok := handlers.U().GetUserFromContext(r)
+			resultUser, ok := handlers.U().GetUserIDFromContext(r)
 
 			// Check the results
 			assert.Equal(t, tt.expectOK, ok)
@@ -463,7 +380,7 @@ func TestParseUUIDPair(t *testing.T) {
 			r := httptest.NewRequest("GET", "/", nil)
 
 			// Set up the expectations
-			m := mocks.NewMockUtils(ctrl)
+			m := mocks.NewMockApiUtils(ctrl)
 			m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), key).Return(tt.keyUUID, tt.keyOK)
 			if tt.keyOK {
 				m.EXPECT().ParseParamUUID(gomock.Any(), gomock.Any(), "id").Return(tt.baseUUID, tt.baseOK)

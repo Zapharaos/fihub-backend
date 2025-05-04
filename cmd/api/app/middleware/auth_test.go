@@ -1,206 +1,157 @@
-package server_test
+package middleware
 
 import (
-	"bytes"
-	"encoding/json"
 	"errors"
+	"github.com/Zapharaos/fihub-backend/cmd/api/app/clients"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/server"
-	securityrepositories "github.com/Zapharaos/fihub-backend/cmd/security/app/repositories"
-	"github.com/Zapharaos/fihub-backend/cmd/user/app/repositories"
+	"github.com/Zapharaos/fihub-backend/gen/go/authpb"
 	"github.com/Zapharaos/fihub-backend/internal/app"
-	"github.com/Zapharaos/fihub-backend/internal/models"
 	"github.com/Zapharaos/fihub-backend/test/mocks"
 	"github.com/google/uuid"
-	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"
-	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 )
 
-// TestNew tests the New function
-func TestNew(t *testing.T) {
-	// Create a new instance of Auth
-	a := server.New(server.CheckHeader|server.CheckQuery, server.Config{})
-
-	// Check the instance
-	assert.NotNil(t, a)
-	assert.NotEmpty(t, a.SigningKey)
-	assert.Equal(t, int8(server.CheckHeader|server.CheckQuery), a.Checks)
-}
-
-// TestGetToken tests the GetToken function
-func TestGetToken(t *testing.T) {
-	// Define test data
-	a := server.New(server.CheckHeader, server.Config{})
-	userWithPassword := models.UserWithPassword{
-		User:     models.User{Email: "test@example.com"},
-		Password: "password",
-	}
-	userBody, _ := json.Marshal(userWithPassword)
-
-	// Create a new httptest server
-	ts := httptest.NewServer(http.HandlerFunc(a.GetToken))
-	defer ts.Close()
+func TestAuthMiddleware(t *testing.T) {
+	inputUserID := uuid.New().String()
 
 	// Define test cases
 	tests := []struct {
-		name        string // Test case name
-		mockSetup   func(*gomock.Controller)
-		body        []byte
-		status      int  // Expected status code
-		expectEmpty bool // Expected empty token
+		name       string
+		mockSetup  func(ctrl *gomock.Controller)
+		config     server.Config
+		expectCode int
+		expectCtx  bool
 	}{
 		{
-			name:        "invalid data",
-			mockSetup:   func(ctrl *gomock.Controller) {},
-			status:      http.StatusBadRequest,
-			body:        nil,
-			expectEmpty: true,
+			name: "no security mode",
+			mockSetup: func(ctrl *gomock.Controller) {
+				authClient := mocks.NewMockAuthServiceClient(ctrl)
+				authClient.EXPECT().ValidateToken(gomock.Any(), gomock.Any()).Times(0)
+				authClient.EXPECT().ExtractUserID(gomock.Any(), gomock.Any()).Times(0)
+				clients.ReplaceGlobals(clients.NewClients(
+					clients.WithAuthClient(authClient),
+				))
+			},
+			config: server.Config{
+				Security: false,
+			},
+			expectCode: http.StatusOK,
+			expectCtx:  false,
 		},
 		{
-			name: "authentication error",
+			name: "fails in gateway mode",
 			mockSetup: func(ctrl *gomock.Controller) {
-				u := mocks.NewUserRepository(ctrl)
-				u.EXPECT().Authenticate(gomock.Any(), gomock.Any()).Return(models.User{}, false, errors.New("error"))
-				repositories.ReplaceGlobals(u)
+				authClient := mocks.NewMockAuthServiceClient(ctrl)
+				authClient.EXPECT().ValidateToken(gomock.Any(), gomock.Any()).Times(0)
+				authClient.EXPECT().ExtractUserID(gomock.Any(), gomock.Any()).Return(&authpb.ExtractUserIDResponse{}, errors.New("some error"))
+				clients.ReplaceGlobals(clients.NewClients(
+					clients.WithAuthClient(authClient),
+				))
 			},
-			body:        userBody,
-			status:      http.StatusInternalServerError,
-			expectEmpty: true,
+			config: server.Config{
+				Security:    true,
+				GatewayMode: true,
+			},
+			expectCode: http.StatusBadRequest,
+			expectCtx:  false,
 		},
 		{
-			name: "authentication failed",
+			name: "fails in default mode",
 			mockSetup: func(ctrl *gomock.Controller) {
-				u := mocks.NewUserRepository(ctrl)
-				u.EXPECT().Authenticate(gomock.Any(), gomock.Any()).Return(models.User{}, false, nil)
-				repositories.ReplaceGlobals(u)
+				authClient := mocks.NewMockAuthServiceClient(ctrl)
+				authClient.EXPECT().ValidateToken(gomock.Any(), gomock.Any()).Return(&authpb.ValidateTokenResponse{}, errors.New("some error"))
+				authClient.EXPECT().ExtractUserID(gomock.Any(), gomock.Any()).Times(0)
+				clients.ReplaceGlobals(clients.NewClients(
+					clients.WithAuthClient(authClient),
+				))
 			},
-			body:        userBody,
-			status:      http.StatusBadRequest,
-			expectEmpty: true,
+			config: server.Config{
+				Security: true,
+			},
+			expectCode: http.StatusUnauthorized,
+			expectCtx:  false,
 		},
 		{
-			name: "authentication success",
+			name: "success in gateway mode",
 			mockSetup: func(ctrl *gomock.Controller) {
-				u := mocks.NewUserRepository(ctrl)
-				u.EXPECT().Authenticate(gomock.Any(), gomock.Any()).Return(userWithPassword.User, true, nil)
-				repositories.ReplaceGlobals(u)
+				authClient := mocks.NewMockAuthServiceClient(ctrl)
+				authClient.EXPECT().ValidateToken(gomock.Any(), gomock.Any()).Times(0)
+				authClient.EXPECT().ExtractUserID(gomock.Any(), gomock.Any()).Return(&authpb.ExtractUserIDResponse{
+					UserId: inputUserID,
+				}, nil)
+				clients.ReplaceGlobals(clients.NewClients(
+					clients.WithAuthClient(authClient),
+				))
 			},
-			body:        userBody,
-			status:      http.StatusOK,
-			expectEmpty: false,
+			config: server.Config{
+				Security:    true,
+				GatewayMode: true,
+			},
+			expectCode: http.StatusOK,
+			expectCtx:  true,
+		},
+		{
+			name: "success in default mode",
+			mockSetup: func(ctrl *gomock.Controller) {
+				authClient := mocks.NewMockAuthServiceClient(ctrl)
+				authClient.EXPECT().ValidateToken(gomock.Any(), gomock.Any()).Return(&authpb.ValidateTokenResponse{
+					UserId: inputUserID,
+				}, nil)
+				authClient.EXPECT().ExtractUserID(gomock.Any(), gomock.Any()).Times(0)
+				clients.ReplaceGlobals(clients.NewClients(
+					clients.WithAuthClient(authClient),
+				))
+			},
+			config: server.Config{
+				Security: true,
+			},
+			expectCode: http.StatusOK,
+			expectCtx:  true,
 		},
 	}
 
-	// Run tests
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			// Create a new request to the test server
-			apiBasePath := viper.GetString("API_BASE_PATH")
-			r := httptest.NewRequest("POST", ts.URL+apiBasePath+"/server/token", bytes.NewBuffer(tt.body))
-			w := httptest.NewRecorder()
-
-			// Apply mocks
+			// Mock dependencies
 			ctrl := gomock.NewController(t)
-			defer ctrl.Finish()
 			tt.mockSetup(ctrl)
+			defer ctrl.Finish()
 
-			// Send the request
-			a.GetToken(w, r)
-			response := w.Result()
-			defer response.Body.Close()
+			// Create middleware
+			middleware := AuthMiddleware(tt.config)
 
-			// Get the response body
-			var token server.JwtToken
-			data, err := io.ReadAll(response.Body)
-			if err != nil {
-				assert.Fail(t, "failed to decode response")
-			}
-			err = json.Unmarshal(data, &token)
+			// Create a test request
+			req := httptest.NewRequest("GET", "/test", nil)
+			req.Header.Set("Authorization", "token")
+			rr := httptest.NewRecorder()
 
-			// Check the response
-			assert.Equal(t, tt.status, response.StatusCode)
-			if tt.expectEmpty {
-				assert.Empty(t, token.Token)
-			} else {
-				assert.NotEmpty(t, token.Token)
-				assert.NoError(t, err)
-			}
+			// Create a next handler to verify context
+			next := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				userID, ok := r.Context().Value(app.ContextKeyUserID).(string)
+				if tt.expectCtx {
+					assert.True(t, ok, "User ID should be set in context")
+					assert.Equal(t, inputUserID, userID, "User ID should match")
+				} else {
+					assert.False(t, ok, "User ID should not be set in context")
+				}
+				w.WriteHeader(http.StatusOK)
+			})
+
+			// Execute middleware
+			handler := middleware(next)
+			handler.ServeHTTP(rr, req)
+
+			// Verify response
+			assert.Equal(t, tt.expectCode, rr.Code, "Response status code should match")
 		})
 	}
 }
 
-// TestGenerateToken tests the GenerateToken function
-func TestGenerateToken(t *testing.T) {
-	// Define test data
-	a := server.New(server.CheckHeader, server.Config{})
-	user := models.User{
-		ID: uuid.New(),
-	}
-
-	// Generate a token
-	token, err := a.GenerateToken(user)
-
-	// Check the response
-	assert.NoError(t, err)
-	assert.NotEmpty(t, token.Token)
-}
-
-// TestValidateToken tests the ValidateToken function
-func TestValidateToken(t *testing.T) {
-	// Define test data
-	a := server.New(server.CheckHeader, server.Config{})
-	user := models.User{
-		ID: uuid.New(),
-	}
-
-	// Generate a valid token
-	validToken, err := a.GenerateToken(user)
-	assert.NoError(t, err)
-
-	// Define test cases
-	tests := []struct {
-		name      string
-		token     string
-		expectErr bool
-	}{
-		{
-			name:      "valid token",
-			token:     validToken.Token,
-			expectErr: false,
-		},
-		{
-			name:      "invalid token",
-			token:     "invalid.token.string",
-			expectErr: true,
-		},
-		{
-			name:      "empty token",
-			token:     "",
-			expectErr: true,
-		},
-	}
-
-	// Run tests
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			claims, err := a.ValidateToken(tt.token)
-			if tt.expectErr {
-				assert.Error(t, err)
-				assert.Nil(t, claims)
-			} else {
-				assert.NoError(t, err)
-				assert.NotNil(t, claims)
-				assert.Equal(t, user.ID.String(), claims["id"])
-			}
-		})
-	}
-}
-
-// TestMiddleware tests the Middleware function
+/*// TestMiddleware tests the Middleware function
 func TestMiddleware(t *testing.T) {
 	// Define test data
 	a := server.New(server.CheckHeader, server.Config{})
@@ -330,4 +281,4 @@ func TestMiddleware(t *testing.T) {
 			assert.Equal(t, tt.expectCode, response.StatusCode)
 		})
 	}
-}
+}*/

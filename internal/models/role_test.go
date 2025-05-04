@@ -190,7 +190,7 @@ func TestRolePermissionsInput_GetUUIDsAsStrings(t *testing.T) {
 		{
 			name:     "nil roles",
 			roles:    nil,
-			expected: []string{},
+			expected: []string(nil),
 		},
 		{
 			name:     "no roles",

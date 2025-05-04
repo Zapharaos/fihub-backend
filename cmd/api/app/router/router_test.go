@@ -3,7 +3,7 @@ package router
 import (
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/clients"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/server"
-	"github.com/Zapharaos/fihub-backend/gen"
+	"github.com/Zapharaos/fihub-backend/gen/go/healthpb"
 	"github.com/Zapharaos/fihub-backend/test/mocks"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
@@ -30,8 +30,8 @@ func TestNewRouter(t *testing.T) {
 	// Set up a mock controller and a mock HealthServiceClient
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	hc := mocks.NewHealthServiceClient(ctrl)
-	hc.EXPECT().CheckHealth(gomock.Any(), gomock.Any()).Return(&protogen.HealthResponse{
+	hc := mocks.NewMockHealthServiceClient(ctrl)
+	hc.EXPECT().CheckHealth(gomock.Any(), gomock.Any()).Return(&healthpb.HealthResponse{
 		IsHealthy: true,
 	}, nil)
 	clients.ReplaceGlobals(clients.NewClients(
