@@ -7,16 +7,32 @@ import (
 	"testing"
 )
 
-// TestConnectPostgres tests the ConnectPostgres function to ensure that it correctly initializes the database.
+// TestInitPostgres tests the InitPostgres function to ensure that it correctly initializes the database.
 // This test only verifies the database.
-func TestConnectPostgres(t *testing.T) {
+func TestInitPostgres(t *testing.T) {
 	// Create a full test suite
 	ts := test.TestSuite{}
 	_ = ts.CreateFullTestSuite(t)
 	defer ts.CleanTestSuite(t)
 
-	ConnectPostgres()
+	InitPostgres()
 
 	// Assertions to verify Database initialization
 	assert.NotNil(t, database.DB())
+	assert.NotNil(t, database.DB().Postgres())
+}
+
+// TestInitRedis tests the InitRedis function to ensure that it correctly initializes the database.
+// This test only verifies the database.
+func TestInitRedis(t *testing.T) {
+	// Create a full test suite
+	ts := test.TestSuite{}
+	_ = ts.CreateFullTestSuite(t)
+	defer ts.CleanTestSuite(t)
+
+	InitRedis()
+
+	// Assertions to verify Database initialization
+	assert.NotNil(t, database.DB())
+	assert.NotNil(t, database.DB().Redis())
 }

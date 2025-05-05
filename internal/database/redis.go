@@ -48,14 +48,14 @@ func NewRedisDB() RedisDB {
 
 // IsHealthy checks if the Redis connection is healthy by running a ping command.
 func (r RedisDB) IsHealthy() bool {
-	// Create a context with a timeout
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
 	// No Redis connection
 	if r.Client == nil {
 		return false
 	}
+
+	// Create a context with a timeout
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 
 	// Attempt to ping Redis
 	_, err := r.Client.Ping(ctx).Result()
