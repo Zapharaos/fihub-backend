@@ -49,9 +49,5 @@ func (p PostgresDB) IsHealthy() bool {
 
 	// Attempt to ping the database
 	err := p.DB.PingContext(ctx)
-	if err != nil {
-		return false
-	}
-
-	return true
+	return err == nil
 }
