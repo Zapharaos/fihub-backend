@@ -7,29 +7,29 @@ type Databases struct {
 }
 
 // Postgres returns the postgres database connection
-func (db Databases) Postgres() PostgresDB {
+func (db *Databases) Postgres() PostgresDB {
 	return db.postgres
 }
 
 // Redis returns the redis database connection
-func (db Databases) Redis() RedisDB {
+func (db *Databases) Redis() RedisDB {
 	return db.redis
 }
 
 // SetPostgres sets the postgres database connection while preserving other connections
-func (db Databases) SetPostgres(postgres PostgresDB) {
+func (db *Databases) SetPostgres(postgres PostgresDB) {
 	db.postgres.Close()
 	db.postgres = postgres
 }
 
 // SetRedis sets the redis database connection while preserving other connections
-func (db Databases) SetRedis(redis RedisDB) {
+func (db *Databases) SetRedis(redis RedisDB) {
 	db.redis.Close()
 	db.redis = redis
 }
 
 // CloseAll closes all database connections
-func (db Databases) CloseAll() {
+func (db *Databases) CloseAll() {
 	db.postgres.Close()
 	db.redis.Close()
 }
@@ -37,8 +37,8 @@ func (db Databases) CloseAll() {
 var _databases Databases
 
 // DB returns the global Databases struct
-func DB() Databases {
-	return _databases
+func DB() *Databases {
+	return &_databases
 }
 
 // ReplaceGlobals replaces the global Databases struct with the provided one

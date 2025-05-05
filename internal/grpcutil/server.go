@@ -68,6 +68,6 @@ func maintainServerHealthStatus(healthServer *health.Server, serviceName string,
 		healthServer.SetServingStatus(serviceName, grpc_health_v1.HealthCheckResponse_SERVING)
 	} else {
 		healthServer.SetServingStatus(serviceName, grpc_health_v1.HealthCheckResponse_NOT_SERVING)
-		zap.L().Error("Postgres health check failed")
+		zap.L().Error("Health check failed", zap.String("service", serviceName))
 	}
 }
