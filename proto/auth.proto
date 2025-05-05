@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package auth;
+
+option go_package = "./authpb";
+
+service AuthService {
+  rpc GenerateToken (GenerateTokenRequest) returns (GenerateTokenResponse);
+  rpc ValidateToken (ValidateTokenRequest) returns (ValidateTokenResponse);
+  rpc ExtractUserID (ExtractUserIDRequest) returns (ExtractUserIDResponse);
+}
+
+message GenerateTokenRequest {
+  string email = 1;
+  string password = 2;
+}
+
+message GenerateTokenResponse {
+  string token = 1;
+}
+
+message ValidateTokenRequest {
+  string token = 1;
+}
+
+message ValidateTokenResponse {
+  string user_id = 1;
+}
+
+message ExtractUserIDRequest {
+  string token = 1;
+}
+
+message ExtractUserIDResponse {
+  string user_id = 1;
+}

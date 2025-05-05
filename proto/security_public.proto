@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package security;
+
+option go_package = "./securitypb";
+
+service PublicSecurityService {
+	// Public - Security management
+	rpc CheckPermission(CheckPermissionRequest) returns (CheckPermissionResponse);
+}
+
+// Security
+
+message CheckPermissionRequest {
+	string user_id = 1;
+	string permission = 2;
+}
+
+message CheckPermissionResponse {
+	bool has_permission = 1;
+}

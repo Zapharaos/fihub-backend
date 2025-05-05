@@ -1,0 +1,60 @@
+### DO NOT COMMIT ANY ENVIRONMENT CHANGE ON THIS FILE
+### If you need to use another environment, edit this file localy, and do not propagate the changes.
+
+# Specify the application environment
+# Possible values: "production", "development"
+# Default value: "production"
+APP_ENV = "production"
+
+# Specify the logging level
+# Possible values: "debug", "info", "warn", "error"
+# Default value: "debug"
+LOGGER_LEVEL = "debug"
+
+# Specify the port for the Transaction microservice
+# This port is used to run the gRPC TransactionService
+# Default value: "50006"
+TRANSACTION_MICROSERVICE_PORT = "50006"
+
+# Specify the port for the Security microservice
+# This port is used to run the gRPC SecurityService
+# Default value: "50004"
+SECURITY_MICROSERVICE_PORT = "50004"
+
+# Specify the PostgreSQL username
+# Used to authenticate with the PostgreSQL database
+# Default value: "postgres"
+POSTGRES_USER = "postgres"
+
+# Specify the PostgreSQL password
+# Used to authenticate with the PostgreSQL database
+# Default value: "postgres"
+POSTGRES_PASSWORD = "postgres"
+
+# Specify the PostgreSQL host
+# Use "postgres" when running through Docker, "localhost" otherwise
+# Default value: "postgres"
+POSTGRES_HOST = "postgres"
+
+# Specify the PostgreSQL database name
+# The name of the database to connect to
+# Default value: "fihub"
+POSTGRES_DB = "fihub"
+
+# Specify the PostgreSQL port
+# The port on which the PostgreSQL server is running
+# Default value: "5432"
+POSTGRES_PORT = "5432"
+
+# Specify the maximum number of open connections in the PostgreSQL connection pool
+# Default value: "30"
+POSTGRES_MAX_OPEN_CONNS = "30"
+
+# Specify the maximum number of idle connections in the PostgreSQL connection pool
+# Default value: "30"
+POSTGRES_MAX_IDLE_CONNS = "30"
+
+# Specify the maximum idle time for connections in the PostgreSQL connection pool
+# Expressed as a Golang duration
+# Default value: "15m"
+POSTGRES_MAX_IDLE_TIME = "15m"

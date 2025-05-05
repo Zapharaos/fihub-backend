@@ -1,9 +1,10 @@
 package database
 
+// _ "github.com/lib/pq" // is used to register the PostgreSQL driver with the sqlx package.
 import (
 	"fmt"
 	"github.com/jmoiron/sqlx"
-	"go.uber.org/zap"
+	_ "github.com/lib/pq"
 )
 
 // SqlDatabase is an interface for a SQL database.
@@ -44,13 +45,11 @@ func (s Sql) Connect() (*sqlx.DB, error) {
 	// Connect
 	db, err := sqlx.Open("postgres", psqlInfo)
 	if err != nil {
-		zap.L().Error("DbConnection.Open:", zap.Error(err))
 		return nil, err
 	}
 
 	// Ping for verification
 	if err = db.Ping(); err != nil {
-		zap.L().Error("DbConnection.Ping:", zap.Error(err))
 		return nil, err
 	}
 

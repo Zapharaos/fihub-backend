@@ -23,6 +23,15 @@ func CheckRowAffected(result sql.Result, nbRows int64) error {
 	return nil
 }
 
+// ScanString scans a single string from the given sqlx.Rows
+func ScanString(rows *sqlx.Rows) (string, error) {
+	var result string
+	if err := rows.Scan(&result); err != nil {
+		return "", err
+	}
+	return result, nil
+}
+
 // ScanFirst scans the first row of a sql.Rows and returns the result
 func ScanFirst[T any](rows *sqlx.Rows, scan func(rows *sqlx.Rows) (T, error)) (T, bool, error) {
 	if rows.Next() {
@@ -45,4 +54,31 @@ func ScanAll[T any](rows *sqlx.Rows, scan func(rows *sqlx.Rows) (T, error)) ([]T
 		objs = append(objs, obj)
 	}
 	return objs, nil
+}
+
+// ScanFirstStruct scans the first row of the given rows and returns a struct of type T
+func ScanFirstStruct[T any](rows *sqlx.Rows) (T, bool, error) {
+	var results []T
+	err := sqlx.StructScan(rows, &results)
+	if err != nil {
+		var a T
+		return a, false, err
+	}
+
+	if len(results) == 0 {
+		var a T
+		return a, false, nil
+	}
+
+	return results[0], true, nil
+}
+
+// ScanAllStruct scans all the rows of the given rows and returns a slice of T
+func ScanAllStruct[T any](rows *sqlx.Rows) ([]T, error) {
+	var results []T
+	err := sqlx.StructScan(rows, &results)
+	if err != nil {
+		return []T{}, err
+	}
+	return results, nil
 }

@@ -1,0 +1,233 @@
+syntax = "proto3";
+
+package security;
+
+option go_package = "./securitypb";
+
+service SecurityService {
+	// Permission management
+	rpc CreatePermission(CreatePermissionRequest) returns (CreatePermissionResponse);
+	rpc GetPermission(GetPermissionRequest) returns (GetPermissionResponse);
+	rpc UpdatePermission(UpdatePermissionRequest) returns (UpdatePermissionResponse);
+	rpc DeletePermission(DeletePermissionRequest) returns (DeletePermissionResponse);
+	rpc ListPermissions(ListPermissionsRequest) returns (ListPermissionsResponse);
+
+	// Role management
+	rpc CreateRole(CreateRoleRequest) returns (CreateRoleResponse);
+	rpc GetRole(GetRoleRequest) returns (GetRoleResponse);
+	rpc UpdateRole(UpdateRoleRequest) returns (UpdateRoleResponse);
+	rpc DeleteRole(DeleteRoleRequest) returns (DeleteRoleResponse);
+	rpc ListRoles(ListRolesRequest) returns (ListRolesResponse);
+
+	// Role-Permission management
+	rpc ListRolePermissions(ListRolePermissionsRequest) returns (ListRolePermissionsResponse);
+	rpc SetRolePermissions(SetRolePermissionsRequest) returns (SetRolePermissionsResponse);
+
+	// Role-Users management
+	rpc AddUsersToRole(AddUsersToRoleRequest) returns (AddUsersToRoleResponse);
+	rpc RemoveUsersFromRole(RemoveUsersFromRoleRequest) returns (RemoveUsersFromRoleResponse);
+	rpc ListUsersForRole(ListUsersForRoleRequest) returns (ListUsersForRoleResponse);
+
+	// User-Roles management
+	rpc SetRolesForUser(SetRolesForUserRequest) returns (SetRolesForUserResponse);
+	rpc ListRolesForUser(ListRolesForUserRequest) returns (ListRolesForUserResponse);
+	rpc ListRolesWithPermissionsForUser(ListRolesWithPermissionsForUserRequest) returns (ListRolesWithPermissionsForUserResponse);
+
+	// Users-Roles management
+	rpc ListUsersFull(ListUsersFullRequest) returns (ListUsersFullResponse);
+}
+
+// Permission
+
+message Permission {
+	string id = 1;
+	string value = 2;
+	string scope = 3;
+	string description = 4;
+}
+
+message CreatePermissionRequest {
+	string value = 1;
+	string scope = 2;
+	string description = 3;
+}
+
+message CreatePermissionResponse {
+	Permission permission = 1;
+}
+
+message GetPermissionRequest {
+	string id = 1;
+}
+
+message GetPermissionResponse {
+	Permission permission = 1;
+}
+
+message UpdatePermissionRequest {
+	string id = 1;
+	string value = 2;
+	string scope = 3;
+	string description = 4;
+}
+
+message UpdatePermissionResponse {
+	Permission permission = 1;
+}
+
+message DeletePermissionRequest {
+	string id = 1;
+}
+
+message DeletePermissionResponse {
+	bool success = 1;
+}
+
+message ListPermissionsRequest {
+}
+
+message ListPermissionsResponse {
+	repeated Permission permissions = 1;
+}
+
+// Role
+
+message Role {
+	string id = 1;
+	string name = 2;
+}
+
+message RoleWithPermissions {
+	Role role = 1;
+	repeated Permission permissions = 2;
+}
+
+message CreateRoleRequest {
+	string name = 1;
+	repeated string permissions = 2;
+}
+
+message CreateRoleResponse {
+	RoleWithPermissions role = 1;
+}
+
+message GetRoleRequest {
+	string id = 1;
+}
+
+message GetRoleResponse {
+	RoleWithPermissions role = 1;
+}
+
+message UpdateRoleRequest {
+	string id = 1;
+	string name = 2;
+	repeated string permissions = 3;
+}
+
+message UpdateRoleResponse {
+	RoleWithPermissions role = 1;
+}
+
+message DeleteRoleRequest {
+	string id = 1;
+}
+
+message DeleteRoleResponse {
+	bool success = 1;
+}
+
+message ListRolesRequest {
+}
+
+message ListRolesResponse {
+	repeated RoleWithPermissions roles = 1;
+}
+
+// Role-Permission
+
+message ListRolePermissionsRequest {
+	string id = 1;
+}
+
+message ListRolePermissionsResponse {
+	repeated Permission permissions = 1;
+}
+
+message SetRolePermissionsRequest {
+	string id = 1;
+	repeated string permissions = 2;
+}
+
+message SetRolePermissionsResponse {
+	repeated Permission permissions = 1;
+}
+
+// Role-Users management
+
+message AddUsersToRoleRequest {
+	string role_id = 1;
+	repeated string user_ids = 2;
+}
+
+message AddUsersToRoleResponse {
+	repeated string user_ids = 1;
+}
+
+message RemoveUsersFromRoleRequest {
+	string role_id = 1;
+	repeated string user_ids = 2;
+}
+
+message RemoveUsersFromRoleResponse {
+	repeated string user_ids = 1;
+}
+
+message ListUsersForRoleRequest {
+	string role_id = 1;
+}
+
+message ListUsersForRoleResponse {
+	repeated string user_ids = 1;
+}
+
+// User-Roles management
+
+message SetRolesForUserRequest {
+	string user_id = 1;
+	repeated string role_ids = 2;
+}
+
+message SetRolesForUserResponse {
+	repeated RoleWithPermissions roles = 1;
+}
+
+message ListRolesForUserRequest {
+	string user_id = 1;
+}
+
+message ListRolesForUserResponse {
+	repeated Role roles = 1;
+}
+
+message ListRolesWithPermissionsForUserRequest {
+	string user_id = 1;
+}
+
+message ListRolesWithPermissionsForUserResponse {
+	repeated RoleWithPermissions roles = 1;
+}
+
+// Users-Roles management
+
+message UserWithRoles {
+	string user_id = 1;
+	repeated Role roles = 2;
+}
+
+message ListUsersFullRequest {
+}
+
+message ListUsersFullResponse {
+	repeated UserWithRoles users = 1;
+}

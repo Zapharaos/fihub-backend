@@ -66,11 +66,17 @@ VALUES
     ('c6ea4ccc-5d10-43ea-995c-6edf21fe5ad9', 'front.admin.users', 'front', 'Admin users view'),
     ('341ce3de-136a-419e-b837-3dc3d5aa8f2d', 'admin.users.read', 'admin', 'Read user'),
     ('ca0e7cc2-55f4-4700-a84b-a5e5694f697f', 'admin.users.update', 'admin', 'Update user'),
+    ('04ed608a-bef4-4297-a74f-952dae44c7f0', 'admin.users.delete', 'admin', 'Delete user'),
     ('55363c9b-f8db-4d37-8fb7-df1f3674897e', 'admin.users.list', 'admin', 'List users'),
 
     -- User roles
     ('2fa33825-e636-44c5-9193-e39d4909b826', 'admin.users.roles.list', 'admin', 'List user role'),
     ('8cc7abbf-d640-4cd2-a872-6537663782b8', 'admin.users.roles.update', 'admin', 'Update user role'),
+
+    -- User brokers
+    ('baada529-d966-4a41-8aae-9a1af6e850a9', 'admin.users.brokers.get', 'admin', 'Read user broker'),
+    ('71c54e16-9216-42ca-8819-89ca277a9510', 'admin.users.brokers.delete', 'admin', 'Delete user broker'),
+    ('27e913b0-b546-4bec-85d9-56ac20ab7e8d', 'admin.users.brokers.list', 'admin', 'List user brokers'),
 
     -- Brokers
     ('3bbeaf54-c92c-405f-a403-b01b9dc2ba7f', 'front.admin.brokers', 'front', 'Admin brokers view'),

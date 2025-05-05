@@ -1,0 +1,169 @@
+syntax = "proto3";
+
+package broker;
+
+option go_package = "./brokerpb";
+
+service BrokerService {
+	// Broker management
+	rpc CreateBroker(CreateBrokerRequest) returns (CreateBrokerResponse);
+	rpc GetBroker(GetBrokerRequest) returns (GetBrokerResponse);
+	rpc UpdateBroker(UpdateBrokerRequest) returns (UpdateBrokerResponse);
+	rpc DeleteBroker(DeleteBrokerRequest) returns (DeleteBrokerResponse);
+	rpc ListBrokers(ListBrokersRequest) returns (ListBrokersResponse);
+
+	// Broker user management
+	rpc CreateBrokerUser(CreateBrokerUserRequest) returns (CreateBrokerUserResponse);
+	rpc GetBrokerUser(GetBrokerUserRequest) returns (GetBrokerUserResponse);
+	rpc DeleteBrokerUser(DeleteBrokerUserRequest) returns (DeleteBrokerUserResponse);
+	rpc ListUserBrokers(ListUserBrokersRequest) returns (ListUserBrokersResponse);
+
+	// Image management
+	rpc CreateBrokerImage(CreateBrokerImageRequest) returns (CreateBrokerImageResponse);
+	rpc GetBrokerImage(GetBrokerImageRequest) returns (GetBrokerImageResponse);
+	rpc UpdateBrokerImage(UpdateBrokerImageRequest) returns (UpdateBrokerImageResponse);
+	rpc DeleteBrokerImage(DeleteBrokerImageRequest) returns (DeleteBrokerImageResponse);
+}
+
+// Broker
+
+message Broker {
+	string id = 1;
+	string name = 2;
+	string image_id = 3;
+	bool disabled = 4;
+}
+
+message CreateBrokerRequest {
+	string name = 1;
+	bool disabled = 3;
+}
+
+message CreateBrokerResponse {
+	Broker broker = 1;
+}
+
+message GetBrokerRequest {
+	string id = 1;
+}
+
+message GetBrokerResponse {
+	Broker broker = 1;
+}
+
+message UpdateBrokerRequest {
+	string id = 1;
+	string name = 2;
+	string image_id = 3;
+	bool disabled = 4;
+}
+
+message UpdateBrokerResponse {
+	Broker broker = 1;
+}
+
+message DeleteBrokerRequest {
+	string id = 1;
+}
+
+message DeleteBrokerResponse {
+	bool success = 1;
+}
+
+message ListBrokersRequest {
+	bool enabled_only = 1;
+}
+
+message ListBrokersResponse {
+	repeated Broker brokers = 1;
+}
+
+// Broker user
+
+message BrokerUser {
+	string user_id = 1;
+	Broker broker = 2;
+}
+
+message CreateBrokerUserRequest {
+	string user_id = 1;
+	string broker_id = 2;
+}
+
+message CreateBrokerUserResponse {
+	repeated BrokerUser user_brokers = 1;
+}
+
+message GetBrokerUserRequest {
+	string user_id = 1;
+	string broker_id = 2;
+}
+
+message GetBrokerUserResponse {
+	BrokerUser broker_user = 1;
+}
+
+message DeleteBrokerUserRequest {
+	string user_id = 1;
+	string broker_id = 2;
+}
+
+message DeleteBrokerUserResponse {
+	bool success = 1;
+}
+
+message ListUserBrokersRequest {
+	string user_id = 1;
+}
+
+message ListUserBrokersResponse {
+	repeated BrokerUser user_brokers = 1;
+}
+
+// Broker image
+
+message BrokerImage {
+	string id = 1;
+	string broker_id = 2;
+	string name = 3;
+	bytes data = 4;
+}
+
+message CreateBrokerImageRequest {
+	string broker_id = 1;
+	string name = 2;
+	bytes data = 3;
+}
+
+message CreateBrokerImageResponse {
+	BrokerImage image = 1;
+}
+
+message GetBrokerImageRequest {
+	string image_id = 1;
+}
+
+message GetBrokerImageResponse {
+	bytes data = 1;
+	string name = 2;
+}
+
+message UpdateBrokerImageRequest {
+	string image_id = 1;
+	string broker_id = 2;
+	string name = 3;
+	bytes data = 4;
+}
+
+message UpdateBrokerImageResponse {
+	BrokerImage image = 1;
+}
+
+message DeleteBrokerImageRequest {
+	string image_id = 1;
+	string broker_id = 2;
+}
+
+message DeleteBrokerImageResponse {
+	bool success = 1;
+}

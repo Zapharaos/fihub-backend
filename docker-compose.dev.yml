@@ -1,0 +1,25 @@
+services:
+
+  api:
+    build:
+      target: development
+
+  health:
+    build:
+      target: development
+
+  user:
+    build:
+      target: development
+
+  security:
+    build:
+      target: development
+
+  broker:
+    build:
+      target: development
+
+  transaction:
+    build:
+      target: development
