@@ -31,8 +31,8 @@ func TestNewRouter(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	hc := mocks.NewMockHealthServiceClient(ctrl)
-	hc.EXPECT().CheckHealth(gomock.Any(), gomock.Any()).Return(&healthpb.HealthResponse{
-		IsHealthy: true,
+	hc.EXPECT().CheckHealth(gomock.Any(), gomock.Any()).Return(&healthpb.HealthStatus{
+		Status: "SERVING",
 	}, nil)
 	clients.ReplaceGlobals(clients.NewClients(
 		clients.WithHealthClient(hc),

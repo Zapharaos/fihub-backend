@@ -15,3 +15,28 @@ LOGGER_LEVEL = "debug"
 # This port is used to run the gRPC HealthService
 # Default value: "50001"
 HEALTH_MICROSERVICE_PORT = "50001"
+
+# Specify the port for the User microservice
+# This port is used to run the gRPC UserService
+# Default value: "50002"
+USER_MICROSERVICE_PORT = "50002"
+
+# Specify the port for the Auth microservice
+# This port is used to run the gRPC AuthService
+# Default value: "50003"
+AUTH_MICROSERVICE_PORT = "50003"
+
+# Specify the port for the Security microservice
+# This port is used to run the gRPC SecurityService
+# Default value: "50004"
+SECURITY_MICROSERVICE_PORT = "50004"
+
+# Specify the port for the Broker microservice
+# This port is used to run the gRPC BrokerService
+# Default value: "50005"
+BROKER_MICROSERVICE_PORT = "50005"
+
+# Specify the port for the Transaction microservice
+# This port is used to run the gRPC TransactionService
+# Default value: "50006"
+TRANSACTION_MICROSERVICE_PORT = "50006"

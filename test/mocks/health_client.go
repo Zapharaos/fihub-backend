@@ -43,14 +43,14 @@ func (m *MockHealthServiceClient) EXPECT() *MockHealthServiceClientMockRecorder 
 }
 
 // CheckHealth mocks base method.
-func (m *MockHealthServiceClient) CheckHealth(ctx context.Context, in *healthpb.HealthRequest, opts ...grpc.CallOption) (*healthpb.HealthResponse, error) {
+func (m *MockHealthServiceClient) CheckHealth(ctx context.Context, in *healthpb.HealthRequest, opts ...grpc.CallOption) (*healthpb.HealthStatus, error) {
 	m.ctrl.T.Helper()
 	varargs := []any{ctx, in}
 	for _, a := range opts {
 		varargs = append(varargs, a)
 	}
 	ret := m.ctrl.Call(m, "CheckHealth", varargs...)
-	ret0, _ := ret[0].(*healthpb.HealthResponse)
+	ret0, _ := ret[0].(*healthpb.HealthStatus)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -87,10 +87,10 @@ func (m *MockHealthServiceServer) EXPECT() *MockHealthServiceServerMockRecorder 
 }
 
 // CheckHealth mocks base method.
-func (m *MockHealthServiceServer) CheckHealth(arg0 context.Context, arg1 *healthpb.HealthRequest) (*healthpb.HealthResponse, error) {
+func (m *MockHealthServiceServer) CheckHealth(arg0 context.Context, arg1 *healthpb.HealthRequest) (*healthpb.HealthStatus, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CheckHealth", arg0, arg1)
-	ret0, _ := ret[0].(*healthpb.HealthResponse)
+	ret0, _ := ret[0].(*healthpb.HealthStatus)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

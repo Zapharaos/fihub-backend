@@ -1,13 +1,12 @@
 package main
 
 import (
+	"github.com/Zapharaos/fihub-backend/cmd/health/app/clients"
 	"github.com/Zapharaos/fihub-backend/cmd/health/app/service"
 	"github.com/Zapharaos/fihub-backend/gen/go/healthpb"
 	"github.com/Zapharaos/fihub-backend/internal/app"
-	"github.com/spf13/viper"
-	"go.uber.org/zap"
+	"github.com/Zapharaos/fihub-backend/internal/grpcutil"
 	"google.golang.org/grpc"
-	"net"
 )
 
 func main() {
@@ -21,20 +20,31 @@ func main() {
 	// Setup Logger
 	app.InitLogger()
 
-	// Start gRPC microservice
-	port := viper.GetString("HEALTH_MICROSERVICE_PORT")
-	lis, err := net.Listen("tcp", ":"+port)
+	// Setup gRPC microservice
+	serviceName := "HEALTH"
+	lis, err := grpcutil.SetupServer(serviceName)
 	if err != nil {
-		zap.L().Error("Failed to listen Health microservice: %v", zap.Error(err))
+		return
 	}
 
-	s := grpc.NewServer()
+	// Register gRPC connections
+	registerGrpcConnections()
 
 	// Register gRPC service
+	s := grpc.NewServer()
 	healthpb.RegisterHealthServiceServer(s, &service.Service{})
 
-	zap.L().Info("gRPC Health microservice is running on port : " + port)
-	if err := s.Serve(lis); err != nil {
-		zap.L().Error("Failed to serve health microservice: %v", zap.Error(err))
-	}
+	// Start gRPC server
+	grpcutil.StartServer(s, lis, serviceName)
+}
+
+// registerGrpcConnections registers the gRPC connections for the health statuses.
+func registerGrpcConnections() {
+	// Register the gRPC connections
+	clients.ReplaceGlobals(clients.NewClients())
+	clients.C().Register("USER", grpcutil.ConnectToClient("USER"))
+	clients.C().Register("AUTH", grpcutil.ConnectToClient("AUTH"))
+	clients.C().Register("SECURITY", grpcutil.ConnectToClient("SECURITY"))
+	clients.C().Register("BROKER", grpcutil.ConnectToClient("BROKER"))
+	clients.C().Register("TRANSACTION", grpcutil.ConnectToClient("TRANSACTION"))
 }

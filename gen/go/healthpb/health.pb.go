@@ -21,6 +21,50 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type HealthStatus struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Status        string                 `protobuf:"bytes,1,opt,name=status,proto3" json:"status,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *HealthStatus) Reset() {
+	*x = HealthStatus{}
+	mi := &file_health_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *HealthStatus) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*HealthStatus) ProtoMessage() {}
+
+func (x *HealthStatus) ProtoReflect() protoreflect.Message {
+	mi := &file_health_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use HealthStatus.ProtoReflect.Descriptor instead.
+func (*HealthStatus) Descriptor() ([]byte, []int) {
+	return file_health_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *HealthStatus) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
 type HealthRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ServiceName   string                 `protobuf:"bytes,1,opt,name=service_name,json=serviceName,proto3" json:"service_name,omitempty"`
@@ -30,7 +74,7 @@ type HealthRequest struct {
 
 func (x *HealthRequest) Reset() {
 	*x = HealthRequest{}
-	mi := &file_health_proto_msgTypes[0]
+	mi := &file_health_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -42,7 +86,7 @@ func (x *HealthRequest) String() string {
 func (*HealthRequest) ProtoMessage() {}
 
 func (x *HealthRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_health_proto_msgTypes[0]
+	mi := &file_health_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -55,7 +99,7 @@ func (x *HealthRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HealthRequest.ProtoReflect.Descriptor instead.
 func (*HealthRequest) Descriptor() ([]byte, []int) {
-	return file_health_proto_rawDescGZIP(), []int{0}
+	return file_health_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *HealthRequest) GetServiceName() string {
@@ -65,71 +109,17 @@ func (x *HealthRequest) GetServiceName() string {
 	return ""
 }
 
-type HealthResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	IsHealthy     bool                   `protobuf:"varint,1,opt,name=is_healthy,json=isHealthy,proto3" json:"is_healthy,omitempty"`
-	Message       string                 `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *HealthResponse) Reset() {
-	*x = HealthResponse{}
-	mi := &file_health_proto_msgTypes[1]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *HealthResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*HealthResponse) ProtoMessage() {}
-
-func (x *HealthResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_health_proto_msgTypes[1]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use HealthResponse.ProtoReflect.Descriptor instead.
-func (*HealthResponse) Descriptor() ([]byte, []int) {
-	return file_health_proto_rawDescGZIP(), []int{1}
-}
-
-func (x *HealthResponse) GetIsHealthy() bool {
-	if x != nil {
-		return x.IsHealthy
-	}
-	return false
-}
-
-func (x *HealthResponse) GetMessage() string {
-	if x != nil {
-		return x.Message
-	}
-	return ""
-}
-
 var File_health_proto protoreflect.FileDescriptor
 
 const file_health_proto_rawDesc = "" +
 	"\n" +
-	"\fhealth.proto\x12\x06health\"2\n" +
+	"\fhealth.proto\x12\x06health\"&\n" +
+	"\fHealthStatus\x12\x16\n" +
+	"\x06status\x18\x01 \x01(\tR\x06status\"2\n" +
 	"\rHealthRequest\x12!\n" +
-	"\fservice_name\x18\x01 \x01(\tR\vserviceName\"I\n" +
-	"\x0eHealthResponse\x12\x1d\n" +
-	"\n" +
-	"is_healthy\x18\x01 \x01(\bR\tisHealthy\x12\x18\n" +
-	"\amessage\x18\x02 \x01(\tR\amessage2M\n" +
-	"\rHealthService\x12<\n" +
-	"\vCheckHealth\x12\x15.health.HealthRequest\x1a\x16.health.HealthResponseB\fZ\n" +
+	"\fservice_name\x18\x01 \x01(\tR\vserviceName2K\n" +
+	"\rHealthService\x12:\n" +
+	"\vCheckHealth\x12\x15.health.HealthRequest\x1a\x14.health.HealthStatusB\fZ\n" +
 	"./healthpbb\x06proto3"
 
 var (
@@ -146,12 +136,12 @@ func file_health_proto_rawDescGZIP() []byte {
 
 var file_health_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_health_proto_goTypes = []any{
-	(*HealthRequest)(nil),  // 0: health.HealthRequest
-	(*HealthResponse)(nil), // 1: health.HealthResponse
+	(*HealthStatus)(nil),  // 0: health.HealthStatus
+	(*HealthRequest)(nil), // 1: health.HealthRequest
 }
 var file_health_proto_depIdxs = []int32{
-	0, // 0: health.HealthService.CheckHealth:input_type -> health.HealthRequest
-	1, // 1: health.HealthService.CheckHealth:output_type -> health.HealthResponse
+	1, // 0: health.HealthService.CheckHealth:input_type -> health.HealthRequest
+	0, // 1: health.HealthService.CheckHealth:output_type -> health.HealthStatus
 	1, // [1:2] is the sub-list for method output_type
 	0, // [0:1] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name

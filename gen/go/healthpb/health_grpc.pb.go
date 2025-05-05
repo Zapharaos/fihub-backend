@@ -26,7 +26,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type HealthServiceClient interface {
-	CheckHealth(ctx context.Context, in *HealthRequest, opts ...grpc.CallOption) (*HealthResponse, error)
+	CheckHealth(ctx context.Context, in *HealthRequest, opts ...grpc.CallOption) (*HealthStatus, error)
 }
 
 type healthServiceClient struct {
@@ -37,9 +37,9 @@ func NewHealthServiceClient(cc grpc.ClientConnInterface) HealthServiceClient {
 	return &healthServiceClient{cc}
 }
 
-func (c *healthServiceClient) CheckHealth(ctx context.Context, in *HealthRequest, opts ...grpc.CallOption) (*HealthResponse, error) {
+func (c *healthServiceClient) CheckHealth(ctx context.Context, in *HealthRequest, opts ...grpc.CallOption) (*HealthStatus, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(HealthResponse)
+	out := new(HealthStatus)
 	err := c.cc.Invoke(ctx, HealthService_CheckHealth_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -51,7 +51,7 @@ func (c *healthServiceClient) CheckHealth(ctx context.Context, in *HealthRequest
 // All implementations must embed UnimplementedHealthServiceServer
 // for forward compatibility.
 type HealthServiceServer interface {
-	CheckHealth(context.Context, *HealthRequest) (*HealthResponse, error)
+	CheckHealth(context.Context, *HealthRequest) (*HealthStatus, error)
 	mustEmbedUnimplementedHealthServiceServer()
 }
 
@@ -62,7 +62,7 @@ type HealthServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedHealthServiceServer struct{}
 
-func (UnimplementedHealthServiceServer) CheckHealth(context.Context, *HealthRequest) (*HealthResponse, error) {
+func (UnimplementedHealthServiceServer) CheckHealth(context.Context, *HealthRequest) (*HealthStatus, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CheckHealth not implemented")
 }
 func (UnimplementedHealthServiceServer) mustEmbedUnimplementedHealthServiceServer() {}
