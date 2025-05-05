@@ -48,6 +48,9 @@ func main() {
 
 	setup()
 
+	defer app.RecoverPanic()   // Catch and log panics
+	defer app.CleanResources() // Clean up regardless of shutdown cause
+
 	zap.L().Info("Starting Fihub Backend", zap.String("version", app.Version), zap.String("build_date", app.BuildDate))
 
 	// Server configuration

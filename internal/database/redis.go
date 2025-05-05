@@ -61,3 +61,13 @@ func (r RedisDB) IsHealthy() bool {
 	_, err := r.Client.Ping(ctx).Result()
 	return err == nil
 }
+
+// Close closes the Redis connection.
+func (r RedisDB) Close() {
+	if r.Client != nil {
+		err := r.Client.Close()
+		if err != nil {
+			zap.L().Error("Failed to close Redis connection", zap.Error(err))
+		}
+	}
+}

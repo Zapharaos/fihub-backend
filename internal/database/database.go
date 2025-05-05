@@ -18,12 +18,20 @@ func (db Databases) Redis() RedisDB {
 
 // SetPostgres sets the postgres database connection while preserving other connections
 func (db Databases) SetPostgres(postgres PostgresDB) {
+	db.postgres.Close()
 	db.postgres = postgres
 }
 
 // SetRedis sets the redis database connection while preserving other connections
 func (db Databases) SetRedis(redis RedisDB) {
+	db.redis.Close()
 	db.redis = redis
+}
+
+// CloseAll closes all database connections
+func (db Databases) CloseAll() {
+	db.postgres.Close()
+	db.redis.Close()
 }
 
 var _databases Databases

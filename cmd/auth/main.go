@@ -9,6 +9,7 @@ import (
 	"github.com/Zapharaos/fihub-backend/internal/database"
 	"github.com/Zapharaos/fihub-backend/internal/grpcutil"
 	"github.com/Zapharaos/fihub-backend/internal/password"
+	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"time"
 )
@@ -23,6 +24,9 @@ func main() {
 
 	// Setup Logger
 	app.InitLogger()
+
+	defer app.RecoverPanic()   // Catch and log panics
+	defer app.CleanResources() // Clean up regardless of shutdown cause
 
 	// Setup gRPC microservice
 	serviceName := "AUTH"
@@ -69,6 +73,11 @@ func main() {
 
 	// Start gRPC server
 	grpcutil.StartServer(s, lis, serviceName)
+	<-grpcutil.WaitForShutdown()
+
+	// Shutdown
+	zap.L().Info("Shutdown gRPC server", zap.String("service", serviceName))
+	s.GracefulStop() // Stop server cleanly
 }
 
 // setupPostgresRepositories initializes the Postgres repositories for the microservice.

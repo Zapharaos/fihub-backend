@@ -8,6 +8,9 @@ import (
 	"google.golang.org/grpc/health"
 	"google.golang.org/grpc/health/grpc_health_v1"
 	"net"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 )
 
@@ -24,10 +27,20 @@ func SetupServer(serviceName string) (net.Listener, error) {
 
 // StartServer starts the gRPC server and listens for incoming connections
 func StartServer(s *grpc.Server, lis net.Listener, serviceName string) {
-	zap.L().Info("Starting gRPC microservice...", zap.String("service", serviceName), zap.String("address", lis.Addr().String()))
-	if err := s.Serve(lis); err != nil {
-		zap.L().Error("Failed to serve microservice: %v", zap.Error(err))
-	}
+	go func() {
+		// Starting the microservice server
+		if err := s.Serve(lis); err != nil {
+			zap.L().Error("Failed to serve microservice: %v", zap.Error(err))
+		}
+	}()
+	zap.L().Info("Served gRPC microservice", zap.String("service", serviceName), zap.String("address", lis.Addr().String()))
+}
+
+// WaitForShutdown waits for an OS signal
+func WaitForShutdown() <-chan os.Signal {
+	done := make(chan os.Signal, 1)
+	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
+	return done
 }
 
 // RegisterHealthServer registers a health check service with the gRPC server
