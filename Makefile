@@ -21,7 +21,7 @@ build-plain:
 
 # Run Docker only for databases
 db:
-	$(DOCKER_COMPOSE) -f $(DOCKER_FILE) up $(DETACHED) postgres
+	$(DOCKER_COMPOSE) -f $(DOCKER_FILE) up $(DETACHED) postgres redis
 
 # Run Docker for production
 prod:

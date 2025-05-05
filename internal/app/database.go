@@ -18,15 +18,29 @@ func ConnectPostgres() bool {
 		DbName:   viper.GetString("POSTGRES_DB"),
 	}))
 
+	// Verify connection
 	if postgres.IsHealthy() {
-		database.ReplaceGlobals(database.NewDatabases(postgres))
+		database.DB().SetPostgres(postgres)
 		return true
 	}
 	return false
 }
 
-// StartPostgresHealthCheck starts a goroutine that periodically checks
-// the health of the postgres database and attempts to reconnect if necessary.
+// ConnectRedis connects to the redis database.
+func ConnectRedis() bool {
+	// Connect to Redis
+	redis := database.NewRedisDB()
+
+	// Verify connection
+	if redis.IsHealthy() {
+		database.DB().SetRedis(redis)
+		return true
+	}
+	return false
+}
+
+// StartDatabaseHealthChecks starts a goroutine that periodically checks
+// the health of the databases and attempts to reconnect if necessary.
 // interval: the time between health checks
 // onSuccessfulConnection: optional callback function executed after successful reconnection
 // Returns a function that can be called to stop the health check.

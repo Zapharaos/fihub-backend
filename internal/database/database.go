@@ -3,18 +3,27 @@ package database
 // Databases holds all the database connections
 type Databases struct {
 	postgres PostgresDB
-}
-
-// NewDatabases creates a new Databases struct
-func NewDatabases(postgres PostgresDB) Databases {
-	return Databases{
-		postgres: postgres,
-	}
+	redis    RedisDB
 }
 
 // Postgres returns the postgres database connection
 func (db Databases) Postgres() PostgresDB {
 	return db.postgres
+}
+
+// Redis returns the redis database connection
+func (db Databases) Redis() RedisDB {
+	return db.redis
+}
+
+// SetPostgres sets the postgres database connection while preserving other connections
+func (db Databases) SetPostgres(postgres PostgresDB) {
+	db.postgres = postgres
+}
+
+// SetRedis sets the redis database connection while preserving other connections
+func (db Databases) SetRedis(redis RedisDB) {
+	db.redis = redis
 }
 
 var _databases Databases
