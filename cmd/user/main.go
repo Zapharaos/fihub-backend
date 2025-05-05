@@ -41,12 +41,16 @@ func main() {
 	userpb.RegisterUserServiceServer(s, &service.Service{})
 
 	// Setup Database
-	if app.ConnectPostgres() {
+	if app.InitPostgres() {
 		setupPostgresRepositories()
 	}
 
-	// Maintain postgres health status
-	app.StartPostgresHealthCheck(30*time.Second, setupPostgresRepositories)
+	// Start databases health monitoring
+	database.StartHealthMonitoring("Postgres", 30*time.Second, database.DB().Postgres(), func() {
+		if app.InitPostgres() {
+			setupPostgresRepositories()
+		}
+	})
 
 	// Register gRPC health service
 	grpcutil.RegisterHealthServer(s, 30*time.Second, serviceName, serverHealthStatusIsHealthy)

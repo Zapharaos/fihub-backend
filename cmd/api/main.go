@@ -158,15 +158,18 @@ func setup() {
 	// Setup api clients
 	initGrpcClients()
 
-	// TODO : remove
+	// TODO : remove once auth fully migrated
+
 	// Setup Database
-	if app.ConnectPostgres() {
+	if app.InitPostgres() {
 		setupPostgresRepositories()
 	}
-
-	// TODO : remove
-	// Maintain postgres health status
-	app.StartPostgresHealthCheck(30*time.Second, setupPostgresRepositories)
+	// Start databases health monitoring
+	database.StartHealthMonitoring("Postgres", 30*time.Second, database.DB().Postgres(), func() {
+		if app.InitPostgres() {
+			setupPostgresRepositories()
+		}
+	})
 
 	// Setup Email
 	email.ReplaceGlobals(email.NewSendgridService())
@@ -178,7 +181,7 @@ func setup() {
 
 // setupPostgresRepositories initializes the Postgres repositories for the microservice.
 func setupPostgresRepositories() {
-	// TODO : remove
+	// TODO : remove once auth fully migrated
 	userrepositories.ReplaceGlobals(userrepositories.NewPostgresRepository(database.DB().Postgres().DB))
 	password.ReplaceGlobals(password.NewPostgresRepository(database.DB().Postgres().DB))
 }

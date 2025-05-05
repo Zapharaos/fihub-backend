@@ -3,12 +3,10 @@ package app
 import (
 	"github.com/Zapharaos/fihub-backend/internal/database"
 	"github.com/spf13/viper"
-	"go.uber.org/zap"
-	"time"
 )
 
-// ConnectPostgres connects to the postgres database.
-func ConnectPostgres() bool {
+// InitPostgres init the postgres database.
+func InitPostgres() bool {
 	// Connect to Postgres
 	postgres := database.NewPostgresDB(database.NewSqlDatabase(database.SqlCredentials{
 		Host:     viper.GetString("POSTGRES_HOST"),
@@ -26,8 +24,8 @@ func ConnectPostgres() bool {
 	return false
 }
 
-// ConnectRedis connects to the redis database.
-func ConnectRedis() bool {
+// InitRedis init the redis database.
+func InitRedis() bool {
 	// Connect to Redis
 	redis := database.NewRedisDB()
 
@@ -37,38 +35,4 @@ func ConnectRedis() bool {
 		return true
 	}
 	return false
-}
-
-// StartDatabaseHealthChecks starts a goroutine that periodically checks
-// the health of the databases and attempts to reconnect if necessary.
-// interval: the time between health checks
-// onSuccessfulConnection: optional callback function executed after successful reconnection
-// Returns a function that can be called to stop the health check.
-func StartPostgresHealthCheck(interval time.Duration, onSuccessfulConnection func()) func() {
-	ticker := time.NewTicker(interval)
-	done := make(chan bool)
-
-	go func() {
-		for {
-			select {
-			case <-done:
-				ticker.Stop()
-				return
-			case <-ticker.C:
-				if !database.DB().Postgres().IsHealthy() {
-					if ConnectPostgres() {
-						zap.L().Info("Reconnected to Postgres")
-						if onSuccessfulConnection != nil {
-							onSuccessfulConnection()
-						}
-					}
-				}
-			}
-		}
-	}()
-
-	// Return function to stop the health check
-	return func() {
-		done <- true
-	}
 }

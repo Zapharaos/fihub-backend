@@ -39,15 +39,30 @@ func main() {
 	s := grpc.NewServer()
 	authpb.RegisterAuthServiceServer(s, service.NewAuthService(userClient))
 
-	// TODO : remove
 	// Setup Database
-	if app.ConnectPostgres() {
+	app.InitRedis()
+
+	// TODO : remove once auth fully migrated to redis
+	if app.InitPostgres() {
 		setupPostgresRepositories()
 	}
 
-	// TODO : remove
-	// Maintain postgres health status
-	app.StartPostgresHealthCheck(30*time.Second, setupPostgresRepositories)
+	// Start databases health monitoring
+	// TODO : remove once auth fully migrated to redis
+	healthMonitor := database.NewHealthMonitor(30 * time.Second)
+	healthMonitor.AddTarget("Postgres", database.DB().Postgres(), func() {
+		if app.InitPostgres() {
+			setupPostgresRepositories()
+		}
+	})
+	healthMonitor.AddTarget("Redis", database.DB().Redis(), func() {
+		app.InitRedis()
+	})
+	healthMonitor.Start()
+	// TODO : uncomment once auth fully migrated to redis
+	/*database.StartHealthMonitoring("Redis", 30*time.Second, database.DB().Redis(), func() {
+		app.InitRedis()
+	})*/
 
 	// Register gRPC health service
 	grpcutil.RegisterHealthServer(s, 30*time.Second, serviceName, serverHealthStatusIsHealthy)
@@ -58,13 +73,13 @@ func main() {
 
 // setupPostgresRepositories initializes the Postgres repositories for the microservice.
 func setupPostgresRepositories() {
-	// TODO : remove
+	// TODO : remove once auth fully migrated to redis
 	userrepositories.ReplaceGlobals(userrepositories.NewPostgresRepository(database.DB().Postgres().DB))
 	password.ReplaceGlobals(password.NewPostgresRepository(database.DB().Postgres().DB))
 }
 
 // serverHealthStatusIsHealthy indicates whether the server is healthy.
 func serverHealthStatusIsHealthy() bool {
-	// TODO : remove
-	return database.DB().Postgres().IsHealthy()
+	return database.DB().Postgres().IsHealthy() &&
+		database.DB().Redis().IsHealthy()
 }
