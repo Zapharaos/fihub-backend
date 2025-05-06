@@ -59,10 +59,15 @@ func TestAddTarget(t *testing.T) {
 
 func TestHealthMonitorStart(t *testing.T) {
 	monitor := NewHealthMonitor(100 * time.Millisecond)
-
 	checker := &MockHealthChecker{healthy: true}
+
+	var mu sync.Mutex
 	recoverCalled := false
-	recoverFn := func() { recoverCalled = true }
+	recoverFn := func() {
+		mu.Lock()
+		recoverCalled = true
+		mu.Unlock()
+	}
 
 	monitor.AddTarget("test-db", checker, recoverFn)
 
@@ -71,12 +76,16 @@ func TestHealthMonitorStart(t *testing.T) {
 
 	// Initially healthy, recover shouldn't be called
 	time.Sleep(150 * time.Millisecond)
+	mu.Lock()
 	assert.False(t, recoverCalled)
+	mu.Unlock()
 
 	// Make it unhealthy, recover should be called
 	checker.SetHealth(false)
 	time.Sleep(150 * time.Millisecond)
+	mu.Lock()
 	assert.True(t, recoverCalled)
+	mu.Unlock()
 
 	// Stop monitoring
 	stop()
@@ -84,20 +93,30 @@ func TestHealthMonitorStart(t *testing.T) {
 
 func TestStartHealthMonitoring(t *testing.T) {
 	checker := &MockHealthChecker{healthy: true}
+
+	var mu sync.Mutex
 	recoverCalled := false
-	recoverFn := func() { recoverCalled = true }
+	recoverFn := func() {
+		mu.Lock()
+		recoverCalled = true
+		mu.Unlock()
+	}
 
 	// Start monitoring with convenience function
 	stop := StartHealthMonitoring("test-db", 100*time.Millisecond, checker, recoverFn)
 
 	// Initially healthy, recover shouldn't be called
 	time.Sleep(150 * time.Millisecond)
+	mu.Lock()
 	assert.False(t, recoverCalled)
+	mu.Unlock()
 
 	// Make it unhealthy, recover should be called
 	checker.SetHealth(false)
 	time.Sleep(150 * time.Millisecond)
+	mu.Lock()
 	assert.True(t, recoverCalled)
+	mu.Unlock()
 
 	// Stop monitoring
 	stop()
