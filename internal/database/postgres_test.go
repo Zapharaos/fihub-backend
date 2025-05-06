@@ -79,3 +79,23 @@ func TestPostgresDB_IsHealthy(t *testing.T) {
 		assert.True(t, db.IsHealthy())
 	})
 }
+
+// TestPostgresDB_Close tests the Close function with different connection states.
+func TestPostgresDB_Close(t *testing.T) {
+	// Test case for nil DB
+	t.Run("Nil DB", func(t *testing.T) {
+		db := PostgresDB{DB: nil}
+		db.Close() // No error expected
+		assert.Nil(t, db.DB)
+	})
+
+	// Test case for successful close
+	t.Run("Successful close", func(t *testing.T) {
+		sqlxMock, _, err := sqlmock.Newx()
+		assert.NoError(t, err)
+		defer sqlxMock.Close()
+
+		db := PostgresDB{DB: sqlxMock}
+		assert.NotPanics(t, func() { db.Close() })
+	})
+}

@@ -4,44 +4,68 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/zhashkevych/go-sqlxmock"
 )
 
-// TestNewDatabases tests the creation of NewDatabases non-nil instances.
-func TestNewDatabases(t *testing.T) {
-	// Mock a postgres database instance
-	postgres, _, err := sqlmock.Newx()
-	assert.NoError(t, err)
-	defer postgres.Close()
+// TestDB tests that the DB function returns the global database instance
+func TestDB(t *testing.T) {
+	// Create a simple test database instance
+	testDB := Databases{
+		postgres: PostgresDB{},
+		redis:    RedisDB{},
+	}
 
-	// Create a new Databases instance
-	databases := NewDatabases(PostgresDB{
-		DB: postgres,
-	})
-	assert.NotNil(t, databases.Postgres().DB)
+	// Replace the global instance
+	restore := ReplaceGlobals(testDB)
+	defer restore()
+
+	// Verify DB() returns the global instance
+	assert.Equal(t, &testDB, DB())
 }
 
-// TestReplaceGlobals tests the ReplaceGlobals function.
-// Verifies that the ReplaceGlobals function correctly replaces the
-// global database instance and restores it after the test.
-func TestReplaceGlobals(t *testing.T) {
-	// Mock a postgres database instance
-	db, _, err := sqlmock.Newx()
-	assert.NoError(t, err)
-	defer db.Close()
+// TestDatabaseAccessors tests the accessor methods
+func TestDatabaseAccessors(t *testing.T) {
+	// Setup simple test database
+	pg := PostgresDB{}
+	rd := RedisDB{}
+	db := Databases{
+		postgres: pg,
+		redis:    rd,
+	}
 
-	// Create a new Databases instance
-	databases := NewDatabases(PostgresDB{
-		DB: db,
-	})
-	restore := ReplaceGlobals(databases)
+	// Test accessors
+	assert.Equal(t, pg, db.Postgres())
+	assert.Equal(t, rd, db.Redis())
+}
 
-	// Verify that the global database instance has been replaced
-	assert.Equal(t, databases, DB())
+// TestDatabaseSetters tests the setter methods
+func TestDatabaseSetters(t *testing.T) {
+	// Initial database
+	db := Databases{
+		postgres: PostgresDB{},
+		redis:    RedisDB{},
+	}
 
-	// Restore the global database instance
-	restore()
+	// New instances to set
+	newPg := PostgresDB{}
+	newRd := RedisDB{}
 
-	// Verify that the global database instance has been restored
-	assert.NotEqual(t, databases, DB())
+	// Set new instances
+	db.SetPostgres(newPg)
+	db.SetRedis(newRd)
+
+	// Verify the values were set
+	assert.Equal(t, newPg, db.postgres)
+	assert.Equal(t, newRd, db.redis)
+}
+
+// TestCloseAll tests the CloseAll method
+func TestCloseAll(t *testing.T) {
+	// Setup simple test database
+	db := Databases{
+		postgres: PostgresDB{},
+		redis:    RedisDB{},
+	}
+
+	// Should not panic
+	assert.NotPanics(t, db.CloseAll)
 }

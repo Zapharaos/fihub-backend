@@ -21,6 +21,30 @@ AUTH_MICROSERVICE_PORT = "50003"
 # Default value: "50002"
 USER_MICROSERVICE_PORT = "50002"
 
+# Specify the Redis host
+# Use "redis" when running through Docker, "localhost" otherwise
+# Default value: "redis"
+REDIS_HOST = "redis"
+
+# Specify the Redis port
+# The port on which the Redis server is running
+# Default value: "6379"
+REDIS_PORT = "6379"
+
+# Specify the Redis password
+# Used to authenticate with the Redis database
+# Default value: ""
+REDIS_PASSWORD = ""
+
+# Specify the Redis database number
+# Used to select the database in Redis
+# Default value: "0"
+REDIS_DB = "0"
+
+# Specify the maximum number of connections in the Redis connection pool
+# Default value: "10"
+REDIS_POOL_SIZE = "10"
+
 # Specify the PostgreSQL username
 # Used to authenticate with the PostgreSQL database
 # Default value: "postgres"

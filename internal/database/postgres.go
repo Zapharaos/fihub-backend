@@ -51,3 +51,13 @@ func (p PostgresDB) IsHealthy() bool {
 	err := p.DB.PingContext(ctx)
 	return err == nil
 }
+
+// Close closes the database connection.
+func (p PostgresDB) Close() {
+	if p.DB != nil {
+		err := p.DB.Close()
+		if err != nil {
+			zap.L().Error("Failed to close Postgres connection", zap.Error(err))
+		}
+	}
+}

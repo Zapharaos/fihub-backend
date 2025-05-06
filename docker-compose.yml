@@ -12,6 +12,18 @@ services:
     networks:
       - backend
 
+  redis:
+    image: redis:latest
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    env_file:
+      - .env
+    volumes:
+      - redis-data:/data
+    networks:
+      - backend
+
   api:
     build:
       context: .
@@ -116,6 +128,7 @@ services:
 
 volumes:
   db-data:
+  redis-data:
     
 networks:
   backend:
