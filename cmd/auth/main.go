@@ -9,7 +9,11 @@ import (
 	"github.com/Zapharaos/fihub-backend/internal/database"
 	"github.com/Zapharaos/fihub-backend/internal/grpcutil"
 	"github.com/Zapharaos/fihub-backend/internal/password"
+	"github.com/Zapharaos/fihub-backend/pkg/email"
+	"github.com/Zapharaos/fihub-backend/pkg/translation"
+	"github.com/spf13/viper"
 	"go.uber.org/zap"
+	"golang.org/x/text/language"
 	"google.golang.org/grpc"
 	"time"
 )
@@ -27,6 +31,13 @@ func main() {
 
 	defer app.RecoverPanic()   // Catch and log panics
 	defer app.CleanResources() // Clean up regardless of shutdown cause
+
+	// Setup Email
+	email.ReplaceGlobals(email.NewSendgridService())
+
+	// Setup Translations
+	defaultLang := language.MustParse(viper.GetString("DEFAULT_LANGUAGE"))
+	translation.ReplaceGlobals(translation.NewI18nService(defaultLang))
 
 	// Setup gRPC microservice
 	serviceName := "AUTH"

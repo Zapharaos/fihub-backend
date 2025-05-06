@@ -42,24 +42,44 @@ func (m *MockAuthServiceClient) EXPECT() *MockAuthServiceClientMockRecorder {
 	return m.recorder
 }
 
-// ExtractUserID mocks base method.
-func (m *MockAuthServiceClient) ExtractUserID(ctx context.Context, in *authpb.ExtractUserIDRequest, opts ...grpc.CallOption) (*authpb.ExtractUserIDResponse, error) {
+// ExtractUserIDFromToken mocks base method.
+func (m *MockAuthServiceClient) ExtractUserIDFromToken(ctx context.Context, in *authpb.ExtractUserIDFromTokenRequest, opts ...grpc.CallOption) (*authpb.ExtractUserIDFromTokenResponse, error) {
 	m.ctrl.T.Helper()
 	varargs := []any{ctx, in}
 	for _, a := range opts {
 		varargs = append(varargs, a)
 	}
-	ret := m.ctrl.Call(m, "ExtractUserID", varargs...)
-	ret0, _ := ret[0].(*authpb.ExtractUserIDResponse)
+	ret := m.ctrl.Call(m, "ExtractUserIDFromToken", varargs...)
+	ret0, _ := ret[0].(*authpb.ExtractUserIDFromTokenResponse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// ExtractUserID indicates an expected call of ExtractUserID.
-func (mr *MockAuthServiceClientMockRecorder) ExtractUserID(ctx, in any, opts ...any) *gomock.Call {
+// ExtractUserIDFromToken indicates an expected call of ExtractUserIDFromToken.
+func (mr *MockAuthServiceClientMockRecorder) ExtractUserIDFromToken(ctx, in any, opts ...any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]any{ctx, in}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExtractUserID", reflect.TypeOf((*MockAuthServiceClient)(nil).ExtractUserID), varargs...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExtractUserIDFromToken", reflect.TypeOf((*MockAuthServiceClient)(nil).ExtractUserIDFromToken), varargs...)
+}
+
+// GenerateOTP mocks base method.
+func (m *MockAuthServiceClient) GenerateOTP(ctx context.Context, in *authpb.GenerateOTPRequest, opts ...grpc.CallOption) (*authpb.GenerateOTPResponse, error) {
+	m.ctrl.T.Helper()
+	varargs := []any{ctx, in}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "GenerateOTP", varargs...)
+	ret0, _ := ret[0].(*authpb.GenerateOTPResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GenerateOTP indicates an expected call of GenerateOTP.
+func (mr *MockAuthServiceClientMockRecorder) GenerateOTP(ctx, in any, opts ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]any{ctx, in}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GenerateOTP", reflect.TypeOf((*MockAuthServiceClient)(nil).GenerateOTP), varargs...)
 }
 
 // GenerateToken mocks base method.
@@ -80,6 +100,26 @@ func (mr *MockAuthServiceClientMockRecorder) GenerateToken(ctx, in any, opts ...
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]any{ctx, in}, opts...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GenerateToken", reflect.TypeOf((*MockAuthServiceClient)(nil).GenerateToken), varargs...)
+}
+
+// ValidateOTP mocks base method.
+func (m *MockAuthServiceClient) ValidateOTP(ctx context.Context, in *authpb.ValidateOTPRequest, opts ...grpc.CallOption) (*authpb.ValidateOTPResponse, error) {
+	m.ctrl.T.Helper()
+	varargs := []any{ctx, in}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "ValidateOTP", varargs...)
+	ret0, _ := ret[0].(*authpb.ValidateOTPResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ValidateOTP indicates an expected call of ValidateOTP.
+func (mr *MockAuthServiceClientMockRecorder) ValidateOTP(ctx, in any, opts ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]any{ctx, in}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ValidateOTP", reflect.TypeOf((*MockAuthServiceClient)(nil).ValidateOTP), varargs...)
 }
 
 // ValidateToken mocks base method.
@@ -126,19 +166,34 @@ func (m *MockAuthServiceServer) EXPECT() *MockAuthServiceServerMockRecorder {
 	return m.recorder
 }
 
-// ExtractUserID mocks base method.
-func (m *MockAuthServiceServer) ExtractUserID(arg0 context.Context, arg1 *authpb.ExtractUserIDRequest) (*authpb.ExtractUserIDResponse, error) {
+// ExtractUserIDFromToken mocks base method.
+func (m *MockAuthServiceServer) ExtractUserIDFromToken(arg0 context.Context, arg1 *authpb.ExtractUserIDFromTokenRequest) (*authpb.ExtractUserIDFromTokenResponse, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ExtractUserID", arg0, arg1)
-	ret0, _ := ret[0].(*authpb.ExtractUserIDResponse)
+	ret := m.ctrl.Call(m, "ExtractUserIDFromToken", arg0, arg1)
+	ret0, _ := ret[0].(*authpb.ExtractUserIDFromTokenResponse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// ExtractUserID indicates an expected call of ExtractUserID.
-func (mr *MockAuthServiceServerMockRecorder) ExtractUserID(arg0, arg1 any) *gomock.Call {
+// ExtractUserIDFromToken indicates an expected call of ExtractUserIDFromToken.
+func (mr *MockAuthServiceServerMockRecorder) ExtractUserIDFromToken(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExtractUserID", reflect.TypeOf((*MockAuthServiceServer)(nil).ExtractUserID), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExtractUserIDFromToken", reflect.TypeOf((*MockAuthServiceServer)(nil).ExtractUserIDFromToken), arg0, arg1)
+}
+
+// GenerateOTP mocks base method.
+func (m *MockAuthServiceServer) GenerateOTP(arg0 context.Context, arg1 *authpb.GenerateOTPRequest) (*authpb.GenerateOTPResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GenerateOTP", arg0, arg1)
+	ret0, _ := ret[0].(*authpb.GenerateOTPResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GenerateOTP indicates an expected call of GenerateOTP.
+func (mr *MockAuthServiceServerMockRecorder) GenerateOTP(arg0, arg1 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GenerateOTP", reflect.TypeOf((*MockAuthServiceServer)(nil).GenerateOTP), arg0, arg1)
 }
 
 // GenerateToken mocks base method.
@@ -154,6 +209,21 @@ func (m *MockAuthServiceServer) GenerateToken(arg0 context.Context, arg1 *authpb
 func (mr *MockAuthServiceServerMockRecorder) GenerateToken(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GenerateToken", reflect.TypeOf((*MockAuthServiceServer)(nil).GenerateToken), arg0, arg1)
+}
+
+// ValidateOTP mocks base method.
+func (m *MockAuthServiceServer) ValidateOTP(arg0 context.Context, arg1 *authpb.ValidateOTPRequest) (*authpb.ValidateOTPResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ValidateOTP", arg0, arg1)
+	ret0, _ := ret[0].(*authpb.ValidateOTPResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ValidateOTP indicates an expected call of ValidateOTP.
+func (mr *MockAuthServiceServerMockRecorder) ValidateOTP(arg0, arg1 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ValidateOTP", reflect.TypeOf((*MockAuthServiceServer)(nil).ValidateOTP), arg0, arg1)
 }
 
 // ValidateToken mocks base method.

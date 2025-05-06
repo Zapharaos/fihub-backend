@@ -4,10 +4,21 @@ package auth;
 
 option go_package = "./authpb";
 
+import "google/protobuf/timestamp.proto";
+
 service AuthService {
   rpc GenerateToken (GenerateTokenRequest) returns (GenerateTokenResponse);
   rpc ValidateToken (ValidateTokenRequest) returns (ValidateTokenResponse);
-  rpc ExtractUserID (ExtractUserIDRequest) returns (ExtractUserIDResponse);
+  rpc ExtractUserIDFromToken (ExtractUserIDFromTokenRequest) returns (ExtractUserIDFromTokenResponse);
+  rpc GenerateOTP (GenerateOTPRequest) returns (GenerateOTPResponse);
+  rpc ValidateOTP (ValidateOTPRequest) returns (ValidateOTPResponse);
+}
+
+enum OtpPurpose {
+  OTP_PURPOSE_UNSPECIFIED = 0;
+  PASSWORD_RESET = 1;
+  EMAIL_VERIFICATION = 2;
+  PASSWORD_CHANGE = 3;
 }
 
 message GenerateTokenRequest {
@@ -27,10 +38,31 @@ message ValidateTokenResponse {
   string user_id = 1;
 }
 
-message ExtractUserIDRequest {
+message ExtractUserIDFromTokenRequest {
   string token = 1;
 }
 
-message ExtractUserIDResponse {
+message ExtractUserIDFromTokenResponse {
   string user_id = 1;
+}
+
+message GenerateOTPRequest {
+  string email = 1;
+  OtpPurpose purpose = 2;
+  string language = 3;
+}
+
+message GenerateOTPResponse {
+  string user_id = 1;
+  google.protobuf.Timestamp expires_at = 2;
+}
+
+message ValidateOTPRequest {
+  string user_id = 1;
+  string otp = 2;
+  OtpPurpose purpose = 3;
+}
+
+message ValidateOTPResponse {
+  string request_id = 1;
 }

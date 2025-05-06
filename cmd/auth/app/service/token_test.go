@@ -225,7 +225,7 @@ func TestExtractUserID(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			service := &AuthService{}
 
-			response, err := service.ExtractUserID(context.Background(), &authpb.ExtractUserIDRequest{
+			response, err := service.ExtractUserIDFromToken(context.Background(), &authpb.ExtractUserIDFromTokenRequest{
 				Token: tt.token,
 			})
 

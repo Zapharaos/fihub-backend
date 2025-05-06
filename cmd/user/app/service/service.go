@@ -111,6 +111,23 @@ func (s *Service) GetUser(ctx context.Context, req *userpb.GetUserRequest) (*use
 	}, nil
 }
 
+// GetByEmail implements the GetByEmail RPC method.
+func (s *Service) GetByEmail(ctx context.Context, req *userpb.GetByEmailRequest) (*userpb.GetByEmailResponse, error) {
+	user, found, err := repositories.R().GetByEmail(req.GetEmail())
+	if err != nil {
+		zap.L().Error("GetByEmail.GetByEmail", zap.Error(err))
+		return &userpb.GetByEmailResponse{}, status.Error(codes.Internal, err.Error())
+	}
+	if !found {
+		zap.L().Warn("User not found", zap.String("email", req.GetEmail()))
+		return &userpb.GetByEmailResponse{}, status.Error(codes.NotFound, "User not found")
+	}
+
+	return &userpb.GetByEmailResponse{
+		User: mappers.UserToProto(user),
+	}, nil
+}
+
 // UpdateUser implements the UpdateUser RPC method.
 func (s *Service) UpdateUser(ctx context.Context, req *userpb.UpdateUserRequest) (*userpb.UpdateUserResponse, error) {
 	// Parse the user ID from the request

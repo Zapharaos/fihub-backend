@@ -82,3 +82,12 @@ POSTGRES_MAX_IDLE_CONNS = "30"
 # Expressed as a Golang duration
 # Default value: "15m"
 POSTGRES_MAX_IDLE_TIME = "15m"
+
+# Specify the length of the OTP (One-Time Password)
+# Default value: "6"
+OTP_LENGTH = "6"
+
+# Specify the duration for which the OTP is valid
+# Expressed as a Golang duration
+# Default value: "30m"
+OTP_DURATION = "30m"
