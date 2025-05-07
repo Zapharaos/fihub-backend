@@ -11,7 +11,9 @@ service AuthService {
   rpc ValidateToken (ValidateTokenRequest) returns (ValidateTokenResponse);
   rpc ExtractUserIDFromToken (ExtractUserIDFromTokenRequest) returns (ExtractUserIDFromTokenResponse);
   rpc GenerateOTP (GenerateOTPRequest) returns (GenerateOTPResponse);
-  rpc ValidateOTP (ValidateOTPRequest) returns (ValidateOTPResponse);
+    rpc ValidateOTP (ValidateOTPRequest) returns (ValidateOTPResponse);
+  rpc ResetForgottenPassword (ResetForgottenPasswordRequest) returns (ResetForgottenPasswordResponse);
+  rpc UpdatePassword (UpdatePasswordRequest) returns (UpdatePasswordResponse);
 }
 
 enum OtpPurpose {
@@ -65,4 +67,26 @@ message ValidateOTPRequest {
 
 message ValidateOTPResponse {
   string request_id = 1;
+}
+
+message ResetForgottenPasswordRequest {
+  string request_id = 1;
+  string user_id = 2;
+  string password = 3;
+  string confirmation = 4;
+}
+
+message ResetForgottenPasswordResponse {
+  bool success = 1;
+}
+
+message UpdatePasswordRequest {
+  string request_id = 1;
+  string user_id = 2;
+  string password = 3;
+  string confirmation = 4;
+}
+
+message UpdatePasswordResponse {
+  bool success = 1;
 }

@@ -24,6 +24,8 @@ const (
 	AuthService_ExtractUserIDFromToken_FullMethodName = "/auth.AuthService/ExtractUserIDFromToken"
 	AuthService_GenerateOTP_FullMethodName            = "/auth.AuthService/GenerateOTP"
 	AuthService_ValidateOTP_FullMethodName            = "/auth.AuthService/ValidateOTP"
+	AuthService_ResetForgottenPassword_FullMethodName = "/auth.AuthService/ResetForgottenPassword"
+	AuthService_UpdatePassword_FullMethodName         = "/auth.AuthService/UpdatePassword"
 )
 
 // AuthServiceClient is the client API for AuthService service.
@@ -35,6 +37,8 @@ type AuthServiceClient interface {
 	ExtractUserIDFromToken(ctx context.Context, in *ExtractUserIDFromTokenRequest, opts ...grpc.CallOption) (*ExtractUserIDFromTokenResponse, error)
 	GenerateOTP(ctx context.Context, in *GenerateOTPRequest, opts ...grpc.CallOption) (*GenerateOTPResponse, error)
 	ValidateOTP(ctx context.Context, in *ValidateOTPRequest, opts ...grpc.CallOption) (*ValidateOTPResponse, error)
+	ResetForgottenPassword(ctx context.Context, in *ResetForgottenPasswordRequest, opts ...grpc.CallOption) (*ResetForgottenPasswordResponse, error)
+	UpdatePassword(ctx context.Context, in *UpdatePasswordRequest, opts ...grpc.CallOption) (*UpdatePasswordResponse, error)
 }
 
 type authServiceClient struct {
@@ -95,6 +99,26 @@ func (c *authServiceClient) ValidateOTP(ctx context.Context, in *ValidateOTPRequ
 	return out, nil
 }
 
+func (c *authServiceClient) ResetForgottenPassword(ctx context.Context, in *ResetForgottenPasswordRequest, opts ...grpc.CallOption) (*ResetForgottenPasswordResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ResetForgottenPasswordResponse)
+	err := c.cc.Invoke(ctx, AuthService_ResetForgottenPassword_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authServiceClient) UpdatePassword(ctx context.Context, in *UpdatePasswordRequest, opts ...grpc.CallOption) (*UpdatePasswordResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdatePasswordResponse)
+	err := c.cc.Invoke(ctx, AuthService_UpdatePassword_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AuthServiceServer is the server API for AuthService service.
 // All implementations must embed UnimplementedAuthServiceServer
 // for forward compatibility.
@@ -104,6 +128,8 @@ type AuthServiceServer interface {
 	ExtractUserIDFromToken(context.Context, *ExtractUserIDFromTokenRequest) (*ExtractUserIDFromTokenResponse, error)
 	GenerateOTP(context.Context, *GenerateOTPRequest) (*GenerateOTPResponse, error)
 	ValidateOTP(context.Context, *ValidateOTPRequest) (*ValidateOTPResponse, error)
+	ResetForgottenPassword(context.Context, *ResetForgottenPasswordRequest) (*ResetForgottenPasswordResponse, error)
+	UpdatePassword(context.Context, *UpdatePasswordRequest) (*UpdatePasswordResponse, error)
 	mustEmbedUnimplementedAuthServiceServer()
 }
 
@@ -128,6 +154,12 @@ func (UnimplementedAuthServiceServer) GenerateOTP(context.Context, *GenerateOTPR
 }
 func (UnimplementedAuthServiceServer) ValidateOTP(context.Context, *ValidateOTPRequest) (*ValidateOTPResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ValidateOTP not implemented")
+}
+func (UnimplementedAuthServiceServer) ResetForgottenPassword(context.Context, *ResetForgottenPasswordRequest) (*ResetForgottenPasswordResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ResetForgottenPassword not implemented")
+}
+func (UnimplementedAuthServiceServer) UpdatePassword(context.Context, *UpdatePasswordRequest) (*UpdatePasswordResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdatePassword not implemented")
 }
 func (UnimplementedAuthServiceServer) mustEmbedUnimplementedAuthServiceServer() {}
 func (UnimplementedAuthServiceServer) testEmbeddedByValue()                     {}
@@ -240,6 +272,42 @@ func _AuthService_ValidateOTP_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AuthService_ResetForgottenPassword_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ResetForgottenPasswordRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServiceServer).ResetForgottenPassword(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AuthService_ResetForgottenPassword_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServiceServer).ResetForgottenPassword(ctx, req.(*ResetForgottenPasswordRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AuthService_UpdatePassword_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdatePasswordRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServiceServer).UpdatePassword(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AuthService_UpdatePassword_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServiceServer).UpdatePassword(ctx, req.(*UpdatePasswordRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AuthService_ServiceDesc is the grpc.ServiceDesc for AuthService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -266,6 +334,14 @@ var AuthService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ValidateOTP",
 			Handler:    _AuthService_ValidateOTP_Handler,
+		},
+		{
+			MethodName: "ResetForgottenPassword",
+			Handler:    _AuthService_ResetForgottenPassword_Handler,
+		},
+		{
+			MethodName: "UpdatePassword",
+			Handler:    _AuthService_UpdatePassword_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
