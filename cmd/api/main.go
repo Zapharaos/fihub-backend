@@ -6,7 +6,6 @@ import (
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/clients"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/router"
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/server"
-	userrepositories "github.com/Zapharaos/fihub-backend/cmd/user/app/repositories"
 	"github.com/Zapharaos/fihub-backend/gen/go/authpb"
 	"github.com/Zapharaos/fihub-backend/gen/go/brokerpb"
 	"github.com/Zapharaos/fihub-backend/gen/go/healthpb"
@@ -14,15 +13,10 @@ import (
 	"github.com/Zapharaos/fihub-backend/gen/go/transactionpb"
 	"github.com/Zapharaos/fihub-backend/gen/go/userpb"
 	"github.com/Zapharaos/fihub-backend/internal/app"
-	"github.com/Zapharaos/fihub-backend/internal/database"
 	"github.com/Zapharaos/fihub-backend/internal/grpcutil"
-	"github.com/Zapharaos/fihub-backend/internal/password"
 	"github.com/Zapharaos/fihub-backend/internal/security"
-	"github.com/Zapharaos/fihub-backend/pkg/email"
-	"github.com/Zapharaos/fihub-backend/pkg/translation"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
-	"golang.org/x/text/language"
 	"net/http"
 	"os"
 	"os/signal"
@@ -46,13 +40,23 @@ import (
 // @name						Authorization
 func main() {
 
-	setup()
+	// Setup Environment
+	err := app.InitConfiguration("api")
+	if err != nil {
+		return
+	}
+
+	// Setup Logger
+	app.InitLogger()
 
 	defer app.RecoverPanic()   // Catch and log panics
 	defer app.CleanResources() // Clean up regardless of shutdown cause
 
 	zap.L().Info("Starting Fihub Backend", zap.String("version", app.Version), zap.String("build_date", app.BuildDate))
 
+	// Setup api clients
+	initGrpcClients()
+	
 	// Server configuration
 	serverPort := viper.GetString("HTTP_SERVER_PORT")
 	serverEnableTLS := viper.GetBool("HTTP_SERVER_ENABLE_TLS")
@@ -149,42 +153,5 @@ func initGrpcClients() {
 }
 
 func setup() {
-	// Setup Environment
-	err := app.InitConfiguration("api")
-	if err != nil {
-		return
-	}
 
-	// Setup Logger
-	app.InitLogger()
-
-	// Setup api clients
-	initGrpcClients()
-
-	// TODO : remove once auth fully migrated
-
-	// Setup Database
-	if app.InitPostgres() {
-		setupPostgresRepositories()
-	}
-	// Start databases health monitoring
-	database.StartHealthMonitoring("Postgres", 30*time.Second, database.DB().Postgres(), func() {
-		if app.InitPostgres() {
-			setupPostgresRepositories()
-		}
-	})
-
-	// Setup Email
-	email.ReplaceGlobals(email.NewSendgridService())
-
-	// Setup Translations
-	defaultLang := language.MustParse(viper.GetString("DEFAULT_LANGUAGE"))
-	translation.ReplaceGlobals(translation.NewI18nService(defaultLang))
-}
-
-// setupPostgresRepositories initializes the Postgres repositories for the microservice.
-func setupPostgresRepositories() {
-	// TODO : remove once auth fully migrated
-	userrepositories.ReplaceGlobals(userrepositories.NewPostgresRepository(database.DB().Postgres().DB))
-	password.ReplaceGlobals(password.NewPostgresRepository(database.DB().Postgres().DB))
 }

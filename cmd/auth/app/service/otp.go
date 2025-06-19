@@ -110,6 +110,11 @@ func (s *AuthService) ValidateOTP(ctx context.Context, req *authpb.ValidateOTPRe
 		return nil, status.Error(codes.InvalidArgument, "invalid OTP")
 	}
 
+	if req.GetPurpose() == authpb.OtpPurpose_EMAIL_VERIFICATION {
+		// TODO : handle user account activation
+		return nil, nil
+	}
+
 	// Prepare next step data
 	requestID := uuid.New().String()
 	requestTimeLimit := 15 * time.Minute // TODO : handle different duration depending on purpose?
@@ -119,10 +124,6 @@ func (s *AuthService) ValidateOTP(ctx context.Context, req *authpb.ValidateOTPRe
 	pipe := database.DB().Redis().Client.TxPipeline()
 	pipe.Del(ctx, otpKey)
 	pipe.SetEx(ctx, requestKey, requestID, requestTimeLimit)
-
-	if req.GetPurpose() == authpb.OtpPurpose_EMAIL_VERIFICATION {
-		// TODO : handle user account activation
-	}
 
 	// Execute pipeline
 	if _, err = pipe.Exec(ctx); err != nil {

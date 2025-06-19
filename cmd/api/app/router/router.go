@@ -7,7 +7,6 @@ import (
 	"github.com/go-chi/chi/v5"
 	mw "github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
-	"github.com/go-chi/httprate"
 	"github.com/spf13/viper"
 	"strings"
 	"time"
@@ -61,11 +60,32 @@ func New(config server.Config) *chi.Mux {
 			// User registration
 			r.Post("/register", handlers.CreateUser)
 
+			// OTP for signup verification
+			r.Route("/verify", func(r chi.Router) {
+				r.Post("/otp", handlers.GenerateSignupOTP)
+				r.Post("/otp/validate", handlers.ActivateAccount)
+			})
+
 			// Password routes
 			r.Route("/password", func(r chi.Router) {
 
+				// Forgot password flow
+				r.Route("/reset", func(r chi.Router) {
+					r.Post("/otp", handlers.GenerateForgottenPasswordOTP)
+					r.Post("/otp/validate", handlers.ValidateForgottenPasswordOTP)
+					r.Put("/", handlers.ResetForgottenPassword)
+				})
+
+				// Logged-in user changing password (security verification)
+				r.Route("/change", func(r chi.Router) {
+					r.Post("/otp", handlers.GenerateChangePasswordOTP)
+					r.Post("/otp/validate", handlers.ValidateChangePasswordOTP)
+					r.Put("/", handlers.SubmitChangePassword)
+				})
+
+				// TODO : auth otp rate limiting ?
 				// Create password reset request
-				requestLimit := viper.GetInt("OTP_MIDDLEWARE_REQUEST_LIMIT")
+				/*requestLimit := viper.GetInt("OTP_MIDDLEWARE_REQUEST_LIMIT")
 				requestLength := viper.GetDuration("OTP_MIDDLEWARE_REQUEST_LENGTH")
 				if requestLength == 0 {
 					requestLength = 24 * time.Hour
@@ -81,7 +101,7 @@ func New(config server.Config) *chi.Mux {
 				r.With(httprate.LimitByIP(inputLimit, inputLength)).Get("/{id}/{token}", handlers.GetPasswordResetRequestID)
 
 				// Reset password using userID and requestID
-				r.Put("/{id}/{request_id}", handlers.ResetPassword)
+				r.Put("/{id}/{request_id}", handlers.ResetPassword)*/
 			})
 		})
 
@@ -109,6 +129,7 @@ func buildProtectedRoutes(config server.Config) func(r chi.Router) {
 				r.Delete("/", handlers.DeleteUserSelf)
 
 				// User's password : retrieving userID through context
+				// TODO : remove
 				r.Put("/password", handlers.UpdateUserPassword)
 			})
 

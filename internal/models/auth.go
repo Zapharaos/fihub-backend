@@ -22,3 +22,9 @@ type ValidateUserOtp struct {
 	UserID uuid.UUID `json:"user_id"`
 	Otp    string    `json:"otp"`
 }
+
+type AuthPasswordInput struct {
+	UserID       uuid.UUID `json:"user_id"`
+	Password     string    `json:"password"`
+	Confirmation string    `json:"confirmation"`
+}

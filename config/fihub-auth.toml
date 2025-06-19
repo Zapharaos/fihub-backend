@@ -91,3 +91,16 @@ OTP_LENGTH = "6"
 # Expressed as a Golang duration
 # Default value: "30m"
 OTP_DURATION = "30m"
+
+# Specify the SendGrid API key
+# Used for sending emails through the SendGrid service
+# Default value: "YOUR_SENDGRID_API_KEY"
+SENDGRID_API_KEY = "YOUR_SENDGRID_API_KEY"
+
+# Specify the sender name for emails sent via SendGrid
+# Default value: "Fihub"
+SENDGRID_SENDER_NAME = "Fihub"
+
+# Specify the sender email address for emails sent via SendGrid
+# Default value: "contact@fihub.com"
+SENDGRID_SENDER_EMAIL = "contact@fihub.com"
