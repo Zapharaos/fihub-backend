@@ -201,7 +201,7 @@ func (s *Service) ListRolesForUser(ctx context.Context, req *securitypb.ListRole
 // ListRolesWithPermissionsForUser implements the ListRolesWithPermissionsForUser RPC method.
 func (s *Service) ListRolesWithPermissionsForUser(ctx context.Context, req *securitypb.ListRolesWithPermissionsForUserRequest) (*securitypb.ListRolesWithPermissionsForUserResponse, error) {
 	// Check user permissions for creating a role
-	err := security.Facade().CheckPermission(ctx, "admin.users.roles.list")
+	err := security.Facade().CheckPermission(ctx, "admin.users.roles.list", uuid.MustParse(req.GetUserId()))
 	if err != nil {
 		zap.L().Error("CheckPermission", zap.Error(err))
 		return &securitypb.ListRolesWithPermissionsForUserResponse{}, err
