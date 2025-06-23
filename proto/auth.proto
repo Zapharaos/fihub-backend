@@ -11,7 +11,7 @@ service AuthService {
   rpc ValidateToken (ValidateTokenRequest) returns (ValidateTokenResponse);
   rpc ExtractUserIDFromToken (ExtractUserIDFromTokenRequest) returns (ExtractUserIDFromTokenResponse);
   rpc GenerateOTP (GenerateOTPRequest) returns (GenerateOTPResponse);
-    rpc ValidateOTP (ValidateOTPRequest) returns (ValidateOTPResponse);
+  rpc ValidateOTP (ValidateOTPRequest) returns (ValidateOTPResponse);
   rpc ResetForgottenPassword (ResetForgottenPasswordRequest) returns (ResetForgottenPasswordResponse);
   rpc UpdatePassword (UpdatePasswordRequest) returns (UpdatePasswordResponse);
 }

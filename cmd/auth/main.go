@@ -74,6 +74,5 @@ func main() {
 
 // serverHealthStatusIsHealthy indicates whether the server is healthy.
 func serverHealthStatusIsHealthy() bool {
-	return database.DB().Postgres().IsHealthy() &&
-		database.DB().Redis().IsHealthy()
+	return database.DB().Redis().IsHealthy()
 }

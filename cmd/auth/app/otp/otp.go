@@ -2,7 +2,6 @@ package otp
 
 import (
 	"crypto/sha256"
-	"encoding/hex"
 	"github.com/Zapharaos/fihub-backend/internal/utils"
 	"github.com/spf13/viper"
 	"time"
@@ -17,16 +16,21 @@ func GetTimeLimit() time.Duration {
 	return timeLimit
 }
 
-func GenerateOTPValueAndHash() (string, [32]byte) {
+func hash(value string) []byte {
+	// Hash the OTP value using SHA-256
+	hashed := sha256.Sum256([]byte(value))
+	return hashed[:]
+}
+
+func Generate() (string, []byte) {
 	// TODO : handle different length depending on purpose?
 	otpValue := utils.RandDigitString(viper.GetInt("OTP_LENGTH"))
-	hashed := sha256.Sum256([]byte(otpValue))
+	hashed := hash(otpValue)
 	return otpValue, hashed
 }
 
-func CompareInputWithHash(input string, hash string) bool {
+func CompareInputWithHash(input string, hashed string) bool {
 	// Hash the input
-	hashedInput := sha256.Sum256([]byte(input))
-	// Compare the hashes
-	return hash != hex.EncodeToString(hashedInput[:])
+	hashedInput := hash(input)
+	return string(hashedInput) == hashed
 }

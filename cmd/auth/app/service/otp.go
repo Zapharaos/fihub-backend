@@ -8,6 +8,7 @@ import (
 	"github.com/Zapharaos/fihub-backend/internal/database"
 	"github.com/Zapharaos/fihub-backend/pkg/email"
 	"github.com/google/uuid"
+	"github.com/spf13/viper"
 	"go.uber.org/zap"
 	"golang.org/x/text/language"
 	"google.golang.org/grpc/codes"
@@ -45,7 +46,8 @@ func (s *AuthService) handlePasswordOTP(ctx context.Context, req *authpb.Generat
 
 	// Prepare OTP data
 	otpTimeLimit := otp.GetTimeLimit()
-	otpValue, otpHash := otp.GenerateOTPValueAndHash()
+	expiresAt := timestamppb.New(time.Now().Add(otpTimeLimit))
+	otpValue, otpHash := otp.Generate()
 
 	// Store OTP in Redis with email and purpose as key
 	err = database.DB().Redis().Client.Set(ctx, otpKey, otpHash, otpTimeLimit).Err()
@@ -65,6 +67,15 @@ func (s *AuthService) handlePasswordOTP(ctx context.Context, req *authpb.Generat
 		return nil, status.Error(codes.Internal, "failed to build OTP email content")
 	}
 
+	// If debug mode is on, log the OTP value and skip sending email
+	if viper.GetString("APP_ENV") != "production" {
+		zap.L().Info("OTP generated (debug mode)", zap.String("email", req.GetEmail()), zap.String("otp", otpValue), zap.String("limit", otpTimeLimit.String()))
+		return &authpb.GenerateOTPResponse{
+			UserId:    userID,
+			ExpiresAt: expiresAt,
+		}, nil
+	}
+
 	// Send email
 	err = email.S().Send(req.GetEmail(), subject, plainTextContent, htmlContent)
 	if err != nil {
@@ -77,7 +88,7 @@ func (s *AuthService) handlePasswordOTP(ctx context.Context, req *authpb.Generat
 
 	return &authpb.GenerateOTPResponse{
 		UserId:    userID,
-		ExpiresAt: timestamppb.New(time.Now().Add(otpTimeLimit)),
+		ExpiresAt: expiresAt,
 	}, nil
 }
 
@@ -106,7 +117,7 @@ func (s *AuthService) ValidateOTP(ctx context.Context, req *authpb.ValidateOTPRe
 	}
 
 	// Compare hashes
-	if otp.CompareInputWithHash(req.GetOtp(), storedHashOtp) {
+	if !otp.CompareInputWithHash(req.GetOtp(), storedHashOtp) {
 		return nil, status.Error(codes.InvalidArgument, "invalid OTP")
 	}
 

@@ -222,7 +222,7 @@ func ValidateForgottenPasswordOTP(w http.ResponseWriter, r *http.Request) {
 //	@Success		200	{object}	string					"request ID"
 //	@Failure		400	{object}	render.ErrorResponse	"Bad ValidateUserOtp"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
-//	@Router			/api/v1/auth/password/reset/otp/validate [post]
+//	@Router			/api/v1/auth/password/change/otp/validate [post]
 func ValidateChangePasswordOTP(w http.ResponseWriter, r *http.Request) {
 	validateOTP(w, r, authpb.OtpPurpose_PASSWORD_CHANGE)
 }
@@ -237,26 +237,27 @@ func ValidateChangePasswordOTP(w http.ResponseWriter, r *http.Request) {
 //	@Tags			Auth
 //	@Accept			json
 //	@Produce		json
-//	@Param			request	body	models.AuthPasswordInput	true	"request (json)"
-//	@Success		200	{object}	string					"request ID"
-//	@Failure		400	{object}	render.ErrorResponse	"Bad AuthPasswordInput"
+//	@Param			request	body	models.UserInputResetPassword	true	"request (json)"
+//	@Success		200	{object}	string					"OK"
+//	@Failure		400	{object}	render.ErrorResponse	"Bad UserInputResetPassword"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/auth/password/reset [put]
 func ResetForgottenPassword(w http.ResponseWriter, r *http.Request) {
 	// Parse request body
-	var pwdInput models.AuthPasswordInput
-	err := json.NewDecoder(r.Body).Decode(&pwdInput)
+	var inputResetPassword models.UserInputResetPassword
+	err := json.NewDecoder(r.Body).Decode(&inputResetPassword)
 	if err != nil {
-		zap.L().Warn("AuthPasswordInput json decode", zap.Error(err))
+		zap.L().Warn("UserInputResetPassword json decode", zap.Error(err))
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	// Validate OTP
+	// Completes request and updates the user password
 	_, err = clients.C().Auth().ResetForgottenPassword(r.Context(), &authpb.ResetForgottenPasswordRequest{
-		UserId:       pwdInput.UserID.String(),
-		Password:     pwdInput.Password,
-		Confirmation: pwdInput.Confirmation,
+		RequestId:    inputResetPassword.OtpRequestID.String(),
+		UserId:       inputResetPassword.UserID.String(),
+		Password:     inputResetPassword.Password,
+		Confirmation: inputResetPassword.Confirmation,
 	})
 	if err != nil {
 		zap.L().Error("ResetForgottenPassword", zap.Error(err))
@@ -277,26 +278,27 @@ func ResetForgottenPassword(w http.ResponseWriter, r *http.Request) {
 //	@Tags			Auth
 //	@Accept			json
 //	@Produce		json
-//	@Param			request	body	models.AuthPasswordInput	true	"request (json)"
-//	@Success		200	{object}	string					"request ID"
-//	@Failure		400	{object}	render.ErrorResponse	"Bad AuthPasswordInput"
+//	@Param			request	body	models.UserInputChangePassword	true	"request (json)"
+//	@Success		200	{object}	string					"OK"
+//	@Failure		400	{object}	render.ErrorResponse	"Bad UserInputChangePassword"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
-//	@Router			/api/v1/auth/password/reset [put]
+//	@Router			/api/v1/auth/password/change [put]
 func SubmitChangePassword(w http.ResponseWriter, r *http.Request) {
 	// Parse request body
-	var pwdInput models.AuthPasswordInput
-	err := json.NewDecoder(r.Body).Decode(&pwdInput)
+	var inputChangePassword models.UserInputChangePassword
+	err := json.NewDecoder(r.Body).Decode(&inputChangePassword)
 	if err != nil {
-		zap.L().Warn("AuthPasswordInput json decode", zap.Error(err))
+		zap.L().Warn("UserInputChangePassword json decode", zap.Error(err))
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	// Validate OTP
+	// Update the user password
 	_, err = clients.C().Auth().UpdatePassword(r.Context(), &authpb.UpdatePasswordRequest{
-		UserId:       pwdInput.UserID.String(),
-		Password:     pwdInput.Password,
-		Confirmation: pwdInput.Confirmation,
+		RequestId:    inputChangePassword.OtpRequestID.String(),
+		UserId:       inputChangePassword.UserID.String(),
+		Password:     inputChangePassword.Password,
+		Confirmation: inputChangePassword.Confirmation,
 	})
 	if err != nil {
 		zap.L().Error("UpdatePassword", zap.Error(err))

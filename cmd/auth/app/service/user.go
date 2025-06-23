@@ -7,6 +7,7 @@ import (
 	"github.com/Zapharaos/fihub-backend/gen/go/userpb"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 )
 
@@ -24,8 +25,12 @@ func (s *AuthService) ResetForgottenPassword(ctx context.Context, req *authpb.Re
 		return nil, status.Error(codes.InvalidArgument, "invalid OTP request ID")
 	}
 
+	// Setup metadata for gRPC clients as context
+	md := metadata.Pairs("x-user-id", req.GetUserId())
+	userClientCtx := metadata.NewOutgoingContext(ctx, md)
+
 	// Update the user password
-	_, err = s.userClient.UpdateUserPassword(ctx, &userpb.UpdateUserPasswordRequest{
+	_, err = s.userClient.UpdateUserPassword(userClientCtx, &userpb.UpdateUserPasswordRequest{
 		Id:           req.GetUserId(),
 		Password:     req.GetPassword(),
 		Confirmation: req.GetConfirmation(),

@@ -56,7 +56,7 @@ func main() {
 
 	// Setup api clients
 	initGrpcClients()
-	
+
 	// Server configuration
 	serverPort := viper.GetString("HTTP_SERVER_PORT")
 	serverEnableTLS := viper.GetBool("HTTP_SERVER_ENABLE_TLS")
@@ -150,8 +150,4 @@ func initGrpcClients() {
 		clients.WithBrokerClient(brokerClient),
 		clients.WithTransactionClient(transactionClient),
 	))
-}
-
-func setup() {
-
 }

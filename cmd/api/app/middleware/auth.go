@@ -36,7 +36,7 @@ func AuthMiddleware(config server.Config) func(http.Handler) http.Handler {
 			// WARNING: this is a security risk, don't use unless you know what you're doing.
 			if config.GatewayMode {
 				// Extract user ID from token
-				response, err := clients.C().Auth().ExtractUserID(r.Context(), &authpb.ExtractUserIDRequest{
+				response, err := clients.C().Auth().ExtractUserIDFromToken(r.Context(), &authpb.ExtractUserIDFromTokenRequest{
 					Token: token,
 				})
 				if err != nil {

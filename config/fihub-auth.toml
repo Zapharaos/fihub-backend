@@ -11,6 +11,11 @@ APP_ENV = "production"
 # Default value: "debug"
 LOGGER_LEVEL = "debug"
 
+# Specify the default language for the application
+# Used for localization and internationalization
+# Default value: "en"
+DEFAULT_LANGUAGE = "en"
+
 # Specify the port for the Auth microservice
 # This port is used to run the gRPC AuthService
 # Default value: "50003"
