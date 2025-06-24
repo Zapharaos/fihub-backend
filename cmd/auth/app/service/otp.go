@@ -17,7 +17,7 @@ import (
 	"time"
 )
 
-func (s *AuthService) handlePasswordOTP(ctx context.Context, req *authpb.GenerateOTPRequest) (*authpb.GenerateOTPResponse, error) {
+func (s *AuthService) setupOtpForPassword(ctx context.Context, req *authpb.GenerateOTPRequest) (*authpb.GenerateOTPResponse, error) {
 	// Verify if the user exists
 	response, err := s.userClient.GetByEmail(ctx, &userpb.GetByEmailRequest{
 		Email: req.GetEmail(),
@@ -45,7 +45,7 @@ func (s *AuthService) handlePasswordOTP(ctx context.Context, req *authpb.Generat
 	}
 
 	// Prepare OTP data
-	otpTimeLimit := otp.GetTimeLimit()
+	otpTimeLimit := otp.GetOtpTimeLimit()
 	expiresAt := timestamppb.New(time.Now().Add(otpTimeLimit))
 	otpValue, otpHash := otp.Generate()
 
@@ -92,52 +92,19 @@ func (s *AuthService) handlePasswordOTP(ctx context.Context, req *authpb.Generat
 	}, nil
 }
 
-// GenerateOTP generates a one-time password (OTP) for the user
-func (s *AuthService) GenerateOTP(ctx context.Context, req *authpb.GenerateOTPRequest) (*authpb.GenerateOTPResponse, error) {
-	// TODO : move handlers middleware rate limiter to here? attempts count?
-
-	switch req.Purpose {
-	case authpb.OtpPurpose_PASSWORD_CHANGE, authpb.OtpPurpose_PASSWORD_RESET:
-		return s.handlePasswordOTP(ctx, req)
-	case authpb.OtpPurpose_EMAIL_VERIFICATION:
-		return nil, status.Error(codes.Unimplemented, "email verification not yet implemented")
-		//return s.handleResetOTP(ctx, req)
-	default:
-		return nil, status.Error(codes.InvalidArgument, "invalid OTP purpose")
-	}
-}
-
-// ValidateOTP validates the one-time password (OTP) for the user
-func (s *AuthService) ValidateOTP(ctx context.Context, req *authpb.ValidateOTPRequest) (*authpb.ValidateOTPResponse, error) {
-	// Retrieve otp
-	otpKey := otp.BuildOtpKey(req.GetUserId(), req.GetPurpose())
-	storedHashOtp, err := otp.GetRedisKey(ctx, otpKey)
-	if err != nil {
-		return nil, err
-	}
-
-	// Compare hashes
-	if !otp.CompareInputWithHash(req.GetOtp(), storedHashOtp) {
-		return nil, status.Error(codes.InvalidArgument, "invalid OTP")
-	}
-
-	if req.GetPurpose() == authpb.OtpPurpose_EMAIL_VERIFICATION {
-		// TODO : handle user account activation
-		return nil, nil
-	}
-
+func (s *AuthService) setupForFinalRequest(ctx context.Context, req *authpb.ValidateOTPRequest) (*authpb.ValidateOTPResponse, error) {
 	// Prepare next step data
 	requestID := uuid.New().String()
-	requestTimeLimit := 15 * time.Minute // TODO : handle different duration depending on purpose?
+	requestTimeLimit := otp.GetFinalRequestTimeLimit()
 	requestKey := otp.BuildOtpRequestKey(req.GetUserId(), req.GetPurpose())
 
 	// Prepare pipeline to store request ID and delete OTP
 	pipe := database.DB().Redis().Client.TxPipeline()
-	pipe.Del(ctx, otpKey)
+	pipe.Del(ctx, otp.BuildOtpKey(req.GetUserId(), req.GetPurpose()))
 	pipe.SetEx(ctx, requestKey, requestID, requestTimeLimit)
 
 	// Execute pipeline
-	if _, err = pipe.Exec(ctx); err != nil {
+	if _, err := pipe.Exec(ctx); err != nil {
 		zap.L().Error("failed to store request ID", zap.Error(err))
 		return nil, status.Error(codes.Internal, "failed to store request ID")
 	}
@@ -145,4 +112,38 @@ func (s *AuthService) ValidateOTP(ctx context.Context, req *authpb.ValidateOTPRe
 	return &authpb.ValidateOTPResponse{
 		RequestId: requestID,
 	}, nil
+}
+
+// GenerateOTP generates a one-time password (OTP) for the user
+func (s *AuthService) GenerateOTP(ctx context.Context, req *authpb.GenerateOTPRequest) (*authpb.GenerateOTPResponse, error) {
+	// TODO : move handlers middleware rate limiter to here? attempts count?
+
+	switch req.Purpose {
+	case authpb.OtpPurpose_PASSWORD_CHANGE, authpb.OtpPurpose_PASSWORD_RESET:
+		return s.setupOtpForPassword(ctx, req)
+	case authpb.OtpPurpose_EMAIL_VERIFICATION:
+		return nil, status.Error(codes.Unimplemented, "email verification not yet implemented")
+	default:
+		return nil, status.Error(codes.InvalidArgument, "invalid OTP purpose")
+	}
+}
+
+// ValidateOTP validates the one-time password (OTP) for the user
+func (s *AuthService) ValidateOTP(ctx context.Context, req *authpb.ValidateOTPRequest) (*authpb.ValidateOTPResponse, error) {
+	// TODO : same as for GenerateOTP "todo" for rate limiting
+
+	// Validate the request
+	err := otp.IsOtpValid(ctx, req.GetPurpose(), req.GetUserId(), req.GetOtp())
+	if err != nil {
+		return nil, err
+	}
+
+	switch req.Purpose {
+	case authpb.OtpPurpose_PASSWORD_CHANGE, authpb.OtpPurpose_PASSWORD_RESET:
+		return s.setupForFinalRequest(ctx, req)
+	case authpb.OtpPurpose_EMAIL_VERIFICATION:
+		return nil, status.Error(codes.Unimplemented, "email verification not yet implemented")
+	default:
+		return nil, status.Error(codes.InvalidArgument, "invalid OTP purpose")
+	}
 }

@@ -6,23 +6,17 @@ import (
 	"github.com/Zapharaos/fihub-backend/gen/go/authpb"
 	"github.com/Zapharaos/fihub-backend/gen/go/userpb"
 	"go.uber.org/zap"
-	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
-	"google.golang.org/grpc/status"
 )
 
 // ResetForgottenPassword resets the forgotten password for a user
 func (s *AuthService) ResetForgottenPassword(ctx context.Context, req *authpb.ResetForgottenPasswordRequest) (*authpb.ResetForgottenPasswordResponse, error) {
+	purpose := authpb.OtpPurpose_PASSWORD_RESET
+
 	// Validate the request
-	requestKey := otp.BuildOtpRequestKey(req.GetUserId(), authpb.OtpPurpose_PASSWORD_RESET)
-	requestID, err := otp.GetRedisKey(ctx, requestKey)
+	err := otp.IsFinalRequestValid(ctx, purpose, req.GetUserId(), req.GetRequestId())
 	if err != nil {
-		zap.L().Error("failed to get OTP request ID", zap.Error(err))
 		return nil, err
-	}
-	if requestID != req.GetRequestId() {
-		zap.L().Error("invalid OTP request ID", zap.String("request_id", req.GetRequestId()))
-		return nil, status.Error(codes.InvalidArgument, "invalid OTP request ID")
 	}
 
 	// Setup metadata for gRPC clients as context
@@ -41,7 +35,7 @@ func (s *AuthService) ResetForgottenPassword(ctx context.Context, req *authpb.Re
 	}
 
 	// Delete the key from Redis
-	otp.CleanupRedisKey(ctx, requestKey)
+	otp.CleanupRedisKey(ctx, otp.BuildOtpRequestKey(req.GetUserId(), purpose))
 
 	return &authpb.ResetForgottenPasswordResponse{
 		Success: true,
@@ -50,16 +44,12 @@ func (s *AuthService) ResetForgottenPassword(ctx context.Context, req *authpb.Re
 
 // UpdatePassword updates the current user password
 func (s *AuthService) UpdatePassword(ctx context.Context, req *authpb.UpdatePasswordRequest) (*authpb.UpdatePasswordResponse, error) {
+	purpose := authpb.OtpPurpose_PASSWORD_CHANGE
+
 	// Validate the request
-	requestKey := otp.BuildOtpRequestKey(req.GetUserId(), authpb.OtpPurpose_PASSWORD_CHANGE)
-	requestID, err := otp.GetRedisKey(ctx, requestKey)
+	err := otp.IsFinalRequestValid(ctx, authpb.OtpPurpose_PASSWORD_CHANGE, req.GetUserId(), req.GetRequestId())
 	if err != nil {
-		zap.L().Error("failed to get OTP request ID", zap.Error(err))
 		return nil, err
-	}
-	if requestID != req.GetRequestId() {
-		zap.L().Error("invalid OTP request ID", zap.String("request_id", req.GetRequestId()))
-		return nil, status.Error(codes.InvalidArgument, "invalid OTP request ID")
 	}
 
 	// Update the user password
@@ -74,7 +64,7 @@ func (s *AuthService) UpdatePassword(ctx context.Context, req *authpb.UpdatePass
 	}
 
 	// Delete the key from Redis
-	otp.CleanupRedisKey(ctx, requestKey)
+	otp.CleanupRedisKey(ctx, otp.BuildOtpRequestKey(req.GetUserId(), purpose))
 
 	return &authpb.UpdatePasswordResponse{
 		Success: true,
