@@ -14,13 +14,14 @@ service AuthService {
   rpc ValidateOTP (ValidateOTPRequest) returns (ValidateOTPResponse);
   rpc ResetForgottenPassword (ResetForgottenPasswordRequest) returns (ResetForgottenPasswordResponse);
   rpc UpdatePassword (UpdatePasswordRequest) returns (UpdatePasswordResponse);
+  rpc CreateUser (CreateUserRequest) returns (CreateUserResponse);
 }
 
 enum OtpPurpose {
-  OTP_PURPOSE_UNSPECIFIED = 0;
+  UNSPECIFIED = 0;
   PASSWORD_RESET = 1;
-  EMAIL_VERIFICATION = 2;
-  PASSWORD_CHANGE = 3;
+  PASSWORD_CHANGE = 2;
+  USER_SIGNUP = 3;
 }
 
 message GenerateTokenRequest {
@@ -55,12 +56,12 @@ message GenerateOTPRequest {
 }
 
 message GenerateOTPResponse {
-  string user_id = 1;
+  string identifier = 1;
   google.protobuf.Timestamp expires_at = 2;
 }
 
 message ValidateOTPRequest {
-  string user_id = 1;
+  string identifier = 1;
   string otp = 2;
   OtpPurpose purpose = 3;
 }
@@ -82,11 +83,22 @@ message ResetForgottenPasswordResponse {
 
 message UpdatePasswordRequest {
   string request_id = 1;
-  string user_id = 2;
-  string password = 3;
-  string confirmation = 4;
+  string password = 2;
+  string confirmation = 3;
 }
 
 message UpdatePasswordResponse {
+  bool success = 1;
+}
+
+message CreateUserRequest {
+  string request_id = 1;
+  string email = 2;
+  string password = 3;
+  string confirmation = 4;
+  bool checkbox = 5;
+}
+
+message CreateUserResponse {
   bool success = 1;
 }

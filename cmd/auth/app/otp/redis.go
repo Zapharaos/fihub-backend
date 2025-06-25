@@ -54,10 +54,10 @@ func CleanupRedisKey(ctx context.Context, key string) {
 	}
 }
 
-func BuildOtpKey(userID string, purpose authpb.OtpPurpose) string {
-	return fmt.Sprintf("otp:%s:%s", userID, purpose)
+func BuildOtpKey(identifier string, purpose authpb.OtpPurpose) string {
+	return fmt.Sprintf("otp:%s:%s", identifier, purpose)
 }
 
-func BuildOtpRequestKey(userID string, purpose authpb.OtpPurpose) string {
-	return fmt.Sprintf("otp-request:%s:%s", userID, purpose)
+func BuildOtpRequestKey(identifier string, purpose authpb.OtpPurpose) string {
+	return fmt.Sprintf("otp-request:%s:%s", identifier, purpose)
 }

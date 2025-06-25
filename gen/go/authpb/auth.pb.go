@@ -25,25 +25,25 @@ const (
 type OtpPurpose int32
 
 const (
-	OtpPurpose_OTP_PURPOSE_UNSPECIFIED OtpPurpose = 0
-	OtpPurpose_PASSWORD_RESET          OtpPurpose = 1
-	OtpPurpose_EMAIL_VERIFICATION      OtpPurpose = 2
-	OtpPurpose_PASSWORD_CHANGE         OtpPurpose = 3
+	OtpPurpose_UNSPECIFIED     OtpPurpose = 0
+	OtpPurpose_PASSWORD_RESET  OtpPurpose = 1
+	OtpPurpose_PASSWORD_CHANGE OtpPurpose = 2
+	OtpPurpose_USER_SIGNUP     OtpPurpose = 3
 )
 
 // Enum value maps for OtpPurpose.
 var (
 	OtpPurpose_name = map[int32]string{
-		0: "OTP_PURPOSE_UNSPECIFIED",
+		0: "UNSPECIFIED",
 		1: "PASSWORD_RESET",
-		2: "EMAIL_VERIFICATION",
-		3: "PASSWORD_CHANGE",
+		2: "PASSWORD_CHANGE",
+		3: "USER_SIGNUP",
 	}
 	OtpPurpose_value = map[string]int32{
-		"OTP_PURPOSE_UNSPECIFIED": 0,
-		"PASSWORD_RESET":          1,
-		"EMAIL_VERIFICATION":      2,
-		"PASSWORD_CHANGE":         3,
+		"UNSPECIFIED":     0,
+		"PASSWORD_RESET":  1,
+		"PASSWORD_CHANGE": 2,
+		"USER_SIGNUP":     3,
 	}
 )
 
@@ -396,7 +396,7 @@ func (x *GenerateOTPRequest) GetPurpose() OtpPurpose {
 	if x != nil {
 		return x.Purpose
 	}
-	return OtpPurpose_OTP_PURPOSE_UNSPECIFIED
+	return OtpPurpose_UNSPECIFIED
 }
 
 func (x *GenerateOTPRequest) GetLanguage() string {
@@ -408,7 +408,7 @@ func (x *GenerateOTPRequest) GetLanguage() string {
 
 type GenerateOTPResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	Identifier    string                 `protobuf:"bytes,1,opt,name=identifier,proto3" json:"identifier,omitempty"`
 	ExpiresAt     *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=expires_at,json=expiresAt,proto3" json:"expires_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -444,9 +444,9 @@ func (*GenerateOTPResponse) Descriptor() ([]byte, []int) {
 	return file_auth_proto_rawDescGZIP(), []int{7}
 }
 
-func (x *GenerateOTPResponse) GetUserId() string {
+func (x *GenerateOTPResponse) GetIdentifier() string {
 	if x != nil {
-		return x.UserId
+		return x.Identifier
 	}
 	return ""
 }
@@ -460,7 +460,7 @@ func (x *GenerateOTPResponse) GetExpiresAt() *timestamppb.Timestamp {
 
 type ValidateOTPRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	Identifier    string                 `protobuf:"bytes,1,opt,name=identifier,proto3" json:"identifier,omitempty"`
 	Otp           string                 `protobuf:"bytes,2,opt,name=otp,proto3" json:"otp,omitempty"`
 	Purpose       OtpPurpose             `protobuf:"varint,3,opt,name=purpose,proto3,enum=auth.OtpPurpose" json:"purpose,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -497,9 +497,9 @@ func (*ValidateOTPRequest) Descriptor() ([]byte, []int) {
 	return file_auth_proto_rawDescGZIP(), []int{8}
 }
 
-func (x *ValidateOTPRequest) GetUserId() string {
+func (x *ValidateOTPRequest) GetIdentifier() string {
 	if x != nil {
-		return x.UserId
+		return x.Identifier
 	}
 	return ""
 }
@@ -515,7 +515,7 @@ func (x *ValidateOTPRequest) GetPurpose() OtpPurpose {
 	if x != nil {
 		return x.Purpose
 	}
-	return OtpPurpose_OTP_PURPOSE_UNSPECIFIED
+	return OtpPurpose_UNSPECIFIED
 }
 
 type ValidateOTPResponse struct {
@@ -677,9 +677,8 @@ func (x *ResetForgottenPasswordResponse) GetSuccess() bool {
 type UpdatePasswordRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	RequestId     string                 `protobuf:"bytes,1,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
-	UserId        string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	Password      string                 `protobuf:"bytes,3,opt,name=password,proto3" json:"password,omitempty"`
-	Confirmation  string                 `protobuf:"bytes,4,opt,name=confirmation,proto3" json:"confirmation,omitempty"`
+	Password      string                 `protobuf:"bytes,2,opt,name=password,proto3" json:"password,omitempty"`
+	Confirmation  string                 `protobuf:"bytes,3,opt,name=confirmation,proto3" json:"confirmation,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -717,13 +716,6 @@ func (*UpdatePasswordRequest) Descriptor() ([]byte, []int) {
 func (x *UpdatePasswordRequest) GetRequestId() string {
 	if x != nil {
 		return x.RequestId
-	}
-	return ""
-}
-
-func (x *UpdatePasswordRequest) GetUserId() string {
-	if x != nil {
-		return x.UserId
 	}
 	return ""
 }
@@ -786,6 +778,126 @@ func (x *UpdatePasswordResponse) GetSuccess() bool {
 	return false
 }
 
+type CreateUserRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	RequestId     string                 `protobuf:"bytes,1,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
+	Email         string                 `protobuf:"bytes,2,opt,name=email,proto3" json:"email,omitempty"`
+	Password      string                 `protobuf:"bytes,3,opt,name=password,proto3" json:"password,omitempty"`
+	Confirmation  string                 `protobuf:"bytes,4,opt,name=confirmation,proto3" json:"confirmation,omitempty"`
+	Checkbox      bool                   `protobuf:"varint,5,opt,name=checkbox,proto3" json:"checkbox,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateUserRequest) Reset() {
+	*x = CreateUserRequest{}
+	mi := &file_auth_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateUserRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateUserRequest) ProtoMessage() {}
+
+func (x *CreateUserRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_auth_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateUserRequest.ProtoReflect.Descriptor instead.
+func (*CreateUserRequest) Descriptor() ([]byte, []int) {
+	return file_auth_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *CreateUserRequest) GetRequestId() string {
+	if x != nil {
+		return x.RequestId
+	}
+	return ""
+}
+
+func (x *CreateUserRequest) GetEmail() string {
+	if x != nil {
+		return x.Email
+	}
+	return ""
+}
+
+func (x *CreateUserRequest) GetPassword() string {
+	if x != nil {
+		return x.Password
+	}
+	return ""
+}
+
+func (x *CreateUserRequest) GetConfirmation() string {
+	if x != nil {
+		return x.Confirmation
+	}
+	return ""
+}
+
+func (x *CreateUserRequest) GetCheckbox() bool {
+	if x != nil {
+		return x.Checkbox
+	}
+	return false
+}
+
+type CreateUserResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateUserResponse) Reset() {
+	*x = CreateUserResponse{}
+	mi := &file_auth_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateUserResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateUserResponse) ProtoMessage() {}
+
+func (x *CreateUserResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_auth_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateUserResponse.ProtoReflect.Descriptor instead.
+func (*CreateUserResponse) Descriptor() ([]byte, []int) {
+	return file_auth_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *CreateUserResponse) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
 var File_auth_proto protoreflect.FileDescriptor
 
 const file_auth_proto_rawDesc = "" +
@@ -808,13 +920,17 @@ const file_auth_proto_rawDesc = "" +
 	"\x12GenerateOTPRequest\x12\x14\n" +
 	"\x05email\x18\x01 \x01(\tR\x05email\x12*\n" +
 	"\apurpose\x18\x02 \x01(\x0e2\x10.auth.OtpPurposeR\apurpose\x12\x1a\n" +
-	"\blanguage\x18\x03 \x01(\tR\blanguage\"i\n" +
-	"\x13GenerateOTPResponse\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\tR\x06userId\x129\n" +
+	"\blanguage\x18\x03 \x01(\tR\blanguage\"p\n" +
+	"\x13GenerateOTPResponse\x12\x1e\n" +
 	"\n" +
-	"expires_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\texpiresAt\"k\n" +
-	"\x12ValidateOTPRequest\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x10\n" +
+	"identifier\x18\x01 \x01(\tR\n" +
+	"identifier\x129\n" +
+	"\n" +
+	"expires_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\texpiresAt\"r\n" +
+	"\x12ValidateOTPRequest\x12\x1e\n" +
+	"\n" +
+	"identifier\x18\x01 \x01(\tR\n" +
+	"identifier\x12\x10\n" +
 	"\x03otp\x18\x02 \x01(\tR\x03otp\x12*\n" +
 	"\apurpose\x18\x03 \x01(\x0e2\x10.auth.OtpPurposeR\apurpose\"4\n" +
 	"\x13ValidateOTPResponse\x12\x1d\n" +
@@ -827,21 +943,29 @@ const file_auth_proto_rawDesc = "" +
 	"\bpassword\x18\x03 \x01(\tR\bpassword\x12\"\n" +
 	"\fconfirmation\x18\x04 \x01(\tR\fconfirmation\":\n" +
 	"\x1eResetForgottenPasswordResponse\x12\x18\n" +
-	"\asuccess\x18\x01 \x01(\bR\asuccess\"\x8f\x01\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess\"v\n" +
 	"\x15UpdatePasswordRequest\x12\x1d\n" +
 	"\n" +
-	"request_id\x18\x01 \x01(\tR\trequestId\x12\x17\n" +
-	"\auser_id\x18\x02 \x01(\tR\x06userId\x12\x1a\n" +
-	"\bpassword\x18\x03 \x01(\tR\bpassword\x12\"\n" +
-	"\fconfirmation\x18\x04 \x01(\tR\fconfirmation\"2\n" +
+	"request_id\x18\x01 \x01(\tR\trequestId\x12\x1a\n" +
+	"\bpassword\x18\x02 \x01(\tR\bpassword\x12\"\n" +
+	"\fconfirmation\x18\x03 \x01(\tR\fconfirmation\"2\n" +
 	"\x16UpdatePasswordResponse\x12\x18\n" +
-	"\asuccess\x18\x01 \x01(\bR\asuccess*j\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess\"\xa4\x01\n" +
+	"\x11CreateUserRequest\x12\x1d\n" +
 	"\n" +
-	"OtpPurpose\x12\x1b\n" +
-	"\x17OTP_PURPOSE_UNSPECIFIED\x10\x00\x12\x12\n" +
-	"\x0ePASSWORD_RESET\x10\x01\x12\x16\n" +
-	"\x12EMAIL_VERIFICATION\x10\x02\x12\x13\n" +
-	"\x0fPASSWORD_CHANGE\x10\x032\xc0\x04\n" +
+	"request_id\x18\x01 \x01(\tR\trequestId\x12\x14\n" +
+	"\x05email\x18\x02 \x01(\tR\x05email\x12\x1a\n" +
+	"\bpassword\x18\x03 \x01(\tR\bpassword\x12\"\n" +
+	"\fconfirmation\x18\x04 \x01(\tR\fconfirmation\x12\x1a\n" +
+	"\bcheckbox\x18\x05 \x01(\bR\bcheckbox\".\n" +
+	"\x12CreateUserResponse\x12\x18\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess*W\n" +
+	"\n" +
+	"OtpPurpose\x12\x0f\n" +
+	"\vUNSPECIFIED\x10\x00\x12\x12\n" +
+	"\x0ePASSWORD_RESET\x10\x01\x12\x13\n" +
+	"\x0fPASSWORD_CHANGE\x10\x02\x12\x0f\n" +
+	"\vUSER_SIGNUP\x10\x032\x81\x05\n" +
 	"\vAuthService\x12H\n" +
 	"\rGenerateToken\x12\x1a.auth.GenerateTokenRequest\x1a\x1b.auth.GenerateTokenResponse\x12H\n" +
 	"\rValidateToken\x12\x1a.auth.ValidateTokenRequest\x1a\x1b.auth.ValidateTokenResponse\x12c\n" +
@@ -849,7 +973,9 @@ const file_auth_proto_rawDesc = "" +
 	"\vGenerateOTP\x12\x18.auth.GenerateOTPRequest\x1a\x19.auth.GenerateOTPResponse\x12B\n" +
 	"\vValidateOTP\x12\x18.auth.ValidateOTPRequest\x1a\x19.auth.ValidateOTPResponse\x12c\n" +
 	"\x16ResetForgottenPassword\x12#.auth.ResetForgottenPasswordRequest\x1a$.auth.ResetForgottenPasswordResponse\x12K\n" +
-	"\x0eUpdatePassword\x12\x1b.auth.UpdatePasswordRequest\x1a\x1c.auth.UpdatePasswordResponseB\n" +
+	"\x0eUpdatePassword\x12\x1b.auth.UpdatePasswordRequest\x1a\x1c.auth.UpdatePasswordResponse\x12?\n" +
+	"\n" +
+	"CreateUser\x12\x17.auth.CreateUserRequest\x1a\x18.auth.CreateUserResponseB\n" +
 	"Z\b./authpbb\x06proto3"
 
 var (
@@ -865,7 +991,7 @@ func file_auth_proto_rawDescGZIP() []byte {
 }
 
 var file_auth_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_auth_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
+var file_auth_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
 var file_auth_proto_goTypes = []any{
 	(OtpPurpose)(0),                        // 0: auth.OtpPurpose
 	(*GenerateTokenRequest)(nil),           // 1: auth.GenerateTokenRequest
@@ -882,11 +1008,13 @@ var file_auth_proto_goTypes = []any{
 	(*ResetForgottenPasswordResponse)(nil), // 12: auth.ResetForgottenPasswordResponse
 	(*UpdatePasswordRequest)(nil),          // 13: auth.UpdatePasswordRequest
 	(*UpdatePasswordResponse)(nil),         // 14: auth.UpdatePasswordResponse
-	(*timestamppb.Timestamp)(nil),          // 15: google.protobuf.Timestamp
+	(*CreateUserRequest)(nil),              // 15: auth.CreateUserRequest
+	(*CreateUserResponse)(nil),             // 16: auth.CreateUserResponse
+	(*timestamppb.Timestamp)(nil),          // 17: google.protobuf.Timestamp
 }
 var file_auth_proto_depIdxs = []int32{
 	0,  // 0: auth.GenerateOTPRequest.purpose:type_name -> auth.OtpPurpose
-	15, // 1: auth.GenerateOTPResponse.expires_at:type_name -> google.protobuf.Timestamp
+	17, // 1: auth.GenerateOTPResponse.expires_at:type_name -> google.protobuf.Timestamp
 	0,  // 2: auth.ValidateOTPRequest.purpose:type_name -> auth.OtpPurpose
 	1,  // 3: auth.AuthService.GenerateToken:input_type -> auth.GenerateTokenRequest
 	3,  // 4: auth.AuthService.ValidateToken:input_type -> auth.ValidateTokenRequest
@@ -895,15 +1023,17 @@ var file_auth_proto_depIdxs = []int32{
 	9,  // 7: auth.AuthService.ValidateOTP:input_type -> auth.ValidateOTPRequest
 	11, // 8: auth.AuthService.ResetForgottenPassword:input_type -> auth.ResetForgottenPasswordRequest
 	13, // 9: auth.AuthService.UpdatePassword:input_type -> auth.UpdatePasswordRequest
-	2,  // 10: auth.AuthService.GenerateToken:output_type -> auth.GenerateTokenResponse
-	4,  // 11: auth.AuthService.ValidateToken:output_type -> auth.ValidateTokenResponse
-	6,  // 12: auth.AuthService.ExtractUserIDFromToken:output_type -> auth.ExtractUserIDFromTokenResponse
-	8,  // 13: auth.AuthService.GenerateOTP:output_type -> auth.GenerateOTPResponse
-	10, // 14: auth.AuthService.ValidateOTP:output_type -> auth.ValidateOTPResponse
-	12, // 15: auth.AuthService.ResetForgottenPassword:output_type -> auth.ResetForgottenPasswordResponse
-	14, // 16: auth.AuthService.UpdatePassword:output_type -> auth.UpdatePasswordResponse
-	10, // [10:17] is the sub-list for method output_type
-	3,  // [3:10] is the sub-list for method input_type
+	15, // 10: auth.AuthService.CreateUser:input_type -> auth.CreateUserRequest
+	2,  // 11: auth.AuthService.GenerateToken:output_type -> auth.GenerateTokenResponse
+	4,  // 12: auth.AuthService.ValidateToken:output_type -> auth.ValidateTokenResponse
+	6,  // 13: auth.AuthService.ExtractUserIDFromToken:output_type -> auth.ExtractUserIDFromTokenResponse
+	8,  // 14: auth.AuthService.GenerateOTP:output_type -> auth.GenerateOTPResponse
+	10, // 15: auth.AuthService.ValidateOTP:output_type -> auth.ValidateOTPResponse
+	12, // 16: auth.AuthService.ResetForgottenPassword:output_type -> auth.ResetForgottenPasswordResponse
+	14, // 17: auth.AuthService.UpdatePassword:output_type -> auth.UpdatePasswordResponse
+	16, // 18: auth.AuthService.CreateUser:output_type -> auth.CreateUserResponse
+	11, // [11:19] is the sub-list for method output_type
+	3,  // [3:11] is the sub-list for method input_type
 	3,  // [3:3] is the sub-list for extension type_name
 	3,  // [3:3] is the sub-list for extension extendee
 	0,  // [0:3] is the sub-list for field type_name
@@ -920,7 +1050,7 @@ func file_auth_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_auth_proto_rawDesc), len(file_auth_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   14,
+			NumMessages:   16,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

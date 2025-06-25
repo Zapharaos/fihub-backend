@@ -58,12 +58,10 @@ func New(config server.Config) *chi.Mux {
 			r.Post("/token", handlers.GetToken)
 
 			// User registration
-			r.Post("/register", handlers.CreateUser)
-
-			// OTP for signup verification
-			r.Route("/verify", func(r chi.Router) {
+			r.Route("/register", func(r chi.Router) {
 				r.Post("/otp", handlers.GenerateSignupOTP)
-				r.Post("/otp/validate", handlers.ActivateAccount)
+				r.Post("/otp/validate", handlers.ValidateSignupOTP)
+				r.Post("/", handlers.RegisterUser)
 			})
 
 			// Password routes

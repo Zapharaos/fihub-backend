@@ -7,7 +7,6 @@ import (
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/handlers/render"
 	"github.com/Zapharaos/fihub-backend/gen/go/authpb"
 	"github.com/Zapharaos/fihub-backend/internal/models"
-	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"io"
 	"net/http"
@@ -86,8 +85,8 @@ func generateOTP(w http.ResponseWriter, r *http.Request, purpose authpb.OtpPurpo
 
 	// Return user ID and expires_at in JSON response
 	render.JSON(w, r, models.ResponseUserOtp{
-		ExpiresAt: response.GetExpiresAt().AsTime(),
-		UserID:    uuid.MustParse(response.GetUserId()),
+		ExpiresAt:  response.GetExpiresAt().AsTime(),
+		Identifier: response.GetIdentifier(),
 	})
 }
 
@@ -103,9 +102,9 @@ func validateOTP(w http.ResponseWriter, r *http.Request, purpose authpb.OtpPurpo
 
 	// Validate OTP
 	response, err := clients.C().Auth().ValidateOTP(r.Context(), &authpb.ValidateOTPRequest{
-		UserId:  validateUserOtp.UserID.String(),
-		Otp:     validateUserOtp.Otp,
-		Purpose: purpose,
+		Identifier: validateUserOtp.UserID.String(),
+		Otp:        validateUserOtp.Otp,
+		Purpose:    purpose,
 	})
 	if err != nil {
 		zap.L().Error("Validate OTP", zap.Error(err))
@@ -132,7 +131,7 @@ func validateOTP(w http.ResponseWriter, r *http.Request, purpose authpb.OtpPurpo
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/auth/verify/otp [post]
 func GenerateSignupOTP(w http.ResponseWriter, r *http.Request) {
-	generateOTP(w, r, authpb.OtpPurpose_EMAIL_VERIFICATION)
+	generateOTP(w, r, authpb.OtpPurpose_USER_SIGNUP)
 }
 
 // GenerateForgottenPasswordOTP godoc
@@ -173,9 +172,9 @@ func GenerateChangePasswordOTP(w http.ResponseWriter, r *http.Request) {
 	generateOTP(w, r, authpb.OtpPurpose_PASSWORD_CHANGE)
 }
 
-// ActivateAccount godoc
+// ValidateSignupOTP godoc
 //
-//	@Id				ActivateAccount
+//	@Id				ValidateSignupOTP
 //
 //	@Summary		Validates OTP verification process for new user and activates account
 //	@Description	Handles OTP for the user with the provided email.
@@ -187,8 +186,8 @@ func GenerateChangePasswordOTP(w http.ResponseWriter, r *http.Request) {
 //	@Failure		400	{object}	render.ErrorResponse	"Bad ValidateUserOtp"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/auth/verify/otp/validate [post]
-func ActivateAccount(w http.ResponseWriter, r *http.Request) {
-	validateOTP(w, r, authpb.OtpPurpose_EMAIL_VERIFICATION)
+func ValidateSignupOTP(w http.ResponseWriter, r *http.Request) {
+	validateOTP(w, r, authpb.OtpPurpose_USER_SIGNUP)
 }
 
 // ValidateForgottenPasswordOTP godoc
@@ -296,12 +295,52 @@ func SubmitChangePassword(w http.ResponseWriter, r *http.Request) {
 	// Update the user password
 	_, err = clients.C().Auth().UpdatePassword(r.Context(), &authpb.UpdatePasswordRequest{
 		RequestId:    inputChangePassword.OtpRequestID.String(),
-		UserId:       inputChangePassword.UserID.String(),
 		Password:     inputChangePassword.Password,
 		Confirmation: inputChangePassword.Confirmation,
 	})
 	if err != nil {
 		zap.L().Error("UpdatePassword", zap.Error(err))
+		render.ErrorCodesCodeToHttpCode(w, r, err)
+		return
+	}
+
+	render.OK(w, r)
+}
+
+// RegisterUser
+//
+// @Id RegisterUser
+//
+// @Summary Registers the user
+// @Description Executes it as part of user creation OTP auth process
+//
+//	@Tags			Auth
+//	@Accept			json
+//	@Produce		json
+//	@Param			request	body	models.UserInputCreate	true	"request (json)"
+//	@Success		200	{object}	string					"OK"
+//	@Failure		400	{object}	render.ErrorResponse	"Bad UserInputCreate"
+//	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
+//	@Router			/api/v1/auth/register [post]
+func RegisterUser(w http.ResponseWriter, r *http.Request) {
+	// Parse request body
+	var userInputCreate models.UserInputCreate
+	err := json.NewDecoder(r.Body).Decode(&userInputCreate)
+	if err != nil {
+		zap.L().Warn("User json decode", zap.Error(err))
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	// Update the user password
+	_, err = clients.C().Auth().CreateUser(r.Context(), &authpb.CreateUserRequest{
+		Email:        userInputCreate.Email,
+		Password:     userInputCreate.Password,
+		Confirmation: userInputCreate.Confirmation,
+		Checkbox:     userInputCreate.Checkbox,
+	})
+	if err != nil {
+		zap.L().Error("CreateUser", zap.Error(err))
 		render.ErrorCodesCodeToHttpCode(w, r, err)
 		return
 	}

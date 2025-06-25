@@ -17,22 +17,109 @@ import (
 	"time"
 )
 
-func (s *AuthService) setupOtpForPassword(ctx context.Context, req *authpb.GenerateOTPRequest) (*authpb.GenerateOTPResponse, error) {
-	// Verify if the user exists
-	response, err := s.userClient.GetByEmail(ctx, &userpb.GetByEmailRequest{
-		Email: req.GetEmail(),
-	})
-	if err != nil {
-		zap.L().Error("failed to check user existence", zap.Error(err))
-		return nil, status.Error(codes.Internal, "failed to check user existence")
+func (s *AuthService) findUserIdentifier(ctx context.Context, req *authpb.GenerateOTPRequest) (string, error) {
+
+	switch req.Purpose {
+	case authpb.OtpPurpose_PASSWORD_RESET:
+		// Must include email in request and find userID from db with email
+
+		// Verify if the user exists
+		response, err := s.userClient.GetByEmail(ctx, &userpb.GetByEmailRequest{
+			Email: req.GetEmail(),
+		})
+		if err != nil {
+			zap.L().Error("failed to check user existence", zap.Error(err))
+			return "", status.Error(codes.Internal, "failed to check user existence")
+		}
+		if response.GetUser() == nil || response.GetUser().GetId() == "" {
+			return "", status.Error(codes.InvalidArgument, "user not found")
+		}
+
+		// Return the user ID as the identifier
+		return response.GetUser().GetId(), nil
+
+	case authpb.OtpPurpose_PASSWORD_CHANGE:
+		// Must retrieve userID from context
+
+		userID, ok := ctx.Value("userID").(string)
+		if !ok || userID == "" {
+			return "", status.Error(codes.Unauthenticated, "user ID not found in context")
+		}
+
+		// Retrieve the metadata
+		/*md, ok := metadata.FromIncomingContext(ctx)
+		if !ok {
+			"", status.Error(codes.Unauthenticated, "Missing metadata")
+		}
+
+		// Check if the user ID is provided in the metadata
+		userIDs := md.Get("x-user-id")
+		if len(userIDs) == 0 {
+			"", status.Error(codes.Unauthenticated, "Missing user ID in metadata")
+		}*/
+
+		// Return the user ID from context as the identifier
+		return userID, nil
+
+	case authpb.OtpPurpose_USER_SIGNUP:
+		// Must assure that the provided email is not already associated with a user
+
+		// Verify if the user exists
+		response, err := s.userClient.GetByEmail(ctx, &userpb.GetByEmailRequest{
+			Email: req.GetEmail(),
+		})
+		if err != nil {
+			zap.L().Error("failed to check user existence", zap.Error(err))
+			return "", status.Error(codes.Internal, "failed to check user existence")
+		}
+
+		// If the user exists, return an error
+		if response.GetUser() != nil {
+			return "", status.Error(codes.InvalidArgument, "user not found")
+		}
+
+		// Return the input email as the identifier
+		return req.GetEmail(), nil
+
+	default:
+		return "", status.Error(codes.InvalidArgument, "invalid OTP purpose")
 	}
-	if response.GetUser() == nil || response.GetUser().GetId() == "" {
-		return nil, status.Error(codes.InvalidArgument, "user not found")
+}
+
+func (s *AuthService) setupForFinalRequest(ctx context.Context, purpose authpb.OtpPurpose, identifier string) (*authpb.ValidateOTPResponse, error) {
+	// Prepare next step data
+	requestID := uuid.New().String()
+	requestTimeLimit := otp.GetFinalRequestTimeLimit()
+	requestKey := otp.BuildOtpRequestKey(identifier, purpose)
+
+	// Prepare pipeline to store request ID and delete OTP
+	pipe := database.DB().Redis().Client.TxPipeline()
+	pipe.Del(ctx, otp.BuildOtpKey(identifier, purpose))
+	pipe.SetEx(ctx, requestKey, requestID, requestTimeLimit)
+
+	// Execute pipeline
+	if _, err := pipe.Exec(ctx); err != nil {
+		zap.L().Error("failed to store request ID", zap.Error(err))
+		return nil, status.Error(codes.Internal, "failed to store request ID")
 	}
 
-	// Check for existing OTP with userID and purpose
-	userID := response.GetUser().GetId()
-	otpKey := otp.BuildOtpKey(userID, req.GetPurpose())
+	return &authpb.ValidateOTPResponse{
+		RequestId: requestID,
+	}, nil
+}
+
+// GenerateOTP generates a one-time password (OTP) for the user
+func (s *AuthService) GenerateOTP(ctx context.Context, req *authpb.GenerateOTPRequest) (*authpb.GenerateOTPResponse, error) {
+	// TODO : move handlers middleware rate limiter to here? attempts count?
+
+	// Retrieve the user identifier based on the request purpose
+	identifier, err := s.findUserIdentifier(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	// Check for existing OTP with identifier and purpose
+	otpKey := otp.BuildOtpKey(identifier, req.GetPurpose())
 	ttl, err := otp.GetTtlForRedisKey(ctx, otpKey)
 	if err != nil {
 		zap.L().Error("failed to get OTP expiration", zap.Error(err))
@@ -49,7 +136,7 @@ func (s *AuthService) setupOtpForPassword(ctx context.Context, req *authpb.Gener
 	expiresAt := timestamppb.New(time.Now().Add(otpTimeLimit))
 	otpValue, otpHash := otp.Generate()
 
-	// Store OTP in Redis with email and purpose as key
+	// Store OTP in Redis with identifier and purpose as key
 	err = database.DB().Redis().Client.Set(ctx, otpKey, otpHash, otpTimeLimit).Err()
 	if err != nil {
 		zap.L().Error("failed to store OTP", zap.Error(err))
@@ -69,10 +156,10 @@ func (s *AuthService) setupOtpForPassword(ctx context.Context, req *authpb.Gener
 
 	// If debug mode is on, log the OTP value and skip sending email
 	if viper.GetString("APP_ENV") != "production" {
-		zap.L().Info("OTP generated (debug mode)", zap.String("email", req.GetEmail()), zap.String("otp", otpValue), zap.String("limit", otpTimeLimit.String()))
+		zap.L().Info("OTP generated (debug mode)", zap.String("identifier", identifier), zap.String("otp", otpValue), zap.String("limit", otpTimeLimit.String()))
 		return &authpb.GenerateOTPResponse{
-			UserId:    userID,
-			ExpiresAt: expiresAt,
+			Identifier: identifier,
+			ExpiresAt:  expiresAt,
 		}, nil
 	}
 
@@ -87,63 +174,48 @@ func (s *AuthService) setupOtpForPassword(ctx context.Context, req *authpb.Gener
 	}
 
 	return &authpb.GenerateOTPResponse{
-		UserId:    userID,
-		ExpiresAt: expiresAt,
+		Identifier: identifier,
+		ExpiresAt:  expiresAt,
 	}, nil
-}
-
-func (s *AuthService) setupForFinalRequest(ctx context.Context, req *authpb.ValidateOTPRequest) (*authpb.ValidateOTPResponse, error) {
-	// Prepare next step data
-	requestID := uuid.New().String()
-	requestTimeLimit := otp.GetFinalRequestTimeLimit()
-	requestKey := otp.BuildOtpRequestKey(req.GetUserId(), req.GetPurpose())
-
-	// Prepare pipeline to store request ID and delete OTP
-	pipe := database.DB().Redis().Client.TxPipeline()
-	pipe.Del(ctx, otp.BuildOtpKey(req.GetUserId(), req.GetPurpose()))
-	pipe.SetEx(ctx, requestKey, requestID, requestTimeLimit)
-
-	// Execute pipeline
-	if _, err := pipe.Exec(ctx); err != nil {
-		zap.L().Error("failed to store request ID", zap.Error(err))
-		return nil, status.Error(codes.Internal, "failed to store request ID")
-	}
-
-	return &authpb.ValidateOTPResponse{
-		RequestId: requestID,
-	}, nil
-}
-
-// GenerateOTP generates a one-time password (OTP) for the user
-func (s *AuthService) GenerateOTP(ctx context.Context, req *authpb.GenerateOTPRequest) (*authpb.GenerateOTPResponse, error) {
-	// TODO : move handlers middleware rate limiter to here? attempts count?
-
-	switch req.Purpose {
-	case authpb.OtpPurpose_PASSWORD_CHANGE, authpb.OtpPurpose_PASSWORD_RESET:
-		return s.setupOtpForPassword(ctx, req)
-	case authpb.OtpPurpose_EMAIL_VERIFICATION:
-		return nil, status.Error(codes.Unimplemented, "email verification not yet implemented")
-	default:
-		return nil, status.Error(codes.InvalidArgument, "invalid OTP purpose")
-	}
 }
 
 // ValidateOTP validates the one-time password (OTP) for the user
 func (s *AuthService) ValidateOTP(ctx context.Context, req *authpb.ValidateOTPRequest) (*authpb.ValidateOTPResponse, error) {
 	// TODO : same as for GenerateOTP "todo" for rate limiting
 
-	// Validate the request
-	err := otp.IsOtpValid(ctx, req.GetPurpose(), req.GetUserId(), req.GetOtp())
+	var identifier string
+	switch req.Purpose {
+	case authpb.OtpPurpose_PASSWORD_CHANGE:
+		// User authenticated, retrieve his identifier from context
+		userID, ok := ctx.Value("userID").(string)
+		if !ok || userID == "" {
+			return nil, status.Error(codes.Unauthenticated, "user ID not found in context")
+		}
+
+		// Retrieve the metadata
+		/*md, ok := metadata.FromIncomingContext(ctx)
+		if !ok {
+			nil, status.Error(codes.Unauthenticated, "Missing metadata")
+		}
+
+		// Check if the user ID is provided in the metadata
+		userIDs := md.Get("x-user-id")
+		if len(userIDs) == 0 {
+			nil, status.Error(codes.Unauthenticated, "Missing user ID in metadata")
+		}*/
+	case authpb.OtpPurpose_PASSWORD_RESET, authpb.OtpPurpose_USER_SIGNUP:
+		// User not authenticated, must include his identifier in request
+		identifier = req.GetIdentifier()
+	default:
+		return nil, status.Error(codes.InvalidArgument, "invalid OTP purpose")
+	}
+
+	// Validate the OTP
+	err := otp.IsOtpValid(ctx, req.GetPurpose(), identifier, req.GetOtp())
 	if err != nil {
 		return nil, err
 	}
 
-	switch req.Purpose {
-	case authpb.OtpPurpose_PASSWORD_CHANGE, authpb.OtpPurpose_PASSWORD_RESET:
-		return s.setupForFinalRequest(ctx, req)
-	case authpb.OtpPurpose_EMAIL_VERIFICATION:
-		return nil, status.Error(codes.Unimplemented, "email verification not yet implemented")
-	default:
-		return nil, status.Error(codes.InvalidArgument, "invalid OTP purpose")
-	}
+	// Setup for the final request
+	return s.setupForFinalRequest(ctx, req.GetPurpose(), identifier)
 }

@@ -12,9 +12,9 @@ type RequestUserOtp struct {
 
 // ResponseUserOtp represents the response for a user otp request
 type ResponseUserOtp struct {
-	Error     string    `json:"error,omitempty"`
-	ExpiresAt time.Time `json:"expires_at,omitempty"`
-	UserID    uuid.UUID `json:"user_id"`
+	Error      string    `json:"error,omitempty"`
+	ExpiresAt  time.Time `json:"expires_at,omitempty"`
+	Identifier string    `json:"identifier"`
 }
 
 // ValidateUserOtp represents the request for validating a user otp
@@ -31,7 +31,6 @@ type UserInputResetPassword struct {
 }
 
 type UserInputChangePassword struct {
-	UserID       uuid.UUID `json:"user_id"`
 	OtpRequestID uuid.UUID `json:"otp_request_id"`
 	Password     string    `json:"password"`
 	Confirmation string    `json:"confirmation"`

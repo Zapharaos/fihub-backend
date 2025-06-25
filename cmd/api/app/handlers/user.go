@@ -11,51 +11,6 @@ import (
 	"net/http"
 )
 
-// CreateUser godoc
-//
-//	@Id				CreateUser
-//
-//	@Summary		Create a new user
-//	@Description	Create a new user.
-//	@Tags			User
-//	@Accept			json
-//	@Produce		json
-//	@Param			user	body	models.UserInputCreate	true	"user (json)"
-//	@Security		Bearer
-//	@Success		200	{object}	models.User				"user"
-//	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
-//	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
-//	@Router			/api/v1/auth/register [post]
-func CreateUser(w http.ResponseWriter, r *http.Request) {
-	// Parse request body
-	var userInputCreate models.UserInputCreate
-	err := json.NewDecoder(r.Body).Decode(&userInputCreate)
-	if err != nil {
-		zap.L().Warn("User json decode", zap.Error(err))
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	// Map UserInputCreate to gRPC CreateUserRequest
-	createUserRequest := &userpb.CreateUserRequest{
-		Email:        userInputCreate.Email,
-		Password:     userInputCreate.Password,
-		Confirmation: userInputCreate.Confirmation,
-		Checkbox:     userInputCreate.Checkbox,
-	}
-
-	// Create user
-	createUserResponse, err := clients.C().User().CreateUser(r.Context(), createUserRequest)
-	if err != nil {
-		zap.L().Error("Create user", zap.Error(err))
-		render.ErrorCodesCodeToHttpCode(w, r, err)
-		return
-	}
-
-	// Map the response to the models.User struct
-	render.JSON(w, r, mappers.UserFromProto(createUserResponse.User))
-}
-
 // GetUser godoc
 //
 //	@Id				GetUser
