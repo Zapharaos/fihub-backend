@@ -1,17 +1,20 @@
 package models
 
 import (
+	"errors"
 	"github.com/google/uuid"
 	"time"
 )
+
+var ErrRequestActive = errors.New("request-active")
 
 // RequestUserOtp represents the request for a user otp
 type RequestUserOtp struct {
 	Email string `json:"email"`
 }
 
-// ResponseUserOtp represents the response for a user otp request
-type ResponseUserOtp struct {
+// ResponseRequestUserOtp represents the response for a user otp request
+type ResponseRequestUserOtp struct {
 	Error      string    `json:"error,omitempty"`
 	ExpiresAt  time.Time `json:"expires_at,omitempty"`
 	Identifier string    `json:"identifier"`
@@ -21,6 +24,12 @@ type ResponseUserOtp struct {
 type ValidateUserOtp struct {
 	UserID uuid.UUID `json:"user_id"`
 	Otp    string    `json:"otp"`
+}
+
+// ResponseValidateUserOtp represents the response for a user otp validation
+type ResponseValidateUserOtp struct {
+	ExpiresAt time.Time `json:"expires_at,omitempty"`
+	RequestID string    `json:"request_id"`
 }
 
 type UserInputResetPassword struct {

@@ -13,6 +13,7 @@ import (
 	"golang.org/x/text/language"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"time"
 )
@@ -105,6 +106,7 @@ func (s *AuthService) setupForFinalRequest(ctx context.Context, purpose authpb.O
 
 	return &authpb.ValidateOTPResponse{
 		RequestId: requestID,
+		ExpiresAt: timestamppb.New(time.Now().Add(requestTimeLimit)),
 	}, nil
 }
 
@@ -126,8 +128,11 @@ func (s *AuthService) GenerateOTP(ctx context.Context, req *authpb.GenerateOTPRe
 		return nil, err
 	}
 	if ttl > 0 {
+		// If an OTP already exists, return the existing OTP expiration time
 		return &authpb.GenerateOTPResponse{
-			ExpiresAt: timestamppb.New(time.Now().Add(ttl)),
+			Identifier: identifier,
+			ExpiresAt:  timestamppb.New(time.Now().Add(ttl)),
+			Error:      proto.String("request-active"),
 		}, nil
 	}
 

@@ -410,6 +410,7 @@ type GenerateOTPResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Identifier    string                 `protobuf:"bytes,1,opt,name=identifier,proto3" json:"identifier,omitempty"`
 	ExpiresAt     *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=expires_at,json=expiresAt,proto3" json:"expires_at,omitempty"`
+	Error         *string                `protobuf:"bytes,3,opt,name=error,proto3,oneof" json:"error,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -456,6 +457,13 @@ func (x *GenerateOTPResponse) GetExpiresAt() *timestamppb.Timestamp {
 		return x.ExpiresAt
 	}
 	return nil
+}
+
+func (x *GenerateOTPResponse) GetError() string {
+	if x != nil && x.Error != nil {
+		return *x.Error
+	}
+	return ""
 }
 
 type ValidateOTPRequest struct {
@@ -521,6 +529,7 @@ func (x *ValidateOTPRequest) GetPurpose() OtpPurpose {
 type ValidateOTPResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	RequestId     string                 `protobuf:"bytes,1,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
+	ExpiresAt     *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=expires_at,json=expiresAt,proto3" json:"expires_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -560,6 +569,13 @@ func (x *ValidateOTPResponse) GetRequestId() string {
 		return x.RequestId
 	}
 	return ""
+}
+
+func (x *ValidateOTPResponse) GetExpiresAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.ExpiresAt
+	}
+	return nil
 }
 
 type ResetForgottenPasswordRequest struct {
@@ -920,22 +936,26 @@ const file_auth_proto_rawDesc = "" +
 	"\x12GenerateOTPRequest\x12\x14\n" +
 	"\x05email\x18\x01 \x01(\tR\x05email\x12*\n" +
 	"\apurpose\x18\x02 \x01(\x0e2\x10.auth.OtpPurposeR\apurpose\x12\x1a\n" +
-	"\blanguage\x18\x03 \x01(\tR\blanguage\"p\n" +
+	"\blanguage\x18\x03 \x01(\tR\blanguage\"\x95\x01\n" +
 	"\x13GenerateOTPResponse\x12\x1e\n" +
 	"\n" +
 	"identifier\x18\x01 \x01(\tR\n" +
 	"identifier\x129\n" +
 	"\n" +
-	"expires_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\texpiresAt\"r\n" +
+	"expires_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\texpiresAt\x12\x19\n" +
+	"\x05error\x18\x03 \x01(\tH\x00R\x05error\x88\x01\x01B\b\n" +
+	"\x06_error\"r\n" +
 	"\x12ValidateOTPRequest\x12\x1e\n" +
 	"\n" +
 	"identifier\x18\x01 \x01(\tR\n" +
 	"identifier\x12\x10\n" +
 	"\x03otp\x18\x02 \x01(\tR\x03otp\x12*\n" +
-	"\apurpose\x18\x03 \x01(\x0e2\x10.auth.OtpPurposeR\apurpose\"4\n" +
+	"\apurpose\x18\x03 \x01(\x0e2\x10.auth.OtpPurposeR\apurpose\"o\n" +
 	"\x13ValidateOTPResponse\x12\x1d\n" +
 	"\n" +
-	"request_id\x18\x01 \x01(\tR\trequestId\"\x97\x01\n" +
+	"request_id\x18\x01 \x01(\tR\trequestId\x129\n" +
+	"\n" +
+	"expires_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\texpiresAt\"\x97\x01\n" +
 	"\x1dResetForgottenPasswordRequest\x12\x1d\n" +
 	"\n" +
 	"request_id\x18\x01 \x01(\tR\trequestId\x12\x17\n" +
@@ -1016,27 +1036,28 @@ var file_auth_proto_depIdxs = []int32{
 	0,  // 0: auth.GenerateOTPRequest.purpose:type_name -> auth.OtpPurpose
 	17, // 1: auth.GenerateOTPResponse.expires_at:type_name -> google.protobuf.Timestamp
 	0,  // 2: auth.ValidateOTPRequest.purpose:type_name -> auth.OtpPurpose
-	1,  // 3: auth.AuthService.GenerateToken:input_type -> auth.GenerateTokenRequest
-	3,  // 4: auth.AuthService.ValidateToken:input_type -> auth.ValidateTokenRequest
-	5,  // 5: auth.AuthService.ExtractUserIDFromToken:input_type -> auth.ExtractUserIDFromTokenRequest
-	7,  // 6: auth.AuthService.GenerateOTP:input_type -> auth.GenerateOTPRequest
-	9,  // 7: auth.AuthService.ValidateOTP:input_type -> auth.ValidateOTPRequest
-	11, // 8: auth.AuthService.ResetForgottenPassword:input_type -> auth.ResetForgottenPasswordRequest
-	13, // 9: auth.AuthService.UpdatePassword:input_type -> auth.UpdatePasswordRequest
-	15, // 10: auth.AuthService.CreateUser:input_type -> auth.CreateUserRequest
-	2,  // 11: auth.AuthService.GenerateToken:output_type -> auth.GenerateTokenResponse
-	4,  // 12: auth.AuthService.ValidateToken:output_type -> auth.ValidateTokenResponse
-	6,  // 13: auth.AuthService.ExtractUserIDFromToken:output_type -> auth.ExtractUserIDFromTokenResponse
-	8,  // 14: auth.AuthService.GenerateOTP:output_type -> auth.GenerateOTPResponse
-	10, // 15: auth.AuthService.ValidateOTP:output_type -> auth.ValidateOTPResponse
-	12, // 16: auth.AuthService.ResetForgottenPassword:output_type -> auth.ResetForgottenPasswordResponse
-	14, // 17: auth.AuthService.UpdatePassword:output_type -> auth.UpdatePasswordResponse
-	16, // 18: auth.AuthService.CreateUser:output_type -> auth.CreateUserResponse
-	11, // [11:19] is the sub-list for method output_type
-	3,  // [3:11] is the sub-list for method input_type
-	3,  // [3:3] is the sub-list for extension type_name
-	3,  // [3:3] is the sub-list for extension extendee
-	0,  // [0:3] is the sub-list for field type_name
+	17, // 3: auth.ValidateOTPResponse.expires_at:type_name -> google.protobuf.Timestamp
+	1,  // 4: auth.AuthService.GenerateToken:input_type -> auth.GenerateTokenRequest
+	3,  // 5: auth.AuthService.ValidateToken:input_type -> auth.ValidateTokenRequest
+	5,  // 6: auth.AuthService.ExtractUserIDFromToken:input_type -> auth.ExtractUserIDFromTokenRequest
+	7,  // 7: auth.AuthService.GenerateOTP:input_type -> auth.GenerateOTPRequest
+	9,  // 8: auth.AuthService.ValidateOTP:input_type -> auth.ValidateOTPRequest
+	11, // 9: auth.AuthService.ResetForgottenPassword:input_type -> auth.ResetForgottenPasswordRequest
+	13, // 10: auth.AuthService.UpdatePassword:input_type -> auth.UpdatePasswordRequest
+	15, // 11: auth.AuthService.CreateUser:input_type -> auth.CreateUserRequest
+	2,  // 12: auth.AuthService.GenerateToken:output_type -> auth.GenerateTokenResponse
+	4,  // 13: auth.AuthService.ValidateToken:output_type -> auth.ValidateTokenResponse
+	6,  // 14: auth.AuthService.ExtractUserIDFromToken:output_type -> auth.ExtractUserIDFromTokenResponse
+	8,  // 15: auth.AuthService.GenerateOTP:output_type -> auth.GenerateOTPResponse
+	10, // 16: auth.AuthService.ValidateOTP:output_type -> auth.ValidateOTPResponse
+	12, // 17: auth.AuthService.ResetForgottenPassword:output_type -> auth.ResetForgottenPasswordResponse
+	14, // 18: auth.AuthService.UpdatePassword:output_type -> auth.UpdatePasswordResponse
+	16, // 19: auth.AuthService.CreateUser:output_type -> auth.CreateUserResponse
+	12, // [12:20] is the sub-list for method output_type
+	4,  // [4:12] is the sub-list for method input_type
+	4,  // [4:4] is the sub-list for extension type_name
+	4,  // [4:4] is the sub-list for extension extendee
+	0,  // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_auth_proto_init() }
@@ -1044,6 +1065,7 @@ func file_auth_proto_init() {
 	if File_auth_proto != nil {
 		return
 	}
+	file_auth_proto_msgTypes[7].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

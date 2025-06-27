@@ -76,15 +76,16 @@ func generateOTP(w http.ResponseWriter, r *http.Request, purpose authpb.OtpPurpo
 		Language: userLanguage.String(),
 		Purpose:  purpose,
 	})
+	// Handle errors during OTP generation
 	if err != nil {
-		// TODO : differentiate between otp already exist and other errors
 		zap.L().Error("Generate OTP", zap.Error(err))
 		render.ErrorCodesCodeToHttpCode(w, r, err)
 		return
 	}
 
 	// Return user ID and expires_at in JSON response
-	render.JSON(w, r, models.ResponseUserOtp{
+	render.JSON(w, r, models.ResponseRequestUserOtp{
+		Error:      response.GetError(),
 		ExpiresAt:  response.GetExpiresAt().AsTime(),
 		Identifier: response.GetIdentifier(),
 	})
@@ -112,7 +113,10 @@ func validateOTP(w http.ResponseWriter, r *http.Request, purpose authpb.OtpPurpo
 		return
 	}
 
-	render.JSON(w, r, response.GetRequestId())
+	render.JSON(w, r, models.ResponseRequestUserOtp{
+		ExpiresAt:  response.GetExpiresAt().AsTime(),
+		Identifier: response.GetRequestId(),
+	})
 }
 
 // GenerateSignupOTP godoc
@@ -126,7 +130,7 @@ func validateOTP(w http.ResponseWriter, r *http.Request, purpose authpb.OtpPurpo
 //	@Produce		json
 //	@Param			lang	query	string					false	"Language code"
 //	@Param			request	body	models.RequestUserOtp	true	"request (json)"
-//	@Success		200	{object}	models.ResponseUserOtp	"ResponseUserOtp"
+//	@Success		200	{object}	models.ResponseRequestUserOtp	"ResponseRequestUserOtp"
 //	@Failure		400	{object}	render.ErrorResponse	"Bad RequestUserOtp"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/auth/verify/otp [post]
@@ -145,7 +149,7 @@ func GenerateSignupOTP(w http.ResponseWriter, r *http.Request) {
 //	@Produce		json
 //	@Param			lang	query	string					false	"Language code"
 //	@Param			request	body	models.RequestUserOtp	true	"request (json)"
-//	@Success		200	{object}	models.ResponseUserOtp	"ResponseUserOtp"
+//	@Success		200	{object}	models.ResponseRequestUserOtp	"ResponseRequestUserOtp"
 //	@Failure		400	{object}	render.ErrorResponse	"Bad RequestUserOtp"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/auth/password/reset/otp [post]
@@ -164,7 +168,7 @@ func GenerateForgottenPasswordOTP(w http.ResponseWriter, r *http.Request) {
 //	@Produce		json
 //	@Param			lang	query	string					false	"Language code"
 //	@Param			request	body	models.RequestUserOtp	true	"request (json)"
-//	@Success		200	{object}	models.ResponseUserOtp	"ResponseUserOtp"
+//	@Success		200	{object}	models.ResponseRequestUserOtp	"ResponseRequestUserOtp"
 //	@Failure		400	{object}	render.ErrorResponse	"Bad RequestUserOtp"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/auth/password/change/otp [post]
@@ -182,7 +186,7 @@ func GenerateChangePasswordOTP(w http.ResponseWriter, r *http.Request) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			request	body	models.ValidateUserOtp	true	"request (json)"
-//	@Success		200	{object}	string					"request ID"
+//	@Success		200	{object}	models.ResponseValidateUserOtp "ResponseValidateUserOtp"
 //	@Failure		400	{object}	render.ErrorResponse	"Bad ValidateUserOtp"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/auth/verify/otp/validate [post]
@@ -200,7 +204,7 @@ func ValidateSignupOTP(w http.ResponseWriter, r *http.Request) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			request	body	models.ValidateUserOtp	true	"request (json)"
-//	@Success		200	{object}	string					"request ID"
+//	@Success		200	{object}	models.ResponseValidateUserOtp "ResponseValidateUserOtp"
 //	@Failure		400	{object}	render.ErrorResponse	"Bad ValidateUserOtp"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/auth/password/reset/otp/validate [post]
@@ -218,7 +222,7 @@ func ValidateForgottenPasswordOTP(w http.ResponseWriter, r *http.Request) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			request	body	models.ValidateUserOtp	true	"request (json)"
-//	@Success		200	{object}	string					"request ID"
+//	@Success		200	{object}	models.ResponseValidateUserOtp "ResponseValidateUserOtp"
 //	@Failure		400	{object}	render.ErrorResponse	"Bad ValidateUserOtp"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
 //	@Router			/api/v1/auth/password/change/otp/validate [post]
