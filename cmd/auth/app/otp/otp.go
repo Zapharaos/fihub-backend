@@ -3,6 +3,7 @@ package otp
 import (
 	"context"
 	"crypto/sha256"
+	"errors"
 	"github.com/Zapharaos/fihub-backend/gen/go/authpb"
 	"github.com/Zapharaos/fihub-backend/internal/utils"
 	"github.com/spf13/viper"
@@ -10,6 +11,13 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"time"
+)
+
+var (
+	ErrOtpInvalid      = errors.New("otp-invalid")
+	ErrArgumentInvalid = errors.New("argument-invalid")
+	ErrSilentPrivate   = errors.New("silent-private")
+	ErrRequestActive   = "request-active"
 )
 
 func GetOtpTimeLimit() time.Duration {
@@ -56,7 +64,7 @@ func IsOtpValid(ctx context.Context, purpose authpb.OtpPurpose, userID, inputOtp
 
 	// Compare hashes
 	if !compareInputWithHash(inputOtp, storedHashOtp) {
-		return status.Error(codes.InvalidArgument, "invalid OTP")
+		return status.Error(codes.InvalidArgument, ErrOtpInvalid.Error())
 	}
 
 	return nil
@@ -72,7 +80,7 @@ func IsFinalRequestValid(ctx context.Context, purpose authpb.OtpPurpose, userID,
 	}
 	if requestID != inputRequestID {
 		zap.L().Error("invalid OTP request ID", zap.String("request_id", inputRequestID))
-		return status.Error(codes.InvalidArgument, "invalid OTP request ID")
+		return status.Error(codes.InvalidArgument, ErrArgumentInvalid.Error())
 	}
 
 	return nil

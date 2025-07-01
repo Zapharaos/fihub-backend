@@ -1,12 +1,9 @@
 package models
 
 import (
-	"errors"
 	"github.com/google/uuid"
 	"time"
 )
-
-var ErrRequestActive = errors.New("request-active")
 
 // RequestUserOtp represents the request for a user otp
 type RequestUserOtp struct {

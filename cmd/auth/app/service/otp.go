@@ -29,11 +29,11 @@ func (s *AuthService) findUserIdentifier(ctx context.Context, req *authpb.Genera
 			Email: req.GetEmail(),
 		})
 		if err != nil {
-			zap.L().Error("failed to check user existence", zap.Error(err))
-			return "", status.Error(codes.Internal, "failed to check user existence")
+			zap.L().Error("userClient.GetByEmail", zap.Error(err))
+			return "", err
 		}
 		if response.GetUser() == nil || response.GetUser().GetId() == "" {
-			return "", status.Error(codes.InvalidArgument, "user not found")
+			return "", status.Error(codes.NotFound, otp.ErrSilentPrivate.Error())
 		}
 
 		// Return the user ID as the identifier
@@ -70,20 +70,20 @@ func (s *AuthService) findUserIdentifier(ctx context.Context, req *authpb.Genera
 			Email: req.GetEmail(),
 		})
 		if err != nil {
-			zap.L().Error("failed to check user existence", zap.Error(err))
-			return "", status.Error(codes.Internal, "failed to check user existence")
+			zap.L().Error("userClient.GetByEmail", zap.Error(err))
+			return "", err
 		}
 
 		// If the user exists, return an error
 		if response.GetUser() != nil {
-			return "", status.Error(codes.InvalidArgument, "user not found")
+			return "", status.Error(codes.AlreadyExists, otp.ErrSilentPrivate.Error())
 		}
 
 		// Return the input email as the identifier
 		return req.GetEmail(), nil
 
 	default:
-		return "", status.Error(codes.InvalidArgument, "invalid OTP purpose")
+		return "", status.Error(codes.InvalidArgument, otp.ErrArgumentInvalid.Error())
 	}
 }
 
@@ -117,6 +117,11 @@ func (s *AuthService) GenerateOTP(ctx context.Context, req *authpb.GenerateOTPRe
 	// Retrieve the user identifier based on the request purpose
 	identifier, err := s.findUserIdentifier(ctx, req)
 	if err != nil {
+		st, ok := status.FromError(err)
+		if ok && (st.Code() == codes.AlreadyExists || st.Code() == codes.NotFound) {
+			// Return a generic response to avoid leaking info regarding the user existence
+			return &authpb.GenerateOTPResponse{}, nil
+		}
 		return nil, err
 	}
 
@@ -132,7 +137,7 @@ func (s *AuthService) GenerateOTP(ctx context.Context, req *authpb.GenerateOTPRe
 		return &authpb.GenerateOTPResponse{
 			Identifier: identifier,
 			ExpiresAt:  timestamppb.New(time.Now().Add(ttl)),
-			Error:      proto.String("request-active"),
+			Error:      proto.String(otp.ErrRequestActive),
 		}, nil
 	}
 
@@ -212,7 +217,7 @@ func (s *AuthService) ValidateOTP(ctx context.Context, req *authpb.ValidateOTPRe
 		// User not authenticated, must include his identifier in request
 		identifier = req.GetIdentifier()
 	default:
-		return nil, status.Error(codes.InvalidArgument, "invalid OTP purpose")
+		return nil, status.Error(codes.InvalidArgument, otp.ErrArgumentInvalid.Error())
 	}
 
 	// Validate the OTP

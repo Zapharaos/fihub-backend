@@ -113,9 +113,9 @@ func validateOTP(w http.ResponseWriter, r *http.Request, purpose authpb.OtpPurpo
 		return
 	}
 
-	render.JSON(w, r, models.ResponseRequestUserOtp{
-		ExpiresAt:  response.GetExpiresAt().AsTime(),
-		Identifier: response.GetRequestId(),
+	render.JSON(w, r, models.ResponseValidateUserOtp{
+		ExpiresAt: response.GetExpiresAt().AsTime(),
+		RequestID: response.GetRequestId(),
 	})
 }
 
