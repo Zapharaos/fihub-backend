@@ -103,7 +103,7 @@ func validateOTP(w http.ResponseWriter, r *http.Request, purpose authpb.OtpPurpo
 
 	// Validate OTP
 	response, err := clients.C().Auth().ValidateOTP(r.Context(), &authpb.ValidateOTPRequest{
-		Identifier: validateUserOtp.UserID.String(),
+		Identifier: validateUserOtp.Identifier,
 		Otp:        validateUserOtp.Otp,
 		Purpose:    purpose,
 	})
@@ -133,7 +133,7 @@ func validateOTP(w http.ResponseWriter, r *http.Request, purpose authpb.OtpPurpo
 //	@Success		200	{object}	models.ResponseRequestUserOtp	"ResponseRequestUserOtp"
 //	@Failure		400	{object}	render.ErrorResponse	"Bad RequestUserOtp"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
-//	@Router			/api/v1/auth/verify/otp [post]
+//	@Router			/api/v1/auth/register/otp [post]
 func GenerateSignupOTP(w http.ResponseWriter, r *http.Request) {
 	generateOTP(w, r, authpb.OtpPurpose_USER_SIGNUP)
 }
@@ -189,7 +189,7 @@ func GenerateChangePasswordOTP(w http.ResponseWriter, r *http.Request) {
 //	@Success		200	{object}	models.ResponseValidateUserOtp "ResponseValidateUserOtp"
 //	@Failure		400	{object}	render.ErrorResponse	"Bad ValidateUserOtp"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
-//	@Router			/api/v1/auth/verify/otp/validate [post]
+//	@Router			/api/v1/auth/register/otp/validate [post]
 func ValidateSignupOTP(w http.ResponseWriter, r *http.Request) {
 	validateOTP(w, r, authpb.OtpPurpose_USER_SIGNUP)
 }
@@ -338,6 +338,7 @@ func RegisterUser(w http.ResponseWriter, r *http.Request) {
 
 	// Update the user password
 	_, err = clients.C().Auth().CreateUser(r.Context(), &authpb.CreateUserRequest{
+		RequestId:    userInputCreate.OtpRequestID.String(),
 		Email:        userInputCreate.Email,
 		Password:     userInputCreate.Password,
 		Confirmation: userInputCreate.Confirmation,

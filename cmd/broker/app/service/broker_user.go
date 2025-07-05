@@ -55,7 +55,7 @@ func (h *Service) CreateBrokerUser(ctx context.Context, req *brokerpb.CreateBrok
 	}
 	if !exists {
 		zap.L().Warn("Broker not found",
-			zap.String("UserID", userBroker.UserID.String()),
+			zap.String("Identifier", userBroker.UserID.String()),
 			zap.String("BrokerID", userBroker.Broker.ID.String()))
 		return &brokerpb.CreateBrokerUserResponse{}, status.Error(codes.NotFound, "Broker not found")
 	}
@@ -137,7 +137,7 @@ func (h *Service) GetBrokerUser(ctx context.Context, req *brokerpb.GetBrokerUser
 	}
 	if !exists {
 		zap.L().Warn("BrokerUser not found",
-			zap.String("UserID", userID.String()),
+			zap.String("Identifier", userID.String()),
 			zap.String("BrokerID", brokerID.String()))
 		return &brokerpb.GetBrokerUserResponse{}, status.Error(codes.NotFound, "Broker not found")
 	}
@@ -192,7 +192,7 @@ func (h *Service) DeleteBrokerUser(ctx context.Context, req *brokerpb.DeleteBrok
 	}
 	if !exists {
 		zap.L().Warn("BrokerUser not found",
-			zap.String("UserID", userID.String()),
+			zap.String("Identifier", userID.String()),
 			zap.String("BrokerID", brokerID.String()))
 		return &brokerpb.DeleteBrokerUserResponse{
 			Success: false,

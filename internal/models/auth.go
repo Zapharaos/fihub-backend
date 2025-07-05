@@ -19,8 +19,8 @@ type ResponseRequestUserOtp struct {
 
 // ValidateUserOtp represents the request for validating a user otp
 type ValidateUserOtp struct {
-	UserID uuid.UUID `json:"user_id"`
-	Otp    string    `json:"otp"`
+	Identifier string `json:"identifier"`
+	Otp        string `json:"otp"`
 }
 
 // ResponseValidateUserOtp represents the response for a user otp validation

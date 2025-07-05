@@ -25,7 +25,8 @@ const (
 // UserInputCreate extends UserInputPassword with a checkbox
 type UserInputCreate struct {
 	UserInputPassword
-	Checkbox bool `json:"checkbox"`
+	Checkbox     bool      `json:"checkbox"`
+	OtpRequestID uuid.UUID `json:"otp_request_id"`
 }
 
 // UserInputPassword extends UserWithPassword with a password-confirmation

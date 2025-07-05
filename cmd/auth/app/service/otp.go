@@ -70,6 +70,12 @@ func (s *AuthService) findUserIdentifier(ctx context.Context, req *authpb.Genera
 			Email: req.GetEmail(),
 		})
 		if err != nil {
+			st, ok := status.FromError(err)
+			if ok && (st.Code() == codes.NotFound) {
+				// If the user does not exist, return the email as the identifier
+				return req.GetEmail(), nil
+			}
+
 			zap.L().Error("userClient.GetByEmail", zap.Error(err))
 			return "", err
 		}
