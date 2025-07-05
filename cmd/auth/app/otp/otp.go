@@ -54,9 +54,9 @@ func Generate() (string, []byte) {
 	return otpValue, hashed
 }
 
-func IsOtpValid(ctx context.Context, purpose authpb.OtpPurpose, userID, inputOtp string) error {
+func IsOtpValid(ctx context.Context, purpose authpb.OtpPurpose, identifier, inputOtp string) error {
 	// Retrieve otp
-	otpKey := BuildOtpKey(userID, purpose)
+	otpKey := BuildOtpKey(identifier, purpose)
 	storedHashOtp, err := GetRedisKey(ctx, otpKey)
 	if err != nil {
 		return err

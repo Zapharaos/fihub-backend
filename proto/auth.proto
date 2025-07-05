@@ -50,7 +50,7 @@ message ExtractUserIDFromTokenResponse {
 }
 
 message GenerateOTPRequest {
-  string email = 1;
+  string identifier = 1;
   OtpPurpose purpose = 2;
   string language = 3;
 }
@@ -85,8 +85,9 @@ message ResetForgottenPasswordResponse {
 
 message UpdatePasswordRequest {
   string request_id = 1;
-  string password = 2;
-  string confirmation = 3;
+  string user_id = 2;
+  string password = 3;
+  string confirmation = 4;
 }
 
 message UpdatePasswordResponse {

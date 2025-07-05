@@ -133,57 +133,6 @@ func UpdateUserSelf(w http.ResponseWriter, r *http.Request) {
 	render.JSON(w, r, mappers.UserFromProto(updateUserResponse.User))
 }
 
-// UpdateUserPassword godoc
-//
-//	@Id				UpdateUserPassword
-//
-//	@Summary		Update the password of the currently authenticated user
-//	@Description	Update the password of the currently authenticated user.
-//	@Tags			User
-//	@Accept			json
-//	@Produce		json
-//	@Param			password	body	models.UserInputPassword	true	"password (json)"
-//	@Security		Bearer
-//	@Success		200	{string}	string					"status OK"
-//	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
-//	@Failure		401	{string}	string					"Permission denied"
-//	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
-//	@Router			/api/v1/user/me/password [put]
-func UpdateUserPassword(w http.ResponseWriter, r *http.Request) {
-	userID, found := U().GetUserIDFromContext(r)
-	if !found {
-		zap.L().Debug("No context user provided")
-		w.WriteHeader(http.StatusUnauthorized)
-		return
-	}
-
-	// Parse request body
-	var userPassword models.UserInputPassword
-	err := json.NewDecoder(r.Body).Decode(&userPassword)
-	if err != nil {
-		zap.L().Warn("User json decode", zap.Error(err))
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	// Map UserInputPassword to gRPC UpdateUserRequest
-	updateUserRequest := &userpb.UpdateUserPasswordRequest{
-		Id:           userID,
-		Password:     userPassword.Password,
-		Confirmation: userPassword.Confirmation,
-	}
-
-	// Update user password
-	_, err = clients.C().User().UpdateUserPassword(r.Context(), updateUserRequest)
-	if err != nil {
-		zap.L().Error("Update user password", zap.Error(err))
-		render.ErrorCodesCodeToHttpCode(w, r, err)
-		return
-	}
-
-	render.OK(w, r)
-}
-
 // DeleteUserSelf godoc
 //
 //	@Id				DeleteUserSelf

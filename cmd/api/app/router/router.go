@@ -74,13 +74,6 @@ func New(config server.Config) *chi.Mux {
 					r.Put("/", handlers.ResetForgottenPassword)
 				})
 
-				// Logged-in user changing password (security verification)
-				r.Route("/change", func(r chi.Router) {
-					r.Post("/otp", handlers.GenerateChangePasswordOTP)
-					r.Post("/otp/validate", handlers.ValidateChangePasswordOTP)
-					r.Put("/", handlers.SubmitChangePassword)
-				})
-
 				// TODO : auth otp rate limiting ?
 				// Create password reset request
 				/*requestLimit := viper.GetInt("OTP_MIDDLEWARE_REQUEST_LIMIT")
@@ -126,9 +119,12 @@ func buildProtectedRoutes(config server.Config) func(r chi.Router) {
 				r.Put("/", handlers.UpdateUserSelf)
 				r.Delete("/", handlers.DeleteUserSelf)
 
-				// User's password : retrieving userID through context
-				// TODO : remove
-				r.Put("/password", handlers.UpdateUserPassword)
+				// Logged-in user changing password (security verification)
+				r.Route("/password", func(r chi.Router) {
+					r.Post("/otp", handlers.GenerateChangePasswordOTP)
+					r.Post("/otp/validate", handlers.ValidateChangePasswordOTP)
+					r.Put("/", handlers.SubmitChangePassword)
+				})
 			})
 
 			// User specific

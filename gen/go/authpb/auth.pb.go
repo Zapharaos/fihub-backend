@@ -348,7 +348,7 @@ func (x *ExtractUserIDFromTokenResponse) GetUserId() string {
 
 type GenerateOTPRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Email         string                 `protobuf:"bytes,1,opt,name=email,proto3" json:"email,omitempty"`
+	Identifier    string                 `protobuf:"bytes,1,opt,name=identifier,proto3" json:"identifier,omitempty"`
 	Purpose       OtpPurpose             `protobuf:"varint,2,opt,name=purpose,proto3,enum=auth.OtpPurpose" json:"purpose,omitempty"`
 	Language      string                 `protobuf:"bytes,3,opt,name=language,proto3" json:"language,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -385,9 +385,9 @@ func (*GenerateOTPRequest) Descriptor() ([]byte, []int) {
 	return file_auth_proto_rawDescGZIP(), []int{6}
 }
 
-func (x *GenerateOTPRequest) GetEmail() string {
+func (x *GenerateOTPRequest) GetIdentifier() string {
 	if x != nil {
-		return x.Email
+		return x.Identifier
 	}
 	return ""
 }
@@ -693,8 +693,9 @@ func (x *ResetForgottenPasswordResponse) GetSuccess() bool {
 type UpdatePasswordRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	RequestId     string                 `protobuf:"bytes,1,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
-	Password      string                 `protobuf:"bytes,2,opt,name=password,proto3" json:"password,omitempty"`
-	Confirmation  string                 `protobuf:"bytes,3,opt,name=confirmation,proto3" json:"confirmation,omitempty"`
+	UserId        string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	Password      string                 `protobuf:"bytes,3,opt,name=password,proto3" json:"password,omitempty"`
+	Confirmation  string                 `protobuf:"bytes,4,opt,name=confirmation,proto3" json:"confirmation,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -732,6 +733,13 @@ func (*UpdatePasswordRequest) Descriptor() ([]byte, []int) {
 func (x *UpdatePasswordRequest) GetRequestId() string {
 	if x != nil {
 		return x.RequestId
+	}
+	return ""
+}
+
+func (x *UpdatePasswordRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
 	}
 	return ""
 }
@@ -932,9 +940,11 @@ const file_auth_proto_rawDesc = "" +
 	"\x1dExtractUserIDFromTokenRequest\x12\x14\n" +
 	"\x05token\x18\x01 \x01(\tR\x05token\"9\n" +
 	"\x1eExtractUserIDFromTokenResponse\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\tR\x06userId\"r\n" +
-	"\x12GenerateOTPRequest\x12\x14\n" +
-	"\x05email\x18\x01 \x01(\tR\x05email\x12*\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\"|\n" +
+	"\x12GenerateOTPRequest\x12\x1e\n" +
+	"\n" +
+	"identifier\x18\x01 \x01(\tR\n" +
+	"identifier\x12*\n" +
 	"\apurpose\x18\x02 \x01(\x0e2\x10.auth.OtpPurposeR\apurpose\x12\x1a\n" +
 	"\blanguage\x18\x03 \x01(\tR\blanguage\"\x95\x01\n" +
 	"\x13GenerateOTPResponse\x12\x1e\n" +
@@ -963,12 +973,13 @@ const file_auth_proto_rawDesc = "" +
 	"\bpassword\x18\x03 \x01(\tR\bpassword\x12\"\n" +
 	"\fconfirmation\x18\x04 \x01(\tR\fconfirmation\":\n" +
 	"\x1eResetForgottenPasswordResponse\x12\x18\n" +
-	"\asuccess\x18\x01 \x01(\bR\asuccess\"v\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess\"\x8f\x01\n" +
 	"\x15UpdatePasswordRequest\x12\x1d\n" +
 	"\n" +
-	"request_id\x18\x01 \x01(\tR\trequestId\x12\x1a\n" +
-	"\bpassword\x18\x02 \x01(\tR\bpassword\x12\"\n" +
-	"\fconfirmation\x18\x03 \x01(\tR\fconfirmation\"2\n" +
+	"request_id\x18\x01 \x01(\tR\trequestId\x12\x17\n" +
+	"\auser_id\x18\x02 \x01(\tR\x06userId\x12\x1a\n" +
+	"\bpassword\x18\x03 \x01(\tR\bpassword\x12\"\n" +
+	"\fconfirmation\x18\x04 \x01(\tR\fconfirmation\"2\n" +
 	"\x16UpdatePasswordResponse\x12\x18\n" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\"\xa4\x01\n" +
 	"\x11CreateUserRequest\x12\x1d\n" +

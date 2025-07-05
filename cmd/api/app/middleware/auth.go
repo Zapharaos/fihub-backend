@@ -6,8 +6,8 @@ import (
 	"github.com/Zapharaos/fihub-backend/cmd/api/app/server"
 	"github.com/Zapharaos/fihub-backend/gen/go/authpb"
 	"github.com/Zapharaos/fihub-backend/internal/app"
+	"github.com/Zapharaos/fihub-backend/internal/grpcutil"
 	"go.uber.org/zap"
-	"google.golang.org/grpc/metadata"
 	"net/http"
 )
 
@@ -59,8 +59,7 @@ func AuthMiddleware(config server.Config) func(http.Handler) http.Handler {
 			}
 
 			// Setup metadata for gRPC clients as context
-			md := metadata.Pairs("x-user-id", userID)
-			ctx := metadata.NewOutgoingContext(r.Context(), md)
+			ctx := grpcutil.AddUserIDToContextMetadata(r.Context(), userID)
 			r = r.WithContext(ctx)
 
 			// Set user ID in context

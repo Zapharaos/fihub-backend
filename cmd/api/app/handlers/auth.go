@@ -70,11 +70,23 @@ func generateOTP(w http.ResponseWriter, r *http.Request, purpose authpb.OtpPurpo
 	// Retrieve user language from query parameters
 	userLanguage := U().ParseParamLanguage(w, r)
 
+	identifier := requestUserOtp.Email
+	if identifier == "" {
+		// Try to get userID from context
+		userID, ok := U().GetUserIDFromContext(r)
+		if !ok || userID == "" {
+			zap.L().Warn("generateOTP: missing identifier")
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		identifier = userID
+	}
+
 	// Generate OTP
 	response, err := clients.C().Auth().GenerateOTP(r.Context(), &authpb.GenerateOTPRequest{
-		Email:    requestUserOtp.Email,
-		Language: userLanguage.String(),
-		Purpose:  purpose,
+		Identifier: identifier,
+		Language:   userLanguage.String(),
+		Purpose:    purpose,
 	})
 	// Handle errors during OTP generation
 	if err != nil {
@@ -166,12 +178,13 @@ func GenerateForgottenPasswordOTP(w http.ResponseWriter, r *http.Request) {
 //	@Tags			Auth
 //	@Accept			json
 //	@Produce		json
+//	@Security 		Bearer
 //	@Param			lang	query	string					false	"Language code"
 //	@Param			request	body	models.RequestUserOtp	true	"request (json)"
 //	@Success		200	{object}	models.ResponseRequestUserOtp	"ResponseRequestUserOtp"
 //	@Failure		400	{object}	render.ErrorResponse	"Bad RequestUserOtp"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
-//	@Router			/api/v1/auth/password/change/otp [post]
+//	@Router			/api/v1/user/me/password/otp [post]
 func GenerateChangePasswordOTP(w http.ResponseWriter, r *http.Request) {
 	generateOTP(w, r, authpb.OtpPurpose_PASSWORD_CHANGE)
 }
@@ -221,11 +234,12 @@ func ValidateForgottenPasswordOTP(w http.ResponseWriter, r *http.Request) {
 //	@Tags			Auth
 //	@Accept			json
 //	@Produce		json
+//	@Security 		Bearer
 //	@Param			request	body	models.ValidateUserOtp	true	"request (json)"
 //	@Success		200	{object}	models.ResponseValidateUserOtp "ResponseValidateUserOtp"
 //	@Failure		400	{object}	render.ErrorResponse	"Bad ValidateUserOtp"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
-//	@Router			/api/v1/auth/password/change/otp/validate [post]
+//	@Router			/api/v1/user/me/password/otp/validate [post]
 func ValidateChangePasswordOTP(w http.ResponseWriter, r *http.Request) {
 	validateOTP(w, r, authpb.OtpPurpose_PASSWORD_CHANGE)
 }
@@ -281,11 +295,12 @@ func ResetForgottenPassword(w http.ResponseWriter, r *http.Request) {
 //	@Tags			Auth
 //	@Accept			json
 //	@Produce		json
+//	@Security 		Bearer
 //	@Param			request	body	models.UserInputChangePassword	true	"request (json)"
 //	@Success		200	{object}	string					"OK"
 //	@Failure		400	{object}	render.ErrorResponse	"Bad UserInputChangePassword"
 //	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
-//	@Router			/api/v1/auth/password/change [put]
+//	@Router			/api/v1/user/me/password [put]
 func SubmitChangePassword(w http.ResponseWriter, r *http.Request) {
 	// Parse request body
 	var inputChangePassword models.UserInputChangePassword
@@ -298,6 +313,7 @@ func SubmitChangePassword(w http.ResponseWriter, r *http.Request) {
 
 	// Update the user password
 	_, err = clients.C().Auth().UpdatePassword(r.Context(), &authpb.UpdatePasswordRequest{
+		UserId:       inputChangePassword.UserID.String(),
 		RequestId:    inputChangePassword.OtpRequestID.String(),
 		Password:     inputChangePassword.Password,
 		Confirmation: inputChangePassword.Confirmation,

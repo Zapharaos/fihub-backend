@@ -6,6 +6,7 @@ import (
 	"github.com/Zapharaos/fihub-backend/gen/go/authpb"
 	"github.com/Zapharaos/fihub-backend/gen/go/userpb"
 	"github.com/Zapharaos/fihub-backend/internal/database"
+	"github.com/Zapharaos/fihub-backend/internal/grpcutil"
 	"github.com/Zapharaos/fihub-backend/pkg/email"
 	"github.com/google/uuid"
 	"github.com/spf13/viper"
@@ -18,7 +19,7 @@ import (
 	"time"
 )
 
-func (s *AuthService) findUserIdentifier(ctx context.Context, req *authpb.GenerateOTPRequest) (string, error) {
+func (s *AuthService) findUserIdentifiers(ctx context.Context, req *authpb.GenerateOTPRequest) (string, string, error) {
 
 	switch req.Purpose {
 	case authpb.OtpPurpose_PASSWORD_RESET:
@@ -26,70 +27,70 @@ func (s *AuthService) findUserIdentifier(ctx context.Context, req *authpb.Genera
 
 		// Verify if the user exists
 		response, err := s.userClient.GetByEmail(ctx, &userpb.GetByEmailRequest{
-			Email: req.GetEmail(),
+			Email: req.GetIdentifier(),
 		})
 		if err != nil {
 			zap.L().Error("userClient.GetByEmail", zap.Error(err))
-			return "", err
+			return "", "", err
 		}
-		if response.GetUser() == nil || response.GetUser().GetId() == "" {
-			return "", status.Error(codes.NotFound, otp.ErrSilentPrivate.Error())
+		if response.GetUser() == nil || response.GetUser().GetEmail() == "" || response.GetUser().GetId() == "" {
+			return "", "", status.Error(codes.NotFound, otp.ErrSilentPrivate.Error())
 		}
 
-		// Return the user ID as the identifier
-		return response.GetUser().GetId(), nil
+		// Return the identifiers as user email and user ID
+		return response.GetUser().GetEmail(), response.GetUser().GetId(), nil
 
 	case authpb.OtpPurpose_PASSWORD_CHANGE:
-		// Must retrieve userID from context
+		// Must retrieve user email using his ID, should be provided by API service context as identifier here
 
-		userID, ok := ctx.Value("userID").(string)
-		if !ok || userID == "" {
-			return "", status.Error(codes.Unauthenticated, "user ID not found in context")
+		// Propagate metadata from the incoming context to the outgoing context
+		ctx = grpcutil.PropagateContextMetadata(ctx)
+
+		// Retrieve the user
+		response, err := s.userClient.GetUser(ctx, &userpb.GetUserRequest{
+			Id: req.GetIdentifier(),
+		})
+		if err != nil {
+			zap.L().Error("userClient.GetUser", zap.Error(err))
+			return "", "", err
+		}
+		if response.GetUser() == nil || response.GetUser().GetEmail() == "" || response.GetUser().GetId() == "" {
+			return "", "", status.Error(codes.NotFound, otp.ErrSilentPrivate.Error())
 		}
 
-		// Retrieve the metadata
-		/*md, ok := metadata.FromIncomingContext(ctx)
-		if !ok {
-			"", status.Error(codes.Unauthenticated, "Missing metadata")
-		}
-
-		// Check if the user ID is provided in the metadata
-		userIDs := md.Get("x-user-id")
-		if len(userIDs) == 0 {
-			"", status.Error(codes.Unauthenticated, "Missing user ID in metadata")
-		}*/
-
-		// Return the user ID from context as the identifier
-		return userID, nil
+		// Return the identifiers as user email and user ID
+		return response.GetUser().GetEmail(), response.GetUser().GetId(), nil
 
 	case authpb.OtpPurpose_USER_SIGNUP:
 		// Must assure that the provided email is not already associated with a user
 
 		// Verify if the user exists
 		response, err := s.userClient.GetByEmail(ctx, &userpb.GetByEmailRequest{
-			Email: req.GetEmail(),
+			Email: req.GetIdentifier(),
 		})
 		if err != nil {
 			st, ok := status.FromError(err)
 			if ok && (st.Code() == codes.NotFound) {
-				// If the user does not exist, return the email as the identifier
-				return req.GetEmail(), nil
+				// If the user does not exist, return the identifiers as email for both fields
+				// It is valid for signup and user misses an id yet
+				return req.GetIdentifier(), req.GetIdentifier(), nil
 			}
 
 			zap.L().Error("userClient.GetByEmail", zap.Error(err))
-			return "", err
+			return "", "", err
 		}
 
 		// If the user exists, return an error
 		if response.GetUser() != nil {
-			return "", status.Error(codes.AlreadyExists, otp.ErrSilentPrivate.Error())
+			return "", "", status.Error(codes.AlreadyExists, otp.ErrSilentPrivate.Error())
 		}
 
-		// Return the input email as the identifier
-		return req.GetEmail(), nil
+		// Return the identifiers as user email in both fields
+		// It is valid for signup and user misses an id yet
+		return req.GetIdentifier(), req.GetIdentifier(), nil
 
 	default:
-		return "", status.Error(codes.InvalidArgument, otp.ErrArgumentInvalid.Error())
+		return "", "", status.Error(codes.InvalidArgument, otp.ErrArgumentInvalid.Error())
 	}
 }
 
@@ -120,8 +121,8 @@ func (s *AuthService) setupForFinalRequest(ctx context.Context, purpose authpb.O
 func (s *AuthService) GenerateOTP(ctx context.Context, req *authpb.GenerateOTPRequest) (*authpb.GenerateOTPResponse, error) {
 	// TODO : move handlers middleware rate limiter to here? attempts count?
 
-	// Retrieve the user identifier based on the request purpose
-	identifier, err := s.findUserIdentifier(ctx, req)
+	// Retrieve the user identifiers based on the request purpose
+	userEmail, identifier, err := s.findUserIdentifiers(ctx, req)
 	if err != nil {
 		st, ok := status.FromError(err)
 		if ok && (st.Code() == codes.AlreadyExists || st.Code() == codes.NotFound) {
@@ -152,7 +153,7 @@ func (s *AuthService) GenerateOTP(ctx context.Context, req *authpb.GenerateOTPRe
 	expiresAt := timestamppb.New(time.Now().Add(otpTimeLimit))
 	otpValue, otpHash := otp.Generate()
 
-	// Store OTP in Redis with identifier and purpose as key
+	// Store OTP in Redis
 	err = database.DB().Redis().Client.Set(ctx, otpKey, otpHash, otpTimeLimit).Err()
 	if err != nil {
 		zap.L().Error("failed to store OTP", zap.Error(err))
@@ -180,7 +181,7 @@ func (s *AuthService) GenerateOTP(ctx context.Context, req *authpb.GenerateOTPRe
 	}
 
 	// Send email
-	err = email.S().Send(req.GetEmail(), subject, plainTextContent, htmlContent)
+	err = email.S().Send(userEmail, subject, plainTextContent, htmlContent)
 	if err != nil {
 		// Delete the request since the email could not be sent
 		otp.CleanupRedisKey(ctx, otpKey)
@@ -201,26 +202,8 @@ func (s *AuthService) ValidateOTP(ctx context.Context, req *authpb.ValidateOTPRe
 
 	var identifier string
 	switch req.Purpose {
-	case authpb.OtpPurpose_PASSWORD_CHANGE:
-		// User authenticated, retrieve his identifier from context
-		userID, ok := ctx.Value("userID").(string)
-		if !ok || userID == "" {
-			return nil, status.Error(codes.Unauthenticated, "user ID not found in context")
-		}
-
-		// Retrieve the metadata
-		/*md, ok := metadata.FromIncomingContext(ctx)
-		if !ok {
-			nil, status.Error(codes.Unauthenticated, "Missing metadata")
-		}
-
-		// Check if the user ID is provided in the metadata
-		userIDs := md.Get("x-user-id")
-		if len(userIDs) == 0 {
-			nil, status.Error(codes.Unauthenticated, "Missing user ID in metadata")
-		}*/
-	case authpb.OtpPurpose_PASSWORD_RESET, authpb.OtpPurpose_USER_SIGNUP:
-		// User not authenticated, must include his identifier in request
+	case authpb.OtpPurpose_PASSWORD_CHANGE, authpb.OtpPurpose_PASSWORD_RESET, authpb.OtpPurpose_USER_SIGNUP:
+		// User must include his identifier in request
 		identifier = req.GetIdentifier()
 	default:
 		return nil, status.Error(codes.InvalidArgument, otp.ErrArgumentInvalid.Error())

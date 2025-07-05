@@ -4,10 +4,10 @@ import (
 	"context"
 	"github.com/Zapharaos/fihub-backend/cmd/security/app/repositories"
 	"github.com/Zapharaos/fihub-backend/gen/go/securitypb"
+	"github.com/Zapharaos/fihub-backend/internal/grpcutil"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 )
 
@@ -18,24 +18,16 @@ type PublicService struct {
 
 // CheckPermission implements the CheckPermission RPC method.
 func (s *PublicService) CheckPermission(ctx context.Context, req *securitypb.CheckPermissionRequest) (*securitypb.CheckPermissionResponse, error) {
-	// Retrieve the metadata
-	md, ok := metadata.FromIncomingContext(ctx)
-	if !ok {
-		return &securitypb.CheckPermissionResponse{
-			HasPermission: false,
-		}, status.Error(codes.Unauthenticated, "Missing metadata")
-	}
 
-	// Check if the user ID is provided in the metadata
-	userIDs := md.Get("x-user-id")
-	if len(userIDs) == 0 {
+	// Retrieve the user ID from the context
+	userID, err := grpcutil.GetUserIDFromContextMetadata(ctx)
+	if err != nil {
 		return &securitypb.CheckPermissionResponse{
 			HasPermission: false,
-		}, status.Error(codes.Unauthenticated, "Missing user ID in metadata")
+		}, err
 	}
 
 	// If the user ID is provided in the request, we should check if it matches the user ID in the metadata
-	userID := userIDs[0]
 	if req.GetUserId() != "" && userID == req.GetUserId() {
 		// User is performing request for himself : authorized
 		return &securitypb.CheckPermissionResponse{
