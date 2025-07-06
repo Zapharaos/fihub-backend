@@ -5,6 +5,7 @@ import (
 	"errors"
 	"github.com/Zapharaos/fihub-backend/cmd/security/app/repositories"
 	"github.com/Zapharaos/fihub-backend/gen/go/securitypb"
+	"github.com/Zapharaos/fihub-backend/internal/app"
 	"github.com/Zapharaos/fihub-backend/internal/models"
 	"github.com/Zapharaos/fihub-backend/test/mocks"
 	"github.com/google/uuid"
@@ -21,7 +22,7 @@ func TestPublicService_CheckPermission(t *testing.T) {
 	service := &PublicService{}
 	userID := uuid.New()
 	validContext := metadata.NewIncomingContext(context.Background(), metadata.MD{
-		"x-user-id": {uuid.New().String()},
+		string(app.ContextKeyUserID): {uuid.New().String()},
 	})
 	validRequest := &securitypb.CheckPermissionRequest{
 		UserId:     userID.String(),
@@ -105,7 +106,7 @@ func TestPublicService_CheckPermission(t *testing.T) {
 				repositories.ReplaceGlobals(repositories.NewRepository(r, nil))
 				// Create a new context without userID in metadata
 				return metadata.NewIncomingContext(context.Background(), metadata.MD{
-					"x-user-id": {userID.String()},
+					string(app.ContextKeyUserID): {userID.String()},
 				})
 			},
 			request:         validRequest,

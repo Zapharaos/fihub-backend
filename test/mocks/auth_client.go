@@ -42,6 +42,26 @@ func (m *MockAuthServiceClient) EXPECT() *MockAuthServiceClientMockRecorder {
 	return m.recorder
 }
 
+// CreateUser mocks base method.
+func (m *MockAuthServiceClient) CreateUser(ctx context.Context, in *authpb.CreateUserRequest, opts ...grpc.CallOption) (*authpb.CreateUserResponse, error) {
+	m.ctrl.T.Helper()
+	varargs := []any{ctx, in}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "CreateUser", varargs...)
+	ret0, _ := ret[0].(*authpb.CreateUserResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateUser indicates an expected call of CreateUser.
+func (mr *MockAuthServiceClientMockRecorder) CreateUser(ctx, in any, opts ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]any{ctx, in}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateUser", reflect.TypeOf((*MockAuthServiceClient)(nil).CreateUser), varargs...)
+}
+
 // ExtractUserIDFromToken mocks base method.
 func (m *MockAuthServiceClient) ExtractUserIDFromToken(ctx context.Context, in *authpb.ExtractUserIDFromTokenRequest, opts ...grpc.CallOption) (*authpb.ExtractUserIDFromTokenResponse, error) {
 	m.ctrl.T.Helper()
@@ -100,6 +120,46 @@ func (mr *MockAuthServiceClientMockRecorder) GenerateToken(ctx, in any, opts ...
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]any{ctx, in}, opts...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GenerateToken", reflect.TypeOf((*MockAuthServiceClient)(nil).GenerateToken), varargs...)
+}
+
+// ResetForgottenPassword mocks base method.
+func (m *MockAuthServiceClient) ResetForgottenPassword(ctx context.Context, in *authpb.ResetForgottenPasswordRequest, opts ...grpc.CallOption) (*authpb.ResetForgottenPasswordResponse, error) {
+	m.ctrl.T.Helper()
+	varargs := []any{ctx, in}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "ResetForgottenPassword", varargs...)
+	ret0, _ := ret[0].(*authpb.ResetForgottenPasswordResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ResetForgottenPassword indicates an expected call of ResetForgottenPassword.
+func (mr *MockAuthServiceClientMockRecorder) ResetForgottenPassword(ctx, in any, opts ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]any{ctx, in}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ResetForgottenPassword", reflect.TypeOf((*MockAuthServiceClient)(nil).ResetForgottenPassword), varargs...)
+}
+
+// UpdatePassword mocks base method.
+func (m *MockAuthServiceClient) UpdatePassword(ctx context.Context, in *authpb.UpdatePasswordRequest, opts ...grpc.CallOption) (*authpb.UpdatePasswordResponse, error) {
+	m.ctrl.T.Helper()
+	varargs := []any{ctx, in}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "UpdatePassword", varargs...)
+	ret0, _ := ret[0].(*authpb.UpdatePasswordResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdatePassword indicates an expected call of UpdatePassword.
+func (mr *MockAuthServiceClientMockRecorder) UpdatePassword(ctx, in any, opts ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]any{ctx, in}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdatePassword", reflect.TypeOf((*MockAuthServiceClient)(nil).UpdatePassword), varargs...)
 }
 
 // ValidateOTP mocks base method.
@@ -166,6 +226,21 @@ func (m *MockAuthServiceServer) EXPECT() *MockAuthServiceServerMockRecorder {
 	return m.recorder
 }
 
+// CreateUser mocks base method.
+func (m *MockAuthServiceServer) CreateUser(arg0 context.Context, arg1 *authpb.CreateUserRequest) (*authpb.CreateUserResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateUser", arg0, arg1)
+	ret0, _ := ret[0].(*authpb.CreateUserResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateUser indicates an expected call of CreateUser.
+func (mr *MockAuthServiceServerMockRecorder) CreateUser(arg0, arg1 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateUser", reflect.TypeOf((*MockAuthServiceServer)(nil).CreateUser), arg0, arg1)
+}
+
 // ExtractUserIDFromToken mocks base method.
 func (m *MockAuthServiceServer) ExtractUserIDFromToken(arg0 context.Context, arg1 *authpb.ExtractUserIDFromTokenRequest) (*authpb.ExtractUserIDFromTokenResponse, error) {
 	m.ctrl.T.Helper()
@@ -209,6 +284,36 @@ func (m *MockAuthServiceServer) GenerateToken(arg0 context.Context, arg1 *authpb
 func (mr *MockAuthServiceServerMockRecorder) GenerateToken(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GenerateToken", reflect.TypeOf((*MockAuthServiceServer)(nil).GenerateToken), arg0, arg1)
+}
+
+// ResetForgottenPassword mocks base method.
+func (m *MockAuthServiceServer) ResetForgottenPassword(arg0 context.Context, arg1 *authpb.ResetForgottenPasswordRequest) (*authpb.ResetForgottenPasswordResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ResetForgottenPassword", arg0, arg1)
+	ret0, _ := ret[0].(*authpb.ResetForgottenPasswordResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ResetForgottenPassword indicates an expected call of ResetForgottenPassword.
+func (mr *MockAuthServiceServerMockRecorder) ResetForgottenPassword(arg0, arg1 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ResetForgottenPassword", reflect.TypeOf((*MockAuthServiceServer)(nil).ResetForgottenPassword), arg0, arg1)
+}
+
+// UpdatePassword mocks base method.
+func (m *MockAuthServiceServer) UpdatePassword(arg0 context.Context, arg1 *authpb.UpdatePasswordRequest) (*authpb.UpdatePasswordResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdatePassword", arg0, arg1)
+	ret0, _ := ret[0].(*authpb.UpdatePasswordResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdatePassword indicates an expected call of UpdatePassword.
+func (mr *MockAuthServiceServerMockRecorder) UpdatePassword(arg0, arg1 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdatePassword", reflect.TypeOf((*MockAuthServiceServer)(nil).UpdatePassword), arg0, arg1)
 }
 
 // ValidateOTP mocks base method.

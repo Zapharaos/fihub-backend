@@ -31,7 +31,7 @@ func TestAuthMiddleware(t *testing.T) {
 			mockSetup: func(ctrl *gomock.Controller) {
 				authClient := mocks.NewMockAuthServiceClient(ctrl)
 				authClient.EXPECT().ValidateToken(gomock.Any(), gomock.Any()).Times(0)
-				authClient.EXPECT().ExtractUserID(gomock.Any(), gomock.Any()).Times(0)
+				authClient.EXPECT().ExtractUserIDFromToken(gomock.Any(), gomock.Any()).Times(0)
 				clients.ReplaceGlobals(clients.NewClients(
 					clients.WithAuthClient(authClient),
 				))
@@ -47,7 +47,7 @@ func TestAuthMiddleware(t *testing.T) {
 			mockSetup: func(ctrl *gomock.Controller) {
 				authClient := mocks.NewMockAuthServiceClient(ctrl)
 				authClient.EXPECT().ValidateToken(gomock.Any(), gomock.Any()).Times(0)
-				authClient.EXPECT().ExtractUserID(gomock.Any(), gomock.Any()).Return(&authpb.ExtractUserIDResponse{}, errors.New("some error"))
+				authClient.EXPECT().ExtractUserIDFromToken(gomock.Any(), gomock.Any()).Return(&authpb.ExtractUserIDFromTokenResponse{}, errors.New("some error"))
 				clients.ReplaceGlobals(clients.NewClients(
 					clients.WithAuthClient(authClient),
 				))
@@ -64,7 +64,7 @@ func TestAuthMiddleware(t *testing.T) {
 			mockSetup: func(ctrl *gomock.Controller) {
 				authClient := mocks.NewMockAuthServiceClient(ctrl)
 				authClient.EXPECT().ValidateToken(gomock.Any(), gomock.Any()).Return(&authpb.ValidateTokenResponse{}, errors.New("some error"))
-				authClient.EXPECT().ExtractUserID(gomock.Any(), gomock.Any()).Times(0)
+				authClient.EXPECT().ExtractUserIDFromToken(gomock.Any(), gomock.Any()).Times(0)
 				clients.ReplaceGlobals(clients.NewClients(
 					clients.WithAuthClient(authClient),
 				))
@@ -80,7 +80,7 @@ func TestAuthMiddleware(t *testing.T) {
 			mockSetup: func(ctrl *gomock.Controller) {
 				authClient := mocks.NewMockAuthServiceClient(ctrl)
 				authClient.EXPECT().ValidateToken(gomock.Any(), gomock.Any()).Times(0)
-				authClient.EXPECT().ExtractUserID(gomock.Any(), gomock.Any()).Return(&authpb.ExtractUserIDResponse{
+				authClient.EXPECT().ExtractUserIDFromToken(gomock.Any(), gomock.Any()).Return(&authpb.ExtractUserIDFromTokenResponse{
 					UserId: inputUserID,
 				}, nil)
 				clients.ReplaceGlobals(clients.NewClients(
@@ -101,7 +101,7 @@ func TestAuthMiddleware(t *testing.T) {
 				authClient.EXPECT().ValidateToken(gomock.Any(), gomock.Any()).Return(&authpb.ValidateTokenResponse{
 					UserId: inputUserID,
 				}, nil)
-				authClient.EXPECT().ExtractUserID(gomock.Any(), gomock.Any()).Times(0)
+				authClient.EXPECT().ExtractUserIDFromToken(gomock.Any(), gomock.Any()).Times(0)
 				clients.ReplaceGlobals(clients.NewClients(
 					clients.WithAuthClient(authClient),
 				))
