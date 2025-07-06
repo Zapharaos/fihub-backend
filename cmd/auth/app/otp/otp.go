@@ -21,7 +21,6 @@ var (
 )
 
 func GetOtpTimeLimit() time.Duration {
-	// TODO : handle different duration depending on purpose?
 	timeLimit := viper.GetDuration("OTP_DURATION")
 	if timeLimit == 0 {
 		timeLimit = 15 * time.Minute
@@ -30,9 +29,11 @@ func GetOtpTimeLimit() time.Duration {
 }
 
 func GetFinalRequestTimeLimit() time.Duration {
-	// TODO : add as config variable?
-	// TODO : handle different duration depending on purpose?
-	return 15 * time.Minute
+	timeLimit := viper.GetDuration("OTP_FINAL_REQUEST_DURATION")
+	if timeLimit == 0 {
+		timeLimit = 15 * time.Minute
+	}
+	return timeLimit
 }
 
 func hash(value string) []byte {
@@ -48,7 +49,6 @@ func compareInputWithHash(input string, hashed string) bool {
 }
 
 func Generate() (string, []byte) {
-	// TODO : handle different length depending on purpose?
 	otpValue := utils.RandDigitString(viper.GetInt("OTP_LENGTH"))
 	hashed := hash(otpValue)
 	return otpValue, hashed

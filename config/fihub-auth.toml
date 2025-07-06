@@ -97,6 +97,11 @@ OTP_LENGTH = "6"
 # Default value: "30m"
 OTP_DURATION = "30m"
 
+# Specify the duration for which the final request of OTP is valid
+# Expressed as a Golang duration
+# Default value: "15m"
+OTP_FINAL_REQUEST_DURATION = "15m"
+
 # Specify the SendGrid API key
 # Used for sending emails through the SendGrid service
 # Default value: "YOUR_SENDGRID_API_KEY"
