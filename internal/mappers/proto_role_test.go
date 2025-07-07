@@ -207,51 +207,58 @@ func Test_RolesWithPermissionsToProto(t *testing.T) {
 
 // Test_RolesWithPermissionsFromProto tests the RolesWithPermissionsFromProto function
 func Test_RolesWithPermissionsFromProto(t *testing.T) {
-	// Create test roles with permissions
-	id1 := uuid.New()
-	id2 := uuid.New()
-	protoRoles := []*securitypb.RoleWithPermissions{
-		{
-			Role: &securitypb.Role{
-				Id:   id1.String(),
-				Name: "admin",
-			},
-			Permissions: []*securitypb.Permission{
-				{
-					Id:          uuid.New().String(),
-					Value:       "read",
-					Scope:       "admin",
-					Description: "Test permission",
+	t.Run("nil input returns zero value", func(t *testing.T) {
+		roles := RolesWithPermissionsFromProto(nil)
+		assert.Equal(t, 0, len(roles))
+	})
+
+	t.Run("valid roles with permissions", func(t *testing.T) {
+		// Create test roles with permissions
+		id1 := uuid.New()
+		id2 := uuid.New()
+		protoRoles := []*securitypb.RoleWithPermissions{
+			{
+				Role: &securitypb.Role{
+					Id:   id1.String(),
+					Name: "admin",
+				},
+				Permissions: []*securitypb.Permission{
+					{
+						Id:          uuid.New().String(),
+						Value:       "read",
+						Scope:       "admin",
+						Description: "Test permission",
+					},
 				},
 			},
-		},
-		{
-			Role: &securitypb.Role{
-				Id:   id2.String(),
-				Name: "user",
-			},
-			Permissions: []*securitypb.Permission{
-				{
-					Id:          uuid.New().String(),
-					Value:       "write",
-					Scope:       "all",
-					Description: "Test permission 2",
+			{
+				Role: &securitypb.Role{
+					Id:   id2.String(),
+					Name: "user",
+				},
+				Permissions: []*securitypb.Permission{
+					{
+						Id:          uuid.New().String(),
+						Value:       "write",
+						Scope:       "all",
+						Description: "Test permission 2",
+					},
 				},
 			},
-		},
-	}
+		}
 
-	// Convert to model
-	roles := RolesWithPermissionsFromProto(protoRoles)
+		// Convert to model
+		roles := RolesWithPermissionsFromProto(protoRoles)
 
-	// Assert values were correctly converted
-	assert.Equal(t, 2, len(roles))
-	assert.Equal(t, id1, roles[0].Role.Id)
-	assert.Equal(t, "admin", roles[0].Role.Name)
-	assert.Equal(t, 1, len(roles[0].Permissions))
-	assert.Equal(t, "read", roles[0].Permissions[0].Value)
-	assert.Equal(t, id2, roles[1].Role.Id)
-	assert.Equal(t, "user", roles[1].Role.Name)
-	assert.Equal(t, 1, len(roles[1].Permissions))
-	assert.Equal(t, "write", roles[1].Permissions[0].Value)
+		// Assert values were correctly converted
+		assert.Equal(t, 2, len(roles))
+		assert.Equal(t, id1, roles[0].Role.Id)
+		assert.Equal(t, "admin", roles[0].Role.Name)
+		assert.Equal(t, 1, len(roles[0].Permissions))
+		assert.Equal(t, "read", roles[0].Permissions[0].Value)
+		assert.Equal(t, id2, roles[1].Role.Id)
+		assert.Equal(t, "user", roles[1].Role.Name)
+		assert.Equal(t, 1, len(roles[1].Permissions))
+		assert.Equal(t, "write", roles[1].Permissions[0].Value)
+	})
 }

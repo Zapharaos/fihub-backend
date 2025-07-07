@@ -119,8 +119,6 @@ func (s *AuthService) setupForFinalRequest(ctx context.Context, purpose authpb.O
 
 // GenerateOTP generates a one-time password (OTP) for the user
 func (s *AuthService) GenerateOTP(ctx context.Context, req *authpb.GenerateOTPRequest) (*authpb.GenerateOTPResponse, error) {
-	// TODO : move handlers middleware rate limiter to here? attempts count?
-
 	// Retrieve the user identifiers based on the request purpose
 	userEmail, identifier, err := s.findUserIdentifiers(ctx, req)
 	if err != nil {
@@ -198,8 +196,6 @@ func (s *AuthService) GenerateOTP(ctx context.Context, req *authpb.GenerateOTPRe
 
 // ValidateOTP validates the one-time password (OTP) for the user
 func (s *AuthService) ValidateOTP(ctx context.Context, req *authpb.ValidateOTPRequest) (*authpb.ValidateOTPResponse, error) {
-	// TODO : same as for GenerateOTP "todo" for rate limiting
-
 	var identifier string
 	switch req.Purpose {
 	case authpb.OtpPurpose_PASSWORD_CHANGE, authpb.OtpPurpose_PASSWORD_RESET, authpb.OtpPurpose_USER_SIGNUP:
