@@ -330,6 +330,93 @@ func TestGetUser(t *testing.T) {
 	}
 }
 
+// TestExistByEmail tests the ExistByEmail service
+func TestExistByEmail(t *testing.T) {
+	service := &Service{}
+	validRequest := &userpb.GetByEmailRequest{
+		Email: "email",
+	}
+
+	// Define tests
+	tests := []struct {
+		name            string
+		mockSetup       func(ctrl *gomock.Controller)
+		request         *userpb.GetByEmailRequest
+		expected        *userpb.GetByEmailResponse
+		expectedErrCode codes.Code
+	}{
+		{
+			name: "Fails to retrieve the user by email",
+			mockSetup: func(ctrl *gomock.Controller) {
+				// Mock the user repository
+				u := mocks.NewUserRepository(ctrl)
+				u.EXPECT().GetByEmail(gomock.Any()).Return(models.User{}, false, errors.New("error"))
+				repositories.ReplaceGlobals(u)
+			},
+			request:         validRequest,
+			expected:        &userpb.GetByEmailResponse{},
+			expectedErrCode: codes.Internal,
+		},
+		{
+			name: "Could not find the user",
+			mockSetup: func(ctrl *gomock.Controller) {
+				// Mock the user repository
+				u := mocks.NewUserRepository(ctrl)
+				u.EXPECT().GetByEmail(gomock.Any()).Return(models.User{}, false, nil)
+				repositories.ReplaceGlobals(u)
+			},
+			request:         validRequest,
+			expected:        &userpb.GetByEmailResponse{},
+			expectedErrCode: codes.NotFound,
+		},
+		{
+			name: "Succeeds",
+			mockSetup: func(ctrl *gomock.Controller) {
+				// Mock the user repository
+				u := mocks.NewUserRepository(ctrl)
+				u.EXPECT().GetByEmail(gomock.Any()).Return(models.User{}, true, nil)
+				repositories.ReplaceGlobals(u)
+			},
+			request: validRequest,
+			expected: &userpb.GetByEmailResponse{
+				User: &userpb.User{},
+			},
+			expectedErrCode: codes.OK,
+		},
+	}
+
+	// Run tests
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Apply mocks
+			ctrl := gomock.NewController(t)
+			tt.mockSetup(ctrl)
+			defer ctrl.Finish()
+
+			// Call service
+			response, err := service.GetByEmail(context.Background(), tt.request)
+
+			// Handle errors
+			if err != nil && tt.expectedErrCode == codes.OK {
+				assert.Fail(t, "unexpected error", err)
+			} else if err != nil {
+				if s, ok := status.FromError(err); ok {
+					assert.Equal(t, tt.expectedErrCode, s.Code())
+				} else {
+					assert.Fail(t, "failed to get status from error")
+				}
+			}
+
+			// Handle response
+			if tt.expectedErrCode == codes.OK {
+				assert.NotNil(t, response)
+			} else {
+				assert.Equal(t, tt.expected, response)
+			}
+		})
+	}
+}
+
 // TestUpdateUser tests the UpdateUser service
 func TestUpdateUser(t *testing.T) {
 	service := &Service{}

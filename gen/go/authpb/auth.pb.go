@@ -9,6 +9,7 @@ package authpb
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -20,6 +21,58 @@ const (
 	// Verify that runtime/protoimpl is sufficiently up-to-date.
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
+
+type OtpPurpose int32
+
+const (
+	OtpPurpose_UNSPECIFIED     OtpPurpose = 0
+	OtpPurpose_PASSWORD_RESET  OtpPurpose = 1
+	OtpPurpose_PASSWORD_CHANGE OtpPurpose = 2
+	OtpPurpose_USER_SIGNUP     OtpPurpose = 3
+)
+
+// Enum value maps for OtpPurpose.
+var (
+	OtpPurpose_name = map[int32]string{
+		0: "UNSPECIFIED",
+		1: "PASSWORD_RESET",
+		2: "PASSWORD_CHANGE",
+		3: "USER_SIGNUP",
+	}
+	OtpPurpose_value = map[string]int32{
+		"UNSPECIFIED":     0,
+		"PASSWORD_RESET":  1,
+		"PASSWORD_CHANGE": 2,
+		"USER_SIGNUP":     3,
+	}
+)
+
+func (x OtpPurpose) Enum() *OtpPurpose {
+	p := new(OtpPurpose)
+	*p = x
+	return p
+}
+
+func (x OtpPurpose) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (OtpPurpose) Descriptor() protoreflect.EnumDescriptor {
+	return file_auth_proto_enumTypes[0].Descriptor()
+}
+
+func (OtpPurpose) Type() protoreflect.EnumType {
+	return &file_auth_proto_enumTypes[0]
+}
+
+func (x OtpPurpose) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use OtpPurpose.Descriptor instead.
+func (OtpPurpose) EnumDescriptor() ([]byte, []int) {
+	return file_auth_proto_rawDescGZIP(), []int{0}
+}
 
 type GenerateTokenRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -205,27 +258,27 @@ func (x *ValidateTokenResponse) GetUserId() string {
 	return ""
 }
 
-type ExtractUserIDRequest struct {
+type ExtractUserIDFromTokenRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Token         string                 `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ExtractUserIDRequest) Reset() {
-	*x = ExtractUserIDRequest{}
+func (x *ExtractUserIDFromTokenRequest) Reset() {
+	*x = ExtractUserIDFromTokenRequest{}
 	mi := &file_auth_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ExtractUserIDRequest) String() string {
+func (x *ExtractUserIDFromTokenRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ExtractUserIDRequest) ProtoMessage() {}
+func (*ExtractUserIDFromTokenRequest) ProtoMessage() {}
 
-func (x *ExtractUserIDRequest) ProtoReflect() protoreflect.Message {
+func (x *ExtractUserIDFromTokenRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_auth_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -237,39 +290,39 @@ func (x *ExtractUserIDRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ExtractUserIDRequest.ProtoReflect.Descriptor instead.
-func (*ExtractUserIDRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use ExtractUserIDFromTokenRequest.ProtoReflect.Descriptor instead.
+func (*ExtractUserIDFromTokenRequest) Descriptor() ([]byte, []int) {
 	return file_auth_proto_rawDescGZIP(), []int{4}
 }
 
-func (x *ExtractUserIDRequest) GetToken() string {
+func (x *ExtractUserIDFromTokenRequest) GetToken() string {
 	if x != nil {
 		return x.Token
 	}
 	return ""
 }
 
-type ExtractUserIDResponse struct {
+type ExtractUserIDFromTokenResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ExtractUserIDResponse) Reset() {
-	*x = ExtractUserIDResponse{}
+func (x *ExtractUserIDFromTokenResponse) Reset() {
+	*x = ExtractUserIDFromTokenResponse{}
 	mi := &file_auth_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ExtractUserIDResponse) String() string {
+func (x *ExtractUserIDFromTokenResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ExtractUserIDResponse) ProtoMessage() {}
+func (*ExtractUserIDFromTokenResponse) ProtoMessage() {}
 
-func (x *ExtractUserIDResponse) ProtoReflect() protoreflect.Message {
+func (x *ExtractUserIDFromTokenResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_auth_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -281,16 +334,592 @@ func (x *ExtractUserIDResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ExtractUserIDResponse.ProtoReflect.Descriptor instead.
-func (*ExtractUserIDResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use ExtractUserIDFromTokenResponse.ProtoReflect.Descriptor instead.
+func (*ExtractUserIDFromTokenResponse) Descriptor() ([]byte, []int) {
 	return file_auth_proto_rawDescGZIP(), []int{5}
 }
 
-func (x *ExtractUserIDResponse) GetUserId() string {
+func (x *ExtractUserIDFromTokenResponse) GetUserId() string {
 	if x != nil {
 		return x.UserId
 	}
 	return ""
+}
+
+type GenerateOTPRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Identifier    string                 `protobuf:"bytes,1,opt,name=identifier,proto3" json:"identifier,omitempty"`
+	Purpose       OtpPurpose             `protobuf:"varint,2,opt,name=purpose,proto3,enum=auth.OtpPurpose" json:"purpose,omitempty"`
+	Language      string                 `protobuf:"bytes,3,opt,name=language,proto3" json:"language,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GenerateOTPRequest) Reset() {
+	*x = GenerateOTPRequest{}
+	mi := &file_auth_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GenerateOTPRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GenerateOTPRequest) ProtoMessage() {}
+
+func (x *GenerateOTPRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_auth_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GenerateOTPRequest.ProtoReflect.Descriptor instead.
+func (*GenerateOTPRequest) Descriptor() ([]byte, []int) {
+	return file_auth_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *GenerateOTPRequest) GetIdentifier() string {
+	if x != nil {
+		return x.Identifier
+	}
+	return ""
+}
+
+func (x *GenerateOTPRequest) GetPurpose() OtpPurpose {
+	if x != nil {
+		return x.Purpose
+	}
+	return OtpPurpose_UNSPECIFIED
+}
+
+func (x *GenerateOTPRequest) GetLanguage() string {
+	if x != nil {
+		return x.Language
+	}
+	return ""
+}
+
+type GenerateOTPResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Identifier    string                 `protobuf:"bytes,1,opt,name=identifier,proto3" json:"identifier,omitempty"`
+	ExpiresAt     *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=expires_at,json=expiresAt,proto3" json:"expires_at,omitempty"`
+	Error         *string                `protobuf:"bytes,3,opt,name=error,proto3,oneof" json:"error,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GenerateOTPResponse) Reset() {
+	*x = GenerateOTPResponse{}
+	mi := &file_auth_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GenerateOTPResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GenerateOTPResponse) ProtoMessage() {}
+
+func (x *GenerateOTPResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_auth_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GenerateOTPResponse.ProtoReflect.Descriptor instead.
+func (*GenerateOTPResponse) Descriptor() ([]byte, []int) {
+	return file_auth_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *GenerateOTPResponse) GetIdentifier() string {
+	if x != nil {
+		return x.Identifier
+	}
+	return ""
+}
+
+func (x *GenerateOTPResponse) GetExpiresAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.ExpiresAt
+	}
+	return nil
+}
+
+func (x *GenerateOTPResponse) GetError() string {
+	if x != nil && x.Error != nil {
+		return *x.Error
+	}
+	return ""
+}
+
+type ValidateOTPRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Identifier    string                 `protobuf:"bytes,1,opt,name=identifier,proto3" json:"identifier,omitempty"`
+	Otp           string                 `protobuf:"bytes,2,opt,name=otp,proto3" json:"otp,omitempty"`
+	Purpose       OtpPurpose             `protobuf:"varint,3,opt,name=purpose,proto3,enum=auth.OtpPurpose" json:"purpose,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ValidateOTPRequest) Reset() {
+	*x = ValidateOTPRequest{}
+	mi := &file_auth_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ValidateOTPRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ValidateOTPRequest) ProtoMessage() {}
+
+func (x *ValidateOTPRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_auth_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ValidateOTPRequest.ProtoReflect.Descriptor instead.
+func (*ValidateOTPRequest) Descriptor() ([]byte, []int) {
+	return file_auth_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *ValidateOTPRequest) GetIdentifier() string {
+	if x != nil {
+		return x.Identifier
+	}
+	return ""
+}
+
+func (x *ValidateOTPRequest) GetOtp() string {
+	if x != nil {
+		return x.Otp
+	}
+	return ""
+}
+
+func (x *ValidateOTPRequest) GetPurpose() OtpPurpose {
+	if x != nil {
+		return x.Purpose
+	}
+	return OtpPurpose_UNSPECIFIED
+}
+
+type ValidateOTPResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	RequestId     string                 `protobuf:"bytes,1,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
+	ExpiresAt     *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=expires_at,json=expiresAt,proto3" json:"expires_at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ValidateOTPResponse) Reset() {
+	*x = ValidateOTPResponse{}
+	mi := &file_auth_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ValidateOTPResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ValidateOTPResponse) ProtoMessage() {}
+
+func (x *ValidateOTPResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_auth_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ValidateOTPResponse.ProtoReflect.Descriptor instead.
+func (*ValidateOTPResponse) Descriptor() ([]byte, []int) {
+	return file_auth_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *ValidateOTPResponse) GetRequestId() string {
+	if x != nil {
+		return x.RequestId
+	}
+	return ""
+}
+
+func (x *ValidateOTPResponse) GetExpiresAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.ExpiresAt
+	}
+	return nil
+}
+
+type ResetForgottenPasswordRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	RequestId     string                 `protobuf:"bytes,1,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
+	UserId        string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	Password      string                 `protobuf:"bytes,3,opt,name=password,proto3" json:"password,omitempty"`
+	Confirmation  string                 `protobuf:"bytes,4,opt,name=confirmation,proto3" json:"confirmation,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ResetForgottenPasswordRequest) Reset() {
+	*x = ResetForgottenPasswordRequest{}
+	mi := &file_auth_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ResetForgottenPasswordRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ResetForgottenPasswordRequest) ProtoMessage() {}
+
+func (x *ResetForgottenPasswordRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_auth_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ResetForgottenPasswordRequest.ProtoReflect.Descriptor instead.
+func (*ResetForgottenPasswordRequest) Descriptor() ([]byte, []int) {
+	return file_auth_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *ResetForgottenPasswordRequest) GetRequestId() string {
+	if x != nil {
+		return x.RequestId
+	}
+	return ""
+}
+
+func (x *ResetForgottenPasswordRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *ResetForgottenPasswordRequest) GetPassword() string {
+	if x != nil {
+		return x.Password
+	}
+	return ""
+}
+
+func (x *ResetForgottenPasswordRequest) GetConfirmation() string {
+	if x != nil {
+		return x.Confirmation
+	}
+	return ""
+}
+
+type ResetForgottenPasswordResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ResetForgottenPasswordResponse) Reset() {
+	*x = ResetForgottenPasswordResponse{}
+	mi := &file_auth_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ResetForgottenPasswordResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ResetForgottenPasswordResponse) ProtoMessage() {}
+
+func (x *ResetForgottenPasswordResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_auth_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ResetForgottenPasswordResponse.ProtoReflect.Descriptor instead.
+func (*ResetForgottenPasswordResponse) Descriptor() ([]byte, []int) {
+	return file_auth_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *ResetForgottenPasswordResponse) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
+type UpdatePasswordRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	RequestId     string                 `protobuf:"bytes,1,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
+	UserId        string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	Password      string                 `protobuf:"bytes,3,opt,name=password,proto3" json:"password,omitempty"`
+	Confirmation  string                 `protobuf:"bytes,4,opt,name=confirmation,proto3" json:"confirmation,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdatePasswordRequest) Reset() {
+	*x = UpdatePasswordRequest{}
+	mi := &file_auth_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdatePasswordRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdatePasswordRequest) ProtoMessage() {}
+
+func (x *UpdatePasswordRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_auth_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdatePasswordRequest.ProtoReflect.Descriptor instead.
+func (*UpdatePasswordRequest) Descriptor() ([]byte, []int) {
+	return file_auth_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *UpdatePasswordRequest) GetRequestId() string {
+	if x != nil {
+		return x.RequestId
+	}
+	return ""
+}
+
+func (x *UpdatePasswordRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *UpdatePasswordRequest) GetPassword() string {
+	if x != nil {
+		return x.Password
+	}
+	return ""
+}
+
+func (x *UpdatePasswordRequest) GetConfirmation() string {
+	if x != nil {
+		return x.Confirmation
+	}
+	return ""
+}
+
+type UpdatePasswordResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdatePasswordResponse) Reset() {
+	*x = UpdatePasswordResponse{}
+	mi := &file_auth_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdatePasswordResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdatePasswordResponse) ProtoMessage() {}
+
+func (x *UpdatePasswordResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_auth_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdatePasswordResponse.ProtoReflect.Descriptor instead.
+func (*UpdatePasswordResponse) Descriptor() ([]byte, []int) {
+	return file_auth_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *UpdatePasswordResponse) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
+type CreateUserRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	RequestId     string                 `protobuf:"bytes,1,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
+	Email         string                 `protobuf:"bytes,2,opt,name=email,proto3" json:"email,omitempty"`
+	Password      string                 `protobuf:"bytes,3,opt,name=password,proto3" json:"password,omitempty"`
+	Confirmation  string                 `protobuf:"bytes,4,opt,name=confirmation,proto3" json:"confirmation,omitempty"`
+	Checkbox      bool                   `protobuf:"varint,5,opt,name=checkbox,proto3" json:"checkbox,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateUserRequest) Reset() {
+	*x = CreateUserRequest{}
+	mi := &file_auth_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateUserRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateUserRequest) ProtoMessage() {}
+
+func (x *CreateUserRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_auth_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateUserRequest.ProtoReflect.Descriptor instead.
+func (*CreateUserRequest) Descriptor() ([]byte, []int) {
+	return file_auth_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *CreateUserRequest) GetRequestId() string {
+	if x != nil {
+		return x.RequestId
+	}
+	return ""
+}
+
+func (x *CreateUserRequest) GetEmail() string {
+	if x != nil {
+		return x.Email
+	}
+	return ""
+}
+
+func (x *CreateUserRequest) GetPassword() string {
+	if x != nil {
+		return x.Password
+	}
+	return ""
+}
+
+func (x *CreateUserRequest) GetConfirmation() string {
+	if x != nil {
+		return x.Confirmation
+	}
+	return ""
+}
+
+func (x *CreateUserRequest) GetCheckbox() bool {
+	if x != nil {
+		return x.Checkbox
+	}
+	return false
+}
+
+type CreateUserResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateUserResponse) Reset() {
+	*x = CreateUserResponse{}
+	mi := &file_auth_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateUserResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateUserResponse) ProtoMessage() {}
+
+func (x *CreateUserResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_auth_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateUserResponse.ProtoReflect.Descriptor instead.
+func (*CreateUserResponse) Descriptor() ([]byte, []int) {
+	return file_auth_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *CreateUserResponse) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
 }
 
 var File_auth_proto protoreflect.FileDescriptor
@@ -298,7 +927,7 @@ var File_auth_proto protoreflect.FileDescriptor
 const file_auth_proto_rawDesc = "" +
 	"\n" +
 	"\n" +
-	"auth.proto\x12\x04auth\"H\n" +
+	"auth.proto\x12\x04auth\x1a\x1fgoogle/protobuf/timestamp.proto\"H\n" +
 	"\x14GenerateTokenRequest\x12\x14\n" +
 	"\x05email\x18\x01 \x01(\tR\x05email\x12\x1a\n" +
 	"\bpassword\x18\x02 \x01(\tR\bpassword\"-\n" +
@@ -307,15 +936,77 @@ const file_auth_proto_rawDesc = "" +
 	"\x14ValidateTokenRequest\x12\x14\n" +
 	"\x05token\x18\x01 \x01(\tR\x05token\"0\n" +
 	"\x15ValidateTokenResponse\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\tR\x06userId\",\n" +
-	"\x14ExtractUserIDRequest\x12\x14\n" +
-	"\x05token\x18\x01 \x01(\tR\x05token\"0\n" +
-	"\x15ExtractUserIDResponse\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\tR\x06userId2\xeb\x01\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\"5\n" +
+	"\x1dExtractUserIDFromTokenRequest\x12\x14\n" +
+	"\x05token\x18\x01 \x01(\tR\x05token\"9\n" +
+	"\x1eExtractUserIDFromTokenResponse\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\"|\n" +
+	"\x12GenerateOTPRequest\x12\x1e\n" +
+	"\n" +
+	"identifier\x18\x01 \x01(\tR\n" +
+	"identifier\x12*\n" +
+	"\apurpose\x18\x02 \x01(\x0e2\x10.auth.OtpPurposeR\apurpose\x12\x1a\n" +
+	"\blanguage\x18\x03 \x01(\tR\blanguage\"\x95\x01\n" +
+	"\x13GenerateOTPResponse\x12\x1e\n" +
+	"\n" +
+	"identifier\x18\x01 \x01(\tR\n" +
+	"identifier\x129\n" +
+	"\n" +
+	"expires_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\texpiresAt\x12\x19\n" +
+	"\x05error\x18\x03 \x01(\tH\x00R\x05error\x88\x01\x01B\b\n" +
+	"\x06_error\"r\n" +
+	"\x12ValidateOTPRequest\x12\x1e\n" +
+	"\n" +
+	"identifier\x18\x01 \x01(\tR\n" +
+	"identifier\x12\x10\n" +
+	"\x03otp\x18\x02 \x01(\tR\x03otp\x12*\n" +
+	"\apurpose\x18\x03 \x01(\x0e2\x10.auth.OtpPurposeR\apurpose\"o\n" +
+	"\x13ValidateOTPResponse\x12\x1d\n" +
+	"\n" +
+	"request_id\x18\x01 \x01(\tR\trequestId\x129\n" +
+	"\n" +
+	"expires_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\texpiresAt\"\x97\x01\n" +
+	"\x1dResetForgottenPasswordRequest\x12\x1d\n" +
+	"\n" +
+	"request_id\x18\x01 \x01(\tR\trequestId\x12\x17\n" +
+	"\auser_id\x18\x02 \x01(\tR\x06userId\x12\x1a\n" +
+	"\bpassword\x18\x03 \x01(\tR\bpassword\x12\"\n" +
+	"\fconfirmation\x18\x04 \x01(\tR\fconfirmation\":\n" +
+	"\x1eResetForgottenPasswordResponse\x12\x18\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess\"\x8f\x01\n" +
+	"\x15UpdatePasswordRequest\x12\x1d\n" +
+	"\n" +
+	"request_id\x18\x01 \x01(\tR\trequestId\x12\x17\n" +
+	"\auser_id\x18\x02 \x01(\tR\x06userId\x12\x1a\n" +
+	"\bpassword\x18\x03 \x01(\tR\bpassword\x12\"\n" +
+	"\fconfirmation\x18\x04 \x01(\tR\fconfirmation\"2\n" +
+	"\x16UpdatePasswordResponse\x12\x18\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess\"\xa4\x01\n" +
+	"\x11CreateUserRequest\x12\x1d\n" +
+	"\n" +
+	"request_id\x18\x01 \x01(\tR\trequestId\x12\x14\n" +
+	"\x05email\x18\x02 \x01(\tR\x05email\x12\x1a\n" +
+	"\bpassword\x18\x03 \x01(\tR\bpassword\x12\"\n" +
+	"\fconfirmation\x18\x04 \x01(\tR\fconfirmation\x12\x1a\n" +
+	"\bcheckbox\x18\x05 \x01(\bR\bcheckbox\".\n" +
+	"\x12CreateUserResponse\x12\x18\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess*W\n" +
+	"\n" +
+	"OtpPurpose\x12\x0f\n" +
+	"\vUNSPECIFIED\x10\x00\x12\x12\n" +
+	"\x0ePASSWORD_RESET\x10\x01\x12\x13\n" +
+	"\x0fPASSWORD_CHANGE\x10\x02\x12\x0f\n" +
+	"\vUSER_SIGNUP\x10\x032\x81\x05\n" +
 	"\vAuthService\x12H\n" +
 	"\rGenerateToken\x12\x1a.auth.GenerateTokenRequest\x1a\x1b.auth.GenerateTokenResponse\x12H\n" +
-	"\rValidateToken\x12\x1a.auth.ValidateTokenRequest\x1a\x1b.auth.ValidateTokenResponse\x12H\n" +
-	"\rExtractUserID\x12\x1a.auth.ExtractUserIDRequest\x1a\x1b.auth.ExtractUserIDResponseB\n" +
+	"\rValidateToken\x12\x1a.auth.ValidateTokenRequest\x1a\x1b.auth.ValidateTokenResponse\x12c\n" +
+	"\x16ExtractUserIDFromToken\x12#.auth.ExtractUserIDFromTokenRequest\x1a$.auth.ExtractUserIDFromTokenResponse\x12B\n" +
+	"\vGenerateOTP\x12\x18.auth.GenerateOTPRequest\x1a\x19.auth.GenerateOTPResponse\x12B\n" +
+	"\vValidateOTP\x12\x18.auth.ValidateOTPRequest\x1a\x19.auth.ValidateOTPResponse\x12c\n" +
+	"\x16ResetForgottenPassword\x12#.auth.ResetForgottenPasswordRequest\x1a$.auth.ResetForgottenPasswordResponse\x12K\n" +
+	"\x0eUpdatePassword\x12\x1b.auth.UpdatePasswordRequest\x1a\x1c.auth.UpdatePasswordResponse\x12?\n" +
+	"\n" +
+	"CreateUser\x12\x17.auth.CreateUserRequest\x1a\x18.auth.CreateUserResponseB\n" +
 	"Z\b./authpbb\x06proto3"
 
 var (
@@ -330,27 +1021,54 @@ func file_auth_proto_rawDescGZIP() []byte {
 	return file_auth_proto_rawDescData
 }
 
-var file_auth_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_auth_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_auth_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
 var file_auth_proto_goTypes = []any{
-	(*GenerateTokenRequest)(nil),  // 0: auth.GenerateTokenRequest
-	(*GenerateTokenResponse)(nil), // 1: auth.GenerateTokenResponse
-	(*ValidateTokenRequest)(nil),  // 2: auth.ValidateTokenRequest
-	(*ValidateTokenResponse)(nil), // 3: auth.ValidateTokenResponse
-	(*ExtractUserIDRequest)(nil),  // 4: auth.ExtractUserIDRequest
-	(*ExtractUserIDResponse)(nil), // 5: auth.ExtractUserIDResponse
+	(OtpPurpose)(0),                        // 0: auth.OtpPurpose
+	(*GenerateTokenRequest)(nil),           // 1: auth.GenerateTokenRequest
+	(*GenerateTokenResponse)(nil),          // 2: auth.GenerateTokenResponse
+	(*ValidateTokenRequest)(nil),           // 3: auth.ValidateTokenRequest
+	(*ValidateTokenResponse)(nil),          // 4: auth.ValidateTokenResponse
+	(*ExtractUserIDFromTokenRequest)(nil),  // 5: auth.ExtractUserIDFromTokenRequest
+	(*ExtractUserIDFromTokenResponse)(nil), // 6: auth.ExtractUserIDFromTokenResponse
+	(*GenerateOTPRequest)(nil),             // 7: auth.GenerateOTPRequest
+	(*GenerateOTPResponse)(nil),            // 8: auth.GenerateOTPResponse
+	(*ValidateOTPRequest)(nil),             // 9: auth.ValidateOTPRequest
+	(*ValidateOTPResponse)(nil),            // 10: auth.ValidateOTPResponse
+	(*ResetForgottenPasswordRequest)(nil),  // 11: auth.ResetForgottenPasswordRequest
+	(*ResetForgottenPasswordResponse)(nil), // 12: auth.ResetForgottenPasswordResponse
+	(*UpdatePasswordRequest)(nil),          // 13: auth.UpdatePasswordRequest
+	(*UpdatePasswordResponse)(nil),         // 14: auth.UpdatePasswordResponse
+	(*CreateUserRequest)(nil),              // 15: auth.CreateUserRequest
+	(*CreateUserResponse)(nil),             // 16: auth.CreateUserResponse
+	(*timestamppb.Timestamp)(nil),          // 17: google.protobuf.Timestamp
 }
 var file_auth_proto_depIdxs = []int32{
-	0, // 0: auth.AuthService.GenerateToken:input_type -> auth.GenerateTokenRequest
-	2, // 1: auth.AuthService.ValidateToken:input_type -> auth.ValidateTokenRequest
-	4, // 2: auth.AuthService.ExtractUserID:input_type -> auth.ExtractUserIDRequest
-	1, // 3: auth.AuthService.GenerateToken:output_type -> auth.GenerateTokenResponse
-	3, // 4: auth.AuthService.ValidateToken:output_type -> auth.ValidateTokenResponse
-	5, // 5: auth.AuthService.ExtractUserID:output_type -> auth.ExtractUserIDResponse
-	3, // [3:6] is the sub-list for method output_type
-	0, // [0:3] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	0,  // 0: auth.GenerateOTPRequest.purpose:type_name -> auth.OtpPurpose
+	17, // 1: auth.GenerateOTPResponse.expires_at:type_name -> google.protobuf.Timestamp
+	0,  // 2: auth.ValidateOTPRequest.purpose:type_name -> auth.OtpPurpose
+	17, // 3: auth.ValidateOTPResponse.expires_at:type_name -> google.protobuf.Timestamp
+	1,  // 4: auth.AuthService.GenerateToken:input_type -> auth.GenerateTokenRequest
+	3,  // 5: auth.AuthService.ValidateToken:input_type -> auth.ValidateTokenRequest
+	5,  // 6: auth.AuthService.ExtractUserIDFromToken:input_type -> auth.ExtractUserIDFromTokenRequest
+	7,  // 7: auth.AuthService.GenerateOTP:input_type -> auth.GenerateOTPRequest
+	9,  // 8: auth.AuthService.ValidateOTP:input_type -> auth.ValidateOTPRequest
+	11, // 9: auth.AuthService.ResetForgottenPassword:input_type -> auth.ResetForgottenPasswordRequest
+	13, // 10: auth.AuthService.UpdatePassword:input_type -> auth.UpdatePasswordRequest
+	15, // 11: auth.AuthService.CreateUser:input_type -> auth.CreateUserRequest
+	2,  // 12: auth.AuthService.GenerateToken:output_type -> auth.GenerateTokenResponse
+	4,  // 13: auth.AuthService.ValidateToken:output_type -> auth.ValidateTokenResponse
+	6,  // 14: auth.AuthService.ExtractUserIDFromToken:output_type -> auth.ExtractUserIDFromTokenResponse
+	8,  // 15: auth.AuthService.GenerateOTP:output_type -> auth.GenerateOTPResponse
+	10, // 16: auth.AuthService.ValidateOTP:output_type -> auth.ValidateOTPResponse
+	12, // 17: auth.AuthService.ResetForgottenPassword:output_type -> auth.ResetForgottenPasswordResponse
+	14, // 18: auth.AuthService.UpdatePassword:output_type -> auth.UpdatePasswordResponse
+	16, // 19: auth.AuthService.CreateUser:output_type -> auth.CreateUserResponse
+	12, // [12:20] is the sub-list for method output_type
+	4,  // [4:12] is the sub-list for method input_type
+	4,  // [4:4] is the sub-list for extension type_name
+	4,  // [4:4] is the sub-list for extension extendee
+	0,  // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_auth_proto_init() }
@@ -358,18 +1076,20 @@ func file_auth_proto_init() {
 	if File_auth_proto != nil {
 		return
 	}
+	file_auth_proto_msgTypes[7].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_auth_proto_rawDesc), len(file_auth_proto_rawDesc)),
-			NumEnums:      0,
-			NumMessages:   6,
+			NumEnums:      1,
+			NumMessages:   16,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_auth_proto_goTypes,
 		DependencyIndexes: file_auth_proto_depIdxs,
+		EnumInfos:         file_auth_proto_enumTypes,
 		MessageInfos:      file_auth_proto_msgTypes,
 	}.Build()
 	File_auth_proto = out.File

@@ -4,10 +4,24 @@ package auth;
 
 option go_package = "./authpb";
 
+import "google/protobuf/timestamp.proto";
+
 service AuthService {
   rpc GenerateToken (GenerateTokenRequest) returns (GenerateTokenResponse);
   rpc ValidateToken (ValidateTokenRequest) returns (ValidateTokenResponse);
-  rpc ExtractUserID (ExtractUserIDRequest) returns (ExtractUserIDResponse);
+  rpc ExtractUserIDFromToken (ExtractUserIDFromTokenRequest) returns (ExtractUserIDFromTokenResponse);
+  rpc GenerateOTP (GenerateOTPRequest) returns (GenerateOTPResponse);
+  rpc ValidateOTP (ValidateOTPRequest) returns (ValidateOTPResponse);
+  rpc ResetForgottenPassword (ResetForgottenPasswordRequest) returns (ResetForgottenPasswordResponse);
+  rpc UpdatePassword (UpdatePasswordRequest) returns (UpdatePasswordResponse);
+  rpc CreateUser (CreateUserRequest) returns (CreateUserResponse);
+}
+
+enum OtpPurpose {
+  UNSPECIFIED = 0;
+  PASSWORD_RESET = 1;
+  PASSWORD_CHANGE = 2;
+  USER_SIGNUP = 3;
 }
 
 message GenerateTokenRequest {
@@ -27,10 +41,67 @@ message ValidateTokenResponse {
   string user_id = 1;
 }
 
-message ExtractUserIDRequest {
+message ExtractUserIDFromTokenRequest {
   string token = 1;
 }
 
-message ExtractUserIDResponse {
+message ExtractUserIDFromTokenResponse {
   string user_id = 1;
+}
+
+message GenerateOTPRequest {
+  string identifier = 1;
+  OtpPurpose purpose = 2;
+  string language = 3;
+}
+
+message GenerateOTPResponse {
+  string identifier = 1;
+  google.protobuf.Timestamp expires_at = 2;
+  optional string error = 3;
+}
+
+message ValidateOTPRequest {
+  string identifier = 1;
+  string otp = 2;
+  OtpPurpose purpose = 3;
+}
+
+message ValidateOTPResponse {
+  string request_id = 1;
+  google.protobuf.Timestamp expires_at = 2;
+}
+
+message ResetForgottenPasswordRequest {
+  string request_id = 1;
+  string user_id = 2;
+  string password = 3;
+  string confirmation = 4;
+}
+
+message ResetForgottenPasswordResponse {
+  bool success = 1;
+}
+
+message UpdatePasswordRequest {
+  string request_id = 1;
+  string user_id = 2;
+  string password = 3;
+  string confirmation = 4;
+}
+
+message UpdatePasswordResponse {
+  bool success = 1;
+}
+
+message CreateUserRequest {
+  string request_id = 1;
+  string email = 2;
+  string password = 3;
+  string confirmation = 4;
+  bool checkbox = 5;
+}
+
+message CreateUserResponse {
+  bool success = 1;
 }

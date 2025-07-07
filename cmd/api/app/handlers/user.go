@@ -11,51 +11,6 @@ import (
 	"net/http"
 )
 
-// CreateUser godoc
-//
-//	@Id				CreateUser
-//
-//	@Summary		Create a new user
-//	@Description	Create a new user.
-//	@Tags			User
-//	@Accept			json
-//	@Produce		json
-//	@Param			user	body	models.UserInputCreate	true	"user (json)"
-//	@Security		Bearer
-//	@Success		200	{object}	models.User				"user"
-//	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
-//	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
-//	@Router			/api/v1/auth/register [post]
-func CreateUser(w http.ResponseWriter, r *http.Request) {
-	// Parse request body
-	var userInputCreate models.UserInputCreate
-	err := json.NewDecoder(r.Body).Decode(&userInputCreate)
-	if err != nil {
-		zap.L().Warn("User json decode", zap.Error(err))
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	// Map UserInputCreate to gRPC CreateUserRequest
-	createUserRequest := &userpb.CreateUserRequest{
-		Email:        userInputCreate.Email,
-		Password:     userInputCreate.Password,
-		Confirmation: userInputCreate.Confirmation,
-		Checkbox:     userInputCreate.Checkbox,
-	}
-
-	// Create user
-	createUserResponse, err := clients.C().User().CreateUser(r.Context(), createUserRequest)
-	if err != nil {
-		zap.L().Error("Create user", zap.Error(err))
-		render.ErrorCodesCodeToHttpCode(w, r, err)
-		return
-	}
-
-	// Map the response to the models.User struct
-	render.JSON(w, r, mappers.UserFromProto(createUserResponse.User))
-}
-
 // GetUser godoc
 //
 //	@Id				GetUser
@@ -176,57 +131,6 @@ func UpdateUserSelf(w http.ResponseWriter, r *http.Request) {
 
 	// Map the response to the models.User struct
 	render.JSON(w, r, mappers.UserFromProto(updateUserResponse.User))
-}
-
-// UpdateUserPassword godoc
-//
-//	@Id				UpdateUserPassword
-//
-//	@Summary		Update the password of the currently authenticated user
-//	@Description	Update the password of the currently authenticated user.
-//	@Tags			User
-//	@Accept			json
-//	@Produce		json
-//	@Param			password	body	models.UserInputPassword	true	"password (json)"
-//	@Security		Bearer
-//	@Success		200	{string}	string					"status OK"
-//	@Failure		400	{object}	render.ErrorResponse	"Bad PasswordRequest"
-//	@Failure		401	{string}	string					"Permission denied"
-//	@Failure		500	{object}	render.ErrorResponse	"Internal Server Error"
-//	@Router			/api/v1/user/me/password [put]
-func UpdateUserPassword(w http.ResponseWriter, r *http.Request) {
-	userID, found := U().GetUserIDFromContext(r)
-	if !found {
-		zap.L().Debug("No context user provided")
-		w.WriteHeader(http.StatusUnauthorized)
-		return
-	}
-
-	// Parse request body
-	var userPassword models.UserInputPassword
-	err := json.NewDecoder(r.Body).Decode(&userPassword)
-	if err != nil {
-		zap.L().Warn("User json decode", zap.Error(err))
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	// Map UserInputPassword to gRPC UpdateUserRequest
-	updateUserRequest := &userpb.UpdateUserPasswordRequest{
-		Id:           userID,
-		Password:     userPassword.Password,
-		Confirmation: userPassword.Confirmation,
-	}
-
-	// Update user password
-	_, err = clients.C().User().UpdateUserPassword(r.Context(), updateUserRequest)
-	if err != nil {
-		zap.L().Error("Update user password", zap.Error(err))
-		render.ErrorCodesCodeToHttpCode(w, r, err)
-		return
-	}
-
-	render.OK(w, r)
 }
 
 // DeleteUserSelf godoc

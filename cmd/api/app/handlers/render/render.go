@@ -2,6 +2,7 @@ package render
 
 import (
 	"encoding/json"
+	"errors"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -93,13 +94,13 @@ func ErrorCodesCodeToHttpCode(w http.ResponseWriter, r *http.Request, err error)
 	if s, ok := status.FromError(err); ok {
 		switch s.Code() {
 		case codes.FailedPrecondition:
-			BadRequest(w, r, err)
+			BadRequest(w, r, errors.New(s.Message()))
 			return
 		case codes.AlreadyExists:
-			BadRequest(w, r, err)
+			BadRequest(w, r, errors.New(s.Message()))
 			return
 		case codes.InvalidArgument:
-			BadRequest(w, r, err)
+			BadRequest(w, r, errors.New(s.Message()))
 			return
 		case codes.NotFound:
 			w.WriteHeader(http.StatusNotFound)

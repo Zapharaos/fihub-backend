@@ -59,29 +59,51 @@ func New(config server.Config) *chi.Mux {
 			r.Post("/token", handlers.GetToken)
 
 			// User registration
-			r.Post("/register", handlers.CreateUser)
+			r.Route("/register", func(r chi.Router) {
+
+				// Retrieve config values for OTP request : rate limiting
+				otpRequestRateLimit := viper.GetInt("OTP_REQUEST_RATE_LIMIT")
+				otpRequestRateWindow := viper.GetDuration("OTP_REQUEST_RATE_WINDOW")
+				if otpRequestRateWindow == 0 {
+					otpRequestRateWindow = 24 * time.Hour
+				}
+
+				// Retrieve config values for OTP input : attempts limiting
+				otpInputAttemptLimit := viper.GetInt("OTP_INPUT_ATTEMPT_LIMIT")
+				otpInputAttemptWindow := viper.GetDuration("OTP_INPUT_ATTEMPT_WINDOW")
+				if otpInputAttemptWindow == 0 {
+					otpInputAttemptWindow = 1 * time.Hour
+				}
+
+				r.With(httprate.LimitByIP(otpRequestRateLimit, otpRequestRateWindow)).Post("/otp", handlers.GenerateSignupOTP)
+				r.With(httprate.LimitByIP(otpInputAttemptLimit, otpInputAttemptWindow)).Post("/otp/validate", handlers.ValidateSignupOTP)
+				r.Post("/", handlers.RegisterUser)
+			})
 
 			// Password routes
 			r.Route("/password", func(r chi.Router) {
 
-				// Create password reset request
-				requestLimit := viper.GetInt("OTP_MIDDLEWARE_REQUEST_LIMIT")
-				requestLength := viper.GetDuration("OTP_MIDDLEWARE_REQUEST_LENGTH")
-				if requestLength == 0 {
-					requestLength = 24 * time.Hour
-				}
-				r.With(httprate.LimitByIP(requestLimit, requestLength)).Post("/", handlers.CreatePasswordResetRequest)
+				// Forgot password flow
+				r.Route("/reset", func(r chi.Router) {
 
-				// Input token and retrieve requestID using userID
-				inputLimit := viper.GetInt("OTP_MIDDLEWARE_INPUT_LIMIT")
-				inputLength := viper.GetDuration("OTP_MIDDLEWARE_INPUT_WINDOW")
-				if inputLength == 0 {
-					inputLength = 1 * time.Hour
-				}
-				r.With(httprate.LimitByIP(inputLimit, inputLength)).Get("/{id}/{token}", handlers.GetPasswordResetRequestID)
+					// Retrieve config values for OTP request : rate limiting
+					otpRequestRateLimit := viper.GetInt("OTP_REQUEST_RATE_LIMIT")
+					otpRequestRateWindow := viper.GetDuration("OTP_REQUEST_RATE_WINDOW")
+					if otpRequestRateWindow == 0 {
+						otpRequestRateWindow = 24 * time.Hour
+					}
 
-				// Reset password using userID and requestID
-				r.Put("/{id}/{request_id}", handlers.ResetPassword)
+					// Retrieve config values for OTP input : attempts limiting
+					otpInputAttemptLimit := viper.GetInt("OTP_INPUT_ATTEMPT_LIMIT")
+					otpInputAttemptWindow := viper.GetDuration("OTP_INPUT_ATTEMPT_WINDOW")
+					if otpInputAttemptWindow == 0 {
+						otpInputAttemptWindow = 1 * time.Hour
+					}
+
+					r.With(httprate.LimitByIP(otpRequestRateLimit, otpRequestRateWindow)).Post("/otp", handlers.GenerateForgottenPasswordOTP)
+					r.With(httprate.LimitByIP(otpInputAttemptLimit, otpInputAttemptWindow)).Post("/otp/validate", handlers.ValidateForgottenPasswordOTP)
+					r.Put("/", handlers.ResetForgottenPassword)
+				})
 			})
 		})
 
@@ -108,8 +130,27 @@ func buildProtectedRoutes(config server.Config) func(r chi.Router) {
 				r.Put("/", handlers.UpdateUserSelf)
 				r.Delete("/", handlers.DeleteUserSelf)
 
-				// User's password : retrieving userID through context
-				r.Put("/password", handlers.UpdateUserPassword)
+				// Logged-in user changing password (security verification)
+				r.Route("/password", func(r chi.Router) {
+
+					// Retrieve config values for OTP request : rate limiting
+					otpRequestRateLimit := viper.GetInt("OTP_REQUEST_RATE_LIMIT")
+					otpRequestRateWindow := viper.GetDuration("OTP_REQUEST_RATE_WINDOW")
+					if otpRequestRateWindow == 0 {
+						otpRequestRateWindow = 24 * time.Hour
+					}
+
+					// Retrieve config values for OTP input : attempts limiting
+					otpInputAttemptLimit := viper.GetInt("OTP_INPUT_ATTEMPT_LIMIT")
+					otpInputAttemptWindow := viper.GetDuration("OTP_INPUT_ATTEMPT_WINDOW")
+					if otpInputAttemptWindow == 0 {
+						otpInputAttemptWindow = 1 * time.Hour
+					}
+
+					r.With(httprate.LimitByIP(otpRequestRateLimit, otpRequestRateWindow)).Post("/otp", handlers.GenerateChangePasswordOTP)
+					r.With(httprate.LimitByIP(otpInputAttemptLimit, otpInputAttemptWindow)).Post("/otp/validate", handlers.ValidateChangePasswordOTP)
+					r.Put("/", handlers.SubmitChangePassword)
+				})
 			})
 
 			// User specific

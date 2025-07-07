@@ -102,6 +102,26 @@ func (mr *MockUserServiceClientMockRecorder) DeleteUser(ctx, in any, opts ...any
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteUser", reflect.TypeOf((*MockUserServiceClient)(nil).DeleteUser), varargs...)
 }
 
+// GetByEmail mocks base method.
+func (m *MockUserServiceClient) GetByEmail(ctx context.Context, in *userpb.GetByEmailRequest, opts ...grpc.CallOption) (*userpb.GetByEmailResponse, error) {
+	m.ctrl.T.Helper()
+	varargs := []any{ctx, in}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "GetByEmail", varargs...)
+	ret0, _ := ret[0].(*userpb.GetByEmailResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetByEmail indicates an expected call of GetByEmail.
+func (mr *MockUserServiceClientMockRecorder) GetByEmail(ctx, in any, opts ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]any{ctx, in}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByEmail", reflect.TypeOf((*MockUserServiceClient)(nil).GetByEmail), varargs...)
+}
+
 // GetUser mocks base method.
 func (m *MockUserServiceClient) GetUser(ctx context.Context, in *userpb.GetUserRequest, opts ...grpc.CallOption) (*userpb.GetUserResponse, error) {
 	m.ctrl.T.Helper()
@@ -249,6 +269,21 @@ func (m *MockUserServiceServer) DeleteUser(arg0 context.Context, arg1 *userpb.De
 func (mr *MockUserServiceServerMockRecorder) DeleteUser(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteUser", reflect.TypeOf((*MockUserServiceServer)(nil).DeleteUser), arg0, arg1)
+}
+
+// GetByEmail mocks base method.
+func (m *MockUserServiceServer) GetByEmail(arg0 context.Context, arg1 *userpb.GetByEmailRequest) (*userpb.GetByEmailResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetByEmail", arg0, arg1)
+	ret0, _ := ret[0].(*userpb.GetByEmailResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetByEmail indicates an expected call of GetByEmail.
+func (mr *MockUserServiceServerMockRecorder) GetByEmail(arg0, arg1 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByEmail", reflect.TypeOf((*MockUserServiceServer)(nil).GetByEmail), arg0, arg1)
 }
 
 // GetUser mocks base method.

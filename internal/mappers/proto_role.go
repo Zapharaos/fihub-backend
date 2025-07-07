@@ -67,6 +67,9 @@ func RolesWithPermissionsToProto(roles models.RolesWithPermissions) []*securityp
 
 // RolesWithPermissionsFromProto converts a slice of securitypb.RoleWithPermissions to a models.RolesWithPermissions
 func RolesWithPermissionsFromProto(roles []*securitypb.RoleWithPermissions) models.RolesWithPermissions {
+	if roles == nil {
+		return make(models.RolesWithPermissions, 0)
+	}
 	protoRoles := make(models.RolesWithPermissions, len(roles))
 	for i, role := range roles {
 		protoRoles[i] = RoleWithPermissionsFromProto(role)

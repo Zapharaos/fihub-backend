@@ -3,10 +3,10 @@ package security
 import (
 	"context"
 	"github.com/Zapharaos/fihub-backend/gen/go/securitypb"
+	"github.com/Zapharaos/fihub-backend/internal/grpcutil"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 )
 
@@ -51,11 +51,8 @@ func NewPublicSecurityFacadeWithGrpcClient(client securitypb.PublicSecurityServi
 
 // CheckPermission wraps the CheckPermission call
 func (s *PublicSecurityFacade) CheckPermission(ctx context.Context, permission string, userIDs ...uuid.UUID) error {
-	// If any, propagate metadata from the incoming context to the outgoing context
-	md, ok := metadata.FromIncomingContext(ctx)
-	if ok {
-		ctx = metadata.NewOutgoingContext(ctx, md)
-	}
+	// Propagate metadata from the incoming context to the outgoing context
+	ctx = grpcutil.PropagateContextMetadata(ctx)
 
 	// Setup the request
 	req := &securitypb.CheckPermissionRequest{

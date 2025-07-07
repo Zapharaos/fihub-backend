@@ -11,6 +11,11 @@ APP_ENV = "production"
 # Default value: "debug"
 LOGGER_LEVEL = "debug"
 
+# Specify the default language for the application
+# Used for localization and internationalization
+# Default value: "en"
+DEFAULT_LANGUAGE = "en"
+
 # Specify the port for the Auth microservice
 # This port is used to run the gRPC AuthService
 # Default value: "50003"
@@ -82,3 +87,30 @@ POSTGRES_MAX_IDLE_CONNS = "30"
 # Expressed as a Golang duration
 # Default value: "15m"
 POSTGRES_MAX_IDLE_TIME = "15m"
+
+# Specify the length of the OTP (One-Time Password)
+# Default value: "6"
+OTP_LENGTH = "6"
+
+# Specify the duration for which the OTP is valid
+# Expressed as a Golang duration
+# Default value: "30m"
+OTP_DURATION = "30m"
+
+# Specify the duration for which the final request of OTP is valid
+# Expressed as a Golang duration
+# Default value: "15m"
+OTP_FINAL_REQUEST_DURATION = "15m"
+
+# Specify the SendGrid API key
+# Used for sending emails through the SendGrid service
+# Default value: "YOUR_SENDGRID_API_KEY"
+SENDGRID_API_KEY = "YOUR_SENDGRID_API_KEY"
+
+# Specify the sender name for emails sent via SendGrid
+# Default value: "Fihub"
+SENDGRID_SENDER_NAME = "Fihub"
+
+# Specify the sender email address for emails sent via SendGrid
+# Default value: "contact@fihub.com"
+SENDGRID_SENDER_EMAIL = "contact@fihub.com"

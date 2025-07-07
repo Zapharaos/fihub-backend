@@ -161,43 +161,21 @@ POSTGRES_MAX_IDLE_CONNS = "30"
 # Default value: "15m"
 POSTGRES_MAX_IDLE_TIME = "15m"
 
-# Specify the length of the OTP (One-Time Password)
-# Default value: "6"
-OTP_LENGTH = "6"
-
-# Specify the duration for which the OTP is valid
-# Expressed as a Golang duration
-# Default value: "30m"
-OTP_DURATION = "30m"
-
 # Specify the maximum number of OTP requests allowed per client
 # Default value: "3"
-OTP_MIDDLEWARE_REQUEST_LIMIT = "3"
+OTP_REQUEST_RATE_LIMIT = "3"
 
 # Specify the time window for OTP request limits
 # Expressed as a Golang duration
 # Default value: "24h"
-OTP_MIDDLEWARE_REQUEST_LENGTH = "24h"
+OTP_REQUEST_RATE_WINDOW = "24h"
 
 # Specify the maximum number of OTP input attempts allowed
 # Default value: "5"
-OTP_MIDDLEWARE_INPUT_LIMIT = "5"
+OTP_INPUT_ATTEMPT_LIMIT = "5"
 
 # Specify the time window for OTP input attempts
 # This value should be the same as OTP_DURATION to ensure proper validation
 # Expressed as a Golang duration
 # Default value: "30m"
-OTP_MIDDLEWARE_INPUT_WINDOW = "30m"
-
-# Specify the SendGrid API key
-# Used for sending emails through the SendGrid service
-# Default value: "YOUR_SENDGRID_API_KEY"
-SENDGRID_API_KEY = "YOUR_SENDGRID_API_KEY"
-
-# Specify the sender name for emails sent via SendGrid
-# Default value: "Fihub"
-SENDGRID_SENDER_NAME = "Fihub"
-
-# Specify the sender email address for emails sent via SendGrid
-# Default value: "contact@fihub.com"
-SENDGRID_SENDER_EMAIL = "contact@fihub.com"
+OTP_INPUT_ATTEMPT_WINDOW = "30m"

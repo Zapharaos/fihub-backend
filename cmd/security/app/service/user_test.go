@@ -722,6 +722,20 @@ func TestService_ListRolesWithPermissionsForUser(t *testing.T) {
 		expectedErrCode codes.Code
 	}{
 		{
+			name: "fails to parse ID from request",
+			mockSetup: func(ctrl *gomock.Controller) {
+				// Mock the public security facade
+				publicSecurityClient := mocks.NewMockPublicSecurityServiceClient(ctrl)
+				publicSecurityClient.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Times(0)
+				security.ReplaceGlobals(security.NewPublicSecurityFacadeWithGrpcClient(publicSecurityClient))
+			},
+			request: &securitypb.ListRolesWithPermissionsForUserRequest{
+				UserId: "bad-uuid",
+			},
+			expected:        &securitypb.ListRolesWithPermissionsForUserResponse{},
+			expectedErrCode: codes.InvalidArgument,
+		},
+		{
 			name: "does not have permission",
 			mockSetup: func(ctrl *gomock.Controller) {
 				// Mock the public security facade
@@ -733,27 +747,9 @@ func TestService_ListRolesWithPermissionsForUser(t *testing.T) {
 				rr.EXPECT().ListWithPermissionsByUserId(gomock.Any()).Times(0)
 				repositories.ReplaceGlobals(repositories.NewRepository(rr, nil))
 			},
-			request:         &securitypb.ListRolesWithPermissionsForUserRequest{},
+			request:         validRequest,
 			expected:        &securitypb.ListRolesWithPermissionsForUserResponse{},
 			expectedErrCode: codes.PermissionDenied,
-		},
-		{
-			name: "fails to parse ID from request",
-			mockSetup: func(ctrl *gomock.Controller) {
-				// Mock the public security facade
-				publicSecurityClient := mocks.NewMockPublicSecurityServiceClient(ctrl)
-				publicSecurityClient.EXPECT().CheckPermission(gomock.Any(), gomock.Any(), gomock.Any()).Return(&securitypb.CheckPermissionResponse{HasPermission: true}, nil)
-				security.ReplaceGlobals(security.NewPublicSecurityFacadeWithGrpcClient(publicSecurityClient))
-				// Mock the role repository
-				rr := mocks.NewSecurityRoleRepository(ctrl)
-				rr.EXPECT().ListWithPermissionsByUserId(gomock.Any()).Times(0)
-				repositories.ReplaceGlobals(repositories.NewRepository(rr, nil))
-			},
-			request: &securitypb.ListRolesWithPermissionsForUserRequest{
-				UserId: "bad-uuid",
-			},
-			expected:        &securitypb.ListRolesWithPermissionsForUserResponse{},
-			expectedErrCode: codes.InvalidArgument,
 		},
 		{
 			name: "fails to parse ID from request",

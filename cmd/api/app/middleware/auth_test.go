@@ -31,7 +31,7 @@ func TestAuthMiddleware(t *testing.T) {
 			mockSetup: func(ctrl *gomock.Controller) {
 				authClient := mocks.NewMockAuthServiceClient(ctrl)
 				authClient.EXPECT().ValidateToken(gomock.Any(), gomock.Any()).Times(0)
-				authClient.EXPECT().ExtractUserID(gomock.Any(), gomock.Any()).Times(0)
+				authClient.EXPECT().ExtractUserIDFromToken(gomock.Any(), gomock.Any()).Times(0)
 				clients.ReplaceGlobals(clients.NewClients(
 					clients.WithAuthClient(authClient),
 				))
@@ -47,7 +47,7 @@ func TestAuthMiddleware(t *testing.T) {
 			mockSetup: func(ctrl *gomock.Controller) {
 				authClient := mocks.NewMockAuthServiceClient(ctrl)
 				authClient.EXPECT().ValidateToken(gomock.Any(), gomock.Any()).Times(0)
-				authClient.EXPECT().ExtractUserID(gomock.Any(), gomock.Any()).Return(&authpb.ExtractUserIDResponse{}, errors.New("some error"))
+				authClient.EXPECT().ExtractUserIDFromToken(gomock.Any(), gomock.Any()).Return(&authpb.ExtractUserIDFromTokenResponse{}, errors.New("some error"))
 				clients.ReplaceGlobals(clients.NewClients(
 					clients.WithAuthClient(authClient),
 				))
@@ -64,7 +64,7 @@ func TestAuthMiddleware(t *testing.T) {
 			mockSetup: func(ctrl *gomock.Controller) {
 				authClient := mocks.NewMockAuthServiceClient(ctrl)
 				authClient.EXPECT().ValidateToken(gomock.Any(), gomock.Any()).Return(&authpb.ValidateTokenResponse{}, errors.New("some error"))
-				authClient.EXPECT().ExtractUserID(gomock.Any(), gomock.Any()).Times(0)
+				authClient.EXPECT().ExtractUserIDFromToken(gomock.Any(), gomock.Any()).Times(0)
 				clients.ReplaceGlobals(clients.NewClients(
 					clients.WithAuthClient(authClient),
 				))
@@ -80,7 +80,7 @@ func TestAuthMiddleware(t *testing.T) {
 			mockSetup: func(ctrl *gomock.Controller) {
 				authClient := mocks.NewMockAuthServiceClient(ctrl)
 				authClient.EXPECT().ValidateToken(gomock.Any(), gomock.Any()).Times(0)
-				authClient.EXPECT().ExtractUserID(gomock.Any(), gomock.Any()).Return(&authpb.ExtractUserIDResponse{
+				authClient.EXPECT().ExtractUserIDFromToken(gomock.Any(), gomock.Any()).Return(&authpb.ExtractUserIDFromTokenResponse{
 					UserId: inputUserID,
 				}, nil)
 				clients.ReplaceGlobals(clients.NewClients(
@@ -101,7 +101,7 @@ func TestAuthMiddleware(t *testing.T) {
 				authClient.EXPECT().ValidateToken(gomock.Any(), gomock.Any()).Return(&authpb.ValidateTokenResponse{
 					UserId: inputUserID,
 				}, nil)
-				authClient.EXPECT().ExtractUserID(gomock.Any(), gomock.Any()).Times(0)
+				authClient.EXPECT().ExtractUserIDFromToken(gomock.Any(), gomock.Any()).Times(0)
 				clients.ReplaceGlobals(clients.NewClients(
 					clients.WithAuthClient(authClient),
 				))
@@ -151,134 +151,46 @@ func TestAuthMiddleware(t *testing.T) {
 	}
 }
 
-/*// TestMiddleware tests the Middleware function
-func TestMiddleware(t *testing.T) {
-	// Define test data
-	a := server.New(server.CheckHeader, server.Config{})
-	user := models.User{
-		ID: uuid.New(),
-	}
-
-	// Generate a valid token
-	validToken, err := a.GenerateToken(user)
-	assert.NoError(t, err)
-
-	// Create a new httptest server
-	ts := httptest.NewServer(http.HandlerFunc(a.GetToken))
-	defer ts.Close()
-
-	// Define test cases
+func TestExtractToken(t *testing.T) {
 	tests := []struct {
-		name        string                       // Test case name
-		token       string                       // Token to set in the request
-		target      string                       // Target URL
-		mockSetup   func(*gomock.Controller)     // Mock setup function
-		roles       mocks.SecurityRoleRepository // Roles repository mocks
-		expectCode  int                          // Expected status code
-		expectCtx   bool                         // Expected context
-		expectErr   bool
-		expectFound bool
+		name        string
+		headerToken string
+		queryToken  string
+		want        string
 	}{
 		{
-			name:   "skip middleware",
-			target: "/users",
-			mockSetup: func(ctrl *gomock.Controller) {
-				u := mocks.NewUserRepository(ctrl)
-				u.EXPECT().Get(gomock.Any()).Times(0)
-				repositories.ReplaceGlobals(u)
-			},
-			expectCode: http.StatusOK,
-			expectCtx:  false,
+			name:        "token in header",
+			headerToken: "header-token",
+			queryToken:  "query-token",
+			want:        "header-token",
 		},
 		{
-			name:  "empty token",
-			token: "",
-			mockSetup: func(ctrl *gomock.Controller) {
-				u := mocks.NewUserRepository(ctrl)
-				u.EXPECT().Get(gomock.Any()).Times(0)
-				repositories.ReplaceGlobals(u)
-			},
-			expectCode: http.StatusUnauthorized,
-			expectCtx:  false,
+			name:        "token in query only",
+			headerToken: "",
+			queryToken:  "query-token",
+			want:        "query-token",
 		},
 		{
-			name:  "invalid token",
-			token: "invalid.token.string",
-			mockSetup: func(ctrl *gomock.Controller) {
-				u := mocks.NewUserRepository(ctrl)
-				u.EXPECT().Get(gomock.Any()).Times(0)
-				repositories.ReplaceGlobals(u)
-			},
-			expectCode: http.StatusUnauthorized,
-			expectCtx:  false,
-		},
-		{
-			name:  "load user error",
-			token: validToken.Token,
-			mockSetup: func(ctrl *gomock.Controller) {
-				u := mocks.NewUserRepository(ctrl)
-				u.EXPECT().Get(gomock.Any()).Return(models.User{}, false, errors.New("error"))
-				repositories.ReplaceGlobals(u)
-				r := mocks.NewSecurityRoleRepository(ctrl)
-				r.EXPECT().GetRolesByUserId(gomock.Any()).Times(0)
-				securityrepositories.ReplaceGlobals(securityrepositories.NewRepository(r, nil))
-			},
-			expectCode: http.StatusUnauthorized,
-			expectCtx:  false,
-		},
-		{
-			name:  "valid token",
-			token: validToken.Token,
-			mockSetup: func(ctrl *gomock.Controller) {
-				u := mocks.NewUserRepository(ctrl)
-				u.EXPECT().Get(gomock.Any()).Return(user, true, nil)
-				repositories.ReplaceGlobals(u)
-				r := mocks.NewSecurityRoleRepository(ctrl)
-				r.EXPECT().GetRolesByUserId(gomock.Any()).Return([]models.Role{{Id: uuid.New(), Name: "admin"}}, nil)
-				p := mocks.NewSecurityPermissionRepository(ctrl)
-				p.EXPECT().GetAllByRoleId(gomock.Any()).Return(models.Permissions{}, nil)
-				securityrepositories.ReplaceGlobals(securityrepositories.NewRepository(r, p))
-			},
-			expectErr:   false,
-			expectFound: true,
-			expectCode:  http.StatusOK,
-			expectCtx:   true,
+			name:        "no token",
+			headerToken: "",
+			queryToken:  "",
+			want:        "",
 		},
 	}
 
-	// Run tests
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-
-			// Apply mocks
-			ctrl := gomock.NewController(t)
-			defer ctrl.Finish()
-			tt.mockSetup(ctrl)
-
-			// Create a new request
-			apiBasePath := viper.GetString("API_BASE_PATH")
-			r := httptest.NewRequest("POST", ts.URL+apiBasePath+tt.target, nil)
-			w := httptest.NewRecorder()
-			if tt.token != "" {
-				r.Header.Set("Authorization", tt.token)
+			req := httptest.NewRequest("GET", "/test", nil)
+			if tt.headerToken != "" {
+				req.Header.Set("Authorization", tt.headerToken)
 			}
-
-			// Create a simple handler function
-			next := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				// Check the context
-				_, ok := r.Context().Value(app.ContextKeyUser).(models.UserWithRoles)
-				// If the context is expected, check if it is set
-				assert.Equal(t, tt.expectCtx, ok)
-			})
-
-			// Setups the middleware and
-			handler := a.Middleware(next)
-			handler.ServeHTTP(w, r)
-			response := w.Result()
-			defer response.Body.Close()
-
-			// Check the response
-			assert.Equal(t, tt.expectCode, response.StatusCode)
+			if tt.queryToken != "" {
+				q := req.URL.Query()
+				q.Set("token", tt.queryToken)
+				req.URL.RawQuery = q.Encode()
+			}
+			got := extractToken(req)
+			assert.Equal(t, tt.want, got)
 		})
 	}
-}*/
+}
