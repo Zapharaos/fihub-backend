@@ -1,0 +1,35 @@
+# English translations in TOML format
+
+[hello_world]
+other = "Hello, World!"
+
+[goodbye]
+other = "Goodbye!"
+
+[welcome_user]
+other = "Welcome, {{.Name}}!"
+
+[user_stats]
+other = "{{.Name}} has {{.Posts}} posts and {{.Likes}} likes"
+
+[item_count]
+one = "{{.Count}} item"
+other = "{{.Count}} items"
+
+# For zero items, we need a separate message or handle it in the template
+[no_items]
+other = "No items"
+
+[error_messages]
+[error_messages.validation_failed]
+other = "Validation failed"
+
+[error_messages.user_not_found]
+other = "User not found"
+
+[success_messages]
+[success_messages.user_created]
+other = "User successfully created"
+
+[success_messages.data_saved]
+other = "Data has been saved successfully"

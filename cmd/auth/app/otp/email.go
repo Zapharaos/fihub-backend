@@ -12,15 +12,15 @@ import (
 // BuildOtpEmailContents prepares the email contents for OTP verification
 func BuildOtpEmailContents(userLanguage language.Tag, otp string, timeLimit time.Duration) (subject, plainTextContent, htmlContent string, err error) {
 	// Get localizer
-	loc, err := translation.S().Localizer(userLanguage)
+	loc, _, err := translation.S().Localizer(userLanguage)
 	if err != nil {
 		zap.L().Error("Failed to get localizer", zap.Error(err))
 		return
 	}
 
 	// Prepare email data with translations
-	subject = translation.S().Message(loc, &translation.Message{ID: "EmailOtpTitle"})
-	plainTextContent = translation.S().Message(loc, &translation.Message{
+	subject = translation.S().MustTranslate(loc, &translation.Message{ID: "EmailOtpTitle"})
+	plainTextContent = translation.S().MustTranslate(loc, &translation.Message{
 		ID: "EmailOtpPlainTextContent",
 		Data: map[string]interface{}{
 			"Otp": otp,
@@ -30,20 +30,20 @@ func BuildOtpEmailContents(userLanguage language.Tag, otp string, timeLimit time
 	// Prepare email html template
 	htmlContentTemplate := templates.NewOtpTemplate(templates.OtpData{
 		OTP:      otp,
-		Greeting: translation.S().Message(loc, &translation.Message{ID: "EmailGreeting"}),
-		MainContent: translation.S().Message(loc, &translation.Message{
+		Greeting: translation.S().MustTranslate(loc, &translation.Message{ID: "EmailGreeting"}),
+		MainContent: translation.S().MustTranslate(loc, &translation.Message{
 			ID: "EmailOtpContentForgotPassword",
 			Data: map[string]interface{}{
 				"Duration": fmt.Sprintf("%d", int(timeLimit.Minutes())),
 			},
 		}),
-		DoNotShare: translation.S().Message(loc, &translation.Message{ID: "EmailOtpDoNotShare"}),
+		DoNotShare: translation.S().MustTranslate(loc, &translation.Message{ID: "EmailOtpDoNotShare"}),
 	})
 
 	// Prepare email layout labels
 	labels := templates.LayoutLabels{
-		Help: translation.S().Message(loc, &translation.Message{ID: "EmailFooterHelp"}),
-		Copyrights: translation.S().Message(loc, &translation.Message{
+		Help: translation.S().MustTranslate(loc, &translation.Message{ID: "EmailFooterHelp"}),
+		Copyrights: translation.S().MustTranslate(loc, &translation.Message{
 			ID: "EmailFooterCopyrights",
 			Data: map[string]interface{}{
 				"Year": time.Now().Year(),

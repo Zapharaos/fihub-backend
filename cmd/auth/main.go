@@ -35,7 +35,12 @@ func main() {
 
 	// Setup Translations
 	defaultLang := language.MustParse(viper.GetString("DEFAULT_LANGUAGE"))
-	translation.ReplaceGlobals(translation.NewI18nService(defaultLang))
+	translationService, err := translation.NewI18nService(defaultLang, "config/translations/", "active")
+	if err != nil {
+		zap.L().Fatal("Failed to initialize translation service", zap.Error(err))
+	}
+	zap.L().Info("Initialized translation service")
+	translation.ReplaceGlobals(translationService)
 
 	// Setup gRPC microservice
 	serviceName := "AUTH"

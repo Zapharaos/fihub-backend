@@ -1,0 +1,31 @@
+hello_world:
+  other: "Hallo, Welt!"
+
+goodbye:
+  other: "Auf Wiedersehen!"
+
+welcome_user:
+  other: "Willkommen, {{.Name}}!"
+
+user_stats:
+  other: "{{.Name}} hat {{.Posts}} Beiträge und {{.Likes}} Gefällt mir"
+
+item_count:
+  zero: "Keine Elemente"
+  one: "{{.Count}} Element"
+  other: "{{.Count}} Elemente"
+
+no_items:
+  other: "Keine Elemente"
+
+error_messages:
+  validation_failed:
+    other: "Validierung fehlgeschlagen"
+  user_not_found:
+    other: "Benutzer nicht gefunden"
+
+success_messages:
+  user_created:
+    other: "Benutzer erfolgreich erstellt"
+  data_saved:
+    other: "Daten wurden erfolgreich gespeichert"
