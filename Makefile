@@ -57,7 +57,6 @@ mocks:
 	go generate ./cmd/security/app/repositories/mockgen.go
 	go generate ./cmd/transaction/app/repositories/mockgen.go
 	go generate ./cmd/broker/app/repositories/mockgen.go
-	go generate ./internal/password/mockgen.go
 	go generate ./internal/security/mockgen.go
 	go generate ./pkg/email/mockgen.go
 	go generate ./pkg/translation/mockgen.go

@@ -1,0 +1,37 @@
+{
+  "hello_world": {
+    "other": "Bonjour le monde!"
+  },
+  "goodbye": {
+    "other": "Au revoir!"
+  },
+  "welcome_user": {
+    "other": "Bienvenue, {{.Name}}!"
+  },
+  "user_stats": {
+    "other": "{{.Name}} a {{.Posts}} publications et {{.Likes}} j'aime"
+  },
+  "item_count": {
+    "one": "{{.Count}} élément",
+    "other": "{{.Count}} éléments"
+  },
+  "no_items": {
+    "other": "Aucun élément"
+  },
+  "error_messages": {
+    "validation_failed": {
+      "other": "Échec de la validation"
+    },
+    "user_not_found": {
+      "other": "Utilisateur introuvable"
+    }
+  },
+  "success_messages": {
+    "user_created": {
+      "other": "Utilisateur créé avec succès"
+    },
+    "data_saved": {
+      "other": "Les données ont été sauvegardées avec succès"
+    }
+  }
+}
